@@ -10,6 +10,8 @@ interface VictoryModalProps {
   stats: GameStats;
   level: LevelNode;
   hasNextLevel: boolean;
+  userName?: string;
+  avatar?: string;
   onNextLevel: () => void;
   onRestart: () => void;
   onGoToMap: () => void;
@@ -19,6 +21,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   stats,
   level,
   hasNextLevel,
+  userName,
+  avatar = '🚀',
   onNextLevel,
   onRestart,
   onGoToMap
@@ -62,7 +66,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           HOÀN THÀNH BÀI HỌC! 🎉
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-5">
-          Bé đã hoàn thành xuất sắc <span className="font-extrabold text-cyan-300">{level.titleVi}</span>!
+          {userName ? (
+            <>
+              Chúc mừng <span className="font-extrabold text-yellow-300">{avatar} {userName}</span> đã hoàn thành xuất sắc <span className="font-extrabold text-cyan-300">{level.titleVi}</span>!
+            </>
+          ) : (
+            <>
+              Bé đã hoàn thành xuất sắc <span className="font-extrabold text-cyan-300">{level.titleVi}</span>!
+            </>
+          )}
         </p>
 
         {/* 3 Stars Fanfare */}
@@ -131,7 +143,10 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Mascot cheer */}
         <div className="flex justify-center mb-5">
-          <MascotWidget mood="celebrating" customMessage="Bé giỏi nhất ngân hà luôn! ⭐" />
+          <MascotWidget
+            mood="celebrating"
+            customMessage={userName ? `${userName} giỏi nhất ngân hà luôn! ⭐` : "Bé giỏi nhất ngân hà luôn! ⭐"}
+          />
         </div>
 
         {/* Main Action Buttons */}

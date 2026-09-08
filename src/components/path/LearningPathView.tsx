@@ -11,6 +11,7 @@ interface LearningPathViewProps {
   onSelectLevel: (level: LevelNode) => void;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal: () => void;
+  onOpenProfileModal: () => void;
 }
 
 // Zigzag offsets for winding saga path
@@ -20,12 +21,14 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   progress,
   onSelectLevel,
   onUpdateProgress,
-  onOpenRefillModal
+  onOpenRefillModal,
+  onOpenProfileModal
 }) => {
   // Calculate overall completion percentage
   const totalLevels = LEARNING_UNITS.reduce((acc, u) => acc + u.levels.length, 0);
   const completedCount = Object.values(progress.levelProgressMap).filter(p => p.isCompleted).length;
   const progressPercent = Math.round((completedCount / totalLevels) * 100);
+  const playerName = progress.userName?.trim() || 'Bạn Nhỏ';
 
   return (
     <div className="relative w-full h-full overflow-y-auto bg-gradient-to-b from-[#0a0c24] via-[#101438] to-[#080918] text-white select-none">
@@ -34,6 +37,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         progress={progress}
         onUpdateProgress={onUpdateProgress}
         onOpenRefillModal={onOpenRefillModal}
+        onOpenProfileModal={onOpenProfileModal}
       />
 
       {/* Main Container */}
@@ -42,11 +46,18 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         <div className="bg-gradient-to-r from-cyan-600/30 via-indigo-600/30 to-pink-600/30 border-2 border-cyan-400/40 rounded-3xl p-5 sm:p-6 mb-8 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-sm font-bold mb-2">
-                <Sparkles className="w-4 h-4" /> Lộ trình học Lớp 2
+              <div className="flex items-center gap-2 flex-wrap mb-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs sm:text-sm font-bold">
+                  <Sparkles className="w-3.5 h-3.5" /> Lộ trình học Lớp 2
+                </div>
+                {progress.totalVisits && progress.totalVisits > 1 && (
+                  <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-500/20 border border-purple-400/40 rounded-full text-purple-300 text-xs font-semibold">
+                    <span>🛸 Chuyến bay #{progress.totalVisits}</span>
+                  </div>
+                )}
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-white">
-                Hành Trình Từ Vựng Vũ Trụ 🌟
+                Chào {progress.avatar || '🚀'} {playerName}!
               </h2>
               <p className="text-sm sm:text-base text-slate-200 mt-1">
                 Hoàn thành các bài học để bảo vệ ngân hà và nhận thật nhiều Kim Cương!

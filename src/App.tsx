@@ -14,6 +14,7 @@ import { LearningPathView } from './components/path/LearningPathView';
 import { WarmupModal } from './components/modals/WarmupModal';
 import { ChestRewardModal } from './components/modals/ChestRewardModal';
 import { RefillHeartsModal } from './components/modals/RefillHeartsModal';
+import { UserProfileModal } from './components/modals/UserProfileModal';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
@@ -43,6 +44,10 @@ const INITIAL_STATS: GameStats = {
 export const App: React.FC = () => {
   const [screen, setScreen] = useState<AppScreen>('MAP');
   const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(() => {
+    const saved = loadUserProgress();
+    return !saved.userName;
+  });
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
     return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
@@ -71,6 +76,15 @@ export const App: React.FC = () => {
       return next;
     });
   }, []);
+
+  const handleSaveProfile = (name: string, avatar: string) => {
+    handleUpdateProgress(prev => ({
+      ...prev,
+      userName: name,
+      avatar
+    }));
+    setShowProfileModal(false);
+  };
 
   const handleSelectLevel = (level: LevelNode) => {
     setSelectedLevel(level);
@@ -190,6 +204,7 @@ export const App: React.FC = () => {
           onSelectLevel={handleSelectLevel}
           onUpdateProgress={handleUpdateProgress}
           onOpenRefillModal={() => setShowRefillModal(true)}
+          onOpenProfileModal={() => setShowProfileModal(true)}
         />
       )}
 
@@ -269,6 +284,8 @@ export const App: React.FC = () => {
           stats={stats}
           level={selectedLevel}
           hasNextLevel={!!nextLevel}
+          userName={progress.userName}
+          avatar={progress.avatar}
           onNextLevel={handleNextLevel}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
@@ -280,6 +297,8 @@ export const App: React.FC = () => {
         <GameOverModal
           stats={stats}
           level={selectedLevel}
+          userName={progress.userName}
+          avatar={progress.avatar}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
         />
@@ -291,6 +310,17 @@ export const App: React.FC = () => {
           progress={progress}
           onUpdateProgress={handleUpdateProgress}
           onClose={() => setShowRefillModal(false)}
+        />
+      )}
+
+      {/* 9. User Profile / Welcome Modal */}
+      {showProfileModal && (
+        <UserProfileModal
+          initialName={progress.userName}
+          initialAvatar={progress.avatar}
+          isFirstTime={!progress.userName}
+          onSave={handleSaveProfile}
+          onClose={progress.userName ? () => setShowProfileModal(false) : undefined}
         />
       )}
     </div>

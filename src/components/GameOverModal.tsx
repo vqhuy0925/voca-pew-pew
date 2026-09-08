@@ -8,12 +8,16 @@ import { MascotWidget } from './mascot/MascotWidget';
 interface GameOverModalProps {
   stats: GameStats;
   level: LevelNode;
+  userName?: string;
+  avatar?: string;
   onRestart: () => void;
   onGoToMap: () => void;
 }
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   level,
+  userName,
+  avatar = '🚀',
   onRestart,
   onGoToMap
 }) => {
@@ -29,12 +33,23 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           OOPS! KHÔNG SAO ĐÂU! ❤️
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-5">
-          Bé hãy thử lại màn <span className="text-cyan-300 font-extrabold">{level.titleVi}</span> để gõ chính xác hơn nhé!
+          {userName ? (
+            <>
+              Cố lên <span className="font-extrabold text-cyan-300">{avatar} {userName}</span> ơi! Hãy thử lại màn <span className="text-cyan-300 font-extrabold">{level.titleVi}</span> để gõ chính xác hơn nhé!
+            </>
+          ) : (
+            <>
+              Bé hãy thử lại màn <span className="text-cyan-300 font-extrabold">{level.titleVi}</span> để gõ chính xác hơn nhé!
+            </>
+          )}
         </p>
 
         {/* Mascot Encouragement */}
         <div className="flex justify-center mb-6">
-          <MascotWidget mood="oopsie" customMessage="Bé đừng nản lòng nhé! Thử lại là được ngay! 🌟" />
+          <MascotWidget
+            mood="oopsie"
+            customMessage={userName ? `${userName} đừng nản lòng nhé! Thử lại là được ngay! 🌟` : "Bé đừng nản lòng nhé! Thử lại là được ngay! 🌟"}
+          />
         </div>
 
         {/* Action Buttons */}

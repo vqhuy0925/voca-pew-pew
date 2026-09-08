@@ -8,12 +8,14 @@ interface TopNavBarProps {
   progress: UserProgress;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal?: () => void;
+  onOpenProfileModal?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
   progress,
   onUpdateProgress,
-  onOpenRefillModal
+  onOpenRefillModal,
+  onOpenProfileModal
 }) => {
   const toggleSound = () => {
     const isMuted = soundFx.toggleMute();
@@ -21,20 +23,32 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
     onUpdateProgress(p => ({ ...p, soundEnabled: !isMuted }));
   };
 
+  const displayName = progress.userName?.trim() || 'Phi Hành Gia';
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-900/90 backdrop-blur-md border-b-2 border-slate-800 px-4 py-2.5 shadow-md select-none">
-      <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
-        {/* App Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-2xl shadow-md border-2 border-white/40 transform hover:rotate-6 transition">
+    <header className="sticky top-0 z-40 w-full bg-slate-900/90 backdrop-blur-md border-b-2 border-slate-800 px-3 sm:px-4 py-2.5 shadow-md select-none">
+      <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
+        {/* App Logo & Player Profile */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-xl sm:text-2xl shadow-md border-2 border-white/40 transform hover:rotate-6 transition flex-shrink-0">
             🚀
           </div>
-          <div className="hidden sm:block">
-            <h1 className="font-game font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-400 to-yellow-300 leading-tight">
+          <div className="hidden md:block">
+            <h1 className="font-game font-extrabold text-lg lg:text-xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-400 to-yellow-300 leading-tight">
               VOCAB PEW PEW
             </h1>
-            <span className="text-xs text-cyan-300 font-semibold">Space Adventure Edition</span>
+            <span className="text-xs text-cyan-300 font-semibold">Space Adventure</span>
           </div>
+
+          {/* Player Profile Chip */}
+          <button
+            onClick={onOpenProfileModal}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700/90 border-2 border-cyan-400/50 hover:border-cyan-300 rounded-2xl text-cyan-200 font-game font-bold text-sm shadow-sm transition active:scale-95 cursor-pointer max-w-[130px] sm:max-w-[170px]"
+            title="Hồ sơ phi hành gia (Bấm để đổi tên & biểu tượng)"
+          >
+            <span className="text-base sm:text-lg">{progress.avatar || '🚀'}</span>
+            <span className="truncate">{displayName}</span>
+          </button>
         </div>
 
         {/* Stats Pill Badges (Streak, Gems, Hearts, XP) */}

@@ -41,6 +41,8 @@ export interface LevelProgress {
 }
 
 export interface UserProgress {
+  userName: string;         // Child's name (e.g. 'Bé Bắp', 'Minh Trí')
+  avatar: string;           // Selected emoji avatar (e.g. '🚀', '🐱')
   currentLevelId: string;
   unlockedLevelIds: string[];
   levelProgressMap: Record<string, LevelProgress>;
@@ -50,6 +52,9 @@ export interface UserProgress {
   totalXp: number;          // Total XP points
   streakDays: number;       // Consecutive days 🔥
   lastActiveDate: string;   // YYYY-MM-DD
+  totalVisits: number;      // Total times user opened the app
+  lastVisitTimestamp: number; // Timestamp of latest visit
+  createdAt: string;        // Registration date YYYY-MM-DD
   soundEnabled: boolean;
   speechEnabled: boolean;
   keyboardHintsEnabled: boolean;

@@ -25,6 +25,8 @@ const getInitialLevelProgressMap = (): Record<string, LevelProgress> => {
 export const getInitialUserProgress = (): UserProgress => {
   const today = getTodayDateString();
   return {
+    userName: '',
+    avatar: '🚀',
     currentLevelId: ALL_LEVELS[0].id,
     unlockedLevelIds: [ALL_LEVELS[0].id],
     levelProgressMap: getInitialLevelProgressMap(),
@@ -34,6 +36,9 @@ export const getInitialUserProgress = (): UserProgress => {
     totalXp: 0,
     streakDays: 1,
     lastActiveDate: today,
+    totalVisits: 1,
+    lastVisitTimestamp: Date.now(),
+    createdAt: today,
     soundEnabled: true,
     speechEnabled: true,
     keyboardHintsEnabled: true
@@ -52,7 +57,7 @@ export const loadUserProgress = (): UserProgress => {
     const parsed: UserProgress = JSON.parse(raw);
     const today = getTodayDateString();
 
-    // Check Streak logic
+    // Check & update Streak logic
     if (parsed.lastActiveDate) {
       const lastDate = new Date(parsed.lastActiveDate);
       const currentDate = new Date(today);
@@ -72,6 +77,13 @@ export const loadUserProgress = (): UserProgress => {
       parsed.streakDays = 1;
     }
 
+    // Ensure profile and visit tracking fields exist & track visit
+    parsed.userName = parsed.userName ?? '';
+    parsed.avatar = parsed.avatar || '🚀';
+    parsed.totalVisits = (parsed.totalVisits || 0) + 1;
+    parsed.lastVisitTimestamp = Date.now();
+    parsed.createdAt = parsed.createdAt || today;
+
     // Ensure all levels in ALL_LEVELS exist in levelProgressMap
     ALL_LEVELS.forEach((lvl, idx) => {
       if (!parsed.levelProgressMap[lvl.id]) {
@@ -85,6 +97,7 @@ export const loadUserProgress = (): UserProgress => {
       }
     });
 
+    saveUserProgress(parsed);
     return parsed;
   } catch (err) {
     console.error('Failed to load user progress:', err);
