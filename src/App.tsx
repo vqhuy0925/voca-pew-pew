@@ -8,7 +8,7 @@ import {
   getBlasterById,
   getLaserById
 } from './data/upgrade-types';
-import { ALL_LEVELS, getNextLevel } from './data/learning-path-data';
+import { ALL_LEVELS, getNextLevel, getRealmByAge } from './data/learning-path-data';
 import {
   loadUserProgress,
   saveUserProgress,
@@ -88,11 +88,14 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  const handleSaveProfile = (name: string, avatar: string) => {
+  const handleSaveProfile = (name: string, avatar: string, userAge: number) => {
+    const targetRealm = getRealmByAge(userAge);
     handleUpdateProgress(prev => ({
       ...prev,
       userName: name,
-      avatar
+      avatar,
+      userAge,
+      selectedRealmId: targetRealm.id
     }));
     setShowProfileModal(false);
   };
@@ -371,6 +374,7 @@ export const App: React.FC = () => {
         <UserProfileModal
           initialName={progress.userName}
           initialAvatar={progress.avatar}
+          initialAge={progress.userAge || 8}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}

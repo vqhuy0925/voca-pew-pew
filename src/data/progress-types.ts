@@ -42,8 +42,10 @@ export interface LevelProgress {
 }
 
 export interface UserProgress {
-  userName: string;         // Child's name (e.g. 'Bé Bắp', 'Minh Trí')
+  userName: string;         // Learner's name (e.g. 'Bé Bắp', 'Minh Trí')
   avatar: string;           // Selected emoji avatar (e.g. '🚀', '🐱')
+  userAge?: number;         // 7 to 18
+  selectedRealmId?: string; // 'realm-1' to 'realm-6'
   currentLevelId: string;
   unlockedLevelIds: string[];
   levelProgressMap: Record<string, LevelProgress>;
@@ -67,4 +69,3 @@ export interface UserProgress {
   unlockedUpgradeIds: string[];
   selectedDifficulty: DifficultyLevel;
 }
-

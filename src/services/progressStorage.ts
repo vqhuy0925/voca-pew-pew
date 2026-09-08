@@ -1,5 +1,5 @@
 import { UserProgress, LevelProgress } from '../data/progress-types';
-import { ALL_LEVELS } from '../data/learning-path-data';
+import { ALL_LEVELS, AGE_REALMS, getRealmByAge } from '../data/learning-path-data';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -8,12 +8,18 @@ const getTodayDateString = (): string => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
+// First levels of each realm are unlocked by default so students of different ages can start at their appropriate grade
+const REALM_ENTRY_LEVEL_IDS = new Set(
+  AGE_REALMS.map(r => `lvl-${r.startChapter}-1`)
+);
+
 const getInitialLevelProgressMap = (): Record<string, LevelProgress> => {
   const map: Record<string, LevelProgress> = {};
   ALL_LEVELS.forEach((lvl, idx) => {
+    const isUnlocked = idx === 0 || REALM_ENTRY_LEVEL_IDS.has(lvl.id);
     map[lvl.id] = {
       levelId: lvl.id,
-      isUnlocked: idx === 0, // First level is unlocked by default
+      isUnlocked,
       isCompleted: false,
       stars: 0,
       highScore: 0
@@ -24,15 +30,20 @@ const getInitialLevelProgressMap = (): Record<string, LevelProgress> => {
 
 export const getInitialUserProgress = (): UserProgress => {
   const today = getTodayDateString();
+  const initialMap = getInitialLevelProgressMap();
+  const unlockedIds = Object.keys(initialMap).filter(id => initialMap[id].isUnlocked);
+
   return {
     userName: '',
     avatar: '🚀',
+    userAge: 8,
+    selectedRealmId: 'realm-1',
     currentLevelId: ALL_LEVELS[0].id,
-    unlockedLevelIds: [ALL_LEVELS[0].id],
-    levelProgressMap: getInitialLevelProgressMap(),
+    unlockedLevelIds: unlockedIds,
+    levelProgressMap: initialMap,
     hearts: 5,
     maxHearts: 5,
-    gems: 60, // Starting bonus gems 💎
+    gems: 100, // Starting bonus gems 💎
     totalXp: 0,
     streakDays: 1,
     lastActiveDate: today,
@@ -71,11 +82,9 @@ export const loadUserProgress = (): UserProgress => {
       const diffDays = Math.floor((currentDate.getTime() - lastDate.getTime()) / (1000 * 3600 * 24));
 
       if (diffDays === 1) {
-        // Logged in on consecutive day!
         parsed.streakDays += 1;
         parsed.lastActiveDate = today;
       } else if (diffDays > 1) {
-        // Streak broken
         parsed.streakDays = 1;
         parsed.lastActiveDate = today;
       }
@@ -87,6 +96,8 @@ export const loadUserProgress = (): UserProgress => {
     // Ensure profile and visit tracking fields exist & track visit
     parsed.userName = parsed.userName ?? '';
     parsed.avatar = parsed.avatar || '🚀';
+    parsed.userAge = parsed.userAge || 8;
+    parsed.selectedRealmId = parsed.selectedRealmId || 'realm-1';
     parsed.totalVisits = (parsed.totalVisits || 0) + 1;
     parsed.lastVisitTimestamp = Date.now();
     parsed.createdAt = parsed.createdAt || today;
@@ -108,18 +119,28 @@ export const loadUserProgress = (): UserProgress => {
       }
     });
 
-    // Ensure all levels in ALL_LEVELS exist in levelProgressMap
+    // Ensure all levels in ALL_LEVELS exist in levelProgressMap and realm entry levels are unlocked
+    if (!parsed.levelProgressMap) {
+      parsed.levelProgressMap = {};
+    }
     ALL_LEVELS.forEach((lvl, idx) => {
+      const isDefaultEntry = idx === 0 || REALM_ENTRY_LEVEL_IDS.has(lvl.id);
       if (!parsed.levelProgressMap[lvl.id]) {
         parsed.levelProgressMap[lvl.id] = {
           levelId: lvl.id,
-          isUnlocked: idx === 0,
+          isUnlocked: isDefaultEntry,
           isCompleted: false,
           stars: 0,
           highScore: 0
         };
+      } else if (isDefaultEntry && !parsed.levelProgressMap[lvl.id].isUnlocked) {
+        parsed.levelProgressMap[lvl.id].isUnlocked = true;
       }
     });
+
+    const unlockedSet = new Set(parsed.unlockedLevelIds || []);
+    REALM_ENTRY_LEVEL_IDS.forEach(id => unlockedSet.add(id));
+    parsed.unlockedLevelIds = Array.from(unlockedSet);
 
     saveUserProgress(parsed);
     return parsed;
@@ -217,7 +238,7 @@ export const unlockAndEquipItem = (
   priceGems: number
 ): UserProgress => {
   if (prev.gems < priceGems && !prev.unlockedUpgradeIds.includes(itemId)) {
-    return prev; // Not enough gems
+    return prev;
   }
 
   const newUnlocked = new Set(prev.unlockedUpgradeIds);
@@ -258,4 +279,3 @@ export const equipItem = (
   saveUserProgress(updated);
   return updated;
 };
-

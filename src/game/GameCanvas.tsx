@@ -456,7 +456,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Draw Word Letters (Split into typed and untyped)
     const letterStartX = x + 58;
-    ctx.font = 'bold 32px Fredoka, system-ui, sans-serif';
+    const fontSize = enemy.word.length > 12 ? 22 : enemy.word.length > 7 ? 26 : 30;
+    ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
 
     let currentX = letterStartX;

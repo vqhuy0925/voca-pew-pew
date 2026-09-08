@@ -86,9 +86,10 @@ export class EnemySpawner {
     const colors = ['#38bdf8', '#4ade80', '#facc15', '#f472b6', '#c084fc', '#fb923c'];
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const estimatedWidth = Math.max(160, vocab.word.length * 34 + 82);
-    const minX = 30;
-    const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 30);
+    const charScale = vocab.word.length > 12 ? 16 : vocab.word.length > 7 ? 20 : 26;
+    const estimatedWidth = Math.max(160, vocab.word.length * charScale + 88);
+    const minX = 25;
+    const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 25);
 
     let bestX = minX + Math.random() * (maxX - minX);
     const topEnemies = this.enemies.filter(e => e.y < 160);
