@@ -2,13 +2,15 @@ import React from 'react';
 import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId } from '../data/progress-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { RotateCcw, Map, Heart } from 'lucide-react';
+import { RotateCcw, Map } from 'lucide-react';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
+import { getGameOverModalMessages } from '../services/personaMessageHelper';
 
 interface GameOverModalProps {
   stats: GameStats;
   level: LevelNode;
+  userAge?: number;
   userName?: string;
   avatar?: string;
   gender?: UserGender;
@@ -20,6 +22,7 @@ interface GameOverModalProps {
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   level,
+  userAge,
   userName,
   avatar = '🚀',
   gender = 'neutral',
@@ -30,6 +33,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
+  const modalMessages = getGameOverModalMessages(userAge, gender, userName, mascot.name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none animate-in fade-in duration-200">
@@ -42,15 +46,17 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           <MascotWidget
             mascotId={mascotId}
             mood="oopsie"
-            customMessage={`Không sao cả ${userName || 'bạn ơi'}! ${mascot.name} luôn ở đây đồng hành cùng bạn! ❤️`}
+            userAge={userAge}
+            gender={gender}
+            userName={userName}
           />
         </div>
 
         <h2 className="text-3xl font-black font-game text-rose-400 mb-1">
-          KHÔNG SAO CẢ!
+          {modalMessages.heading}
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-6">
-          Hãy cùng {avatar} thử lại màn <span className={`${theme.textColor} font-extrabold`}>{level.titleVi}</span> để vượt qua nhé!
+          Hãy cùng {avatar} thử lại màn <span className={`${theme.textColor} font-extrabold`}>{level.titleVi}</span>, {modalMessages.bodySub}
         </p>
 
         {/* Action Buttons */}

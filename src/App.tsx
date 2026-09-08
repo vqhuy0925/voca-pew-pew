@@ -393,6 +393,7 @@ export const App: React.FC = () => {
         <GameOverModal
           stats={stats}
           level={selectedLevel}
+          userAge={progress.userAge}
           userName={progress.userName}
           avatar={progress.avatar}
           gender={progress.gender}

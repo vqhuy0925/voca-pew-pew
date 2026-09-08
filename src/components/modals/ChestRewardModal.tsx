@@ -4,6 +4,8 @@ import { Gem, Sparkles, Check } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { completeLevelProgress } from '../../services/progressStorage';
 
+import { getChestRewardMessages } from '../../services/personaMessageHelper';
+
 interface ChestRewardModalProps {
   level: LevelNode;
   progress: UserProgress;
@@ -21,6 +23,13 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
   const isFirstTime = !progress.levelProgressMap[level.id]?.isCompleted;
   const gemRewardAmount = isFirstTime ? 15 : 0;
   const xpRewardAmount = isFirstTime ? 50 : 20;
+
+  const messages = getChestRewardMessages(
+    progress.userAge,
+    progress.gender,
+    progress.userName,
+    level.titleVi
+  );
 
   useEffect(() => {
     soundFx.playChestOpen();
@@ -41,11 +50,11 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
           {isOpened ? '🎁✨' : '📦'}
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-yellow-300 mb-1.5">
-          CHÚC MỪNG BÉ! 🎉
+        <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-yellow-300 mb-1.5 uppercase">
+          {messages.modalHeader}
         </h2>
         <p className="text-sm sm:text-base text-slate-200 mb-6">
-          Bé đã mở khóa thành công <span className="text-amber-300 font-extrabold">{level.titleVi}</span>!
+          {messages.description}
         </p>
 
         {/* Rewards Box */}
@@ -69,10 +78,10 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
             soundFx.playGemPickup();
             onClose();
           }}
-          className="w-full py-4.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-extrabold text-2xl rounded-2xl border-b-6 border-amber-600 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
+          className="w-full py-4.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-extrabold text-xl sm:text-2xl rounded-2xl border-b-6 border-amber-600 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
         >
           <Check className="w-7 h-7 stroke-[3]" />
-          NHẬN THƯỞNG NGAY
+          <span>{messages.collectButton}</span>
         </button>
       </div>
     </div>

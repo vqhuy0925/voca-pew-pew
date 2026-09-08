@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Heart } from 'lucide-react';
-import { MascotId } from '../../data/progress-types';
+import { MascotId, UserGender } from '../../data/progress-types';
 import { MASCOT_CONFIGS } from '../../data/theme-types';
+import { getMascotDynamicContent } from '../../services/personaMessageHelper';
 
 export type MascotMood = 'happy' | 'cheering' | 'thinking' | 'celebrating' | 'oopsie';
 
@@ -10,6 +11,9 @@ interface MascotWidgetProps {
   mood?: MascotMood;
   customMessage?: string;
   combo?: number;
+  userAge?: number;
+  gender?: UserGender;
+  userName?: string;
   className?: string;
 }
 
@@ -18,10 +22,15 @@ export const MascotWidget: React.FC<MascotWidgetProps> = ({
   mood = 'happy',
   customMessage,
   combo = 0,
+  userAge,
+  gender,
+  userName,
   className = ''
 }) => {
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
-  const [bubbleText, setBubbleText] = useState<string>(mascot.greeting);
+  const [bubbleText, setBubbleText] = useState<string>(() =>
+    customMessage || getMascotDynamicContent(mascotId, mood, userAge, gender, userName, combo)
+  );
   const [isWiggling, setIsWiggling] = useState<boolean>(false);
 
   useEffect(() => {
@@ -31,21 +40,10 @@ export const MascotWidget: React.FC<MascotWidgetProps> = ({
       return;
     }
 
-    if (combo > 2) {
-      const msg = mascot.cheerMessages[Math.floor(Math.random() * mascot.cheerMessages.length)];
-      setBubbleText(`${msg} (x${combo})`);
-      triggerWiggle();
-    } else if (mood === 'oopsie') {
-      const oopsMsg = mascot.oopsieMessages[Math.floor(Math.random() * mascot.oopsieMessages.length)];
-      setBubbleText(oopsMsg);
-      triggerWiggle();
-    } else if (mood === 'celebrating') {
-      setBubbleText(mascot.cheerMessages[0] || 'Hoan hô! Bạn xuất sắc quá! 🎉');
-      triggerWiggle();
-    } else {
-      setBubbleText(mascot.greeting);
-    }
-  }, [mood, customMessage, combo, mascot]);
+    const dynamicMsg = getMascotDynamicContent(mascotId, mood, userAge, gender, userName, combo);
+    setBubbleText(dynamicMsg);
+    triggerWiggle();
+  }, [mood, customMessage, combo, mascotId, userAge, gender, userName]);
 
   const triggerWiggle = () => {
     setIsWiggling(true);

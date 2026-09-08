@@ -20,9 +20,13 @@ import { UserGender, ThemeStyle, MascotId } from '../../data/progress-types';
 import {
   THEME_CONFIGS,
   MASCOT_CONFIGS,
-  AVATAR_LIST,
-  SUGGESTED_NAMES_BY_GENDER
+  AVATAR_LIST
 } from '../../data/theme-types';
+import {
+  getAgeAdaptivePersonaLabels,
+  getAgeAdaptiveSuggestedNames,
+  getPersonaAddressing
+} from '../../services/personaMessageHelper';
 
 interface UserProfileModalProps {
   initialName?: string;
@@ -97,6 +101,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const currentRecommendedRealm = getRealmByAge(age);
   const activeChosenRealm = getRealmById(selectedRealmId) || currentRecommendedRealm;
   const quickAvatars = QUICK_AVATARS_BY_GENDER[gender] || QUICK_AVATARS_BY_GENDER.neutral;
+
+  const personaLabels = getAgeAdaptivePersonaLabels(age);
+  const suggestedNames = getAgeAdaptiveSuggestedNames(age, gender);
+  const addressing = getPersonaAddressing(age, gender, name);
 
   const handleSelectGender = (selectedGender: UserGender) => {
     soundFx.playClick();
@@ -175,7 +183,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
   // Final Submit
   const handleFinalSubmit = () => {
-    const defaultFallbackName = gender === 'girl' ? 'Công Chúa Ngân Hà' : gender === 'boy' ? 'Phi Hành Gia' : 'Nhà Thám Hiểm';
+    const defaultFallbackName = addressing.name;
     const finalName = name.trim() || (isFirstTime ? defaultFallbackName : 'Học Viên');
     soundFx.playClick();
     onSave(finalName, avatar, age, selectedRealmId, gender, themeStyle, mascotId);
@@ -185,7 +193,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     ? AVATAR_LIST
     : AVATAR_LIST.filter(a => a.category === avatarFilter);
 
-  const suggestedNames = SUGGESTED_NAMES_BY_GENDER[gender] || SUGGESTED_NAMES_BY_GENDER.neutral;
+  const namePlaceholder = age <= 11
+    ? (gender === 'girl' ? 'Ví dụ: Bé Bắp, Bảo Ngọc, Hà My...' : gender === 'boy' ? 'Ví dụ: Minh Khang, Bảo Nam, Gia Huy...' : 'Ví dụ: Sunny, Sky, Bé Đậu...')
+    : age <= 17
+    ? (gender === 'girl' ? 'Ví dụ: Khánh Linh, Bảo Ngọc, Sarah...' : gender === 'boy' ? 'Ví dụ: Minh Khang, Alex, David...' : 'Ví dụ: Sunny, Sky, Alex...')
+    : (gender === 'girl' ? 'Ví dụ: Thu Trang, Thanh Hằng, Lan Anh...' : gender === 'boy' ? 'Ví dụ: Huy Vũ, Minh Tuấn, Hoàng Nam...' : 'Ví dụ: Huy Vũ, Alex, Chris...');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
@@ -248,10 +260,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   >
                     <span className="text-3xl sm:text-4xl drop-shadow mb-1">👧💖</span>
                     <span className="font-game font-black text-xs sm:text-sm text-pink-200">
-                      Bé Gái
+                      {personaLabels.girl}
                     </span>
                     <span className="text-[10px] text-pink-300/70 mt-0.5 hidden sm:block">
-                      Dễ thương & Luna 🐱
+                      {personaLabels.girlSub}
                     </span>
                   </button>
 
@@ -267,10 +279,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   >
                     <span className="text-3xl sm:text-4xl drop-shadow mb-1">👦⚡</span>
                     <span className="font-game font-black text-xs sm:text-sm text-cyan-200">
-                      Bé Trai
+                      {personaLabels.boy}
                     </span>
                     <span className="text-[10px] text-cyan-300/70 mt-0.5 hidden sm:block">
-                      Năng động & Cosmo 🐶
+                      {personaLabels.boySub}
                     </span>
                   </button>
 
@@ -286,10 +298,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   >
                     <span className="text-3xl sm:text-4xl drop-shadow mb-1">🌟🪐</span>
                     <span className="font-game font-black text-xs sm:text-sm text-purple-200">
-                      Tự Do
+                      {personaLabels.neutral}
                     </span>
                     <span className="text-[10px] text-purple-300/70 mt-0.5 hidden sm:block">
-                      Vũ trụ & Stella 🦄
+                      {personaLabels.neutralSub}
                     </span>
                   </button>
                 </div>
@@ -331,13 +343,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                               handleStep1Next();
                             }
                           }}
-                          placeholder={
-                            gender === 'girl'
-                              ? 'Ví dụ: Bảo Ngọc, Hà My, Sarah...'
-                              : gender === 'boy'
-                              ? 'Ví dụ: Minh Khang, Alex, Gia Huy...'
-                              : 'Ví dụ: Sunny, Sky, Bé Bắp...'
-                          }
+                          placeholder={namePlaceholder}
                           maxLength={24}
                           autoFocus
                           className="w-full px-3.5 py-2.5 bg-slate-900/90 border-2 border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 rounded-xl text-white font-game font-bold text-base placeholder:text-slate-500 placeholder:font-normal outline-none transition"
@@ -520,10 +526,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                 {/* Compact Mascot Cheer */}
                 <div className="p-2.5 bg-slate-950/50 rounded-xl border border-slate-800/80 flex items-center justify-center gap-2 text-xs text-slate-300">
-                  <span className="text-xl flex-shrink-0">{currentMascot.icon}</span>
-                  <span className="truncate">
-                    <strong className="text-white">{currentMascot.name}:</strong> "{name.trim() ? `Rất vui được đồng hành cùng bạn ${name.trim()}!` : currentMascot.greeting}"
-                  </span>
+                  <MascotWidget
+                    mascotId={mascotId}
+                    mood="happy"
+                    userAge={age}
+                    gender={gender}
+                    userName={name.trim()}
+                    className="justify-center"
+                  />
                 </div>
 
                 {/* Next Button */}
@@ -714,8 +724,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl">{avatar}</span>
                     <div>
-                      <div className="text-white font-black">{name.trim()}</div>
-                      <div className="text-slate-400">{gender === 'girl' ? 'Bé Gái 💖' : gender === 'boy' ? 'Bé Trai ⚡' : 'Tự Do 🌟'} • Đồng hành: {currentMascot.name} {currentMascot.icon}</div>
+                      <div className="text-white font-black">{name.trim() || addressing.name}</div>
+                      <div className="text-slate-400">
+                        {gender === 'girl' ? `${personaLabels.girl} 💖` : gender === 'boy' ? `${personaLabels.boy} ⚡` : `${personaLabels.neutral} 🌟`} • Đồng hành: {currentMascot.name} {currentMascot.icon}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -780,7 +792,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }`}
                 >
                   <span className="text-xl">👧💖</span>
-                  <span>Bé Gái / Nữ</span>
+                  <span>{personaLabels.girl}</span>
                 </button>
 
                 <button
@@ -793,7 +805,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }`}
                 >
                   <span className="text-xl">👦⚡</span>
-                  <span>Bé Trai / Nam</span>
+                  <span>{personaLabels.boy}</span>
                 </button>
 
                 <button
@@ -806,7 +818,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }`}
                 >
                   <span className="text-xl">🌟🪐</span>
-                  <span>Tự Do / Vũ Trụ</span>
+                  <span>{personaLabels.neutral}</span>
                 </button>
               </div>
             </div>

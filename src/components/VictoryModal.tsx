@@ -120,7 +120,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           <MascotWidget
             mascotId={mascotId}
             mood="celebrating"
-            customMessage={`Hoan hô ${userName || 'bạn'}! ${mascot.name} tự hào về bạn lắm luôn! 🎉`}
+            userAge={progress.userAge}
+            gender={gender}
+            userName={userName}
           />
         </div>
 

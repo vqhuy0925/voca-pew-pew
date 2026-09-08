@@ -760,7 +760,16 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           <MascotWidget
             mascotId={progress.mascotId}
             mood="happy"
-            customMessage="Chăm chỉ học và đạt 3 sao mỗi màn để tích lũy kim cương mở khóa thần hạm nhé! 🚀💎"
+            userAge={progress.userAge}
+            gender={progress.gender}
+            userName={progress.userName}
+            customMessage={
+              !progress.userAge || progress.userAge <= 11
+                ? 'Chăm chỉ học và đạt 3 sao mỗi màn để tích lũy kim cương mở khóa thần hạm nhé! 🚀💎'
+                : progress.userAge <= 17
+                ? 'Luyện tập đạt 3 sao mỗi màn để tích lũy kim cương nâng cấp hạm đội siêu ngầu! ⚡💎'
+                : 'Chinh phục 3 sao để tích lũy kim cương mở khóa các chiến hạm & trang bị cao cấp! 🚀💎'
+            }
           />
 
           <button

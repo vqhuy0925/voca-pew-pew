@@ -4,6 +4,8 @@ import { Heart, Gem, Sparkles, X, RotateCcw } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { refillHearts } from '../../services/progressStorage';
 
+import { getRefillHeartsMessages } from '../../services/personaMessageHelper';
+
 interface RefillHeartsModalProps {
   progress: UserProgress;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
@@ -17,6 +19,11 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
 }) => {
   const GEM_COST = 20;
   const canAfford = progress.gems >= GEM_COST;
+  const messages = getRefillHeartsMessages(
+    progress.userAge,
+    progress.gender,
+    progress.userName
+  );
 
   const handleRefillWithGems = () => {
     if (!canAfford) {
@@ -56,7 +63,7 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
           NẠP TRÁI TIM ❤️
         </h2>
         <p className="text-sm sm:text-base text-slate-200 mb-6">
-          Trái tim giúp bé không bị ngắt quãng khi đang bảo vệ trạm không gian!
+          {messages.subtitle}
         </p>
 
         {/* Options */}
@@ -83,7 +90,7 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
             </div>
           </button>
 
-          {/* Free Kid practice refill */}
+          {/* Free practice refill */}
           <button
             onClick={handleFreeRefill}
             className="w-full p-4 rounded-3xl bg-emerald-500/15 border-2 border-emerald-400 hover:bg-emerald-500/25 flex items-center justify-between transition cursor-pointer active:scale-95"
@@ -91,8 +98,8 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
             <div className="flex items-center gap-3.5">
               <div className="text-3xl">✨</div>
               <div className="text-left">
-                <div className="font-game font-extrabold text-white text-lg">Nạp Miễn Phí Cho Bé</div>
-                <div className="text-sm text-emerald-300 font-semibold">Bé tiếp tục học vui vẻ!</div>
+                <div className="font-game font-extrabold text-white text-lg">{messages.freeButtonTitle}</div>
+                <div className="text-sm text-emerald-300 font-semibold">{messages.freeButtonSubtitle}</div>
               </div>
             </div>
             <div className="px-3.5 py-2 bg-emerald-400 text-slate-950 font-game font-extrabold rounded-xl text-base flex items-center gap-1.5">
