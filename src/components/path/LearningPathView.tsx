@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { LEARNING_UNITS, ALL_LEVELS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge } from '../../data/learning-path-data';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { LEARNING_UNITS, ALL_LEVELS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge, getRealmById } from '../../data/learning-path-data';
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { getSpaceshipById, getBlasterById, getLaserById } from '../../data/upgrade-types';
 import { LevelNodeButton } from './LevelNodeButton';
 import { TopNavBar } from './TopNavBar';
 import { MascotWidget } from '../mascot/MascotWidget';
+import { RealmSelectModal } from '../modals/RealmSelectModal';
 import {
   Search,
   Target,
@@ -19,7 +20,8 @@ import {
   ChevronRight,
   Zap,
   Award,
-  Compass
+  Compass,
+  RefreshCw
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 
@@ -50,19 +52,40 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     return 'realm-1';
   });
 
+  // Sync state if progress.selectedRealmId changes from outside
+  useEffect(() => {
+    if (progress.selectedRealmId && progress.selectedRealmId !== activeRealmId) {
+      setActiveRealmId(progress.selectedRealmId);
+    }
+  }, [progress.selectedRealmId]);
+
+  const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [jumpChapter, setJumpChapter] = useState<string>('');
   const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const currentRealm = useMemo(() => {
-    return AGE_REALMS.find(r => r.id === activeRealmId) || AGE_REALMS[0];
+    return getRealmById(activeRealmId);
   }, [activeRealmId]);
 
-  // Filter units according to active realm and search query
+  // Filter units according to active realm only ("less is more")
   const displayedUnits = useMemo(() => {
     let units = currentRealm.units;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
+      // First search inside current realm
+      const matchInCurrent = units.filter(
+        u =>
+          u.title.toLowerCase().includes(q) ||
+          u.titleVi.toLowerCase().includes(q) ||
+          u.description.toLowerCase().includes(q) ||
+          String(u.unitNumber).includes(q) ||
+          u.levels.some(l => l.words.some(w => w.word.toLowerCase().includes(q) || w.meaningVi.toLowerCase().includes(q)))
+      );
+      if (matchInCurrent.length > 0) {
+        return matchInCurrent;
+      }
+      // If not in current realm, fallback to search across all units
       return LEARNING_UNITS.filter(
         u =>
           u.title.toLowerCase().includes(q) ||
@@ -80,7 +103,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   const realmCompletedLevels = currentRealm.units.flatMap(u => u.levels).filter(
     l => progress.levelProgressMap[l.id]?.isCompleted
   ).length;
-  const realmPercent = Math.round((realmCompletedLevels / realmTotalLevels) * 100);
+  const realmPercent = realmTotalLevels > 0 ? Math.round((realmCompletedLevels / realmTotalLevels) * 100) : 0;
 
   // Overall total game stats
   const totalCompletedLevels = Object.values(progress.levelProgressMap).filter(lp => lp.isCompleted).length;
@@ -104,7 +127,10 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     if (isNaN(num) || num < 1) return;
     soundFx.playClick();
     const targetRealm = getRealmByChapterNumber(num);
-    setActiveRealmId(targetRealm.id);
+    if (targetRealm.id !== activeRealmId) {
+      setActiveRealmId(targetRealm.id);
+      onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
+    }
     setSearchQuery('');
     setJumpChapter(chapterNumStr);
 
@@ -122,7 +148,10 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     const curUnit = LEARNING_UNITS.find(u => u.levels.some(l => l.id === curLevelId));
     if (curUnit) {
       const targetRealm = getRealmByChapterNumber(curUnit.unitNumber);
-      setActiveRealmId(targetRealm.id);
+      if (targetRealm.id !== activeRealmId) {
+        setActiveRealmId(targetRealm.id);
+        onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
+      }
       setTimeout(() => {
         const el = chapterRefs.current[curUnit.id];
         if (el) {
@@ -149,68 +178,66 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           
           {/* ================= LEFT SIDEBAR (Desktop lg+) ================= */}
           <aside className="hidden lg:flex flex-col gap-5 w-72 xl:w-80 flex-shrink-0 sticky top-20 self-start">
-            {/* 1. Realm Explorer Navigation Card */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 backdrop-blur-xl shadow-xl">
-              <div className="flex items-center gap-2 px-1 mb-3 text-cyan-400 font-game font-extrabold text-sm uppercase tracking-wider">
-                <Compass className="w-4 h-4 stroke-[2.5]" />
-                <span>{AGE_REALMS.length} Cõi Thiên Hà & Luyện Câu</span>
+            {/* 1. Active Realm Card with Switcher Button */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4.5 backdrop-blur-xl shadow-xl text-left">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-cyan-400 font-game font-extrabold text-xs uppercase tracking-wider">
+                  <Compass className="w-4 h-4 stroke-[2.5]" />
+                  <span>Cõi Hiện Tại</span>
+                </div>
+                <span className="text-[11px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
+                  {currentRealm.ageRange}
+                </span>
               </div>
 
-              <div className="flex flex-col gap-2 max-h-[55vh] overflow-y-auto pr-1">
-                {AGE_REALMS.map((realm) => {
-                  const isSelected = realm.id === activeRealmId && !searchQuery;
-                  const rTotal = realm.units.reduce((acc, u) => acc + u.levels.length, 0);
-                  const rDone = realm.units.flatMap(u => u.levels).filter(
-                    l => progress.levelProgressMap[l.id]?.isCompleted
-                  ).length;
-                  const rPct = rTotal > 0 ? Math.round((rDone / rTotal) * 100) : 0;
+              {/* Realm Profile */}
+              <div className="p-3 bg-slate-950/80 rounded-2xl border border-slate-800 mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{currentRealm.icon}</span>
+                  <div className="min-w-0">
+                    <div className="text-xs font-black uppercase text-cyan-400">
+                      Cõi {currentRealm.realmNumber}
+                    </div>
+                    <div className="font-game font-extrabold text-base text-white truncate">
+                      {currentRealm.nameVi}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Chương {currentRealm.startChapter} - {currentRealm.endChapter}
+                    </div>
+                  </div>
+                </div>
 
-                  return (
-                    <button
-                      key={realm.id}
-                      onClick={() => handleSelectRealm(realm.id)}
-                      className={`w-full p-3 rounded-2xl text-left transition-all duration-200 cursor-pointer border ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/10 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)] scale-102'
-                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5 overflow-hidden">
-                          <span className="text-2xl flex-shrink-0">{realm.icon}</span>
-                          <div className="truncate">
-                            <div className={`font-game font-extrabold text-sm truncate ${isSelected ? 'text-cyan-300' : 'text-white'}`}>
-                              {realm.gradeLabel}
-                            </div>
-                            <div className="text-xs text-slate-400">
-                              Chương {realm.startChapter}-{realm.endChapter} • {realm.ageRange}
-                            </div>
-                          </div>
-                        </div>
-
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-lg flex-shrink-0 ${
-                          isSelected ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          {rPct}%
-                        </span>
-                      </div>
-
-                      {/* Mini Progress Bar */}
-                      <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800/80 mt-2.5">
-                        <div
-                          className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full transition-all duration-300"
-                          style={{ width: `${rPct}%` }}
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
+                {/* Progress bar */}
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-cyan-300 mb-1">
+                    <span>Tiến độ Cõi:</span>
+                    <span>{realmCompletedLevels}/{realmTotalLevels} ({realmPercent}%)</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full transition-all duration-300"
+                      style={{ width: `${realmPercent}%` }}
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* Switch Realm Button */}
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  setShowRealmModal(true);
+                }}
+                className="w-full py-2.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-400/50 hover:border-cyan-300 rounded-xl text-cyan-300 hover:text-white text-xs font-game font-extrabold transition cursor-pointer flex items-center justify-center gap-2 active:scale-95 shadow-sm"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>ĐỔI CÕI THIÊN HÀ KHÁC</span>
+              </button>
             </div>
 
-            {/* 2. Overall Adventure Summary Card */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 backdrop-blur-xl shadow-xl text-left">
-              <div className="flex items-center gap-2 mb-3 text-amber-300 font-game font-extrabold text-sm uppercase tracking-wider">
+            {/* 2. Adventure Achievements Card */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4.5 backdrop-blur-xl shadow-xl text-left">
+              <div className="flex items-center gap-2 mb-3 text-amber-300 font-game font-extrabold text-xs uppercase tracking-wider">
                 <Award className="w-4 h-4 stroke-[2.5]" />
                 <span>Thành Tựu Phi Hành Gia</span>
               </div>
@@ -229,53 +256,26 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 <div className="p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
                   <div className="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
                     <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                    <span>Sao Thu Thập</span>
+                    <span>Sao Đạt Được</span>
                   </div>
                   <div className="text-xl font-game font-black text-yellow-300 mt-1">
                     {totalStars} ⭐
                   </div>
                 </div>
               </div>
-
-              <button
-                onClick={onOpenProfileModal}
-                className="w-full mt-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white rounded-xl text-xs font-game font-bold border border-slate-700 transition cursor-pointer active:scale-95"
-              >
-                Cập Nhật Độ Tuổi & Tên Gọi
-              </button>
             </div>
           </aside>
 
           {/* ================= CENTER COLUMN (Roadmap & Lessons) ================= */}
           <main className="flex-1 min-w-0 max-w-2xl lg:max-w-3xl w-full">
-            {/* 1. Mobile/Tablet Realm Pills (Visible on small screens) */}
-            <div className="lg:hidden flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none mb-4 -mx-2 px-2">
-              {AGE_REALMS.map((realm) => {
-                const isSelected = realm.id === activeRealmId && !searchQuery;
-                return (
-                  <button
-                    key={realm.id}
-                    onClick={() => handleSelectRealm(realm.id)}
-                    className={`px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-game font-extrabold whitespace-nowrap transition cursor-pointer flex items-center gap-2 border ${
-                      isSelected
-                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-md scale-102'
-                        : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">{realm.icon}</span>
-                    <span>{realm.gradeLabel}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 2. Active Realm Grand Hero Banner */}
+            
+            {/* Active Realm Hero Banner */}
             {!searchQuery && (
               <div className="bg-gradient-to-r from-slate-900/90 via-[#101538]/90 to-slate-900/90 border-2 border-slate-700/80 rounded-3xl p-5 sm:p-6 mb-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
                 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3.5 sm:gap-4">
                     <span className="text-4xl sm:text-5xl drop-shadow-md">{currentRealm.icon}</span>
                     <div>
                       <div className="flex items-center gap-2">
@@ -290,28 +290,35 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                         {currentRealm.nameVi}
                       </h1>
                       <div className="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
-                        Chương {currentRealm.startChapter} - {currentRealm.endChapter} • Tốc độ mục tiêu: <span className="text-yellow-300 font-bold">{currentRealm.targetWpm}</span>
+                        Chương {currentRealm.startChapter} - {currentRealm.endChapter} ({currentRealm.units.length} chương) • Mục tiêu: <span className="text-yellow-300 font-bold">{currentRealm.targetWpm}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Realm Progress bar */}
-                  <div className="w-full sm:w-auto text-left sm:text-right flex-shrink-0 bg-slate-950/60 p-3 sm:p-3.5 rounded-2xl border border-slate-800">
-                    <div className="text-sm sm:text-base font-extrabold text-cyan-300">
-                      {realmCompletedLevels}/{realmTotalLevels} Màn ({realmPercent}%)
-                    </div>
-                    <div className="w-full sm:w-36 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 mt-1.5">
-                      <div
-                        className="h-full bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,240,255,0.6)]"
-                        style={{ width: `${realmPercent}%` }}
-                      />
+                  {/* Actions & Progress */}
+                  <div className="w-full sm:w-auto flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2.5 flex-shrink-0">
+                    <button
+                      onClick={() => {
+                        soundFx.playClick();
+                        setShowRealmModal(true);
+                      }}
+                      className="px-3.5 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/60 rounded-xl text-cyan-300 text-xs font-game font-bold flex items-center gap-1.5 transition cursor-pointer active:scale-95 shadow-sm"
+                    >
+                      <Compass className="w-3.5 h-3.5" />
+                      <span>Đổi Cõi</span>
+                    </button>
+
+                    <div className="text-right bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
+                      <div className="text-xs sm:text-sm font-extrabold text-cyan-300">
+                        {realmCompletedLevels}/{realmTotalLevels} ({realmPercent}%)
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 3. Search & Chapter Jump Bar */}
+            {/* Search & Chapter Jump Bar for Current Realm */}
             <div className="flex items-center gap-3 mb-8">
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400" />
@@ -319,7 +326,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm từ vựng, bài học, chủ đề tiếng Anh..."
+                  placeholder={`Tìm từ vựng trong ${currentRealm.nameVi}...`}
                   className="w-full pl-10 pr-9 py-2.5 sm:py-3 bg-slate-900/90 border border-slate-700/80 focus:border-cyan-400 rounded-2xl text-sm sm:text-base text-white placeholder:text-slate-400 outline-none transition shadow-inner font-medium"
                 />
                 {searchQuery && (
@@ -338,7 +345,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 className="px-3.5 py-2.5 sm:py-3 bg-slate-900/90 border border-slate-700/80 focus:border-cyan-400 rounded-2xl text-xs sm:text-sm font-game font-extrabold text-cyan-300 outline-none cursor-pointer max-w-[160px] sm:max-w-[200px] truncate shadow-sm"
               >
                 <option value="">Nhảy tới Chương...</option>
-                {LEARNING_UNITS.map(u => (
+                {currentRealm.units.map(u => (
                   <option key={u.id} value={u.unitNumber}>
                     Ch.{u.unitNumber}: {u.titleVi}
                   </option>
@@ -359,7 +366,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
               </div>
             )}
 
-            {/* 4. Units & Road of Level Nodes */}
+            {/* Road of Level Nodes (Only Current Realm's Units) */}
             <div className="space-y-14">
               {displayedUnits.map((unit, uIdx) => {
                 const unitCompletedCount = unit.levels.filter(
@@ -369,7 +376,10 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 return (
                   <section
                     key={unit.id}
-                    ref={(el) => { chapterRefs.current[unit.id] = el; }}
+                    ref={(el) => {
+                      chapterRefs.current[unit.id] = el;
+                      chapterRefs.current[`unit-${unit.unitNumber}`] = el;
+                    }}
                     className="relative scroll-mt-20"
                   >
                     {/* Chapter Header Banner */}
@@ -434,7 +444,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                   customMessage={
                     realmPercent > 50
                       ? `Tuyệt vời! Bạn đã vượt qua ${realmPercent}% cõi ${currentRealm.nameVi}! 🚀`
-                      : `Cùng chinh phục 200 Chương để nâng cấp siêu chiến hạm nhé! ✨`
+                      : `Cùng chinh phục ${currentRealm.nameVi} để thu thập sao và nâng cấp chiến hạm nhé! ✨`
                   }
                 />
               </div>
@@ -529,7 +539,16 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         <span>TIẾP TỤC HỌC</span>
         <ArrowRight className="w-4 h-4 stroke-[3]" />
       </button>
+
+      {/* Realm Switcher Modal */}
+      {showRealmModal && (
+        <RealmSelectModal
+          currentRealmId={activeRealmId}
+          progress={progress}
+          onSelectRealm={handleSelectRealm}
+          onClose={() => setShowRealmModal(false)}
+        />
+      )}
     </div>
   );
 };
-

@@ -88,14 +88,15 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  const handleSaveProfile = (name: string, avatar: string, userAge: number) => {
-    const targetRealm = getRealmByAge(userAge);
+  const handleSaveProfile = (name: string, avatar: string, userAge: number, realmId?: string) => {
+    const targetRealm = realmId ? getRealmByAge(userAge) : getRealmByAge(userAge);
+    const resolvedRealmId = realmId || targetRealm.id;
     handleUpdateProgress(prev => ({
       ...prev,
       userName: name,
       avatar,
       userAge,
-      selectedRealmId: targetRealm.id
+      selectedRealmId: resolvedRealmId
     }));
     setShowProfileModal(false);
   };
@@ -375,6 +376,7 @@ export const App: React.FC = () => {
           initialName={progress.userName}
           initialAvatar={progress.avatar}
           initialAge={progress.userAge || 8}
+          initialRealmId={progress.selectedRealmId}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}

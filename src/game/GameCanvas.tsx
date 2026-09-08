@@ -55,6 +55,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   onTimerUpdate
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const hiddenInputRef = useRef<HTMLInputElement | null>(null);
   const particleSysRef = useRef<ParticleSystem | null>(null);
   const spawnerRef = useRef<EnemySpawner | null>(null);
   const inputHandlerRef = useRef<InputHandler | null>(null);
@@ -232,6 +233,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     });
   };
 
+  // Focus hidden input whenever playing
+  useEffect(() => {
+    if (gameState === 'PLAYING') {
+      const timer = setTimeout(() => {
+        hiddenInputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState]);
+
   // Register input handler for virtual keyboard
   useEffect(() => {
     if (onRegisterInputHandler) {
@@ -239,19 +250,38 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
   }, [onRegisterInputHandler, gameState, equippedBlaster, equippedLaser]);
 
-  // Physical Keyboard listener
+  // Physical & Native Mobile Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key === ' ' || e.code === 'Space' || (e.key.length === 1 && /^[a-zA-Z0-9 '\-.,?!]$/.test(e.key))) {
         e.preventDefault();
         processInput(e.key === ' ' || e.code === 'Space' ? ' ' : e.key);
+        if (hiddenInputRef.current) {
+          hiddenInputRef.current.value = '';
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameState, level, equippedBlaster, equippedLaser]);
+
+  const handleHiddenInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      for (let i = 0; i < val.length; i++) {
+        processInput(val[i]);
+      }
+      e.target.value = '';
+    }
+  };
+
+  const handleCanvasContainerClick = () => {
+    if (gameState === 'PLAYING') {
+      hiddenInputRef.current?.focus();
+    }
+  };
 
   // Game Loop
   useEffect(() => {
@@ -517,7 +547,37 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-space-dark select-none">
+    <div
+      onClick={handleCanvasContainerClick}
+      onTouchStart={handleCanvasContainerClick}
+      className="relative w-full h-full overflow-hidden bg-space-dark select-none"
+    >
+      {/* Invisible input element to capture native mobile & iPad keyboard input */}
+      <input
+        ref={hiddenInputRef}
+        type="text"
+        autoCapitalize="none"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        inputMode="text"
+        onChange={handleHiddenInputChange}
+        tabIndex={-1}
+        aria-label="Nhập từ vựng"
+        className="fixed top-2 left-2 opacity-0 pointer-events-none w-1 h-1 z-0 border-0 p-0 m-0"
+        style={{
+          opacity: 0,
+          position: 'fixed',
+          top: '10px',
+          left: '10px',
+          width: '1px',
+          height: '1px',
+          pointerEvents: 'none',
+          border: 'none',
+          outline: 'none',
+          background: 'transparent'
+        }}
+      />
       <canvas ref={canvasRef} className="w-full h-full block cursor-default" />
     </div>
   );

@@ -19,7 +19,8 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   onKeyPress,
   suggestedChar
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  // Mặc định ẩn bàn phím ảo cho cả Desktop & Mobile/iPad để dùng bàn phím thật
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleKey = (char: string) => {
     soundFx.playClick();
@@ -27,20 +28,21 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   };
 
   return (
-    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center select-none">
-      {/* Toggle Button */}
+    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center select-none pointer-events-auto">
+      {/* Toggle Button (Hidden by default, can be toggled if user desires) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="mb-1 flex items-center gap-1.5 px-3 py-1 bg-slate-950/80 hover:bg-slate-900 border border-slate-700/70 hover:border-cyan-400 rounded-full text-[11px] font-game font-bold text-slate-300 backdrop-blur-md transition shadow cursor-pointer"
+        className="mb-1 flex items-center gap-1.5 px-3 py-1 bg-slate-950/80 hover:bg-slate-900 border border-slate-700/70 hover:border-cyan-400 rounded-full text-[11px] font-game font-bold text-slate-400 hover:text-cyan-300 backdrop-blur-md transition shadow cursor-pointer"
+        title="Bật/Tắt bàn phím ảo dự phòng"
       >
         <KeyboardIcon className="w-3.5 h-3.5 text-cyan-400" />
-        <span>{isOpen ? 'Ẩn phím ảo' : 'Mở phím ảo'}</span>
+        <span>{isOpen ? 'Ẩn bàn phím ảo' : 'Bàn phím ảo (dự phòng)'}</span>
         {isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
       </button>
 
-      {/* Keyboard Matrix */}
+      {/* Keyboard Matrix (Only when open) */}
       {isOpen && (
-        <div className="bg-slate-950/90 backdrop-blur-xl border border-slate-800 p-2 rounded-2xl shadow-xl flex flex-col gap-1 max-w-lg w-[96vw] sm:w-auto">
+        <div className="bg-slate-950/95 backdrop-blur-xl border border-slate-800 p-2 rounded-2xl shadow-2xl flex flex-col gap-1 max-w-lg w-[96vw] sm:w-auto animate-in fade-in slide-in-from-bottom-2 duration-150">
           {ROWS.map((row, rIdx) => (
             <div key={rIdx} className="flex justify-center gap-1">
               {row.map((char) => {
