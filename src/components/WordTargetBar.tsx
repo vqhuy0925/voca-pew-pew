@@ -22,7 +22,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     soundFx.playClick();
-    speechHelper.speak(target.word);
+    speechHelper.speak(target.word, true);
   };
 
   const isSentence = target.word.length > 20;

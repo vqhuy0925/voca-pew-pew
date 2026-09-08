@@ -55,10 +55,16 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
     }
   }, [stars, level]);
 
-  const handleSpeak = (word: string, e: React.MouseEvent) => {
+  const [playingId, setPlayingId] = React.useState<string | null>(null);
+
+  const handleSpeak = (itemId: string, word: string, e: React.MouseEvent) => {
     e.stopPropagation();
     soundFx.playClick();
-    speechHelper.speak(word);
+    setPlayingId(itemId);
+    speechHelper.speak(word, true);
+    setTimeout(() => {
+      setPlayingId(prev => (prev === itemId ? null : prev));
+    }, 2500);
   };
 
   return (
@@ -75,28 +81,38 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                   : 'text-slate-800 scale-90'
               }`}
             >
-              <Star className="w-10 h-10 sm:w-12 sm:h-12 fill-current" />
+              <Star className="w-12 h-12 fill-current stroke-[1.5]" />
             </div>
           ))}
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-black font-game text-white mt-3">
-          XUẤT SẮC! 🎉
+        {/* Title */}
+        <h2 className="text-3xl sm:text-4xl font-black font-game text-white tracking-wide mt-2">
+          CHIẾN THẮNG!
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base mb-5">
-          Hoàn thành xuất sắc <span className="font-extrabold text-cyan-300">{level.titleVi}</span>
+        <p className="text-cyan-300 font-bold text-sm mt-0.5">
+          {level.titleVi} • Màn {level.levelNumber}
         </p>
 
-        {/* Rewards Earned (XP & Gems) */}
-        <div className="flex justify-center items-center gap-3.5 mb-5">
-          <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/15 border border-purple-400/40 rounded-2xl text-purple-300 font-game font-extrabold text-sm sm:text-base shadow-sm">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <span>+{xpAwarded} XP</span>
+        {/* Score & Rewards Summary */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 my-5">
+          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
+            <div className="text-slate-400 text-xs font-bold uppercase">Điểm số</div>
+            <div className="text-xl sm:text-2xl font-black font-game text-cyan-400 mt-1">{score}</div>
           </div>
-
-          <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/15 border border-cyan-400/40 rounded-2xl text-cyan-200 font-game font-extrabold text-sm sm:text-base shadow-sm">
-            <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400" />
-            <span>+{gemAwarded} 💎</span>
+          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
+            <div className="text-slate-400 text-xs font-bold uppercase">Kinh nghiệm</div>
+            <div className="text-xl sm:text-2xl font-black font-game text-amber-400 mt-1 flex items-center justify-center gap-1">
+              <Flame className="w-4 h-4 fill-current" />
+              <span>+{level.xpReward}</span>
+            </div>
+          </div>
+          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
+            <div className="text-slate-400 text-xs font-bold uppercase">Kim cương</div>
+            <div className="text-xl sm:text-2xl font-black font-game text-sky-400 mt-1 flex items-center justify-center gap-1">
+              <Gem className="w-4 h-4 fill-current" />
+              <span>+{level.gemReward}</span>
+            </div>
           </div>
         </div>
 
@@ -110,22 +126,31 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             <div className={`max-h-44 overflow-y-auto pr-1 ${
               level.words.some(w => w.word.length > 20) ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'
             }`}>
-              {level.words.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={(e) => handleSpeak(item.word, e)}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-400/60 cursor-pointer transition text-left gap-2"
-                >
-                  <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
-                    <span className="text-2xl flex-shrink-0">{item.emoji}</span>
-                    <div className="truncate leading-tight flex-1 min-w-0">
-                      <div className="font-extrabold text-white text-xs sm:text-sm truncate">{item.word}</div>
-                      <div className="text-[11px] sm:text-xs text-yellow-300 font-medium truncate">{item.meaningVi}</div>
+              {level.words.map((item) => {
+                const isPlaying = playingId === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={(e) => handleSpeak(item.id, item.word, e)}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition text-left gap-2 ${
+                      isPlaying
+                        ? 'bg-cyan-950/70 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.25)]'
+                        : 'bg-slate-900 border-slate-800 hover:border-cyan-400/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
+                      <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+                      <div className="truncate leading-tight flex-1 min-w-0">
+                        <div className={`font-extrabold text-xs sm:text-sm truncate ${isPlaying ? 'text-cyan-300' : 'text-white'}`}>
+                          {item.word}
+                        </div>
+                        <div className="text-[11px] sm:text-xs text-yellow-300 font-medium truncate">{item.meaningVi}</div>
+                      </div>
                     </div>
-                  </div>
-                  <Volume2 className="w-4 h-4 text-cyan-400 flex-shrink-0 ml-1" />
-                </button>
-              ))}
+                    <Volume2 className={`w-4 h-4 flex-shrink-0 ml-1 ${isPlaying ? 'text-cyan-300 animate-pulse' : 'text-cyan-400'}`} />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

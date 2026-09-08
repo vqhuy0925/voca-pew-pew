@@ -22,16 +22,22 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
   onStartGame,
   onClose
 }) => {
+  const [playingId, setPlayingId] = React.useState<string | null>(null);
+
   useEffect(() => {
     if (level.words.length > 0) {
       speechHelper.preloadWords(level.words.map(w => w.word));
     }
   }, [level]);
 
-  const handleSpeak = (word: string, e: React.MouseEvent) => {
+  const handleSpeak = (itemId: string, word: string, e: React.MouseEvent) => {
     e.stopPropagation();
     soundFx.playClick();
-    speechHelper.speak(word);
+    setPlayingId(itemId);
+    speechHelper.speak(word, true);
+    setTimeout(() => {
+      setPlayingId(prev => (prev === itemId ? null : prev));
+    }, 2500);
   };
 
   const handleStart = () => {
@@ -75,21 +81,28 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         }`}>
           {level.words.map((item) => {
             const isLong = item.word.length > 20;
+            const isPlaying = playingId === item.id;
 
             return (
               <button
                 key={item.id}
-                onClick={(e) => handleSpeak(item.word, e)}
-                className={`relative p-3.5 rounded-2xl bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-400/80 cursor-pointer transition active:scale-95 flex group ${
+                onClick={(e) => handleSpeak(item.id, item.word, e)}
+                className={`relative p-3.5 rounded-2xl border cursor-pointer transition active:scale-95 flex group ${
+                  isPlaying
+                    ? 'bg-cyan-950/60 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,240,255,0.3)]'
+                    : 'bg-slate-950/80 hover:bg-slate-800/90 border-slate-800 hover:border-cyan-400/80'
+                } ${
                   isLong ? 'flex-row items-center text-left gap-3.5' : 'flex-col items-center text-center'
                 }`}
               >
-                <span className={`flex-shrink-0 drop-shadow ${isLong ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl mb-1.5'}`}>
+                <span className={`flex-shrink-0 drop-shadow ${isLong ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl mb-1.5'} ${isPlaying ? 'scale-110' : ''} transition-transform`}>
                   {item.emoji}
                 </span>
 
                 <div className="flex-1 min-w-0">
-                  <div className={`font-game font-extrabold text-white group-hover:text-cyan-300 leading-tight ${
+                  <div className={`font-game font-extrabold leading-tight ${
+                    isPlaying ? 'text-cyan-300' : 'text-white group-hover:text-cyan-300'
+                  } ${
                     isLong ? 'text-sm sm:text-base' : 'text-lg sm:text-xl'
                   }`}>
                     {item.word}
@@ -105,7 +118,11 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
                 </div>
 
                 {/* Sound icon */}
-                <div className={`p-1.5 rounded-xl bg-slate-800/80 text-slate-400 group-hover:text-cyan-300 transition flex-shrink-0 ${
+                <div className={`p-1.5 rounded-xl transition flex-shrink-0 ${
+                  isPlaying
+                    ? 'bg-cyan-500 text-slate-950 animate-pulse'
+                    : 'bg-slate-800/80 text-slate-400 group-hover:text-cyan-300'
+                } ${
                   isLong ? 'ml-auto' : 'absolute top-2.5 right-2.5'
                 }`}>
                   <Volume2 className="w-4 h-4" />
