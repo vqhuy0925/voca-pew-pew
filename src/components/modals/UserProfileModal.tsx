@@ -56,6 +56,12 @@ const AGE_OPTIONS = [
   { age: 20, label: 'Người Lớn: Đời Sống & Công Sở', icon: '💬', realmNum: 8, desc: 'Giao tiếp hàng ngày, du lịch' }
 ];
 
+const QUICK_AVATARS_BY_GENDER: Record<UserGender, string[]> = {
+  girl: ['🦄', '🌸', '🐱', '🧚‍♀️', '👑', '💖', '🎀'],
+  boy: ['🚀', '⚡', '🤖', '🦁', '🦖', '🐶', '🏎️'],
+  neutral: ['🌟', '🪐', '🛸', '🐼', '🎨', '🌈', '🍀']
+};
+
 export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   initialName = '',
   initialAvatar = '🚀',
@@ -76,6 +82,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [themeStyle, setThemeStyle] = useState<ThemeStyle>(initialTheme);
   const [mascotId, setMascotId] = useState<MascotId>(initialMascotId);
   const [avatarFilter, setAvatarFilter] = useState<'all' | 'girl' | 'boy' | 'neutral'>('all');
+  const [showAvatarPicker, setShowAvatarPicker] = useState<boolean>(false);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
   const [age, setAge] = useState<number>(initialAge || 8);
   const [selectedRealmId, setSelectedRealmId] = useState<string>(() => {
     if (initialRealmId) return initialRealmId;
@@ -88,6 +96,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const currentMascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
   const currentRecommendedRealm = getRealmByAge(age);
   const activeChosenRealm = getRealmById(selectedRealmId) || currentRecommendedRealm;
+  const quickAvatars = QUICK_AVATARS_BY_GENDER[gender] || QUICK_AVATARS_BY_GENDER.neutral;
 
   const handleSelectGender = (selectedGender: UserGender) => {
     soundFx.playClick();
@@ -212,270 +221,315 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               </span>
             </div>
 
-            {/* ================= STEP 1: GENDER, NAME, AVATAR, THEME & MASCOT ================= */}
+            {/* ================= STEP 1: GENDER, NAME, AVATAR (MINIMALIST & CLEAN) ================= */}
             {step === 1 && (
-              <div className="animate-in fade-in duration-300 space-y-5">
+              <div className="animate-in fade-in duration-300 space-y-4">
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-black font-game text-white mb-1 tracking-wide">
-                    CHÀO MỪNG BẠN! ✨🛸
+                    CHÀO MỪNG BẠN! ✨
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300">
-                    Hãy tùy chỉnh nhân vật và giao diện theo phong cách riêng bạn yêu thích nhé!
+                    Chọn phong cách để tự động thiết lập giao diện và bạn đồng hành nhé!
                   </p>
                 </div>
 
-                {/* 1. GENDER / PERSONA SELECTION */}
-                <div className="text-left">
-                  <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-pink-300 mb-2 flex items-center gap-1.5">
-                    <Heart className="w-4 h-4 text-pink-400" />
-                    <span>1. Chọn phong cách của bạn:</span>
-                  </label>
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                    {/* Girl Option */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectGender('girl')}
-                      className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition cursor-pointer border-2 ${
-                        gender === 'girl'
-                          ? 'bg-pink-500/30 border-pink-400 scale-[1.03] shadow-[0_0_15px_rgba(244,114,182,0.6)] ring-2 ring-pink-400/40'
-                          : 'bg-slate-900/80 border-slate-700 hover:border-pink-400/60'
-                      }`}
-                    >
-                      <span className="text-3xl drop-shadow">👧💖</span>
-                      <span className="font-game font-black text-xs sm:text-sm text-pink-200 mt-1">
-                        Bé Gái / Nữ
-                      </span>
-                      <span className="text-[10px] text-pink-300/80 mt-0.5">
-                        Dễ thương & Ngọt ngào
-                      </span>
-                    </button>
+                {/* 1. HERO PERSONA SELECTOR (Auto-sets Theme, Mascot & Default Avatar) */}
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
+                  {/* Girl */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('girl')}
+                    className={`p-3 sm:p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer border-2 ${
+                      gender === 'girl'
+                        ? 'bg-pink-500/25 border-pink-400 scale-[1.03] shadow-[0_0_20px_rgba(244,114,182,0.5)] ring-2 ring-pink-400/50'
+                        : 'bg-slate-900/70 border-slate-700/80 hover:border-pink-400/50 hover:bg-slate-900'
+                    }`}
+                  >
+                    <span className="text-3xl sm:text-4xl drop-shadow mb-1">👧💖</span>
+                    <span className="font-game font-black text-xs sm:text-sm text-pink-200">
+                      Bé Gái
+                    </span>
+                    <span className="text-[10px] text-pink-300/70 mt-0.5 hidden sm:block">
+                      Dễ thương & Luna 🐱
+                    </span>
+                  </button>
 
-                    {/* Boy Option */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectGender('boy')}
-                      className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition cursor-pointer border-2 ${
-                        gender === 'boy'
-                          ? 'bg-cyan-500/30 border-cyan-400 scale-[1.03] shadow-[0_0_15px_rgba(0,240,255,0.6)] ring-2 ring-cyan-400/40'
-                          : 'bg-slate-900/80 border-slate-700 hover:border-cyan-400/60'
-                      }`}
-                    >
-                      <span className="text-3xl drop-shadow">👦⚡</span>
-                      <span className="font-game font-black text-xs sm:text-sm text-cyan-200 mt-1">
-                        Bé Trai / Nam
-                      </span>
-                      <span className="text-[10px] text-cyan-300/80 mt-0.5">
-                        Năng động & Thám hiểm
-                      </span>
-                    </button>
+                  {/* Boy */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('boy')}
+                    className={`p-3 sm:p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer border-2 ${
+                      gender === 'boy'
+                        ? 'bg-cyan-500/25 border-cyan-400 scale-[1.03] shadow-[0_0_20px_rgba(0,240,255,0.5)] ring-2 ring-cyan-400/50'
+                        : 'bg-slate-900/70 border-slate-700/80 hover:border-cyan-400/50 hover:bg-slate-900'
+                    }`}
+                  >
+                    <span className="text-3xl sm:text-4xl drop-shadow mb-1">👦⚡</span>
+                    <span className="font-game font-black text-xs sm:text-sm text-cyan-200">
+                      Bé Trai
+                    </span>
+                    <span className="text-[10px] text-cyan-300/70 mt-0.5 hidden sm:block">
+                      Năng động & Cosmo 🐶
+                    </span>
+                  </button>
 
-                    {/* Neutral / Explorer Option */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectGender('neutral')}
-                      className={`p-3 rounded-2xl flex flex-col items-center justify-center text-center transition cursor-pointer border-2 ${
-                        gender === 'neutral'
-                          ? 'bg-purple-500/30 border-purple-400 scale-[1.03] shadow-[0_0_15px_rgba(192,132,252,0.6)] ring-2 ring-purple-400/40'
-                          : 'bg-slate-900/80 border-slate-700 hover:border-purple-400/60'
-                      }`}
-                    >
-                      <span className="text-3xl drop-shadow">🌟🪐</span>
-                      <span className="font-game font-black text-xs sm:text-sm text-purple-200 mt-1">
-                        Tự Do / Vũ Trụ
-                      </span>
-                      <span className="text-[10px] text-purple-300/80 mt-0.5">
-                        Phép thuật & Tự do
-                      </span>
-                    </button>
-                  </div>
+                  {/* Explorer / Neutral */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('neutral')}
+                    className={`p-3 sm:p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer border-2 ${
+                      gender === 'neutral'
+                        ? 'bg-purple-500/25 border-purple-400 scale-[1.03] shadow-[0_0_20px_rgba(192,132,252,0.5)] ring-2 ring-purple-400/50'
+                        : 'bg-slate-900/70 border-slate-700/80 hover:border-purple-400/50 hover:bg-slate-900'
+                    }`}
+                  >
+                    <span className="text-3xl sm:text-4xl drop-shadow mb-1">🌟🪐</span>
+                    <span className="font-game font-black text-xs sm:text-sm text-purple-200">
+                      Tự Do
+                    </span>
+                    <span className="text-[10px] text-purple-300/70 mt-0.5 hidden sm:block">
+                      Vũ trụ & Stella 🦄
+                    </span>
+                  </button>
                 </div>
 
-                {/* 2. THEME COLOR PALETTE SELECTION */}
-                <div className="text-left">
-                  <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2 flex items-center gap-1.5">
-                    <Palette className="w-4 h-4 text-cyan-400" />
-                    <span>2. Chọn tông màu giao diện:</span>
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {(Object.keys(THEME_CONFIGS) as ThemeStyle[]).map((tKey) => {
-                      const t = THEME_CONFIGS[tKey];
-                      const isSelected = themeStyle === tKey;
-                      return (
-                        <button
-                          key={tKey}
-                          type="button"
-                          onClick={() => handleSelectTheme(tKey)}
-                          className={`p-2.5 rounded-2xl flex flex-col items-center justify-center transition cursor-pointer border-2 ${
-                            isSelected
-                              ? `${t.cardBg} ${t.borderAccent} scale-105 shadow-[0_0_12px_${t.glowColor}] ring-2 ring-white/30`
-                              : 'bg-slate-900/80 border-slate-700 hover:border-slate-500'
-                          }`}
-                        >
-                          <span className="text-2xl drop-shadow">{t.icon}</span>
-                          <span className={`text-[11px] font-black mt-1 truncate w-full text-center ${isSelected ? t.textColor : 'text-slate-200'}`}>
-                            {t.nameEn}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 3. MASCOT COMPANION SELECTION */}
-                <div className="text-left">
-                  <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-300 mb-2 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>3. Chọn Bạn Đồng Hành Cùng Học:</span>
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {(Object.keys(MASCOT_CONFIGS) as MascotId[]).map((mKey) => {
-                      const m = MASCOT_CONFIGS[mKey];
-                      const isSelected = mascotId === mKey;
-                      return (
-                        <button
-                          key={mKey}
-                          type="button"
-                          onClick={() => handleSelectMascot(mKey)}
-                          className={`p-2.5 rounded-2xl flex flex-col items-center justify-center transition cursor-pointer border-2 ${
-                            isSelected
-                              ? 'bg-amber-500/30 border-amber-400 scale-105 shadow-[0_0_12px_rgba(251,191,36,0.5)]'
-                              : 'bg-slate-900/80 border-slate-700 hover:border-amber-400/60'
-                          }`}
-                        >
-                          <span className="text-2xl drop-shadow">{m.icon}</span>
-                          <span className="text-xs font-black text-white mt-1 truncate w-full text-center">
-                            {m.name}
-                          </span>
-                          <span className="text-[9px] text-slate-400 truncate w-full text-center">
-                            {m.speciesVi.split(' ')[0]}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 4. AVATAR SELECTION WITH CATEGORY TABS */}
-                <div className="text-left">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-purple-300">
-                      4. Chọn biểu tượng phi hành gia:
+                {/* 2. UNIFIED NAME & AVATAR BOX */}
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-left space-y-3">
+                  {/* Name Input with Avatar Trigger */}
+                  <div>
+                    <label className="block text-xs font-black uppercase tracking-wider text-cyan-300 mb-1.5 flex items-center justify-between">
+                      <span>Tên hoặc biệt danh của bạn:</span>
+                      <span className="text-[11px] text-slate-400 font-normal">Tối đa 24 ký tự</span>
                     </label>
+                    <div className="flex items-center gap-2.5">
+                      {/* Avatar Bubble Button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                        className="relative w-12 h-12 rounded-2xl bg-slate-900 border-2 border-cyan-400/60 hover:border-cyan-300 flex items-center justify-center text-2xl shadow-inner transition hover:scale-105 cursor-pointer flex-shrink-0 group"
+                        title="Bấm để đổi biểu tượng đại diện"
+                      >
+                        <span className="drop-shadow">{avatar}</span>
+                        <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-cyan-500 text-[9px] text-slate-950 font-black flex items-center justify-center border border-slate-950">
+                          ✎
+                        </span>
+                      </button>
 
-                    {/* Filter Tabs */}
-                    <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-slate-800 text-[11px] font-bold">
-                      <button
-                        type="button"
-                        onClick={() => setAvatarFilter('all')}
-                        className={`px-2 py-0.5 rounded-lg transition ${avatarFilter === 'all' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                      >
-                        Tất cả
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAvatarFilter('girl')}
-                        className={`px-2 py-0.5 rounded-lg transition ${avatarFilter === 'girl' ? 'bg-pink-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                      >
-                        Bé Gái 💖
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAvatarFilter('boy')}
-                        className={`px-2 py-0.5 rounded-lg transition ${avatarFilter === 'boy' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                      >
-                        Bé Trai ⚡
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setAvatarFilter('neutral')}
-                        className={`px-2 py-0.5 rounded-lg transition ${avatarFilter === 'neutral' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'}`}
-                      >
-                        Vũ Trụ 🌟
-                      </button>
+                      {/* Input */}
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => {
+                            setName(e.target.value);
+                            if (error) setError('');
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleStep1Next();
+                            }
+                          }}
+                          placeholder={
+                            gender === 'girl'
+                              ? 'Ví dụ: Bảo Ngọc, Hà My, Sarah...'
+                              : gender === 'boy'
+                              ? 'Ví dụ: Minh Khang, Alex, Gia Huy...'
+                              : 'Ví dụ: Sunny, Sky, Bé Bắp...'
+                          }
+                          maxLength={24}
+                          autoFocus
+                          className="w-full px-3.5 py-2.5 bg-slate-900/90 border-2 border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 rounded-xl text-white font-game font-bold text-base placeholder:text-slate-500 placeholder:font-normal outline-none transition"
+                        />
+                      </div>
                     </div>
+
+                    {error && <p className="text-rose-400 text-xs font-bold mt-1.5">{error}</p>}
                   </div>
 
-                  <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 max-h-36 overflow-y-auto p-1 bg-slate-950/60 rounded-2xl border border-slate-800">
-                    {filteredAvatars.map((item) => {
-                      const isSelected = avatar === item.emoji;
-                      return (
-                        <button
-                          key={item.emoji}
-                          type="button"
-                          onClick={() => handleSelectAvatar(item.emoji)}
-                          className={`p-2 rounded-xl flex flex-col items-center justify-center transition cursor-pointer border-2 ${
-                            isSelected
-                              ? 'bg-purple-500/40 border-purple-400 scale-110 shadow-[0_0_12px_rgba(192,132,252,0.6)]'
-                              : 'bg-slate-900/80 border-slate-800 hover:border-slate-600'
-                          }`}
-                          title={item.label}
-                        >
-                          <span className="text-2xl drop-shadow">{item.emoji}</span>
-                        </button>
-                      );
-                    })}
+                  {/* Quick Avatar Row */}
+                  <div className="flex items-center gap-1.5 pt-1 overflow-x-auto pb-1">
+                    <span className="text-[11px] font-bold text-slate-400 flex-shrink-0 mr-1">Biểu tượng:</span>
+                    {quickAvatars.map((em) => (
+                      <button
+                        key={em}
+                        type="button"
+                        onClick={() => handleSelectAvatar(em)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-lg transition cursor-pointer border flex-shrink-0 ${
+                          avatar === em
+                            ? 'bg-cyan-500/30 border-cyan-400 scale-110 shadow-sm'
+                            : 'bg-slate-900 border-slate-700/80 hover:border-slate-500'
+                        }`}
+                      >
+                        {em}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setShowAvatarPicker(!showAvatarPicker)}
+                      className={`px-2 py-1 rounded-xl text-[10px] font-bold border transition flex-shrink-0 cursor-pointer ${
+                        showAvatarPicker
+                          ? 'bg-purple-600 border-purple-400 text-white'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white'
+                      }`}
+                    >
+                      {showAvatarPicker ? 'Đóng ✕' : '+ Thêm'}
+                    </button>
                   </div>
-                </div>
 
-                {/* 5. NAME INPUT */}
-                <form onSubmit={handleStep1Next} className="text-left">
-                  <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
-                    5. Nhập tên hoặc biệt danh của bạn:
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-cyan-400">
-                      <span className="text-xl">{avatar}</span>
+                  {/* Expanded Avatar Picker Grid (Only when clicked '+ Thêm') */}
+                  {showAvatarPicker && (
+                    <div className="p-2.5 bg-slate-900/95 rounded-xl border border-slate-700 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-purple-300">Tất cả biểu tượng:</span>
+                        <div className="flex gap-1 text-[10px] font-bold">
+                          {(['all', 'girl', 'boy', 'neutral'] as const).map((cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => setAvatarFilter(cat)}
+                              className={`px-2 py-0.5 rounded-lg transition ${
+                                avatarFilter === cat
+                                  ? 'bg-purple-600 text-white'
+                                  : 'text-slate-400 hover:text-white bg-slate-950/60'
+                              }`}
+                            >
+                              {cat === 'all' ? 'Tất cả' : cat === 'girl' ? 'Nữ 💖' : cat === 'boy' ? 'Nam ⚡' : 'Vũ trụ 🌟'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-6 sm:grid-cols-10 gap-1.5 max-h-32 overflow-y-auto p-1 bg-slate-950/80 rounded-lg border border-slate-800">
+                        {filteredAvatars.map((item) => (
+                          <button
+                            key={item.emoji}
+                            type="button"
+                            onClick={() => {
+                              handleSelectAvatar(item.emoji);
+                              setShowAvatarPicker(false);
+                            }}
+                            className={`p-1.5 rounded-lg flex items-center justify-center text-xl transition cursor-pointer border ${
+                              avatar === item.emoji
+                                ? 'bg-purple-500/40 border-purple-400 scale-110 shadow-sm'
+                                : 'bg-slate-900/80 border-slate-800 hover:border-slate-600'
+                            }`}
+                            title={item.label}
+                          >
+                            {item.emoji}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (error) setError('');
-                      }}
-                      placeholder={gender === 'girl' ? 'Ví dụ: Bảo Ngọc, Khánh Linh, Sarah...' : gender === 'boy' ? 'Ví dụ: Minh Khang, Bảo Nam, Alex...' : 'Ví dụ: Sunny, Sky, Bé Bắp...'}
-                      maxLength={24}
-                      autoFocus
-                      className="w-full pl-12 pr-4 py-3 bg-slate-950/90 border-2 border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 rounded-2xl text-white font-game font-bold text-base sm:text-lg placeholder:text-slate-500 placeholder:font-normal outline-none transition shadow-inner"
-                    />
-                  </div>
-
-                  {error && <p className="text-rose-400 text-xs font-bold mt-2">{error}</p>}
+                  )}
 
                   {/* Quick Name Suggestions */}
-                  <div className="mt-2.5 flex items-center flex-wrap gap-1.5">
-                    <span className="text-xs text-slate-400 mr-1">Gợi ý tên:</span>
-                    {suggestedNames.map((sug) => (
+                  <div className="flex items-center flex-wrap gap-1.5 pt-0.5">
+                    <span className="text-[11px] font-bold text-slate-400 mr-1">Gợi ý tên:</span>
+                    {suggestedNames.slice(0, 6).map((sug) => (
                       <button
                         key={sug}
                         type="button"
                         onClick={() => handleSelectSuggestion(sug)}
-                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-200 text-xs font-semibold rounded-lg border border-slate-700 hover:border-cyan-400 transition active:scale-95 cursor-pointer"
+                        className="px-2.5 py-0.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 text-xs font-semibold rounded-lg border border-slate-700/80 hover:border-cyan-400/80 transition active:scale-95 cursor-pointer"
                       >
                         {sug}
                       </button>
                     ))}
                   </div>
+                </div>
 
-                  {/* Mascot Live Cheer */}
-                  <div className="flex justify-center mt-4">
-                    <MascotWidget
-                      mascotId={mascotId}
-                      mood="happy"
-                      customMessage={
-                        name.trim()
-                          ? `Chào ${avatar} ${name.trim()}! ${currentMascot.name} rất vui được đồng hành cùng bạn! ✨`
-                          : `${currentMascot.greeting}`
-                      }
-                    />
-                  </div>
-                </form>
+                {/* 3. OPTIONAL ADVANCED CUSTOMIZATION (THEME & MASCOT) */}
+                <div className="text-left">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="w-full py-2 px-3 bg-slate-950/50 hover:bg-slate-950/80 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold text-slate-300 flex items-center justify-between transition cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Palette className="w-3.5 h-3.5 text-pink-400" />
+                      <span>
+                        Tùy chỉnh thêm màu sắc & bạn đồng hành ({currentTheme.nameEn} • {currentMascot.name})
+                      </span>
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showAdvanced && (
+                    <div className="mt-2.5 p-3 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3 animate-in fade-in duration-200">
+                      {/* Theme Palette */}
+                      <div>
+                        <span className="text-[11px] font-extrabold uppercase text-cyan-300 block mb-1.5">
+                          Tông màu giao diện:
+                        </span>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {(Object.keys(THEME_CONFIGS) as ThemeStyle[]).map((tKey) => {
+                            const t = THEME_CONFIGS[tKey];
+                            const isSelected = themeStyle === tKey;
+                            return (
+                              <button
+                                key={tKey}
+                                type="button"
+                                onClick={() => handleSelectTheme(tKey)}
+                                className={`p-1.5 rounded-xl flex flex-col items-center justify-center transition cursor-pointer border ${
+                                  isSelected
+                                    ? `${t.cardBg} ${t.borderAccent} shadow-sm ring-1 ring-white/40`
+                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
+                                }`}
+                              >
+                                <span className="text-lg">{t.icon}</span>
+                                <span className={`text-[10px] font-bold mt-0.5 truncate w-full text-center ${isSelected ? t.textColor : 'text-slate-300'}`}>
+                                  {t.nameEn}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Mascot Companion */}
+                      <div>
+                        <span className="text-[11px] font-extrabold uppercase text-amber-300 block mb-1.5">
+                          Bạn đồng hành:
+                        </span>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {(Object.keys(MASCOT_CONFIGS) as MascotId[]).map((mKey) => {
+                            const m = MASCOT_CONFIGS[mKey];
+                            const isSelected = mascotId === mKey;
+                            return (
+                              <button
+                                key={mKey}
+                                type="button"
+                                onClick={() => handleSelectMascot(mKey)}
+                                className={`p-1.5 rounded-xl flex flex-col items-center justify-center transition cursor-pointer border ${
+                                  isSelected
+                                    ? 'bg-amber-500/25 border-amber-400 text-white font-bold shadow-sm'
+                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-amber-400/50'
+                                }`}
+                              >
+                                <span className="text-lg">{m.icon}</span>
+                                <span className="text-[10px] font-bold mt-0.5 truncate w-full text-center">{m.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Compact Mascot Cheer */}
+                <div className="p-2.5 bg-slate-950/50 rounded-xl border border-slate-800/80 flex items-center justify-center gap-2 text-xs text-slate-300">
+                  <span className="text-xl flex-shrink-0">{currentMascot.icon}</span>
+                  <span className="truncate">
+                    <strong className="text-white">{currentMascot.name}:</strong> "{name.trim() ? `Rất vui được đồng hành cùng bạn ${name.trim()}!` : currentMascot.greeting}"
+                  </span>
+                </div>
 
                 {/* Next Button */}
                 <button
                   type="button"
                   onClick={handleStep1Next}
-                  className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer`}
+                  className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer`}
                 >
                   <span>TIẾP TỤC BƯỚC 2</span>
                   <ArrowRight className="w-5 h-5 stroke-[3]" />
