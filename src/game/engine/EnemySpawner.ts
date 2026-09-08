@@ -1,13 +1,16 @@
 import { VocabWord, EnemyItem } from '../../data/types';
+import { LevelNode } from '../../data/progress-types';
 
 export class EnemySpawner {
   private wordsQueue: VocabWord[] = [];
+  private totalLevelWordsCount: number = 0;
   private enemies: EnemyItem[] = [];
   private spawnTimer: number = 0;
-  private spawnInterval: number = 2200; // ms between spawns
-  private baseSpeed: number = 0.6;      // Gentle fall speed for 7-year-olds
+  private spawnInterval: number = 2300;
+  private baseSpeed: number = 0.6;
   private canvasWidth: number = 800;
   private canvasHeight: number = 600;
+  private isBossLevel: boolean = false;
 
   constructor(width: number, height: number) {
     this.canvasWidth = width;
@@ -19,11 +22,22 @@ export class EnemySpawner {
     this.canvasHeight = h;
   }
 
-  public loadWords(words: VocabWord[]) {
-    // Shuffle words for varied gameplay
-    this.wordsQueue = [...words].sort(() => Math.random() - 0.5);
+  public loadLevel(level: LevelNode) {
+    this.isBossLevel = level.type === 'BOSS_BATTLE';
+    this.spawnInterval = level.spawnInterval || 2200;
+    this.baseSpeed = (level.speedMultiplier || 0.6) * 1.0;
+
+    // Duplicate words slightly if word list is short (to provide 6-8 enemies per standard level)
+    let words = [...level.words];
+    if (words.length > 0 && words.length < 6) {
+      words = [...words, ...words].slice(0, 7);
+    }
+
+    // Shuffle words
+    this.wordsQueue = words.sort(() => Math.random() - 0.5);
+    this.totalLevelWordsCount = this.wordsQueue.length;
     this.enemies = [];
-    this.spawnTimer = 1000; // Spawn first enemy quickly
+    this.spawnTimer = 800; // Spawn first enemy quickly
   }
 
   public getEnemies(): EnemyItem[] {
@@ -38,11 +52,17 @@ export class EnemySpawner {
     return this.wordsQueue.length + this.enemies.length;
   }
 
+  public getTotalWordsCount(): number {
+    return this.totalLevelWordsCount;
+  }
+
   public update(deltaTime: number): EnemyItem[] {
     this.spawnTimer -= deltaTime;
 
-    // Spawn new word if queue has words and screen isn't overloaded (max 3-4 active words)
-    if (this.spawnTimer <= 0 && this.wordsQueue.length > 0 && this.enemies.length < 3) {
+    // Max 2-3 active enemies at a time for child-friendly focus
+    const maxActive = this.isBossLevel ? 3 : 2;
+
+    if (this.spawnTimer <= 0 && this.wordsQueue.length > 0 && this.enemies.length < maxActive) {
       this.spawnWord();
       this.spawnTimer = this.spawnInterval;
     }
@@ -62,17 +82,15 @@ export class EnemySpawner {
     const vocab = this.wordsQueue.shift();
     if (!vocab) return;
 
-    const colors = ['#00f0ff', '#39ff14', '#ffe600', '#ff007f', '#a388ee'];
+    const colors = ['#38bdf8', '#4ade80', '#facc15', '#f472b6', '#c084fc', '#fb923c'];
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
-    // Calculate approximate width based on word length
-    const estimatedWidth = Math.max(120, vocab.word.length * 28 + 60);
-    const minX = 40;
-    const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 40);
+    const estimatedWidth = Math.max(130, vocab.word.length * 28 + 65);
+    const minX = 30;
+    const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 30);
 
-    // Try finding an X position that doesn't closely overlap top enemies
     let bestX = minX + Math.random() * (maxX - minX);
-    const topEnemies = this.enemies.filter(e => e.y < 150);
+    const topEnemies = this.enemies.filter(e => e.y < 160);
     if (topEnemies.length > 0) {
       for (let attempt = 0; attempt < 5; attempt++) {
         const candidateX = minX + Math.random() * (maxX - minX);
@@ -85,16 +103,16 @@ export class EnemySpawner {
     }
 
     const enemy: EnemyItem = {
-      id: `${vocab.id}-${Date.now()}`,
+      id: `${vocab.id}-${Date.now()}-${Math.random()}`,
       word: vocab.word.toLowerCase(),
       meaningVi: vocab.meaningVi,
       emoji: vocab.emoji,
       typedIndex: 0,
       x: bestX,
-      y: -40,
-      speed: this.baseSpeed + Math.random() * 0.25,
+      y: -50,
+      speed: this.baseSpeed + Math.random() * 0.15,
       width: estimatedWidth,
-      height: 54,
+      height: 56,
       color: chosenColor,
       isTargeted: false,
       shakeTime: 0
@@ -106,5 +124,6 @@ export class EnemySpawner {
   public clear() {
     this.wordsQueue = [];
     this.enemies = [];
+    this.totalLevelWordsCount = 0;
   }
 }

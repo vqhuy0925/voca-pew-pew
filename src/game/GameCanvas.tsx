@@ -1,30 +1,36 @@
 import React, { useEffect, useRef } from 'react';
-import { EnemyItem, GameStats, GameState, VocabTheme } from '../data/types';
+import { EnemyItem, GameStats, GameState } from '../data/types';
+import { LevelNode } from '../data/progress-types';
 import { ParticleSystem } from './engine/ParticleSystem';
 import { EnemySpawner } from './engine/EnemySpawner';
 import { InputHandler } from './engine/InputHandler';
 import { CollisionEngine } from './engine/CollisionEngine';
 import { soundFx } from './engine/SoundController';
+import { speechHelper } from './engine/SpeechHelper';
 
 interface GameCanvasProps {
   gameState: GameState;
-  selectedTheme: VocabTheme;
+  level: LevelNode;
   stats: GameStats;
   onStatsUpdate: (updater: (prev: GameStats) => GameStats) => void;
   onGameOver: () => void;
   onVictory: () => void;
   onTargetChange: (target: EnemyItem | null) => void;
+  onTotalWordsSet?: (count: number) => void;
+  onSuggestCharChange?: (char?: string) => void;
   onRegisterInputHandler?: (handler: (char: string) => void) => void;
 }
 
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   gameState,
-  selectedTheme,
+  level,
   stats,
   onStatsUpdate,
   onGameOver,
   onVictory,
   onTargetChange,
+  onTotalWordsSet,
+  onSuggestCharChange,
   onRegisterInputHandler
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -34,8 +40,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const collisionEngineRef = useRef<CollisionEngine | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
-  const statsRef = useRef(stats);
-  statsRef.current = stats;
+  const lastSpokenEnemyIdRef = useRef<string | null>(null);
 
   // Initialize Game Systems
   useEffect(() => {
@@ -58,8 +63,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     inputHandlerRef.current = inputHandler;
     collisionEngineRef.current = collisionEngine;
 
-    // Load words for selected theme
-    spawner.loadWords(selectedTheme.words);
+    // Load level data
+    spawner.loadLevel(level);
+    if (onTotalWordsSet) {
+      onTotalWordsSet(spawner.getTotalWordsCount());
+    }
 
     // Resize Handler
     const handleResize = () => {
@@ -77,7 +85,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [selectedTheme]);
+  }, [level]);
 
   // Handle Input processing function
   const processInput = (char: string) => {
@@ -93,6 +101,21 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     onTargetChange(result.targetEnemy);
 
+    // Speak word on lock-on if not yet spoken
+    if (result.targetEnemy && result.targetEnemy.id !== lastSpokenEnemyIdRef.current) {
+      lastSpokenEnemyIdRef.current = result.targetEnemy.id;
+      speechHelper.speak(result.targetEnemy.word);
+    }
+
+    // Update suggested next char for keyboard hint
+    if (onSuggestCharChange) {
+      if (result.targetEnemy && result.targetEnemy.typedIndex < result.targetEnemy.word.length) {
+        onSuggestCharChange(result.targetEnemy.word[result.targetEnemy.typedIndex]);
+      } else {
+        onSuggestCharChange(undefined);
+      }
+    }
+
     onStatsUpdate(prev => {
       const totalKeystrokes = prev.totalKeystrokes + 1;
       let correctKeystrokes = prev.correctKeystrokes;
@@ -107,12 +130,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const comboBonus = Math.min(combo, 10) * 10;
         score += 10 + comboBonus;
 
-        if (combo % 5 === 0) {
-          soundFx.playCombo(Math.floor(combo / 5));
-          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 28);
+        if (combo % 3 === 0) {
+          soundFx.playCombo(Math.floor(combo / 3));
+          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 30);
         }
 
-        // Shoot laser from spaceship
+        // Shoot colorful laser from spaceship
         const shipX = canvas.width / 2;
         const shipY = canvas.height - 80;
         if (result.laserTargetPos) {
@@ -123,20 +146,22 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         if (result.defeatedEnemy) {
           wordsDefeated++;
           score += 100;
-          particleSys.addExplosion(result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y + 25, result.defeatedEnemy.color, 32);
-          particleSys.addFloatingText(`+${100 + comboBonus} ${result.defeatedEnemy.emoji}`, result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y, '#39ff14', 22);
+          soundFx.playExplosion();
+          particleSys.addExplosion(result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y + 25, result.defeatedEnemy.color, 36);
+          particleSys.addFloatingText(`+${100 + comboBonus} ${result.defeatedEnemy.emoji}`, result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y, '#39ff14', 24);
 
           // Find full vocab item to add to review list
-          const vocabMatch = selectedTheme.words.find(w => w.word.toLowerCase() === result.defeatedEnemy?.word.toLowerCase());
+          const vocabMatch = level.words.find(w => w.word.toLowerCase() === result.defeatedEnemy?.word.toLowerCase());
           if (vocabMatch && !clearedWordsList.some(w => w.id === vocabMatch.id)) {
             clearedWordsList.push(vocabMatch);
           }
 
           spawner.removeEnemy(result.defeatedEnemy.id);
           onTargetChange(null);
+          if (onSuggestCharChange) onSuggestCharChange(undefined);
         }
       } else if (result.isWrong) {
-        combo = 0; // Reset combo on mistake
+        combo = 0;
       }
 
       const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
@@ -166,7 +191,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Physical Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore functional keys
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
         e.preventDefault();
@@ -176,7 +200,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState, selectedTheme]);
+  }, [gameState, level]);
 
   // Game Loop
   useEffect(() => {
@@ -205,9 +229,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         // 1. Update Spawner & Enemies
         const enemies = spawner.update(deltaTime);
 
-        // 2. Check Victory condition (no remaining words in queue and screen)
+        // 2. Check Victory condition
         if (spawner.getRemainingWordsCount() === 0) {
-          soundFx.playVictory();
           onVictory();
           return;
         }
@@ -217,8 +240,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         if (breach.breachedEnemies.length > 0) {
           for (const breached of breach.breachedEnemies) {
             spawner.removeEnemy(breached.id);
-            particleSys.addExplosion(breached.x + breached.width / 2, canvas.height - 100, '#ff0055', 20);
-            particleSys.addFloatingText('-20 HP 💥', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 20);
+            soundFx.playHeartLost();
+            particleSys.addExplosion(breached.x + breached.width / 2, canvas.height - 100, '#ff0055', 24);
+            particleSys.addFloatingText('-1 ❤️', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 24);
           }
 
           onStatsUpdate(prev => {
@@ -254,7 +278,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     };
   }, [gameState, onGameOver, onVictory]);
 
-  // Main Drawing Function
+  // Main Drawing Function with Kid-Friendly Visuals
   const renderGame = (
     ctx: CanvasRenderingContext2D,
     w: number,
@@ -262,34 +286,35 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     enemies: EnemyItem[],
     particleSys: ParticleSystem
   ) => {
-    // Clear Screen with deep space gradient
+    // Rich warm galaxy gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-    bgGrad.addColorStop(0, '#060714');
-    bgGrad.addColorStop(1, '#0e112a');
+    bgGrad.addColorStop(0, '#0a0d2a');
+    bgGrad.addColorStop(0.5, '#12173f');
+    bgGrad.addColorStop(1, '#080a1c');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Draw Particles & Stars
+    // Draw Particles & Floating Stars
     particleSys.draw(ctx);
 
-    // Draw Defense Shield Line (Bottom barrier)
+    // Draw Defense Shield Line (Bubbly glowing line)
     const defenseY = h - 100;
     ctx.save();
-    ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 3;
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 15;
-    ctx.setLineDash([12, 8]);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 18;
+    ctx.setLineDash([14, 10]);
     ctx.beginPath();
     ctx.moveTo(20, defenseY);
     ctx.lineTo(w - 20, defenseY);
     ctx.stroke();
 
     // Defense Line Label
-    ctx.font = 'bold 12px Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(0, 240, 255, 0.7)';
+    ctx.font = 'bold 13px Fredoka, sans-serif';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
     ctx.textAlign = 'right';
-    ctx.fillText('SHIELD DEFENSE LINE', w - 30, defenseY - 8);
+    ctx.fillText('KHIÊN BẢO VỆ VŨ TRỤ 🛡️', w - 30, defenseY - 10);
     ctx.restore();
 
     // Draw Floating Enemies (Words)
@@ -304,7 +329,6 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const drawEnemy = (ctx: CanvasRenderingContext2D, enemy: EnemyItem) => {
     ctx.save();
 
-    // Shake offset on mistake/hit
     let offsetX = 0;
     if (enemy.shakeTime > 0) {
       offsetX = (Math.random() - 0.5) * 8;
@@ -314,34 +338,33 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const y = enemy.y;
     const width = enemy.width;
     const height = enemy.height;
-    const radius = 16;
+    const radius = 20;
 
-    // Outer Glow / Highlight if targeted
+    // Glowing Pill Card
     if (enemy.isTargeted) {
       ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 24;
+      ctx.shadowBlur = 25;
       ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 3.5;
+      ctx.lineWidth = 4;
     } else {
       ctx.shadowColor = enemy.color;
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 12;
       ctx.strokeStyle = enemy.color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
     }
 
     // Badge Background Box
-    ctx.fillStyle = enemy.isTargeted ? 'rgba(18, 20, 56, 0.95)' : 'rgba(10, 12, 34, 0.85)';
+    ctx.fillStyle = enemy.isTargeted ? 'rgba(16, 22, 64, 0.95)' : 'rgba(12, 16, 44, 0.85)';
     ctx.beginPath();
     ctx.roundRect(x, y, width, height, radius);
     ctx.fill();
     ctx.stroke();
 
-    // Draw Target Lock Crosshair Indicator if targeted
+    // Target pointer triangle above if locked-on
     if (enemy.isTargeted) {
       ctx.save();
       ctx.fillStyle = '#00f0ff';
       ctx.beginPath();
-      // Little triangle pointer above
       ctx.moveTo(x + width / 2, y - 6);
       ctx.lineTo(x + width / 2 - 8, y - 16);
       ctx.lineTo(x + width / 2 + 8, y - 16);
@@ -351,14 +374,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Draw Emoji
-    ctx.font = '24px serif';
+    ctx.font = '26px serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillText(enemy.emoji, x + 12, y + height / 2 - 4);
 
     // Draw Word Letters (Split into typed and untyped)
-    const letterStartX = x + 44;
-    ctx.font = 'bold 26px Fredoka, sans-serif';
+    const letterStartX = x + 48;
+    ctx.font = 'bold 27px Fredoka, sans-serif';
     ctx.textBaseline = 'middle';
 
     let currentX = letterStartX;
@@ -368,17 +391,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const isCurrentChar = i === enemy.typedIndex && enemy.isTargeted;
 
       if (isTyped) {
-        // Correctly typed -> Glow Green
-        ctx.fillStyle = '#39ff14';
-        ctx.shadowColor = '#39ff14';
-        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#4ade80';
+        ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = 12;
       } else if (isCurrentChar) {
-        // Next character to type -> Bright Yellow with underline
-        ctx.fillStyle = '#ffe600';
-        ctx.shadowColor = '#ffe600';
-        ctx.shadowBlur = 14;
+        ctx.fillStyle = '#facc15';
+        ctx.shadowColor = '#facc15';
+        ctx.shadowBlur = 16;
       } else {
-        // Remaining characters -> White
         ctx.fillStyle = '#ffffff';
         ctx.shadowBlur = 0;
       }
@@ -387,23 +407,23 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
       // Underline active char
       if (isCurrentChar) {
-        ctx.strokeStyle = '#ffe600';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(currentX - 1, y + 34);
-        ctx.lineTo(currentX + 16, y + 34);
+        ctx.moveTo(currentX - 1, y + 36);
+        ctx.lineTo(currentX + 16, y + 36);
         ctx.stroke();
       }
 
       currentX += ctx.measureText(char).width + 3;
     }
 
-    // Vietnamese Meaning Pill (Sub-label)
-    ctx.font = '500 12px Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    // Vietnamese Meaning Subtext
+    ctx.font = 'bold 12px Fredoka, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(`(${enemy.meaningVi})`, x + 44, y + 42);
+    ctx.fillText(`(${enemy.meaningVi})`, x + 48, y + 43);
 
     ctx.restore();
   };
@@ -413,10 +433,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.translate(shipX, shipY);
 
     // Thruster Flame Glow
-    const flameHeight = 15 + Math.sin(Date.now() * 0.02) * 5;
+    const flameHeight = 16 + Math.sin(Date.now() * 0.02) * 6;
     ctx.fillStyle = '#ff9900';
     ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = 22;
     ctx.beginPath();
     ctx.moveTo(-10, 20);
     ctx.lineTo(0, 20 + flameHeight);
@@ -424,34 +444,34 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.closePath();
     ctx.fill();
 
-    // Spaceship Hull
+    // Cute Space Rocket Ship
     ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 12;
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 14;
 
     ctx.beginPath();
-    ctx.moveTo(0, -28);      // Nose
-    ctx.lineTo(24, 18);      // Right wing
+    ctx.moveTo(0, -30);
+    ctx.lineTo(26, 18);
     ctx.lineTo(12, 14);
-    ctx.lineTo(0, 20);       // Back center
+    ctx.lineTo(0, 20);
     ctx.lineTo(-12, 14);
-    ctx.lineTo(-24, 18);     // Left wing
+    ctx.lineTo(-26, 18);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Cockpit Cockpit Glass
-    ctx.fillStyle = '#00f0ff';
+    // Friendly Cockpit Glass
+    ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
-    ctx.arc(0, -4, 6, 0, Math.PI * 2);
+    ctx.arc(0, -4, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    // Dual Laser Cannons
-    ctx.fillStyle = '#ff007f';
-    ctx.fillRect(-22, -6, 4, 12);
-    ctx.fillRect(18, -6, 4, 12);
+    // Dual Cute Cannons
+    ctx.fillStyle = '#f472b6';
+    ctx.fillRect(-24, -6, 5, 14);
+    ctx.fillRect(19, -6, 5, 14);
 
     ctx.restore();
   };

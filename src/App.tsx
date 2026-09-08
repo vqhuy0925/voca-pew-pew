@@ -1,15 +1,29 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { GameState, VocabTheme, GameStats, EnemyItem } from './data/types';
-import { VOCAB_THEMES } from './data/vocab-levels';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { GameStats, EnemyItem } from './data/types';
+import { LevelNode, UserProgress } from './data/progress-types';
+import { ALL_LEVELS, getNextLevel } from './data/learning-path-data';
+import {
+  loadUserProgress,
+  saveUserProgress,
+  completeLevelProgress,
+  deductHeart,
+  refillHearts
+} from './services/progressStorage';
+
+import { LearningPathView } from './components/path/LearningPathView';
+import { WarmupModal } from './components/modals/WarmupModal';
+import { ChestRewardModal } from './components/modals/ChestRewardModal';
+import { RefillHeartsModal } from './components/modals/RefillHeartsModal';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
 import { VirtualKeyboard } from './components/VirtualKeyboard';
-import { LevelSelectModal } from './components/LevelSelectModal';
 import { VictoryModal } from './components/VictoryModal';
 import { GameOverModal } from './components/GameOverModal';
 import { PauseModal } from './components/PauseModal';
 import { soundFx } from './game/engine/SoundController';
+
+type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -26,51 +40,131 @@ const INITIAL_STATS: GameStats = {
 };
 
 export const App: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>('MENU');
-  const [selectedTheme, setSelectedTheme] = useState<VocabTheme>(VOCAB_THEMES[0]);
+  const [screen, setScreen] = useState<AppScreen>('MAP');
+  const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
+  const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
+    const saved = loadUserProgress();
+    return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
+  });
+  const [gameSessionId, setGameSessionId] = useState<number>(0);
   const [stats, setStats] = useState<GameStats>(INITIAL_STATS);
   const [activeTarget, setActiveTarget] = useState<EnemyItem | null>(null);
+  const [suggestedChar, setSuggestedChar] = useState<string | undefined>(undefined);
+  const [totalLevelWords, setTotalLevelWords] = useState<number>(0);
+  const [showRefillModal, setShowRefillModal] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const virtualInputHandlerRef = useRef<((char: string) => void) | null>(null);
 
-  const handleStartGame = () => {
+  // Sync soundFx mute state with loaded progress
+  useEffect(() => {
+    soundFx.isMuted = !progress.soundEnabled;
+    setIsMuted(!progress.soundEnabled);
+  }, [progress.soundEnabled]);
+
+  const handleUpdateProgress = useCallback((updater: (prev: UserProgress) => UserProgress) => {
+    setProgress(prev => {
+      const next = updater(prev);
+      saveUserProgress(next);
+      return next;
+    });
+  }, []);
+
+  const handleSelectLevel = (level: LevelNode) => {
+    setSelectedLevel(level);
+
+    if (level.type === 'CHEST_REWARD') {
+      setScreen('CHEST_MODAL');
+      return;
+    }
+
+    // Open Warmup Preview Flashcards first
+    setScreen('WARMUP');
+  };
+
+  const handleStartBattle = () => {
+    setGameSessionId(id => id + 1);
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
-    setGameState('PLAYING');
+    setSuggestedChar(undefined);
+    if (progress.hearts <= 0) {
+      handleUpdateProgress(p => refillHearts(p));
+    }
+    setScreen('PLAYING');
   };
 
   const handleRestart = () => {
+    setGameSessionId(id => id + 1);
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
-    setGameState('PLAYING');
+    setSuggestedChar(undefined);
+    if (progress.hearts <= 0) {
+      handleUpdateProgress(p => refillHearts(p));
+    }
+    setScreen('PLAYING');
   };
 
   const handlePause = () => {
-    setGameState('PAUSED');
+    setScreen('PAUSED');
   };
 
   const handleResume = () => {
-    setGameState('PLAYING');
+    setScreen('PLAYING');
   };
 
-  const handleChangeTheme = () => {
+  const handleGoToMap = () => {
     setActiveTarget(null);
-    setGameState('MENU');
+    setSuggestedChar(undefined);
+    setScreen('MAP');
   };
 
   const handleToggleMute = () => {
     const muted = soundFx.toggleMute();
     setIsMuted(muted);
+    handleUpdateProgress(p => ({ ...p, soundEnabled: !muted }));
   };
 
   const handleGameOver = useCallback(() => {
-    setGameState('GAME_OVER');
-  }, []);
+    handleUpdateProgress(p => deductHeart(p));
+    setScreen('GAME_OVER');
+  }, [handleUpdateProgress]);
 
   const handleVictory = useCallback(() => {
-    setGameState('VICTORY');
-  }, []);
+    let starsEarned = 1;
+    if (stats.stationHealth >= 80 && stats.accuracy >= 80) {
+      starsEarned = 3;
+    } else if (stats.stationHealth >= 40) {
+      starsEarned = 2;
+    }
+
+    handleUpdateProgress(prev =>
+      completeLevelProgress(
+        prev,
+        selectedLevel.id,
+        starsEarned,
+        stats.score,
+        selectedLevel.xpReward,
+        selectedLevel.gemReward
+      )
+    );
+
+    setScreen('VICTORY');
+  }, [stats, selectedLevel, handleUpdateProgress]);
+
+  const handleNextLevel = () => {
+    const nextLvl = getNextLevel(selectedLevel.id);
+    if (nextLvl) {
+      setSelectedLevel(nextLvl);
+      setGameSessionId(id => id + 1);
+      if (nextLvl.type === 'CHEST_REWARD') {
+        setScreen('CHEST_MODAL');
+      } else {
+        setScreen('WARMUP');
+      }
+    } else {
+      setScreen('MAP');
+    }
+  };
 
   const registerInputHandler = useCallback((handler: (char: string) => void) => {
     virtualInputHandlerRef.current = handler;
@@ -82,73 +176,118 @@ export const App: React.FC = () => {
     }
   };
 
+  const nextLevel = getNextLevel(selectedLevel.id);
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-space-dark select-none font-game">
-      {/* Background Canvas Engine */}
-      <GameCanvas
-        gameState={gameState}
-        selectedTheme={selectedTheme}
-        stats={stats}
-        onStatsUpdate={setStats}
-        onGameOver={handleGameOver}
-        onVictory={handleVictory}
-        onTargetChange={setActiveTarget}
-        onRegisterInputHandler={registerInputHandler}
-      />
+      {/* 1. Duolingo Learning Saga Path View */}
+      {screen === 'MAP' && (
+        <LearningPathView
+          progress={progress}
+          onSelectLevel={handleSelectLevel}
+          onUpdateProgress={handleUpdateProgress}
+          onOpenRefillModal={() => setShowRefillModal(true)}
+        />
+      )}
 
-      {/* In-Game HUD & Controls */}
-      {gameState === 'PLAYING' && (
+      {/* 2. In-Game Battle Arena (Game Canvas + HUD) */}
+      {(screen === 'PLAYING' || screen === 'PAUSED' || screen === 'VICTORY' || screen === 'GAME_OVER') && (
         <>
-          <HUD
+          <GameCanvas
+            key={`${selectedLevel.id}-${gameSessionId}`}
+            gameState={screen === 'PLAYING' ? 'PLAYING' : 'PAUSED'}
+            level={selectedLevel}
             stats={stats}
-            theme={selectedTheme}
-            isMuted={isMuted}
-            onToggleMute={handleToggleMute}
-            onPause={handlePause}
+            onStatsUpdate={setStats}
+            onGameOver={handleGameOver}
+            onVictory={handleVictory}
+            onTargetChange={setActiveTarget}
+            onTotalWordsSet={setTotalLevelWords}
+            onSuggestCharChange={setSuggestedChar}
+            onRegisterInputHandler={registerInputHandler}
           />
 
-          <WordTargetBar target={activeTarget} />
+          {screen === 'PLAYING' && (
+            <>
+              <HUD
+                stats={stats}
+                level={selectedLevel}
+                hearts={progress.hearts}
+                maxHearts={progress.maxHearts}
+                totalWords={totalLevelWords}
+                isMuted={isMuted}
+                onToggleMute={handleToggleMute}
+                onPause={handlePause}
+              />
 
-          <VirtualKeyboard onKeyPress={handleVirtualKeyPress} />
+              <WordTargetBar target={activeTarget} />
+
+              <VirtualKeyboard
+                onKeyPress={handleVirtualKeyPress}
+                suggestedChar={suggestedChar}
+              />
+            </>
+          )}
         </>
       )}
 
-      {/* Menu / Theme Selection Modal */}
-      {gameState === 'MENU' && (
-        <LevelSelectModal
-          selectedTheme={selectedTheme}
-          onSelectTheme={setSelectedTheme}
-          onStartGame={handleStartGame}
+      {/* 3. Warmup Flashcard Preview Modal */}
+      {screen === 'WARMUP' && (
+        <WarmupModal
+          level={selectedLevel}
+          onStartGame={handleStartBattle}
+          onClose={handleGoToMap}
         />
       )}
 
-      {/* Pause Modal */}
-      {gameState === 'PAUSED' && (
+      {/* 4. Chest Reward Modal */}
+      {screen === 'CHEST_MODAL' && (
+        <ChestRewardModal
+          level={selectedLevel}
+          progress={progress}
+          onUpdateProgress={handleUpdateProgress}
+          onClose={handleGoToMap}
+        />
+      )}
+
+      {/* 5. Pause Modal */}
+      {screen === 'PAUSED' && (
         <PauseModal
-          theme={selectedTheme}
+          level={selectedLevel}
           onResume={handleResume}
           onRestart={handleRestart}
-          onChangeTheme={handleChangeTheme}
+          onGoToMap={handleGoToMap}
         />
       )}
 
-      {/* Victory Modal */}
-      {gameState === 'VICTORY' && (
+      {/* 6. Victory Modal (Duolingo Complete) */}
+      {screen === 'VICTORY' && (
         <VictoryModal
           stats={stats}
-          theme={selectedTheme}
+          level={selectedLevel}
+          hasNextLevel={!!nextLevel}
+          onNextLevel={handleNextLevel}
           onRestart={handleRestart}
-          onChangeTheme={handleChangeTheme}
+          onGoToMap={handleGoToMap}
         />
       )}
 
-      {/* Game Over Modal */}
-      {gameState === 'GAME_OVER' && (
+      {/* 7. Game Over Modal (Child-Friendly Oopsie) */}
+      {screen === 'GAME_OVER' && (
         <GameOverModal
           stats={stats}
-          theme={selectedTheme}
+          level={selectedLevel}
           onRestart={handleRestart}
-          onChangeTheme={handleChangeTheme}
+          onGoToMap={handleGoToMap}
+        />
+      )}
+
+      {/* 8. Refill Hearts Modal */}
+      {showRefillModal && (
+        <RefillHeartsModal
+          progress={progress}
+          onUpdateProgress={handleUpdateProgress}
+          onClose={() => setShowRefillModal(false)}
         />
       )}
     </div>

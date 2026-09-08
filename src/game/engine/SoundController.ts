@@ -29,7 +29,7 @@ class SoundController {
 
       osc.type = 'sawtooth';
       const now = this.ctx.currentTime;
-      osc.frequency.setValueAtTime(880, now); // A5
+      osc.frequency.setValueAtTime(880, now);
       osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
 
       gain.gain.setValueAtTime(0.2, now);
@@ -41,7 +41,7 @@ class SoundController {
       osc.start(now);
       osc.stop(now + 0.12);
     } catch {
-      // Ignore audio errors
+      // Ignore
     }
   }
 
@@ -80,8 +80,7 @@ class SoundController {
       this.initCtx();
       if (!this.ctx) return;
 
-      // Noise buffer for explosion
-      const bufferSize = this.ctx.sampleRate * 0.3;
+      const bufferSize = this.ctx.sampleRate * 0.25;
       const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
@@ -94,11 +93,11 @@ class SoundController {
       const filter = this.ctx.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.3);
+      filter.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.25);
 
       const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
 
       noise.connect(filter);
       filter.connect(gain);
@@ -120,19 +119,19 @@ class SoundController {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
 
-      osc.type = 'square';
+      osc.type = 'triangle';
       const now = this.ctx.currentTime;
-      osc.frequency.setValueAtTime(160, now);
-      osc.frequency.setValueAtTime(130, now + 0.06);
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.setValueAtTime(180, now + 0.08);
 
-      gain.gain.setValueAtTime(0.15, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.12);
+      osc.stop(now + 0.15);
     } catch {
       // Ignore
     }
@@ -146,7 +145,7 @@ class SoundController {
       if (!this.ctx) return;
 
       const baseFreq = 440;
-      const semitones = [0, 4, 7, 12, 16]; // Major arpeggio
+      const semitones = [0, 4, 7, 12, 16];
       const noteIndex = Math.min(comboCount, semitones.length - 1);
       const freq = baseFreq * Math.pow(2, semitones[noteIndex] / 12);
 
@@ -157,7 +156,158 @@ class SoundController {
       const now = this.ctx.currentTime;
       osc.frequency.setValueAtTime(freq, now);
 
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Duolingo Style Star Pop Sound
+  public playStarPop(starIndex: number = 1) {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const freqs = [587.33, 739.99, 880.0]; // D5, F#5, A5
+      const freq = freqs[Math.min(starIndex - 1, 2)] || 587.33;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.15);
+
       gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Gem Pick up sound
+  public playGemPickup() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [800, 1200, 1600];
+
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'sine';
+        const start = now + idx * 0.05;
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.18, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.1);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Chest Open Fanfare
+  public playChestOpen() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [440, 554.37, 659.25, 880, 1108.73];
+
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'triangle';
+        const start = now + idx * 0.08;
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.2, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.25);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Bubbly Button Click
+  public playClick() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.04);
+
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Heart Loss Oops Sound
+  public playHeartLost() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(160, now + 0.2);
+
+      gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
 
       osc.connect(gain);
