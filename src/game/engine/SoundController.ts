@@ -169,7 +169,7 @@ class SoundController {
     }
   }
 
-  // Duolingo Style Star Pop Sound
+  // Star Pop Sound
   public playStarPop(starIndex: number = 1) {
     if (this.isMuted) return;
     try {

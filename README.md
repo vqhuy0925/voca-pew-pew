@@ -1,4 +1,4 @@
-# 🚀 Vocab Pew Pew — Duolingo Space Edition for Kids
+# 🚀 Vocab Pew Pew — Space Adventure Edition for Kids
 
 <div align="center">
 
@@ -9,7 +9,7 @@
 ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Vercel Ready](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-**Web game luyện gõ từ vựng tiếng Anh tương tác cao, kết hợp phong cách phiêu lưu lộ trình Duolingo và cơ chế bắn thiên thạch 2D vui nhộn dành cho trẻ em (Lớp 1 – 3 / 6–10 tuổi).**
+**Web game luyện gõ từ vựng tiếng Anh tương tác cao, kết hợp phong cách phiêu lưu lộ trình học tập và cơ chế bắn thiên thạch 2D vui nhộn dành cho trẻ em (Lớp 1 – 3 / 6–10 tuổi).**
 
 [Trải Nghiệm Trò Chơi](#-hướng-dẫn-cài-đặt--chạy-thử) • [Tính Năng Nổi Bật](#-tính-năng-nổi-bật) • [Kiến Trúc Kỹ Thuật](#-kiến-trúc-kỹ-thuật) • [Lộ Trình Học Tập](#-lộ-trình-học-tập-5-chương)
 
@@ -21,14 +21,14 @@
 
 **Vocab Pew Pew** được thiết kế dựa trên phương pháp học tiếng Anh **"Phonics-First & Gamification"**:
 - Thay vì học từ vựng thụ động qua danh sách chữ, trẻ được hóa thân thành **Phi công vũ trụ nhí** bảo vệ trạm không gian.
-- Tích hợp lộ trình học tập dạng **Saga Map (bản đồ đường cong Duolingo)** với hệ thống phần thưởng tích lũy (⭐ Sao, 🔥 Chuỗi ngày học Streak, 💎 Kim cương, ❤️ Trái tim).
+- Tích hợp lộ trình học tập dạng **Saga Map (bản đồ phiêu lưu đường cong)** với hệ thống phần thưởng tích lũy (⭐ Sao, 🔥 Chuỗi ngày học Streak, 💎 Kim cương, ❤️ Trái tim).
 - Tích hợp bạn đồng hành hoạt hình **Cosmo the Astro-Pup (🐶🚀)** liên tục cổ vũ, động viên và hướng dẫn trong suốt quá trình học.
 
 ---
 
 ## ✨ Tính Năng Nổi Bật
 
-### 🗺️ 1. Lộ Trình Học Tập Duolingo Saga Map
+### 🗺️ 1. Lộ Trình Học Tập Saga Map
 - **5 Chương học (Units) với hơn 20 màn chơi** được mở khóa tuần tự:
   - 🟢 **Standard Lesson**: Màn luyện tập gõ từ vựng cơ bản với tốc độ rơi êm ái.
   - ⚡ **Speed Rush**: Màn thử thách phản xạ và chuỗi combo điểm cao.
@@ -41,7 +41,7 @@
    - Trước khi bắn, bé được xem thẻ từ vựng minh họa hoạt hình kèm biểu tượng Emoji, phiên âm Phonics và nghĩa tiếng Việt.
    - Nghe phát âm chuẩn giọng bản ngữ (US/UK) chỉ với 1 cú chạm.
 2. **Pha 2 — Đấu Trường Gõ Phím (Pew-Pew Battle Arena)**:
-   - Thanh tiến độ bài học phong cách Duolingo hiển thị rõ ràng số từ còn lại.
+   - Thanh tiến độ bài học trực quan hiển thị rõ ràng số từ còn lại.
    - Cơ chế **Lock-on Laser**: Gõ chữ cái đầu tiên để khóa mục tiêu, âm thanh phát âm từ tự động vang lên giúp ghi nhớ âm thanh gắn liền với chữ viết.
    - Hệ thống **5 Trái Tim (❤️❤️❤️❤️❤️)**: Trừ tim êm ái khi từ chạm đáy, kèm tùy chọn nạp tim miễn phí để bé không bao giờ bị ức chế tâm lý hay gián đoạn việc học.
 3. **Pha 3 — Tuyên Dương & Sổ Dán Sticker Ôn Tập (Victory Celebration)**:
@@ -79,11 +79,11 @@ vocab-pew-pew/
 │   ├── components/             # React UI Components
 │   │   ├── mascot/             # Animated Mascot Cosmo
 │   │   │   └── MascotWidget.tsx
-│   │   ├── modals/             # Duolingo Modals (Warmup, Chest, Refill)
+│   │   ├── modals/             # Interactive Modals (Warmup, Chest, Refill)
 │   │   │   ├── ChestRewardModal.tsx
 │   │   │   ├── RefillHeartsModal.tsx
 │   │   │   └── WarmupModal.tsx
-│   │   ├── path/               # Duolingo Saga Map & Navigation
+│   │   ├── path/               # Saga Map & Navigation
 │   │   │   ├── LearningPathView.tsx
 │   │   │   ├── LevelNodeButton.tsx
 │   │   │   └── TopNavBar.tsx
@@ -162,7 +162,7 @@ Thư mục xuất bản hoàn thiện sẵn sàng tại `dist/`.
 1. Đẩy code lên GitHub repository:
    ```bash
    git add .
-   git commit -m "feat: complete Duolingo-style child-friendly upgrade"
+   git commit -m "feat: complete child-friendly upgrade"
    git push origin main
    ```
 2. Truy cập [Vercel](https://vercel.com/), chọn **Add New Project** và liên kết với GitHub repository.

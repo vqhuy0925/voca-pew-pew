@@ -25,7 +25,7 @@ export const HUD: React.FC<HUDProps> = ({
   onToggleMute,
   onPause
 }) => {
-  // Calculate Duolingo progress percentage for the current lesson
+  // Calculate progress percentage for the current lesson
   const progressPercent = totalWords > 0
     ? Math.min(100, Math.round((stats.wordsDefeated / totalWords) * 100))
     : 0;
@@ -52,7 +52,7 @@ export const HUD: React.FC<HUDProps> = ({
           </div>
         </div>
 
-        {/* Center: Duolingo Lesson Progress Bar */}
+        {/* Center: Lesson Progress Bar */}
         <div className="flex-1 max-w-xs sm:max-w-md pointer-events-auto">
           <div className="w-full h-4 sm:h-5 bg-slate-900/90 rounded-full border-2 border-slate-700 overflow-hidden shadow-inner flex items-center p-0.5">
             <div

@@ -33,7 +33,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             <h1 className="font-game font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-400 to-yellow-300 leading-tight">
               VOCAB PEW PEW
             </h1>
-            <span className="text-xs text-cyan-300 font-semibold">Duolingo Space Edition</span>
+            <span className="text-xs text-cyan-300 font-semibold">Space Adventure Edition</span>
           </div>
         </div>
 
@@ -57,7 +57,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             <span>{progress.gems}</span>
           </div>
 
-          {/* Hearts (Duolingo style) */}
+          {/* Hearts (Life system) */}
           <button
             onClick={onOpenRefillModal}
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-400/60 rounded-2xl text-rose-300 font-game font-bold text-base shadow-sm transition active:scale-95 cursor-pointer"

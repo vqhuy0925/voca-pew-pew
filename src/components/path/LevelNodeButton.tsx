@@ -66,7 +66,7 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
       className="relative flex flex-col items-center my-3 transition-transform duration-300"
       style={{ transform: `translateX(${offsetX}px)` }}
     >
-      {/* Current Active Floating Tag (Duolingo "BẮT ĐẦU" / "START" callout) */}
+      {/* Current Active Floating Tag ("BẮT ĐẦU" / "START" callout) */}
       {isCurrent && (
         <div className="absolute -top-10 z-20 animate-bounce">
           <div className="bg-white text-slate-900 font-game font-extrabold text-xs sm:text-sm uppercase px-3.5 py-1 rounded-xl shadow-lg border-2 border-emerald-400 flex items-center gap-1.5">

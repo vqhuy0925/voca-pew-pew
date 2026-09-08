@@ -13,7 +13,7 @@ interface LearningPathViewProps {
   onOpenRefillModal: () => void;
 }
 
-// Zigzag offsets for winding Duolingo path
+// Zigzag offsets for winding saga path
 const ZIGZAG_OFFSETS = [0, 45, 75, 45, 0, -45, -75, -45];
 
 export const LearningPathView: React.FC<LearningPathViewProps> = ({
@@ -29,7 +29,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 
   return (
     <div className="relative w-full h-full overflow-y-auto bg-gradient-to-b from-[#0a0c24] via-[#101438] to-[#080918] text-white select-none">
-      {/* Top Duolingo Bar */}
+      {/* Top Bar */}
       <TopNavBar
         progress={progress}
         onUpdateProgress={onUpdateProgress}

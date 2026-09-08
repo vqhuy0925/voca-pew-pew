@@ -183,7 +183,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-space-dark select-none font-game">
-      {/* 1. Duolingo Learning Saga Path View */}
+      {/* 1. Learning Saga Path View */}
       {screen === 'MAP' && (
         <LearningPathView
           progress={progress}
@@ -263,7 +263,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 6. Victory Modal (Duolingo Complete) */}
+      {/* 6. Victory Modal (Lesson Complete) */}
       {screen === 'VICTORY' && (
         <VictoryModal
           stats={stats}
