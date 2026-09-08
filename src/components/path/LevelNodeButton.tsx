@@ -85,7 +85,7 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
           isUnlocked
             ? 'cursor-pointer hover:scale-108 active:translate-y-1 active:border-b-0 hover:brightness-110 shadow-lg'
             : 'cursor-not-allowed opacity-45'
-        } ${getNodeColorClass()}`}
+        } ${getNodeColorClass()} ${isCurrent ? 'ring-4 ring-cyan-400 ring-offset-4 ring-offset-slate-900 shadow-[0_0_30px_rgba(34,211,238,0.7)] animate-pulse' : ''}`}
       >
         {/* Node Icon / State */}
         {!isUnlocked ? (

@@ -1,5 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { LEARNING_UNITS, ALL_LEVELS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge, getRealmById } from '../../data/learning-path-data';
+import {
+  LEARNING_UNITS,
+  ALL_LEVELS,
+  AGE_REALMS,
+  getRealmByChapterNumber,
+  getRealmByAge,
+  getRealmById,
+  getRealmByLevelId,
+  getUnitByLevelId
+} from '../../data/learning-path-data';
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { getSpaceshipById, getBlasterById, getLaserById } from '../../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -50,16 +59,60 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
 
+  // Determine realm for current level
+  const curLevelRealm = useMemo(() => {
+    return getRealmByLevelId(progress.currentLevelId);
+  }, [progress.currentLevelId]);
+
   // Derive active realm directly from user progress to always stay in sync
-  const activeRealmId = progress.selectedRealmId || (progress.userAge ? getRealmByAge(progress.userAge).id : 'realm-1');
+  const activeRealmId = progress.selectedRealmId || curLevelRealm.id || (progress.userAge ? getRealmByAge(progress.userAge).id : 'realm-1');
   const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [jumpChapter, setJumpChapter] = useState<string>('');
   const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
+  const levelRefs = useRef<Record<string, HTMLElement | null>>({});
+  const hasUserSwitchedRealmRef = useRef<boolean>(false);
 
   const currentRealm = useMemo(() => {
     return getRealmById(activeRealmId);
   }, [activeRealmId]);
+
+  // Auto-scroll to current level
+  const scrollToCurrentLevel = (behavior: ScrollBehavior = 'smooth') => {
+    const curLevelId = progress.currentLevelId;
+    if (!curLevelId) return;
+
+    // Check if the current level element is rendered in DOM
+    const levelEl = levelRefs.current[curLevelId];
+    if (levelEl) {
+      levelEl.scrollIntoView({ behavior, block: 'center' });
+      return;
+    }
+
+    // Fallback: check if unit chapter element is rendered
+    const curUnit = getUnitByLevelId(curLevelId);
+    if (curUnit) {
+      const chapterEl = chapterRefs.current[curUnit.id] || chapterRefs.current[`unit-${curUnit.unitNumber}`];
+      if (chapterEl) {
+        chapterEl.scrollIntoView({ behavior, block: 'center' });
+      }
+    }
+  };
+
+  // Auto-jump to current level on mount and when activeRealm/currentLevel changes
+  useEffect(() => {
+    // If realm of current level does not match active realm and user hasn't explicitly switched within this session
+    if (curLevelRealm && curLevelRealm.id !== activeRealmId && !hasUserSwitchedRealmRef.current) {
+      onUpdateProgress(p => ({ ...p, selectedRealmId: curLevelRealm.id }));
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      scrollToCurrentLevel('smooth');
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [progress.currentLevelId, activeRealmId]);
 
   // Filter units according to active realm only ("less is more")
   const displayedUnits = useMemo(() => {
@@ -109,6 +162,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 
   const handleSelectRealm = (realmId: string) => {
     soundFx.playClick();
+    hasUserSwitchedRealmRef.current = true;
     setSearchQuery('');
     setJumpChapter('');
     onUpdateProgress(p => ({ ...p, selectedRealmId: realmId }));
@@ -120,6 +174,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     soundFx.playClick();
     const targetRealm = getRealmByChapterNumber(num);
     if (targetRealm.id !== activeRealmId) {
+      hasUserSwitchedRealmRef.current = true;
       onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
     }
     setSearchQuery('');
@@ -136,17 +191,16 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   const handleJumpToCurrent = () => {
     soundFx.playClick();
     const curLevelId = progress.currentLevelId;
-    const curUnit = LEARNING_UNITS.find(u => u.levels.some(l => l.id === curLevelId));
+    const curUnit = getUnitByLevelId(curLevelId);
     if (curUnit) {
       const targetRealm = getRealmByChapterNumber(curUnit.unitNumber);
       if (targetRealm.id !== activeRealmId) {
+        hasUserSwitchedRealmRef.current = false;
         onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
       }
+      setSearchQuery('');
       setTimeout(() => {
-        const el = chapterRefs.current[curUnit.id];
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        scrollToCurrentLevel('smooth');
       }, 120);
     }
   };
@@ -402,7 +456,13 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                         const isCurrent = lvl.id === progress.currentLevelId;
 
                         return (
-                          <div key={lvl.id} className="relative z-10 my-2">
+                          <div
+                            key={lvl.id}
+                            ref={(el) => {
+                              levelRefs.current[lvl.id] = el;
+                            }}
+                            className="relative z-10 my-2"
+                          >
                             <LevelNodeButton
                               level={lvl}
                               progress={progress.levelProgressMap[lvl.id]}

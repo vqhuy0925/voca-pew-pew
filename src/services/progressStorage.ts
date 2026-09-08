@@ -1,5 +1,5 @@
 import { UserProgress, LevelProgress } from '../data/progress-types';
-import { ALL_LEVELS, AGE_REALMS, getRealmByAge } from '../data/learning-path-data';
+import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -312,11 +312,15 @@ export const completeLevelProgress = (
     }
   }
 
+  const nextTargetId = nextLvl ? nextLvl.id : levelId;
+  const targetRealm = getRealmByLevelId(nextTargetId);
+
   const updatedUser: UserProgress = {
     ...prev,
     levelProgressMap: updatedMap,
     unlockedLevelIds: Array.from(updatedUnlocked),
-    currentLevelId: nextLvl ? nextLvl.id : levelId,
+    currentLevelId: nextTargetId,
+    selectedRealmId: targetRealm ? targetRealm.id : prev.selectedRealmId,
     totalXp: prev.totalXp + xpEarned,
     gems: prev.gems + gemsEarned,
     lastActiveDate: getTodayDateString()

@@ -150,6 +150,10 @@ export const App: React.FC = () => {
 
   const handleSelectLevel = (level: LevelNode) => {
     setSelectedLevel(level);
+    handleUpdateProgress(prev => ({
+      ...prev,
+      currentLevelId: level.id
+    }));
 
     if (level.type === 'CHEST_REWARD') {
       setScreen('CHEST_MODAL');

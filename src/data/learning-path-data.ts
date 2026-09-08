@@ -62,3 +62,15 @@ export const getRealmByAge = (age: number): AgeRealm => {
 export const getRealmById = (realmId: string): AgeRealm => {
   return AGE_REALMS.find(r => r.id === realmId) || AGE_REALMS[0];
 };
+
+export const getUnitByLevelId = (levelId: string): Unit | undefined => {
+  return LEARNING_UNITS.find(u => u.levels.some(l => l.id === levelId));
+};
+
+export const getRealmByLevelId = (levelId: string): AgeRealm => {
+  const unit = getUnitByLevelId(levelId);
+  if (unit) {
+    return getRealmByChapterNumber(unit.unitNumber);
+  }
+  return AGE_REALMS[0];
+};
