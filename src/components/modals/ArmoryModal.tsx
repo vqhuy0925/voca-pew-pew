@@ -28,8 +28,8 @@ interface ArmoryModalProps {
 type TabType = 'SHIPS' | 'BLASTERS' | 'LASERS';
 type RarityFilterType = 'ALL' | ItemRarity;
 
-// Mini Canvas component for Ship Thumbnails
-const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = ({ ship, isSelected }) => {
+// Mini Canvas component for Ship Thumbnails (Static 1-shot render for high performance)
+const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = React.memo(({ ship, isSelected }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -38,15 +38,8 @@ const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animId: number;
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawSpaceship(ctx, canvas.width / 2, canvas.height / 2 + 6, ship, undefined, 0.85);
-      animId = requestAnimationFrame(render);
-    };
-    render();
-
-    return () => cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSpaceship(ctx, canvas.width / 2, canvas.height / 2 + 6, ship, undefined, 0.85);
   }, [ship]);
 
   const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
@@ -65,10 +58,10 @@ const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = ({
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
   );
-};
+});
 
-// Mini Canvas component for Blaster Thumbnails
-const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> = ({ blaster, isSelected }) => {
+// Mini Canvas component for Blaster Thumbnails (Static 1-shot render for high performance)
+const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> = React.memo(({ blaster, isSelected }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -77,14 +70,8 @@ const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animId: number;
-    const render = () => {
-      drawBlasterPreview(ctx, canvas.width, canvas.height, blaster);
-      animId = requestAnimationFrame(render);
-    };
-    render();
-
-    return () => cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBlasterPreview(ctx, canvas.width, canvas.height, blaster);
   }, [blaster]);
 
   const rarity = RARITY_CONFIGS[blaster.rarity] || RARITY_CONFIGS.COMMON;
@@ -103,10 +90,10 @@ const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> 
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
   );
-};
+});
 
-// Mini Canvas component for Laser Thumbnails
-const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = ({ laser, isSelected }) => {
+// Mini Canvas component for Laser Thumbnails (Static 1-shot render for high performance)
+const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = React.memo(({ laser, isSelected }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -115,14 +102,8 @@ const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animId: number;
-    const render = () => {
-      drawLaserPreview(ctx, canvas.width, canvas.height, laser);
-      animId = requestAnimationFrame(render);
-    };
-    render();
-
-    return () => cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawLaserPreview(ctx, canvas.width, canvas.height, laser);
   }, [laser]);
 
   const rarity = RARITY_CONFIGS[laser.rarity] || RARITY_CONFIGS.COMMON;
@@ -141,7 +122,7 @@ const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = 
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
   );
-};
+});
 
 export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   progress,
