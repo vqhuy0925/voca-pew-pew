@@ -65,6 +65,21 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
               })}
             </div>
           ))}
+
+          {/* Row 4: Spacebar */}
+          <div className="flex justify-center mt-0.5">
+            <button
+              onClick={() => handleKey(' ')}
+              className={`w-48 sm:w-64 md:w-80 h-8 sm:h-9 md:h-10 font-game font-extrabold uppercase rounded-lg border-b-2 active:border-b-0 active:translate-y-0.5 transition-all duration-75 flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer ${
+                suggestedChar === ' '
+                  ? 'bg-yellow-400 border-yellow-600 text-slate-950 scale-102 shadow-md animate-pulse'
+                  : 'bg-slate-800/95 border-slate-950 text-slate-300 hover:bg-slate-700 hover:text-white'
+              }`}
+            >
+              <span>␣</span>
+              <span>DẤU CÁCH (SPACE)</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

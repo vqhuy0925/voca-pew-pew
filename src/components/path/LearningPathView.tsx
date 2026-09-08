@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { LEARNING_UNITS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge } from '../../data/learning-path-data';
+import { LEARNING_UNITS, ALL_LEVELS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge } from '../../data/learning-path-data';
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { getSpaceshipById, getBlasterById, getLaserById } from '../../data/upgrade-types';
 import { LevelNodeButton } from './LevelNodeButton';
@@ -101,7 +101,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 
   const handleJumpToChapter = (chapterNumStr: string) => {
     const num = parseInt(chapterNumStr, 10);
-    if (isNaN(num) || num < 1 || num > 200) return;
+    if (isNaN(num) || num < 1) return;
     soundFx.playClick();
     const targetRealm = getRealmByChapterNumber(num);
     setActiveRealmId(targetRealm.id);
@@ -153,17 +153,17 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
             <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 backdrop-blur-xl shadow-xl">
               <div className="flex items-center gap-2 px-1 mb-3 text-cyan-400 font-game font-extrabold text-sm uppercase tracking-wider">
                 <Compass className="w-4 h-4 stroke-[2.5]" />
-                <span>6 Cõi Thiên Hà (200 Chương)</span>
+                <span>{AGE_REALMS.length} Cõi Thiên Hà & Luyện Câu</span>
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 max-h-[55vh] overflow-y-auto pr-1">
                 {AGE_REALMS.map((realm) => {
                   const isSelected = realm.id === activeRealmId && !searchQuery;
                   const rTotal = realm.units.reduce((acc, u) => acc + u.levels.length, 0);
                   const rDone = realm.units.flatMap(u => u.levels).filter(
                     l => progress.levelProgressMap[l.id]?.isCompleted
                   ).length;
-                  const rPct = Math.round((rDone / rTotal) * 100);
+                  const rPct = rTotal > 0 ? Math.round((rDone / rTotal) * 100) : 0;
 
                   return (
                     <button
@@ -222,7 +222,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                     <span>Màn Đã Qua</span>
                   </div>
                   <div className="text-xl font-game font-black text-emerald-300 mt-1">
-                    {totalCompletedLevels} / 1000
+                    {totalCompletedLevels} / {ALL_LEVELS.length}
                   </div>
                 </div>
 

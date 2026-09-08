@@ -60,8 +60,9 @@ export class EnemySpawner {
   public update(deltaTime: number): EnemyItem[] {
     this.spawnTimer -= deltaTime;
 
-    // Max 2-3 active enemies at a time for child-friendly focus
-    const maxActive = this.isBossLevel ? 3 : 2;
+    // Adaptive max active enemies: 1-2 for long sentences, 2-3 for short words
+    const hasLongSentence = this.wordsQueue.some(w => w.word.length > 20) || this.enemies.some(e => e.word.length > 20);
+    const maxActive = hasLongSentence ? (this.isBossLevel ? 2 : 1) : (this.isBossLevel ? 3 : 2);
 
     if (this.spawnTimer <= 0 && this.wordsQueue.length > 0 && this.enemies.length < maxActive) {
       this.spawnWord();
@@ -86,10 +87,11 @@ export class EnemySpawner {
     const colors = ['#38bdf8', '#4ade80', '#facc15', '#f472b6', '#c084fc', '#fb923c'];
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const charScale = vocab.word.length > 12 ? 16 : vocab.word.length > 7 ? 20 : 26;
-    const estimatedWidth = Math.max(160, vocab.word.length * charScale + 88);
-    const minX = 25;
-    const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 25);
+    const isLongSentence = vocab.word.length > 25;
+    const charScale = vocab.word.length > 40 ? 10 : vocab.word.length > 25 ? 12 : vocab.word.length > 12 ? 15 : vocab.word.length > 7 ? 20 : 26;
+    const estimatedWidth = Math.min(this.canvasWidth - 30, Math.max(170, vocab.word.length * charScale + 84));
+    const minX = 15;
+    const maxX = Math.max(minX + 10, this.canvasWidth - estimatedWidth - 15);
 
     let bestX = minX + Math.random() * (maxX - minX);
     const topEnemies = this.enemies.filter(e => e.y < 160);
@@ -104,6 +106,9 @@ export class EnemySpawner {
       }
     }
 
+    // Slightly adjust speed for sentences so learners can comfortably read and speak
+    const sentenceSpeedAdj = isLongSentence ? 0.85 : 1.0;
+
     const enemy: EnemyItem = {
       id: `${vocab.id}-${Date.now()}-${Math.random()}`,
       word: vocab.word.toLowerCase(),
@@ -112,9 +117,9 @@ export class EnemySpawner {
       typedIndex: 0,
       x: bestX,
       y: -50,
-      speed: this.baseSpeed + Math.random() * 0.15,
+      speed: (this.baseSpeed * sentenceSpeedAdj) + Math.random() * 0.1,
       width: estimatedWidth,
-      height: 68,
+      height: isLongSentence ? 74 : 68,
       color: chosenColor,
       isTargeted: false,
       shakeTime: 0

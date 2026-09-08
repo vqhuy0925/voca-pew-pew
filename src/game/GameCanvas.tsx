@@ -243,9 +243,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.altKey || e.metaKey) return;
-      if (e.key.length === 1 && /^[a-zA-Z]$/.test(e.key)) {
+      if (e.key === ' ' || e.code === 'Space' || (e.key.length === 1 && /^[a-zA-Z0-9 '\-.,?!]$/.test(e.key))) {
         e.preventDefault();
-        processInput(e.key);
+        processInput(e.key === ' ' || e.code === 'Space' ? ' ' : e.key);
       }
     };
 
@@ -454,9 +454,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.textBaseline = 'middle';
     ctx.fillText(enemy.emoji, x + 14, y + height / 2 - 2);
 
-    // Draw Word Letters (Split into typed and untyped)
+    // Draw Word / Sentence Letters (Split into typed and untyped)
     const letterStartX = x + 58;
-    const fontSize = enemy.word.length > 12 ? 22 : enemy.word.length > 7 ? 26 : 30;
+    const isSentence = enemy.word.length > 18;
+    const fontSize = enemy.word.length > 40 ? 16 : enemy.word.length > 26 ? 18 : enemy.word.length > 15 ? 21 : enemy.word.length > 7 ? 25 : 30;
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
 
@@ -479,28 +480,38 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.shadowBlur = 0;
       }
 
-      ctx.fillText(char, currentX, y + 25);
+      const displayChar = char;
+      const charWidth = char === ' ' ? Math.max(6, fontSize * 0.35) : ctx.measureText(displayChar).width;
+
+      if (char === ' ') {
+        if (isCurrentChar) {
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.5)';
+          ctx.fillRect(currentX, y + (isSentence ? 12 : 14), Math.max(8, charWidth + 2), isSentence ? 20 : 22);
+        }
+      } else {
+        ctx.fillText(char, currentX, y + (isSentence ? 24 : 25));
+      }
 
       // Underline active char
       if (isCurrentChar) {
-        const charWidth = ctx.measureText(char).width;
         ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.moveTo(currentX - 1, y + 42);
-        ctx.lineTo(currentX + charWidth + 1, y + 42);
+        ctx.moveTo(currentX - 1, y + (isSentence ? 38 : 42));
+        ctx.lineTo(currentX + charWidth + 1, y + (isSentence ? 38 : 42));
         ctx.stroke();
       }
 
-      currentX += ctx.measureText(char).width + 3.5;
+      currentX += charWidth + (isSentence ? 1.5 : 3.5);
     }
 
     // Vietnamese Meaning Subtext
-    ctx.font = 'bold 15px Fredoka, system-ui, sans-serif';
+    const meaningFontSize = isSentence ? 13 : 15;
+    ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
     ctx.fillStyle = '#bae6fd';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(`(${enemy.meaningVi})`, x + 58, y + 51);
+    ctx.fillText(`(${enemy.meaningVi})`, x + 58, y + (isSentence ? 54 : 51));
 
     ctx.restore();
   };

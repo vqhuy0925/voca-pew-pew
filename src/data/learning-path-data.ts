@@ -6,6 +6,8 @@ import { REALM3_REALM, REALM3_UNITS } from './chapters/realm3_primary_grad';
 import { REALM4_REALM, REALM4_UNITS } from './chapters/realm4_secondary_early';
 import { REALM5_REALM, REALM5_UNITS } from './chapters/realm5_secondary_grad';
 import { REALM6_REALM, REALM6_UNITS } from './chapters/realm6_highschool_academic';
+import { REALM7_REALM, REALM7_UNITS } from './chapters/realm7_tech_po_communication';
+import { REALM8_REALM, REALM8_UNITS } from './chapters/realm8_adult_everyday_conversations';
 
 export const AGE_REALMS: AgeRealm[] = [
   REALM1_REALM,
@@ -13,7 +15,9 @@ export const AGE_REALMS: AgeRealm[] = [
   REALM3_REALM,
   REALM4_REALM,
   REALM5_REALM,
-  REALM6_REALM
+  REALM6_REALM,
+  REALM7_REALM,
+  REALM8_REALM
 ];
 
 export const LEARNING_UNITS: Unit[] = [
@@ -22,7 +26,9 @@ export const LEARNING_UNITS: Unit[] = [
   ...REALM3_UNITS,
   ...REALM4_UNITS,
   ...REALM5_UNITS,
-  ...REALM6_UNITS
+  ...REALM6_UNITS,
+  ...REALM7_UNITS,
+  ...REALM8_UNITS
 ];
 
 export const ALL_LEVELS = LEARNING_UNITS.flatMap(u => u.levels);
@@ -47,7 +53,10 @@ export const getRealmByAge = (age: number): AgeRealm => {
   if (age === 11) return AGE_REALMS[2];
   if (age <= 13) return AGE_REALMS[3];
   if (age <= 15) return AGE_REALMS[4];
-  return AGE_REALMS[5];
+  if (age <= 18) return AGE_REALMS[5];
+  if (age === 19 || age === 99) return AGE_REALMS[6]; // Tech & PO
+  if (age === 20 || age === 100) return AGE_REALMS[7]; // Adult Everyday
+  return AGE_REALMS[6];
 };
 
 export const getRealmById = (realmId: string): AgeRealm => {

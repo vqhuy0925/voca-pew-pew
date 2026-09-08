@@ -61,32 +61,58 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
             {level.titleVi}
           </h2>
           <p className="text-sm text-slate-300 mt-1">
-            Bấm vào từng từ vựng để nghe phát âm trước khi bắt đầu
+            {level.words.some(w => w.word.length > 20)
+              ? 'Bấm vào từng câu để nghe phát âm chuẩn & luyện nói (Shadowing) trước khi bắt đầu 🎙️'
+              : 'Bấm vào từng từ vựng để nghe phát âm trước khi bắt đầu'}
           </p>
         </div>
 
-        {/* Words Grid Flashcards */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {level.words.map((item) => (
-            <button
-              key={item.id}
-              onClick={(e) => handleSpeak(item.word, e)}
-              className="relative p-3.5 rounded-2xl bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-400/80 cursor-pointer transition active:scale-95 flex flex-col items-center group text-center"
-            >
-              <span className="text-3xl sm:text-4xl mb-1.5">{item.emoji}</span>
-              <div className="font-game font-extrabold text-lg sm:text-xl text-white group-hover:text-cyan-300 leading-tight">
-                {item.word}
-              </div>
-              <div className="text-xs sm:text-sm font-bold text-yellow-300 mt-1">
-                {item.meaningVi}
-              </div>
+        {/* Words / Sentences Grid Flashcards */}
+        <div className={`mb-6 max-h-72 overflow-y-auto pr-1 ${
+          level.words.some(w => w.word.length > 20)
+            ? 'grid grid-cols-1 gap-2.5'
+            : 'grid grid-cols-2 gap-3'
+        }`}>
+          {level.words.map((item) => {
+            const isLong = item.word.length > 20;
 
-              {/* Sound icon */}
-              <div className="absolute top-2.5 right-2.5 p-1 rounded-lg bg-slate-800 text-slate-400 group-hover:text-cyan-300 transition">
-                <Volume2 className="w-3.5 h-3.5" />
-              </div>
-            </button>
-          ))}
+            return (
+              <button
+                key={item.id}
+                onClick={(e) => handleSpeak(item.word, e)}
+                className={`relative p-3.5 rounded-2xl bg-slate-950/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-400/80 cursor-pointer transition active:scale-95 flex group ${
+                  isLong ? 'flex-row items-center text-left gap-3.5' : 'flex-col items-center text-center'
+                }`}
+              >
+                <span className={`flex-shrink-0 drop-shadow ${isLong ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl mb-1.5'}`}>
+                  {item.emoji}
+                </span>
+
+                <div className="flex-1 min-w-0">
+                  <div className={`font-game font-extrabold text-white group-hover:text-cyan-300 leading-tight ${
+                    isLong ? 'text-sm sm:text-base' : 'text-lg sm:text-xl'
+                  }`}>
+                    {item.word}
+                  </div>
+                  {item.pronunciation && (
+                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                      {item.pronunciation}
+                    </div>
+                  )}
+                  <div className={`font-bold text-yellow-300 mt-1 ${isLong ? 'text-xs sm:text-sm' : 'text-xs sm:text-sm'}`}>
+                    {item.meaningVi}
+                  </div>
+                </div>
+
+                {/* Sound icon */}
+                <div className={`p-1.5 rounded-xl bg-slate-800/80 text-slate-400 group-hover:text-cyan-300 transition flex-shrink-0 ${
+                  isLong ? 'ml-auto' : 'absolute top-2.5 right-2.5'
+                }`}>
+                  <Volume2 className="w-4 h-4" />
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         {/* Difficulty Selector */}

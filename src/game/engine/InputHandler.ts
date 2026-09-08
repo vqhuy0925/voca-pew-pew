@@ -20,10 +20,18 @@ export class InputHandler {
     this.targetEnemyId = id;
   }
 
+  private isIgnorablePunctuation(c: string): boolean {
+    return c === '\'' || c === ',' || c === '.' || c === '?' || c === '!' || c === '-' || c === '"' || c === ':';
+  }
+
   public handleKeyPress(key: string, enemies: EnemyItem[]): InputResult {
-    const char = key.toLowerCase();
-    // Only accept alphabet letters
-    if (!/^[a-z]$/.test(char)) {
+    let char = key.toLowerCase();
+    if (key === ' ' || key === 'Space' || key === 'Spacebar') {
+      char = ' ';
+    }
+
+    // Only accept alphabet letters, numbers, spaces, and common sentence chars
+    if (!/^[a-z0-9 '\-.,?!]$/.test(char)) {
       return {
         hitLetter: false,
         defeatedEnemy: null,
@@ -43,11 +51,13 @@ export class InputHandler {
       }
     }
 
-    // 2. If no target locked, pick the best candidate matching the first letter
+    // 2. If no target locked, pick the best candidate matching the first letter (or first non-space char)
     if (!currentTarget) {
-      // Find enemies whose first letter matches and sort by highest Y (closest to bottom/ground)
       const matchingEnemies = enemies
-        .filter(e => e.word.charAt(0) === char)
+        .filter(e => {
+          const firstChar = e.word.trim().charAt(0).toLowerCase();
+          return firstChar === char;
+        })
         .sort((a, b) => b.y - a.y);
 
       if (matchingEnemies.length > 0) {
@@ -63,20 +73,47 @@ export class InputHandler {
 
     // 3. Process key press against the target
     if (currentTarget) {
-      const expectedChar = currentTarget.word.charAt(currentTarget.typedIndex);
+      const word = currentTarget.word.toLowerCase();
+      let currIdx = currentTarget.typedIndex;
+      let matched = false;
 
-      if (char === expectedChar) {
-        // Correct character typed!
-        currentTarget.typedIndex++;
+      // Check direct match
+      if (currIdx < word.length && char === word[currIdx]) {
+        currIdx++;
+        matched = true;
+      } else if (currIdx < word.length) {
+        // Smart skip: If current char is space or punctuation, and user typed the subsequent character
+        let lookaheadIdx = currIdx;
+        while (lookaheadIdx < word.length && (word[lookaheadIdx] === ' ' || this.isIgnorablePunctuation(word[lookaheadIdx]))) {
+          lookaheadIdx++;
+        }
+        if (lookaheadIdx < word.length && char === word[lookaheadIdx]) {
+          currIdx = lookaheadIdx + 1;
+          matched = true;
+        }
+      }
+
+      // Auto-advance past any trailing punctuation at the end of the sentence
+      while (currIdx < word.length && this.isIgnorablePunctuation(word[currIdx])) {
+        // If trailing punctuation like "." or "?" or "!", advance automatically
+        if (currIdx === word.length - 1 || word.slice(currIdx).split('').every(c => this.isIgnorablePunctuation(c) || c === ' ')) {
+          currIdx = word.length;
+          break;
+        }
+        break;
+      }
+
+      if (matched) {
+        currentTarget.typedIndex = currIdx;
         soundFx.playPew();
 
-        // Calculate laser target position (approximate center of the typed character)
-        const charWidth = 24;
-        const targetX = currentTarget.x + 40 + (currentTarget.typedIndex - 0.5) * charWidth;
-        const targetY = currentTarget.y + 24;
+        // Calculate laser target position
+        const charScale = word.length > 25 ? 12 : word.length > 15 ? 16 : 22;
+        const targetX = currentTarget.x + 58 + Math.min(currentTarget.width - 65, Math.max(10, (currentTarget.typedIndex - 0.5) * charScale));
+        const targetY = currentTarget.y + 28;
 
-        // Check if word is fully typed
-        if (currentTarget.typedIndex >= currentTarget.word.length) {
+        // Check if word/sentence is fully typed
+        if (currentTarget.typedIndex >= word.length) {
           soundFx.playExplosion();
           this.targetEnemyId = null;
 

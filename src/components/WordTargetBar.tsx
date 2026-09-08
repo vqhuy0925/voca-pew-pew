@@ -25,18 +25,46 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
     speechHelper.speak(target.word);
   };
 
-  return (
-    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-3xl px-6 py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-4 transition-all">
-        {/* Emoji */}
-        <span className="text-4xl sm:text-5xl flex-shrink-0 drop-shadow">{target.emoji}</span>
+  const isSentence = target.word.length > 20;
 
-        <div>
+  return (
+    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[94vw] md:max-w-3xl">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-3xl px-4 sm:px-6 py-2.5 sm:py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-3 sm:gap-4 transition-all">
+        {/* Emoji */}
+        <span className="text-3xl sm:text-4xl md:text-5xl flex-shrink-0 drop-shadow">{target.emoji}</span>
+
+        <div className="min-w-0 flex-1">
           {/* Letters display */}
-          <div className="flex items-center gap-1.5 font-game text-3xl sm:text-5xl font-black tracking-wider leading-none">
+          <div className={`flex flex-wrap items-center gap-1 font-game font-black tracking-wide leading-tight ${
+            target.word.length > 40
+              ? 'text-base sm:text-xl md:text-2xl'
+              : target.word.length > 24
+              ? 'text-lg sm:text-2xl md:text-3xl'
+              : target.word.length > 12
+              ? 'text-2xl sm:text-3xl md:text-4xl'
+              : 'text-3xl sm:text-5xl'
+          }`}>
             {target.word.split('').map((char, index) => {
               const isTyped = index < target.typedIndex;
               const isCurrent = index === target.typedIndex;
+              const isSpace = char === ' ';
+
+              if (isSpace) {
+                return (
+                  <span
+                    key={index}
+                    className={`inline-block px-1 rounded transition-all ${
+                      isCurrent
+                        ? 'bg-yellow-400/30 border border-yellow-400 text-yellow-300 animate-pulse text-xs sm:text-sm py-0.5'
+                        : isTyped
+                        ? 'text-emerald-400/40 w-1.5 sm:w-2'
+                        : 'w-1.5 sm:w-2.5'
+                    }`}
+                  >
+                    {isCurrent ? '␣' : ' '}
+                  </span>
+                );
+              }
 
               return (
                 <span
@@ -45,7 +73,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
                     isTyped
                       ? 'text-emerald-400 font-black'
                       : isCurrent
-                      ? 'text-yellow-300 bg-yellow-400/20 px-1.5 rounded-lg border-2 border-yellow-400 animate-pulse'
+                      ? 'text-yellow-300 bg-yellow-400/25 px-1 rounded-lg border-2 border-yellow-400 animate-pulse'
                       : 'text-slate-400'
                   }`}
                 >
@@ -56,7 +84,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
           </div>
 
           {/* Vietnamese meaning */}
-          <div className="text-sm sm:text-base text-cyan-200 font-bold mt-1.5 drop-shadow">
+          <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-bold mt-1 drop-shadow truncate sm:whitespace-normal">
             {target.meaningVi}
           </div>
         </div>
@@ -64,8 +92,8 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
         {/* Pronounce audio button */}
         <button
           onClick={handleSpeak}
-          className="p-2.5 rounded-2xl bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 transition active:scale-95 cursor-pointer ml-1 shadow-sm"
-          title="Nghe phát âm"
+          className="p-2 sm:p-2.5 rounded-2xl bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 transition active:scale-95 cursor-pointer flex-shrink-0 shadow-sm"
+          title="Nghe phát âm cả câu"
         >
           <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>

@@ -58,15 +58,18 @@
 
 ---
 
-## 📚 Lộ Trình Học Tập (5 Chương)
+## 📚 Hệ Thống 8 Cõi Thiên Hà (Realms) — Từ Thiếu Nhi Đến Người Lớn & Giao Tiếp PO
 
-| Chương | Tên Chương | Chủ Đề & Từ Vựng | Biểu Tượng |
+| Cõi Thiên Hà (Realm) | Đối Tượng & Trình Độ | Nội Dung Trọng Tâm | Biểu Tượng |
 | :--- | :--- | :--- | :---: |
-| **Unit 1** | **Sắc Màu & Số Đếm Kỳ Diệu** | Red, Blue, Pink, Green, Yellow, One, Two, Three, Four, Five, Ten, Sun, Star | 🎨 🔢 |
-| **Unit 2** | **Vương Quốc Động Vật Đáng Yêu** | Cat, Dog, Bird, Duck, Fish, Bear, Lion, Frog, Pig, Bee, Fox, Cow | 🐾 🦁 |
-| **Unit 3** | **Trường Học & Đồ Chơi Vui Nhộn** | Pen, Book, Bag, Desk, Ball, Kite, Car, Doll, Robot, Box, Bell, Map | 🎒 🤖 |
-| **Unit 4** | **Món Ngon Bé Thích** | Milk, Cake, Apple, Bread, Egg, Rice, Juice, Soup, Candy, Nut, Pie, Jam | 🍰 🍎 |
-| **Unit 5** | **Nhà Du Hành Vũ Trụ Xuất Sắc** | Thử thách tổng hợp từ vựng đa chủ đề & đại chiến Vua Thiên Hà | 🚀 👑 |
+| **Realm 1: Mầm Non & Khởi Động** | 7 - 8 Tuổi (Lớp 2 - 3) | Màu sắc, số đếm, động vật, trường học, thức ăn cơ bản (3-5 chữ cái) | 🌱 🎨 |
+| **Realm 2: Khám Phá Tiểu Học** | 9 - 10 Tuổi (Lớp 4 - 5) | Gia đình, nghề nghiệp, thời tiết, thiên nhiên, hoạt động (4-7 chữ cái) | 🚀 🦁 |
+| **Realm 3: Chuyển Cấp Tiểu Học** | 11 Tuổi (Lớp 5 - Tiền THCS) | Khoa học sơ khai, địa lý, lễ hội, phương tiện, thể thao (5-8 chữ cái) | 🛸 🔬 |
+| **Realm 4: THCS Khám Phá** | 12 - 13 Tuổi (Lớp 6 - 7) | Lịch sử, sinh học, công nghệ cơ bản, xã hội, môi trường (6-10 chữ cái) | ⚡ 🌍 |
+| **Realm 5: THCS Nâng Cao** | 14 - 15 Tuổi (Lớp 8 - 9) | Vật lý, hóa học, văn học, tư duy logic, thi vào lớp 10 (7-12 chữ cái) | 🔮 ⚛️ |
+| **Realm 6: THPT & Học Thuật** | 16 - 18 Tuổi (Lớp 10 - 12 / IELTS) | Kinh tế học, học thuật nâng cao, IELTS/TOEFL, từ phức 8-15+ chữ cái | 👑 🎓 |
+| **Realm 7: Tech Pro & Giao Tiếp PO** | **Người Lớn / Lập Trình Viên / QA** | **Luyện câu giao tiếp PO, Scrum Daily Standup, Sprint Planning, Requirement Clarification, Bug Triage & Demo** | 💼 💻 |
+| **Realm 8: Đời Sống & Công Sở Người Lớn** | **Người Lớn / Đi Làm Toàn Diện** | **Luyện câu giao tiếp tự nhiên: Small Talk cà phê, phản biện lịch sự, ăn uống, du lịch, networking quốc tế** | 💬 ✈️ |
 
 ---
 

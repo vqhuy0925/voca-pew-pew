@@ -100,28 +100,30 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
         </div>
 
-        {/* Word Review Minimal Grid */}
+        {/* Word / Sentence Review Grid */}
         {level.words.length > 0 && (
           <div className="text-left bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 mb-6">
             <div className="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2.5">
-              Từ vựng đã chinh phục:
+              {level.words.some(w => w.word.length > 20) ? 'Câu thoại đã chinh phục (Bấm để luyện nói):' : 'Từ vựng đã chinh phục:'}
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 max-h-36 overflow-y-auto pr-1">
+            <div className={`max-h-44 overflow-y-auto pr-1 ${
+              level.words.some(w => w.word.length > 20) ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'
+            }`}>
               {level.words.map((item) => (
                 <button
                   key={item.id}
                   onClick={(e) => handleSpeak(item.word, e)}
-                  className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-400/60 cursor-pointer transition text-left"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-400/60 cursor-pointer transition text-left gap-2"
                 >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <span className="text-2xl">{item.emoji}</span>
-                    <div className="truncate leading-tight">
-                      <div className="font-extrabold text-white text-sm">{item.word}</div>
-                      <div className="text-xs text-yellow-300 font-medium truncate">{item.meaningVi}</div>
+                  <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
+                    <span className="text-2xl flex-shrink-0">{item.emoji}</span>
+                    <div className="truncate leading-tight flex-1 min-w-0">
+                      <div className="font-extrabold text-white text-xs sm:text-sm truncate">{item.word}</div>
+                      <div className="text-[11px] sm:text-xs text-yellow-300 font-medium truncate">{item.meaningVi}</div>
                     </div>
                   </div>
-                  <Volume2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  <Volume2 className="w-4 h-4 text-cyan-400 flex-shrink-0 ml-1" />
                 </button>
               ))}
             </div>

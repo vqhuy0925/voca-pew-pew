@@ -24,9 +24,11 @@ const AVATAR_OPTIONS = [
   { emoji: '⭐', label: 'Ngôi Sao' }
 ];
 
-const SUGGESTED_NAMES = ['Bé Bắp', 'Alex', 'Bé Sam', 'Minh Anh', 'Bảo Nam', 'Bé Bon', 'Khánh An', 'Thanh Trúc'];
+const SUGGESTED_NAMES = ['Huy Vũ', 'Bé Bắp', 'Alex', 'David', 'Minh Anh', 'Sarah', 'Bảo Nam', 'Khánh An'];
 
 const AGE_OPTIONS = [
+  { age: 19, label: 'Người Lớn (Giao Tiếp PO & Tech)', icon: '💼', realmNum: 7 },
+  { age: 20, label: 'Người Lớn (Giao Tiếp Đời Sống)', icon: '💬', realmNum: 8 },
   { age: 7, label: '7 Tuổi (Lớp 2)', icon: '🌱', realmNum: 1 },
   { age: 8, label: '8 Tuổi (Lớp 3)', icon: '🌱', realmNum: 1 },
   { age: 9, label: '9 Tuổi (Lớp 4)', icon: '🚀', realmNum: 2 },
@@ -113,13 +115,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {isFirstTime ? 'BẠN TÊN GÌ & BAO NHIÊU TUỔI? 🛸' : 'CẬP NHẬT HỒ SƠ 🌟'}
         </h2>
         <p className="text-xs sm:text-sm text-slate-200 mb-5">
-          Chọn độ tuổi (7-18 tuổi) để hệ thống tự động cá nhân hóa 200 Chương trình học và tốc độ đánh máy phù hợp nhất!
+          Chọn lộ trình phù hợp: từ Trẻ em (7-18 tuổi) đến Người lớn & Đi làm (Giao tiếp PO, Tech Team & Đời sống công sở)!
         </p>
 
         {/* 1. Age Selector */}
         <div className="mb-5 text-left">
           <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
-            1. Chọn Độ Tuổi / Khối Lớp của bạn:
+            1. Chọn Lộ Trình / Độ Tuổi của bạn:
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {AGE_OPTIONS.map((item) => {
