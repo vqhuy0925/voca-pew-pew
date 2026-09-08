@@ -526,12 +526,13 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       {/* Floating "Tiếp tục bài học" Quick Button */}
       <button
         onClick={handleJumpToCurrent}
-        className={`fixed bottom-6 right-6 z-40 px-5 py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-base rounded-2xl shadow-[0_10px_30px_${theme.glowColor}] border border-white/60 flex items-center gap-2 cursor-pointer transition active:scale-95 hover:scale-105`}
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 px-3.5 py-2.5 sm:px-5 sm:py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-xs sm:text-base rounded-2xl border border-white/60 flex items-center gap-1.5 sm:gap-2 cursor-pointer transition active:scale-95 hover:scale-105`}
+        style={{ boxShadow: `0 10px 30px ${theme.glowColor}` }}
         title="Nhảy tới bài học hiện tại"
       >
-        <Target className="w-4 h-4 stroke-[3]" />
+        <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
         <span>TIẾP TỤC HỌC</span>
-        <ArrowRight className="w-4 h-4 stroke-[3]" />
+        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
       </button>
 
       {/* Realm Switcher Modal */}

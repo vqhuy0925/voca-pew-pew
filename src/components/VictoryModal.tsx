@@ -79,7 +79,10 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto select-none animate-in fade-in duration-200">
-      <div className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_40px_${theme.glowColor}] text-center my-4`}>
+      <div
+        className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-5 sm:p-7 text-center my-4 max-h-[92vh] overflow-y-auto`}
+        style={{ boxShadow: `0 0 40px ${theme.glowColor}` }}
+      >
         {/* 3 Stars Fanfare */}
         <div className="flex justify-center items-center gap-3 my-2">
           {[1, 2, 3].map((starIndex) => (

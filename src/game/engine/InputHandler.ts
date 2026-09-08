@@ -24,14 +24,23 @@ export class InputHandler {
     return c === '\'' || c === ',' || c === '.' || c === '?' || c === '!' || c === '-' || c === '"' || c === ':';
   }
 
-  public handleKeyPress(key: string, enemies: EnemyItem[]): InputResult {
+  private normalizeChar(key: string): string {
+    if (!key) return '';
     let char = key.toLowerCase();
-    if (key === ' ' || key === 'Space' || key === 'Spacebar') {
-      char = ' ';
+    if (char === ' ' || char === 'space' || char === 'spacebar') {
+      return ' ';
     }
+    // Remove Vietnamese accents and diacritics for English typing
+    char = char.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (char === 'đ') char = 'd';
+    return char;
+  }
+
+  public handleKeyPress(key: string, enemies: EnemyItem[]): InputResult {
+    const char = this.normalizeChar(key);
 
     // Only accept alphabet letters, numbers, spaces, and common sentence chars
-    if (!/^[a-z0-9 '\-.,?!]$/.test(char)) {
+    if (!char || !/^[a-z0-9 '\-.,?!]$/.test(char)) {
       return {
         hitLetter: false,
         defeatedEnemy: null,

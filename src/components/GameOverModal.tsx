@@ -32,8 +32,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none animate-in fade-in duration-200">
-      <div className={`relative w-full max-w-md bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_30px_${theme.glowColor}] text-center`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none animate-in fade-in duration-200">
+      <div
+        className={`relative w-full max-w-md bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-5 sm:p-7 text-center max-h-[92vh] overflow-y-auto`}
+        style={{ boxShadow: `0 0 30px ${theme.glowColor}` }}
+      >
         {/* Mascot Comforting Widget */}
         <div className="flex justify-center mb-4">
           <MascotWidget

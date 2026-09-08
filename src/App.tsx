@@ -27,7 +27,6 @@ import { ArmoryModal } from './components/modals/ArmoryModal';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
-import { VirtualKeyboard } from './components/VirtualKeyboard';
 import { VictoryModal } from './components/VictoryModal';
 import { GameOverModal } from './components/GameOverModal';
 import { PauseModal } from './components/PauseModal';
@@ -71,8 +70,33 @@ export const App: React.FC = () => {
   const [totalLevelTime, setTotalLevelTime] = useState<number>(45);
   const [showRefillModal, setShowRefillModal] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [viewportHeight, setViewportHeight] = useState<number>(() => {
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  });
 
   const virtualInputHandlerRef = useRef<((char: string) => void) | null>(null);
+
+  // Dynamic visualViewport tracking for mobile virtual keyboard height changes
+  useEffect(() => {
+    const updateViewport = () => {
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      setViewportHeight(h);
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateViewport);
+      window.visualViewport.addEventListener('scroll', updateViewport);
+    }
+    window.addEventListener('resize', updateViewport);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateViewport);
+        window.visualViewport.removeEventListener('scroll', updateViewport);
+      }
+      window.removeEventListener('resize', updateViewport);
+    };
+  }, []);
 
   // Sync soundFx and speechHelper mute state with loaded progress
   useEffect(() => {
@@ -240,12 +264,6 @@ export const App: React.FC = () => {
     virtualInputHandlerRef.current = handler;
   }, []);
 
-  const handleVirtualKeyPress = (char: string) => {
-    if (virtualInputHandlerRef.current) {
-      virtualInputHandlerRef.current(char);
-    }
-  };
-
   const nextLevel = getNextLevel(selectedLevel.id);
   const equippedShip = getSpaceshipById(progress.equippedShipId);
   const equippedBlaster = getBlasterById(progress.equippedBlasterId);
@@ -267,7 +285,10 @@ export const App: React.FC = () => {
 
       {/* 2. In-Game Battle Arena (Game Canvas + HUD) */}
       {(screen === 'PLAYING' || screen === 'PAUSED' || screen === 'VICTORY' || screen === 'GAME_OVER') && (
-        <>
+        <div
+          className="relative w-full overflow-hidden bg-space-dark select-none font-game"
+          style={{ height: viewportHeight }}
+        >
           <GameCanvas
             key={`${selectedLevel.id}-${gameSessionId}`}
             gameState={screen === 'PLAYING' ? 'PLAYING' : 'PAUSED'}
@@ -305,14 +326,9 @@ export const App: React.FC = () => {
               />
 
               <WordTargetBar target={activeTarget} />
-
-              <VirtualKeyboard
-                onKeyPress={handleVirtualKeyPress}
-                suggestedChar={suggestedChar}
-              />
             </>
           )}
-        </>
+        </div>
       )}
 
       {/* 3. Warmup Flashcard Preview Modal */}

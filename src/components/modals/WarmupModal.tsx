@@ -53,7 +53,10 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
-      <div className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_35px_${theme.glowColor}] text-center my-4`}>
+      <div
+        className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-5 sm:p-7 text-center my-4 max-h-[92vh] overflow-y-auto`}
+        style={{ boxShadow: `0 0 35px ${theme.glowColor}` }}
+      >
         {/* Close button */}
         <button
           onClick={onClose}

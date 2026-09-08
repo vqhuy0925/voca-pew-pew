@@ -11,8 +11,8 @@ interface WordTargetBarProps {
 export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   if (!target) {
     return (
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none">
-        <div className="bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 rounded-full px-5 py-2 text-cyan-300 text-xs sm:text-sm font-game font-extrabold flex items-center gap-2 shadow-lg">
+      <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[92vw]">
+        <div className="bg-slate-950/85 backdrop-blur-md border border-cyan-500/40 rounded-full px-3.5 py-1.5 sm:px-5 sm:py-2 text-cyan-300 text-[11px] sm:text-sm font-game font-extrabold flex items-center gap-1.5 sm:gap-2 shadow-lg whitespace-nowrap">
           <span>Gõ chữ cái đầu tiên để ngắm bắn 🎯</span>
         </div>
       </div>
@@ -28,8 +28,8 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   const isSentence = target.word.length > 20;
 
   return (
-    <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[94vw] md:max-w-3xl">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-3xl px-4 sm:px-6 py-2.5 sm:py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-3 sm:gap-4 transition-all">
+    <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[94vw] md:max-w-3xl w-full px-2 sm:px-0">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-2xl sm:rounded-3xl px-3 sm:px-6 py-2 sm:py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-2.5 sm:gap-4 transition-all">
         {/* Emoji */}
         <span className="text-3xl sm:text-4xl md:text-5xl flex-shrink-0 drop-shadow">{target.emoji}</span>
 

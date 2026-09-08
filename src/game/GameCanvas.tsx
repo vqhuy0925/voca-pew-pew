@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { EnemyItem, GameStats, GameState } from '../data/types';
 import { LevelNode } from '../data/progress-types';
 import {
@@ -63,6 +63,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
   const lastSpokenEnemyIdRef = useRef<string | null>(null);
+  const lastInputTimeRef = useRef<{ char: string; time: number }>({ char: '', time: 0 });
+
+  const [isInputFocused, setIsInputFocused] = useState<boolean>(true);
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
   // Mission Timer Refs
   const diffConfig = DIFFICULTY_CONFIGS[difficulty] || DIFFICULTY_CONFIGS.NORMAL;
@@ -70,13 +74,38 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const timeRemainingRef = useRef<number>(totalSeconds);
   const lastTickSecondRef = useRef<number>(totalSeconds);
 
+  // Detect touch device
+  useEffect(() => {
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(hasTouch);
+  }, []);
+
+  // Helper to focus input for native mobile keyboard
+  const focusInput = useCallback(() => {
+    if (hiddenInputRef.current) {
+      try {
+        hiddenInputRef.current.focus({ preventScroll: true });
+        setIsInputFocused(true);
+      } catch (err) {
+        // Ignore focus errors
+      }
+    }
+  }, []);
+
   // Initialize Game Systems
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const w = canvas.parentElement?.clientWidth || window.innerWidth;
-    const h = canvas.parentElement?.clientHeight || window.innerHeight;
+    const getDimensions = () => {
+      const parent = canvas.parentElement;
+      const vv = window.visualViewport;
+      const w = parent?.clientWidth || (vv ? vv.width : window.innerWidth);
+      const h = parent?.clientHeight || (vv ? vv.height : window.innerHeight);
+      return { w, h };
+    };
+
+    const { w, h } = getDimensions();
     canvas.width = w;
     canvas.height = h;
 
@@ -84,7 +113,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const spawner = new EnemySpawner(w, h);
     const inputHandler = new InputHandler();
     const collisionEngine = new CollisionEngine();
-    collisionEngine.setDefenseLineY(h - 100);
+    const isMobile = w < 640;
+    collisionEngine.setDefenseLineY(h - (isMobile ? 80 : 100));
 
     particleSysRef.current = particleSys;
     spawnerRef.current = spawner;
@@ -105,21 +135,28 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       onTotalWordsSet(spawner.getTotalWordsCount());
     }
 
-    // Resize Handler
+    // Dynamic Viewport & Resize Handler
     const handleResize = () => {
-      if (!canvas || !canvas.parentElement) return;
-      const nw = canvas.parentElement.clientWidth;
-      const nh = canvas.parentElement.clientHeight;
+      if (!canvas) return;
+      const { w: nw, h: nh } = getDimensions();
       canvas.width = nw;
       canvas.height = nh;
       particleSys.resize(nw, nh);
       spawner.setDimensions(nw, nh);
-      collisionEngine.setDefenseLineY(nh - 100);
+      const isMob = nw < 640;
+      collisionEngine.setDefenseLineY(nh - (isMob ? 80 : 100));
     };
+
     window.addEventListener('resize', handleResize);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+    }
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+      }
     };
   }, [level, difficulty]);
 
@@ -175,9 +212,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         soundFx.playCustomLaser(equippedBlaster.fireSound);
 
         // Calculate laser firing origins based on equipped blaster
+        const isMobile = canvas.width < 640;
         const shipX = canvas.width / 2;
-        const shipY = canvas.height - 60;
-        const origins = getBlasterMuzzleOrigins(shipX, shipY, equippedBlaster, 1.0);
+        const shipY = canvas.height - (isMobile ? 45 : 60);
+        const origins = getBlasterMuzzleOrigins(shipX, shipY, equippedBlaster, isMobile ? 0.9 : 1.0);
 
         if (result.laserTargetPos) {
           particleSys.addMultiLaser(origins, result.laserTargetPos.x, result.laserTargetPos.y, equippedLaser);
@@ -233,20 +271,31 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     });
   };
 
+  // Safe wrapper to prevent duplicate triggers across keydown + input events
+  const safeProcessInput = (char: string) => {
+    if (!char) return;
+    const lower = char.toLowerCase();
+    const now = performance.now();
+    if (lastInputTimeRef.current.char === lower && now - lastInputTimeRef.current.time < 35) {
+      return;
+    }
+    lastInputTimeRef.current = { char: lower, time: now };
+    processInput(char);
+  };
+
   // Focus hidden input whenever playing
   useEffect(() => {
     if (gameState === 'PLAYING') {
-      const timer = setTimeout(() => {
-        hiddenInputRef.current?.focus();
-      }, 50);
+      focusInput();
+      const timer = setTimeout(focusInput, 80);
       return () => clearTimeout(timer);
     }
-  }, [gameState]);
+  }, [gameState, focusInput]);
 
-  // Register input handler for virtual keyboard
+  // Register input handler for virtual keyboard / external triggers
   useEffect(() => {
     if (onRegisterInputHandler) {
-      onRegisterInputHandler(processInput);
+      onRegisterInputHandler(safeProcessInput);
     }
   }, [onRegisterInputHandler, gameState, equippedBlaster, equippedLaser]);
 
@@ -256,7 +305,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key === ' ' || e.code === 'Space' || (e.key.length === 1 && /^[a-zA-Z0-9 '\-.,?!]$/.test(e.key))) {
         e.preventDefault();
-        processInput(e.key === ' ' || e.code === 'Space' ? ' ' : e.key);
+        safeProcessInput(e.key === ' ' || e.code === 'Space' ? ' ' : e.key);
         if (hiddenInputRef.current) {
           hiddenInputRef.current.value = '';
         }
@@ -271,9 +320,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const val = e.target.value;
     if (val) {
       for (let i = 0; i < val.length; i++) {
-        processInput(val[i]);
+        safeProcessInput(val[i]);
       }
       e.target.value = '';
+    }
+  };
+
+  const handleHiddenInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.currentTarget;
+    const val = target.value;
+    if (val) {
+      for (let i = 0; i < val.length; i++) {
+        safeProcessInput(val[i]);
+      }
+      target.value = '';
     }
   };
 
@@ -402,7 +462,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     particleSys.draw(ctx);
 
     // Draw Defense Shield Line (Clean glowing dash)
-    const defenseY = h - 100;
+    const isMobile = w < 640;
+    const defenseY = h - (isMobile ? 80 : 100);
     ctx.save();
     ctx.strokeStyle = equippedShip.glowColor || '#38bdf8';
     ctx.lineWidth = 2.5;
@@ -427,7 +488,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Draw Dynamic Player Spaceship Turret at Bottom Center
-    drawSpaceship(ctx, w / 2, h - 60, equippedShip, equippedBlaster);
+    drawSpaceship(ctx, w / 2, h - (isMobile ? 45 : 60), equippedShip, equippedBlaster, isMobile ? 0.9 : 1.0);
   };
 
 
@@ -479,18 +540,47 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Draw Emoji
-    ctx.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+    const isSentence = enemy.word.length > 18;
+    const emojiSize = isSentence ? 28 : 32;
+    const paddingLeft = 14;
+    const emojiSpace = emojiSize + 10;
+    const letterStartX = x + paddingLeft + emojiSpace;
+    const maxTextWidth = Math.max(80, width - (paddingLeft + emojiSpace + 16));
+
+    ctx.font = `${emojiSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(enemy.emoji, x + 14, y + height / 2 - 2);
+    ctx.fillText(enemy.emoji, x + paddingLeft, y + height / 2 - 2);
 
-    // Draw Word / Sentence Letters (Split into typed and untyped)
-    const letterStartX = x + 58;
-    const isSentence = enemy.word.length > 18;
-    const fontSize = enemy.word.length > 40 ? 16 : enemy.word.length > 26 ? 18 : enemy.word.length > 15 ? 21 : enemy.word.length > 7 ? 25 : 30;
+    // Dynamic Font Auto-Fitting to guarantee text never overflows pill
+    let fontSize = isSentence ? (enemy.word.length > 35 ? 15 : 18) : (enemy.word.length > 10 ? 22 : 26);
+    let letterSpacing = isSentence ? 1.0 : 2.0;
+
+    ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
+    let totalTextWidth = 0;
+    for (let i = 0; i < enemy.word.length; i++) {
+      const c = enemy.word[i];
+      const cw = c === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(c).width;
+      totalTextWidth += cw + letterSpacing;
+    }
+
+    while (totalTextWidth > maxTextWidth && fontSize > 10) {
+      fontSize -= 0.5;
+      letterSpacing = fontSize < 13 ? 0.5 : 1.0;
+      ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
+      totalTextWidth = 0;
+      for (let i = 0; i < enemy.word.length; i++) {
+        const c = enemy.word[i];
+        const cw = c === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(c).width;
+        totalTextWidth += cw + letterSpacing;
+      }
+    }
+
+    // Draw Letters
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
 
+    const wordCenterY = y + (isSentence ? 24 : 26);
     let currentX = letterStartX;
     for (let i = 0; i < enemy.word.length; i++) {
       const char = enemy.word[i];
@@ -511,46 +601,52 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
 
       const displayChar = char;
-      const charWidth = char === ' ' ? Math.max(6, fontSize * 0.35) : ctx.measureText(displayChar).width;
+      const charWidth = char === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(displayChar).width;
 
       if (char === ' ') {
         if (isCurrentChar) {
           ctx.fillStyle = 'rgba(250, 204, 21, 0.5)';
-          ctx.fillRect(currentX, y + (isSentence ? 12 : 14), Math.max(8, charWidth + 2), isSentence ? 20 : 22);
+          ctx.fillRect(currentX, wordCenterY - 10, Math.max(6, charWidth + 2), 20);
         }
       } else {
-        ctx.fillText(char, currentX, y + (isSentence ? 24 : 25));
+        ctx.fillText(char, currentX, wordCenterY);
       }
 
       // Underline active char
       if (isCurrentChar) {
         ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(currentX - 1, y + (isSentence ? 38 : 42));
-        ctx.lineTo(currentX + charWidth + 1, y + (isSentence ? 38 : 42));
+        ctx.moveTo(currentX - 1, wordCenterY + fontSize * 0.55 + 2);
+        ctx.lineTo(currentX + charWidth + 1, wordCenterY + fontSize * 0.55 + 2);
         ctx.stroke();
       }
 
-      currentX += charWidth + (isSentence ? 1.5 : 3.5);
+      currentX += charWidth + letterSpacing;
     }
 
-    // Vietnamese Meaning Subtext
-    const meaningFontSize = isSentence ? 13 : 15;
+    // Vietnamese Meaning Subtext (Auto-fitted)
+    let meaningFontSize = isSentence ? 12 : 14;
     ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
+    while (ctx.measureText(`(${enemy.meaningVi})`).width > maxTextWidth && meaningFontSize > 9) {
+      meaningFontSize -= 0.5;
+      ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
+    }
+
     ctx.fillStyle = '#bae6fd';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(`(${enemy.meaningVi})`, x + 58, y + (isSentence ? 54 : 51));
+    ctx.fillText(`(${enemy.meaningVi})`, letterStartX, y + (isSentence ? 54 : 52));
 
     ctx.restore();
   };
 
   return (
     <div
-      onClick={handleCanvasContainerClick}
-      onTouchStart={handleCanvasContainerClick}
-      className="relative w-full h-full overflow-hidden bg-space-dark select-none"
+      onClick={focusInput}
+      onTouchStart={focusInput}
+      onTouchEnd={focusInput}
+      className="relative w-full h-full overflow-hidden bg-space-dark select-none touch-none"
     >
       {/* Invisible input element to capture native mobile & iPad keyboard input */}
       <input
@@ -561,24 +657,48 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         autoCorrect="off"
         spellCheck={false}
         inputMode="text"
-        onChange={handleHiddenInputChange}
-        tabIndex={-1}
+        enterKeyHint="go"
+        tabIndex={0}
         aria-label="Nhập từ vựng"
-        className="fixed top-2 left-2 opacity-0 pointer-events-none w-1 h-1 z-0 border-0 p-0 m-0"
+        onChange={handleHiddenInputChange}
+        onInput={handleHiddenInput}
+        onFocus={() => setIsInputFocused(true)}
+        onBlur={() => setIsInputFocused(false)}
+        className="fixed opacity-0 pointer-events-auto"
         style={{
-          opacity: 0,
           position: 'fixed',
-          top: '10px',
-          left: '10px',
-          width: '1px',
-          height: '1px',
-          pointerEvents: 'none',
+          bottom: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100px',
+          height: '24px',
+          opacity: 0.01,
+          zIndex: 1,
           border: 'none',
           outline: 'none',
-          background: 'transparent'
+          background: 'transparent',
+          caretColor: 'transparent',
+          color: 'transparent'
         }}
       />
       <canvas ref={canvasRef} className="w-full h-full block cursor-default" />
+
+      {/* Floating helper button when keyboard focus is lost on mobile touch devices */}
+      {gameState === 'PLAYING' && isTouchDevice && !isInputFocused && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            focusInput();
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            focusInput();
+          }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-cyan-500/90 hover:bg-cyan-400 text-slate-950 font-game font-extrabold text-xs sm:text-sm rounded-full shadow-[0_0_20px_rgba(0,240,255,0.6)] border-2 border-white flex items-center gap-2 animate-bounce cursor-pointer active:scale-95"
+        >
+          <span>⌨️ Chạm vào đây để mở bàn phím</span>
+        </button>
+      )}
     </div>
   );
 };

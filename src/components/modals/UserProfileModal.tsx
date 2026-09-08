@@ -190,7 +190,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-2xl bg-gradient-to-b ${currentTheme.bgGradient} border-3 ${currentTheme.borderAccent} rounded-3xl p-5 sm:p-7 shadow-[0_0_50px_${currentTheme.glowColor}] text-center my-6 max-h-[92vh] overflow-y-auto`}
+        className={`relative w-full max-w-2xl bg-gradient-to-b ${currentTheme.bgGradient} border-3 ${currentTheme.borderAccent} rounded-3xl p-5 sm:p-7 text-center my-6 max-h-[92vh] overflow-y-auto`}
+        style={{ boxShadow: `0 0 50px ${currentTheme.glowColor}` }}
       >
         {/* Close Button (Only for returning users) */}
         {!isFirstTime && onClose && (
@@ -529,7 +530,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 <button
                   type="button"
                   onClick={handleStep1Next}
-                  className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer`}
+                  className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 transition flex items-center justify-center gap-2 cursor-pointer`}
+                  style={{ boxShadow: `0 10px 30px ${currentTheme.glowColor}` }}
                 >
                   <span>TIẾP TỤC BƯỚC 2</span>
                   <ArrowRight className="w-5 h-5 stroke-[3]" />
@@ -604,7 +606,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={handleStep2Next}
-                    className={`flex-1 py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer`}
+                    className={`flex-1 py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 transition flex items-center justify-center gap-2 cursor-pointer`}
+                    style={{ boxShadow: `0 10px 30px ${currentTheme.glowColor}` }}
                   >
                     <span>XEM ĐỀ XUẤT LỘ TRÌNH</span>
                     <ArrowRight className="w-5 h-5 stroke-[3]" />
@@ -739,7 +742,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <button
                     type="button"
                     onClick={handleFinalSubmit}
-                    className={`flex-1 py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer`}
+                    className={`flex-1 py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 transition flex items-center justify-center gap-2 cursor-pointer`}
+                    style={{ boxShadow: `0 10px 30px ${currentTheme.glowColor}` }}
                   >
                     <Rocket className="w-5 h-5 stroke-[2.5]" />
                     <span>BẮT ĐẦU HÀNH TRÌNH!</span>
@@ -824,9 +828,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       onClick={() => handleSelectTheme(tKey)}
                       className={`p-2 rounded-xl flex flex-col items-center justify-center transition cursor-pointer border-2 ${
                         isSelected
-                          ? `${t.cardBg} ${t.borderAccent} shadow-[0_0_10px_${t.glowColor}] ring-1 ring-white/40`
+                          ? `${t.cardBg} ${t.borderAccent} ring-1 ring-white/40`
                           : 'bg-slate-900/80 border-slate-700 text-slate-400'
                       }`}
+                      style={isSelected ? { boxShadow: `0 0 10px ${t.glowColor}` } : undefined}
                     >
                       <span className="text-xl">{t.icon}</span>
                       <span className="text-[10px] font-extrabold truncate w-full text-center mt-0.5">
@@ -1022,7 +1027,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <button
               type="button"
               onClick={handleFinalSubmit}
-              className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_${currentTheme.glowColor}] transition flex items-center justify-center gap-2 cursor-pointer mt-2`}
+              className={`w-full py-3.5 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 transition flex items-center justify-center gap-2 cursor-pointer mt-2`}
+              style={{ boxShadow: `0 10px 30px ${currentTheme.glowColor}` }}
             >
               <Check className="w-5 h-5 stroke-[3]" />
               <span>LƯU HỒ SƠ & TIẾP TỤC</span>

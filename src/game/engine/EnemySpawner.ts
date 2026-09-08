@@ -87,18 +87,24 @@ export class EnemySpawner {
     const colors = ['#38bdf8', '#4ade80', '#facc15', '#f472b6', '#c084fc', '#fb923c'];
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const isLongSentence = vocab.word.length > 25;
-    const charScale = vocab.word.length > 40 ? 10 : vocab.word.length > 25 ? 12 : vocab.word.length > 12 ? 15 : vocab.word.length > 7 ? 20 : 26;
-    const estimatedWidth = Math.min(this.canvasWidth - 30, Math.max(170, vocab.word.length * charScale + 84));
-    const minX = 15;
-    const maxX = Math.max(minX + 10, this.canvasWidth - estimatedWidth - 15);
+    const isLongSentence = vocab.word.length > 20;
+    const maxCardWidth = Math.max(160, this.canvasWidth - 24);
+    const minCardWidth = Math.min(maxCardWidth, 160);
+
+    // Calculate realistic pill width based on text length and canvas width
+    const charWidthEst = vocab.word.length > 35 ? 9 : vocab.word.length > 20 ? 11 : vocab.word.length > 10 ? 14 : 18;
+    const rawWidth = vocab.word.length * charWidthEst + 80;
+    const estimatedWidth = Math.min(maxCardWidth, Math.max(minCardWidth, rawWidth));
+
+    const minX = 12;
+    const maxX = Math.max(minX, this.canvasWidth - estimatedWidth - 12);
 
     let bestX = minX + Math.random() * (maxX - minX);
     const topEnemies = this.enemies.filter(e => e.y < 160);
-    if (topEnemies.length > 0) {
+    if (topEnemies.length > 0 && maxX > minX + 20) {
       for (let attempt = 0; attempt < 5; attempt++) {
         const candidateX = minX + Math.random() * (maxX - minX);
-        const hasOverlap = topEnemies.some(e => Math.abs(e.x - candidateX) < 160);
+        const hasOverlap = topEnemies.some(e => Math.abs(e.x - candidateX) < 140);
         if (!hasOverlap) {
           bestX = candidateX;
           break;
@@ -115,11 +121,11 @@ export class EnemySpawner {
       meaningVi: vocab.meaningVi,
       emoji: vocab.emoji,
       typedIndex: 0,
-      x: bestX,
-      y: -50,
+      x: Math.round(bestX),
+      y: -55,
       speed: (this.baseSpeed * sentenceSpeedAdj) + Math.random() * 0.1,
-      width: estimatedWidth,
-      height: isLongSentence ? 74 : 68,
+      width: Math.round(estimatedWidth),
+      height: isLongSentence ? 76 : 68,
       color: chosenColor,
       isTargeted: false,
       shakeTime: 0
