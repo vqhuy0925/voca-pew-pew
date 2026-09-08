@@ -60,7 +60,7 @@ export const HUD: React.FC<HUDProps> = ({
 
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 bg-slate-900/90 border border-slate-700/80 rounded-xl sm:rounded-2xl backdrop-blur-md shadow-md">
             <span className="text-base sm:text-2xl">{level.icon}</span>
-            <span className="text-[11px] sm:text-sm font-game font-black text-white whitespace-nowrap">
+            <span className="text-[11px] sm:text-sm font-orbitron font-extrabold text-white whitespace-nowrap tracking-wide">
               Màn {level.levelNumber}
             </span>
           </div>
@@ -79,12 +79,12 @@ export const HUD: React.FC<HUDProps> = ({
           {/* Time Remaining Bar */}
           {timeRemaining !== undefined && (
             <div className="flex items-center justify-between text-[10px] sm:text-sm font-bold px-0.5">
-              <span className="text-slate-300 whitespace-nowrap">
+              <span className="text-slate-300 whitespace-nowrap font-orbitron text-[10px] sm:text-xs">
                 {stats.wordsDefeated}/{totalWords} từ
               </span>
 
               <span
-                className={`flex items-center gap-0.5 font-game whitespace-nowrap ${
+                className={`flex items-center gap-0.5 font-orbitron whitespace-nowrap tracking-wide ${
                   isUrgent ? 'text-rose-400 animate-pulse font-black text-xs sm:text-sm' : 'text-cyan-300 font-extrabold'
                 }`}
               >
@@ -100,7 +100,7 @@ export const HUD: React.FC<HUDProps> = ({
           {/* Hearts */}
           <div className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-slate-900/90 border border-rose-500/40 rounded-xl sm:rounded-2xl backdrop-blur-md shadow-md">
             <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 fill-rose-500" />
-            <span className="font-game font-black text-[11px] sm:text-sm text-rose-300">
+            <span className="font-orbitron font-extrabold text-[11px] sm:text-sm text-rose-300 tracking-wide">
               {hearts}/{maxHearts}
             </span>
           </div>
@@ -108,7 +108,7 @@ export const HUD: React.FC<HUDProps> = ({
           {/* Score */}
           <div className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-slate-900/90 border border-amber-400/40 rounded-xl sm:rounded-2xl backdrop-blur-md shadow-md">
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
-            <span className="font-game font-black text-[11px] sm:text-sm text-yellow-300">{stats.score}</span>
+            <span className="font-orbitron font-extrabold text-[11px] sm:text-sm text-yellow-300 tracking-wide">{stats.score}</span>
           </div>
 
           {/* Mute Button */}

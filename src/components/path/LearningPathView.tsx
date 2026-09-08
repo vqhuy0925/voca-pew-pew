@@ -118,7 +118,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full overflow-y-auto bg-gradient-to-b ${theme.bgGradient} text-white select-none transition-colors duration-500`}>
+    <div className={`relative w-full h-full overflow-y-auto bg-gradient-to-b ${theme.bgGradient} bg-galactic-stars text-white select-none transition-colors duration-500`}>
       {/* Top Bar */}
       <TopNavBar
         progress={progress}

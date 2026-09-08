@@ -23,7 +23,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
           ⏸️
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-white mb-1.5">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-orbitron text-white mb-1.5 tracking-wider starwars-cyan-glow">
           TẠM DỪNG 🚀
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-6">
@@ -36,7 +36,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onResume();
             }}
-            className="w-full py-4 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-game font-extrabold text-xl rounded-2xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-4 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-orbitron font-extrabold text-lg sm:text-xl rounded-2xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 shadow-md transition flex items-center justify-center gap-2 cursor-pointer tracking-wider"
           >
             <Play className="w-6 h-6 fill-slate-950" />
             TIẾP TỤC CHƠI

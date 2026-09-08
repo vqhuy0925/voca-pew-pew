@@ -135,6 +135,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       onTotalWordsSet(spawner.getTotalWordsCount());
     }
 
+    // Star Wars Hyperspace Drop into Battle
+    particleSys.setHyperspace(true);
+    soundFx.playHyperdriveJump();
+    particleSys.addFloatingText('🚀 HYPERDRIVE // WARP SPEED!', canvas.width / 2, canvas.height * 0.35, '#00f0ff', 24);
+    const hyperspaceTimer = setTimeout(() => {
+      particleSys.setHyperspace(false);
+    }, 750);
+
     // Dynamic Viewport & Resize Handler
     const handleResize = () => {
       if (!canvas) return;
@@ -153,6 +161,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     return () => {
+      clearTimeout(hyperspaceTimer);
       window.removeEventListener('resize', handleResize);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
@@ -480,7 +489,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.stroke();
 
     // Defense Line Label (Subtle & clean)
-    ctx.font = 'bold 12px Fredoka, sans-serif';
+    ctx.font = 'bold 12px Orbitron, Fredoka, sans-serif';
     ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
     ctx.textAlign = 'right';
     ctx.fillText('🛡️ PHÒNG TUYẾN', w - 24, defenseY - 8);
@@ -580,7 +589,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.fill();
 
       // Telemetry Text
-      ctx.font = 'bold 10px Fredoka, monospace, sans-serif';
+      ctx.font = 'bold 10px Orbitron, monospace, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('⚡ LOCK', x + width / 2, y - 22);
 

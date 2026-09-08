@@ -336,7 +336,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs sm:text-sm font-extrabold uppercase">
               <Rocket className="w-4 h-4" /> Xưởng Chế Tạo Ngân Hà
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-yellow-300 mt-1">
+            <h2 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-yellow-300 mt-1 tracking-wide starwars-gold-glow">
               BỘ SƯU TẬP TÀU & VŨ KHÍ 🛠️
             </h2>
           </div>
@@ -345,8 +345,8 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-2 border-cyan-400 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
               <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-bounce" />
               <div className="text-right">
-                <div className="text-[10px] text-slate-400 font-bold uppercase">Kim Cương</div>
-                <div className="text-lg font-extrabold font-game text-white">{progress.gems} 💎</div>
+                <div className="text-[10px] text-slate-400 font-bold uppercase font-orbitron">Kim Cương</div>
+                <div className="text-lg font-extrabold font-orbitron text-white tracking-wide">{progress.gems} 💎</div>
               </div>
             </div>
           </div>

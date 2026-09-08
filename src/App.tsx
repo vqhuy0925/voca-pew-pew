@@ -140,7 +140,7 @@ export const App: React.FC = () => {
         avatar,
         userAge,
         gender: gender || prev.gender || 'neutral',
-        themeStyle: themeStyle || prev.themeStyle || 'cosmic_cyan',
+        themeStyle: themeStyle || prev.themeStyle || 'galactic_starwars',
         mascotId: mascotId || prev.mascotId || 'cosmo_dog',
         selectedRealmId: resolvedRealmId,
         currentLevelId: (!prev.userName || prev.currentLevelId === ALL_LEVELS[0].id) ? firstLevelOfRealm : prev.currentLevelId
@@ -460,7 +460,7 @@ export const App: React.FC = () => {
           initialAge={progress.userAge || 8}
           initialRealmId={progress.selectedRealmId}
           initialGender={progress.gender || 'neutral'}
-          initialTheme={progress.themeStyle || 'cosmic_cyan'}
+          initialTheme={progress.themeStyle || 'galactic_starwars'}
           initialMascotId={progress.mascotId || 'cosmo_dog'}
           initialDailyEnergyMode={progress.dailyEnergyMode || 'balanced'}
           isFirstTime={!progress.userName}

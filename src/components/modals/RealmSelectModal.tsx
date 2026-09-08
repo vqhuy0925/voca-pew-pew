@@ -42,7 +42,7 @@ export const RealmSelectModal: React.FC<RealmSelectModalProps> = ({
             <Compass className="w-4 h-4 text-cyan-400" />
             <span>Chọn Cõi Thiên Hà Học Tập</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-white tracking-wide">
+          <h2 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-white tracking-wider starwars-cyan-glow">
             ĐỔI LỘ TRÌNH HỌC TẬP 🌌
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-1">

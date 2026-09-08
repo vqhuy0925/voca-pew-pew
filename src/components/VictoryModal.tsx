@@ -106,7 +106,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         {/* Title & Learner Badge */}
         <div className="flex items-center justify-center gap-2 mt-2">
           <span className="text-2xl">{avatar}</span>
-          <h2 className="text-3xl sm:text-4xl font-black font-game text-white tracking-wide">
+          <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white tracking-widest starwars-gold-glow">
             CHIẾN THẮNG!
           </h2>
           <span className="text-2xl">{gender === 'girl' ? '🌸' : gender === 'boy' ? '⚡' : '✨'}</span>
@@ -135,19 +135,19 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         {/* Score & Rewards Summary */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3 my-4">
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
-            <div className="text-slate-400 text-xs font-bold uppercase">Điểm số</div>
-            <div className={`text-xl sm:text-2xl font-black font-game ${theme.textColor} mt-1`}>{stats.score}</div>
+            <div className="text-slate-400 text-xs font-bold uppercase font-orbitron">Điểm số</div>
+            <div className={`text-xl sm:text-2xl font-black font-orbitron ${theme.textColor} mt-1 tracking-wide`}>{stats.score}</div>
           </div>
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
-            <div className="text-slate-400 text-xs font-bold uppercase">Kinh nghiệm</div>
-            <div className="text-xl sm:text-2xl font-black font-game text-amber-400 mt-1 flex items-center justify-center gap-1">
+            <div className="text-slate-400 text-xs font-bold uppercase font-orbitron">Kinh nghiệm</div>
+            <div className="text-xl sm:text-2xl font-black font-orbitron text-amber-400 mt-1 flex items-center justify-center gap-1 tracking-wide">
               <Flame className="w-4 h-4 fill-current" />
               <span>+{xpAwarded}</span>
             </div>
           </div>
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
-            <div className="text-slate-400 text-xs font-bold uppercase">Kim cương</div>
-            <div className="text-xl sm:text-2xl font-black font-game text-sky-400 mt-1 flex items-center justify-center gap-1">
+            <div className="text-slate-400 text-xs font-bold uppercase font-orbitron">Kim cương</div>
+            <div className="text-xl sm:text-2xl font-black font-orbitron text-sky-400 mt-1 flex items-center justify-center gap-1 tracking-wide">
               <Gem className="w-4 h-4 fill-current" />
               <span>+{gemAwarded}</span>
             </div>
@@ -241,7 +241,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 soundFx.playClick();
                 onNextLevel();
               }}
-              className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
+              className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer tracking-wider`}
             >
               <span>MÀN TIẾP THEO</span>
               <ArrowRight className="w-5 h-5 stroke-[3]" />

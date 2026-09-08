@@ -35,7 +35,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
 
         <div className="min-w-0 flex-1">
           {/* Letters display */}
-          <div className={`flex flex-wrap items-center gap-1 font-game font-black tracking-wide leading-tight ${
+          <div className={`flex flex-wrap items-center gap-1 font-orbitron font-black tracking-widest leading-tight ${
             target.word.length > 40
               ? 'text-base sm:text-xl md:text-2xl'
               : target.word.length > 24

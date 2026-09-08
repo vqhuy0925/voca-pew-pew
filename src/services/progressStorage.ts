@@ -49,7 +49,7 @@ export const getInitialUserProgress = (): UserProgress => {
     userName: '',
     avatar: '🚀',
     gender: 'neutral',
-    themeStyle: 'cosmic_cyan',
+    themeStyle: 'galactic_starwars',
     mascotId: 'cosmo_dog',
     userAge: 8,
     selectedRealmId: 'realm-1',
@@ -225,7 +225,7 @@ export const loadUserProgress = (): UserProgress => {
     parsed.userName = parsed.userName ?? '';
     parsed.avatar = parsed.avatar || '🚀';
     parsed.gender = parsed.gender || 'neutral';
-    parsed.themeStyle = parsed.themeStyle || 'cosmic_cyan';
+    parsed.themeStyle = parsed.themeStyle || 'galactic_starwars';
     parsed.mascotId = parsed.mascotId || 'cosmo_dog';
     parsed.userAge = parsed.userAge || 8;
     parsed.selectedRealmId = parsed.selectedRealmId || 'realm-1';

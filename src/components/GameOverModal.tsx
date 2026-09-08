@@ -52,7 +52,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           />
         </div>
 
-        <h2 className="text-3xl font-black font-game text-rose-400 mb-1">
+        <h2 className="text-3xl font-black font-orbitron text-rose-400 mb-1 tracking-wider">
           {modalMessages.heading}
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-6">
@@ -66,7 +66,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
+            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer tracking-wider`}
           >
             <RotateCcw className="w-5 h-5 stroke-[3]" />
             <span>THỬ LẠI NGAY</span>

@@ -23,7 +23,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
           Lớp 2 - Tiếng Anh Vui Nhộn
         </div>
 
-        <h1 className="text-4xl sm:text-5xl font-extrabold font-game text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-300 drop-shadow-md mb-2">
+        <h1 className="text-3xl sm:text-5xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-300 drop-shadow-md mb-2 tracking-widest starwars-title">
           VOCAB PEW PEW 🚀
         </h1>
         <p className="text-slate-200 text-sm sm:text-base max-w-md mx-auto mb-6">
@@ -69,7 +69,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
         <div className="mt-8 flex flex-col items-center gap-3">
           <button
             onClick={onStartGame}
-            className="w-full sm:w-auto px-10 py-4.5 bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-game font-extrabold text-2xl rounded-2xl shadow-[0_0_30px_rgba(0,240,255,0.5)] transition transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer"
+            className="w-full sm:w-auto px-10 py-4.5 bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-orbitron font-black text-xl sm:text-2xl rounded-2xl shadow-[0_0_30px_rgba(0,240,255,0.5)] transition transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer tracking-wider"
           >
             <Rocket className="w-7 h-7 animate-bounce" />
             BẮT ĐẦU CHƠI NGAY

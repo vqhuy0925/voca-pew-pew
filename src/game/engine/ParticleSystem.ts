@@ -4,6 +4,7 @@ import { LaserBeamItem } from '../../data/upgrade-types';
 interface Star {
   x: number;
   y: number;
+  z?: number;
   size: number;
   speed: number;
   alpha: number;
@@ -28,11 +29,19 @@ export class ParticleSystem {
 
   constructor(width: number, height: number) {
     this.resize(width, height);
-    this.initStars(90);
+    this.initStars(140);
   }
 
   public setHyperspace(active: boolean) {
     this.isHyperspace = active;
+    if (active) {
+      // Re-seed 3D coordinates for warp drive
+      for (const s of this.stars) {
+        s.z = Math.random() * 1000 + 50;
+        s.x = (Math.random() - 0.5) * this.width * 1.8;
+        s.y = (Math.random() - 0.5) * this.height * 1.8;
+      }
+    }
   }
 
   public resize(w: number, h: number) {
@@ -42,11 +51,12 @@ export class ParticleSystem {
 
   private initStars(count: number) {
     this.stars = [];
-    const starColors = ['#ffffff', '#aee9ff', '#ffd2ff', '#ffeaa7'];
+    const starColors = ['#ffffff', '#aee9ff', '#ffd2ff', '#ffeaa7', '#38bdf8', '#00f0ff'];
     for (let i = 0; i < count; i++) {
       this.stars.push({
-        x: Math.random() * this.width,
-        y: Math.random() * this.height,
+        x: (Math.random() - 0.5) * this.width * 1.8,
+        y: (Math.random() - 0.5) * this.height * 1.8,
+        z: Math.random() * 1000 + 50,
         size: Math.random() * 2 + 0.8,
         speed: Math.random() * 0.8 + 0.2,
         alpha: Math.random() * 0.8 + 0.2,
@@ -160,13 +170,24 @@ export class ParticleSystem {
   }
 
   public update() {
-    // Update Stars
-    const speedMult = this.isHyperspace ? 24 : 1;
-    for (const s of this.stars) {
-      s.y += s.speed * speedMult;
-      if (s.y > this.height) {
-        s.y = this.isHyperspace ? -20 : 0;
-        s.x = Math.random() * this.width;
+    // Update Stars (Normal flow or 3D Hyperspace Warp Drive)
+    if (this.isHyperspace) {
+      for (const s of this.stars) {
+        if (s.z === undefined) s.z = Math.random() * 1000 + 50;
+        s.z -= 45; // Rapid warp velocity
+        if (s.z <= 15) {
+          s.z = 1000;
+          s.x = (Math.random() - 0.5) * this.width * 1.8;
+          s.y = (Math.random() - 0.5) * this.height * 1.8;
+        }
+      }
+    } else {
+      for (const s of this.stars) {
+        s.y += s.speed * 0.75;
+        if (s.y > this.height) {
+          s.y = 0;
+          s.x = Math.random() * this.width;
+        }
       }
     }
 
@@ -224,28 +245,54 @@ export class ParticleSystem {
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
-    // Draw Stars (Normal or Hyperspace Streaks)
-    for (const s of this.stars) {
-      ctx.save();
-      ctx.globalAlpha = this.isHyperspace ? 0.9 : s.alpha;
-      ctx.fillStyle = s.color;
-      ctx.strokeStyle = s.color;
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = this.isHyperspace ? 12 : 0;
+    // Draw Stars (Normal or Star Wars 3D Radial Hyperspace Jump)
+    if (this.isHyperspace) {
+      const cx = this.width / 2;
+      const cy = this.height / 2;
+      for (const s of this.stars) {
+        const currentZ = s.z || 500;
+        const k = 360 / Math.max(1, currentZ);
+        const px = s.x * k + cx;
+        const py = s.y * k + cy;
 
-      if (this.isHyperspace) {
-        // Hyperspace light speed jump streak lines
-        ctx.lineWidth = s.size * 1.2;
+        // Skip if outside viewport bounds
+        if (px < -50 || px > this.width + 50 || py < -50 || py > this.height + 50) continue;
+
+        const prevZ = currentZ + 90;
+        const prevK = 360 / prevZ;
+        const prevPx = s.x * prevK + cx;
+        const prevPy = s.y * prevK + cy;
+
+        ctx.save();
+        const intensity = Math.min(1, Math.max(0.2, 1 - currentZ / 1100));
+        ctx.globalAlpha = intensity;
+        ctx.strokeStyle = s.color || '#00f0ff';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 12;
+        ctx.lineWidth = Math.min(5.5, Math.max(1.5, (1 - currentZ / 1000) * 5));
+
         ctx.beginPath();
-        ctx.moveTo(s.x, s.y - s.speed * 32);
-        ctx.lineTo(s.x, s.y);
+        ctx.moveTo(prevPx, prevPy);
+        ctx.lineTo(px, py);
         ctx.stroke();
-      } else {
+
+        // Glowing Star Flare Head
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(1.2, ctx.lineWidth * 0.7), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    } else {
+      for (const s of this.stars) {
+        ctx.save();
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.color;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
       }
-      ctx.restore();
     }
 
     // Draw Lasers
@@ -891,7 +938,7 @@ export class ParticleSystem {
     for (const ft of this.floatingTexts) {
       ctx.save();
       ctx.globalAlpha = Math.max(0, ft.alpha);
-      ctx.font = `bold ${ft.size}px Fredoka, sans-serif`;
+      ctx.font = `bold ${ft.size}px Orbitron, Fredoka, sans-serif`;
       ctx.fillStyle = ft.color;
       ctx.shadowColor = ft.color;
       ctx.shadowBlur = 10;

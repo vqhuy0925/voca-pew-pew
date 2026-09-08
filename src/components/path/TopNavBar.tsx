@@ -71,7 +71,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenArmory();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/40 rounded-2xl text-purple-300 font-game font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm hover:border-purple-300"
+              className="flex items-center gap-2 px-3.5 py-2 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/40 rounded-2xl text-purple-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm hover:border-purple-300"
               title="Xưởng Nâng Cấp Tàu & Vũ Khí"
             >
               <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
@@ -81,7 +81,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
           {/* Daily Streak */}
           <div
-            className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 border border-amber-400/30 rounded-2xl text-amber-300 font-game font-extrabold text-xs sm:text-sm md:text-base"
+            className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 border border-amber-400/30 rounded-2xl text-amber-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base"
             title="Chuỗi ngày học liên tiếp"
           >
             <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400" />
@@ -94,7 +94,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               soundFx.playClick();
               if (onOpenEnergyModal) onOpenEnergyModal();
             }}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl font-game font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer border ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer border ${
               progress.energy <= 15
                 ? 'bg-rose-500/15 border-rose-400/50 text-rose-300 hover:bg-rose-500/25 animate-pulse'
                 : 'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-400/30 text-yellow-300 hover:border-yellow-400/50'
@@ -107,7 +107,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
           {/* Gems */}
           <div
-            className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/10 border border-cyan-400/30 rounded-2xl text-cyan-200 font-game font-extrabold text-xs sm:text-sm md:text-base"
+            className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/10 border border-cyan-400/30 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm md:text-base"
             title="Kim cương"
           >
             <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400" />
@@ -117,7 +117,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           {/* Hearts */}
           <button
             onClick={onOpenRefillModal}
-            className="flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-400/30 rounded-2xl text-rose-300 font-game font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer hover:border-rose-400/50"
+            className="flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-400/30 rounded-2xl text-rose-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer hover:border-rose-400/50"
             title="Mạng chơi (Bấm để nạp thêm)"
           >
             <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500" />
