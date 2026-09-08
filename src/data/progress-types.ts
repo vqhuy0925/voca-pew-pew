@@ -43,7 +43,7 @@ export interface LevelProgress {
 
 export type UserGender = 'boy' | 'girl' | 'neutral';
 
-export type ThemeStyle = 'cosmic_cyan' | 'sweet_sakura' | 'galaxy_purple' | 'aurora_emerald' | 'solar_amber';
+export type ThemeStyle = 'cosmic_cyan' | 'sweet_sakura' | 'galaxy_purple' | 'aurora_emerald' | 'solar_amber' | 'galactic_starwars';
 
 export type MascotId = 'cosmo_dog' | 'luna_cat' | 'stella_unicorn' | 'pixel_robot' | 'spark_fox';
 

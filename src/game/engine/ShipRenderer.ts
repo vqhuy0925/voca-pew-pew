@@ -1341,6 +1341,525 @@ export const drawSpaceship = (
       ctx.fill();
       break;
     }
+
+    // ==========================================
+    // 15. T-65B X-WING STARFIGHTER (Red 5)
+    // ==========================================
+    case 'xwing': {
+      // Dual Sublight Ion Engine Exhausts (Red/Pink Plasma)
+      [-12, 12].forEach(tx => {
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#f87171';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(tx - 4, 18);
+        ctx.lineTo(tx, 18 + flameHeight + 6);
+        ctx.lineTo(tx + 4, 18);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(tx, 18 + flameHeight * 0.4, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 4 S-Foils (X-Wings) in open attack position
+      // Upper Left & Upper Right Wings
+      ctx.fillStyle = '#475569';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 12;
+
+      // Left Upper Wing
+      ctx.beginPath();
+      ctx.moveTo(-6, -6);
+      ctx.lineTo(-34, -26);
+      ctx.lineTo(-32, -18);
+      ctx.lineTo(-8, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Upper Wing
+      ctx.beginPath();
+      ctx.moveTo(6, -6);
+      ctx.lineTo(34, -26);
+      ctx.lineTo(32, -18);
+      ctx.lineTo(8, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Lower Left Wing
+      ctx.beginPath();
+      ctx.moveTo(-6, 2);
+      ctx.lineTo(-36, 12);
+      ctx.lineTo(-34, 18);
+      ctx.lineTo(-8, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Lower Right Wing
+      ctx.beginPath();
+      ctx.moveTo(6, 2);
+      ctx.lineTo(36, 12);
+      ctx.lineTo(34, 18);
+      ctx.lineTo(8, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Red 5 Alliance Stripes on Wings
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-30, -24, 4, 12);
+      ctx.fillRect(-24, -20, 3, 10);
+      ctx.fillRect(26, -24, 4, 12);
+      ctx.fillRect(21, -20, 3, 10);
+
+      // 4 Wingtip Laser Cannon Barrels
+      ctx.fillStyle = '#64748b';
+      [-34, 34].forEach(wx => {
+        ctx.fillRect(wx - 1.5, -36, 3, 20);
+        ctx.fillRect(wx - 1.5, 4, 3, 18);
+        // Flash suppressors
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(wx - 2.5, -38, 5, 2.5);
+        ctx.fillRect(wx - 2.5, 2, 5, 2.5);
+      });
+
+      // Long T-65 Fuselage Hull
+      ctx.fillStyle = '#334155';
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -42); // Long pointed nose
+      ctx.lineTo(8, -16);
+      ctx.lineTo(9, 18);
+      ctx.lineTo(-9, 18);
+      ctx.lineTo(-8, -16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Red Nose Stripe
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(0, -38);
+      ctx.lineTo(3, -24);
+      ctx.lineTo(-3, -24);
+      ctx.closePath();
+      ctx.fill();
+
+      // R2-D2 Astromech Droid Behind Cockpit (Animated!)
+      const r2Angle = Math.sin(now * 0.004) * 0.4;
+      ctx.save();
+      ctx.translate(0, 4);
+      ctx.rotate(r2Angle);
+      // Silver Dome
+      ctx.fillStyle = '#e2e8f0';
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Blinking Sensor Eye (Red/Cyan)
+      ctx.fillStyle = Math.sin(now * 0.01) > 0 ? '#ef4444' : '#00f0ff';
+      ctx.beginPath();
+      ctx.arc(1, -1, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Cockpit Canopy (Black Glass with Cyan Highlight)
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.lineTo(5, -8);
+      ctx.lineTo(-5, -8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-2, -18, 4, 8);
+      break;
+    }
+
+    // ==========================================
+    // 16. MILLENNIUM FALCON (YT-1300 Light Freighter)
+    // ==========================================
+    case 'falcon': {
+      // Rear Hyperdrive Exhaust Strip (Cyan/Blue Neon Glow)
+      ctx.fillStyle = '#00f0ff';
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 24;
+      ctx.beginPath();
+      ctx.roundRect(-22, 14, 44, 7 + Math.sin(now * 0.02) * 2, 3);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-16, 15, 32, 2.5);
+
+      // Main Asymmetric Saucer Hull
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(0, 0, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Front Freight Mandibles / Claws
+      ctx.fillStyle = '#334155';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      // Left Mandible
+      ctx.beginPath();
+      ctx.moveTo(-18, -12);
+      ctx.lineTo(-14, -36);
+      ctx.lineTo(-5, -36);
+      ctx.lineTo(-6, -16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Right Mandible
+      ctx.beginPath();
+      ctx.moveTo(18, -12);
+      ctx.lineTo(14, -36);
+      ctx.lineTo(5, -36);
+      ctx.lineTo(6, -16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Starboard (Right Side) Offset Cockpit Tunnel & Cone
+      ctx.fillStyle = '#334155';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      // Tunnel
+      ctx.fillRect(18, -10, 14, 8);
+      ctx.strokeRect(18, -10, 14, 8);
+      // Cockpit Cone
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(26, -14);
+      ctx.lineTo(34, -28);
+      ctx.lineTo(38, -18);
+      ctx.lineTo(32, -6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Cockpit Window Lattice
+      ctx.fillStyle = '#00f0ff';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 8;
+      ctx.fillRect(30, -22, 4, 6);
+
+      // Rotating Radar Dish on Left Port
+      ctx.save();
+      ctx.translate(-14, -8);
+      ctx.rotate(now * 0.003);
+      ctx.fillStyle = '#64748b';
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 7, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Center Dorsal Quad-Laser Turret
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 4 Turret Barrels
+      ctx.fillStyle = '#cbd5e1';
+      [-3, 3].forEach(bx => {
+        ctx.fillRect(bx - 1, -14, 2, 8);
+      });
+      break;
+    }
+
+    // ==========================================
+    // 17. TIE INTERCEPTOR (Imperial Royal Starfighter)
+    // ==========================================
+    case 'tie': {
+      // Twin Emerald Green Ion Thrusters
+      [-6, 6].forEach(tx => {
+        ctx.fillStyle = '#22c55e';
+        ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(tx - 3, 14);
+        ctx.lineTo(tx, 14 + flameHeight + 4);
+        ctx.lineTo(tx + 3, 14);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(tx, 14 + flameHeight * 0.4, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Dagger Solar Array Wings (Angled Inward V-Shape)
+      [-1, 1].forEach(side => {
+        ctx.fillStyle = '#18181b';
+        ctx.strokeStyle = '#52525b';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#22c55e';
+        ctx.shadowBlur = 14;
+
+        // Dagger Wing Outer Edge
+        ctx.beginPath();
+        ctx.moveTo(side * 16, -6);
+        ctx.lineTo(side * 36, -34);
+        ctx.lineTo(side * 30, -6);
+        ctx.lineTo(side * 38, 26);
+        ctx.lineTo(side * 18, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Solar Grid Lines
+        ctx.strokeStyle = '#27272a';
+        ctx.lineWidth = 1.5;
+        [-20, -10, 0, 10, 20].forEach(gy => {
+          ctx.beginPath();
+          ctx.moveTo(side * 20, gy * 0.8);
+          ctx.lineTo(side * 34, gy * 1.1);
+          ctx.stroke();
+        });
+
+        // Wing Pylon Connecting Strut
+        ctx.fillStyle = '#3f3f46';
+        ctx.fillRect(side > 0 ? 10 : -18, -4, 8, 8);
+      });
+
+      // Central Spherical Cockpit Ball
+      ctx.fillStyle = '#27272a';
+      ctx.strokeStyle = '#71717a';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Imperial Hexagonal Viewport
+      ctx.fillStyle = '#09090b';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Menacing Red Pilot Eye Center
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Twin Chin-Mounted Green Laser Cannons
+      ctx.fillStyle = '#22c55e';
+      ctx.shadowColor = '#4ade80';
+      ctx.shadowBlur = 10;
+      ctx.fillRect(-5, 9, 3, 5);
+      ctx.fillRect(2, 9, 3, 5);
+      break;
+    }
+
+    // ==========================================
+    // 18. NABOO N-1 STARFIGHTER (Royal Yellow & Chrome)
+    // ==========================================
+    case 'naboo': {
+      // Dual J-Type Plasma Engines
+      [-18, 18].forEach(tx => {
+        ctx.fillStyle = '#00f0ff';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(tx - 4, 16);
+        ctx.lineTo(tx, 16 + flameHeight + 6);
+        ctx.lineTo(tx + 4, 16);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Smooth Golden Wings
+      ctx.fillStyle = '#eab308';
+      ctx.strokeStyle = '#fef08a';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#facc15';
+      ctx.shadowBlur = 14;
+
+      // Left Wing & Engine Mount
+      ctx.beginPath();
+      ctx.moveTo(-6, -8);
+      ctx.lineTo(-26, -4);
+      ctx.lineTo(-24, 16);
+      ctx.lineTo(-6, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Wing & Engine Mount
+      ctx.beginPath();
+      ctx.moveTo(6, -8);
+      ctx.lineTo(26, -4);
+      ctx.lineTo(24, 16);
+      ctx.lineTo(6, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Chrome Nacelles on Wingtips
+      [-18, 18].forEach(nx => {
+        const chromeGrad = ctx.createLinearGradient(nx - 4, -20, nx + 4, 14);
+        chromeGrad.addColorStop(0, '#ffffff');
+        chromeGrad.addColorStop(0.5, '#94a3b8');
+        chromeGrad.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = chromeGrad;
+        ctx.fillRect(nx - 3, -16, 6, 30);
+      });
+
+      // Royal Yellow Fuselage Body
+      ctx.fillStyle = '#ca8a04';
+      ctx.beginPath();
+      ctx.moveTo(0, -38);
+      ctx.bezierCurveTo(12, -18, 10, 16, 0, 36); // Pointed tail fin
+      ctx.bezierCurveTo(-10, 16, -12, -18, 0, -38);
+      ctx.closePath();
+      ctx.fill();
+
+      // Specular Chrome Polished Nose Dome
+      const noseGrad = ctx.createLinearGradient(0, -42, 0, -16);
+      noseGrad.addColorStop(0, '#ffffff');
+      noseGrad.addColorStop(0.4, '#cbd5e1');
+      noseGrad.addColorStop(1, '#64748b');
+      ctx.fillStyle = noseGrad;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -42);
+      ctx.bezierCurveTo(8, -32, 9, -20, 0, -16);
+      ctx.bezierCurveTo(-9, -20, -8, -32, 0, -42);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Little Silver Astromech Dome
+      ctx.fillStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.arc(0, -4, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Blue Glass Cockpit
+      ctx.fillStyle = '#38bdf8';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.ellipse(0, -10, 4, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 19. JEDI MASTER INTERCEPTOR (Eta-2 Kyber Starfighter)
+    // ==========================================
+    case 'jedi': {
+      // Twin Supercharged Ion Thrusters
+      [-12, 12].forEach(tx => {
+        ctx.fillStyle = '#c084fc';
+        ctx.shadowColor = '#e879f9';
+        ctx.shadowBlur = 22;
+        ctx.beginPath();
+        ctx.moveTo(tx - 4, 16);
+        ctx.lineTo(tx, 18 + flameHeight + 8);
+        ctx.lineTo(tx + 4, 16);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Arrowhead S-Foil Wings (Deep Violet & Golden Jedi Trim)
+      ctx.fillStyle = '#2e1065';
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 18;
+
+      // Left Wing
+      ctx.beginPath();
+      ctx.moveTo(-6, -14);
+      ctx.lineTo(-36, -30);
+      ctx.lineTo(-38, 14);
+      ctx.lineTo(-22, 16);
+      ctx.lineTo(-6, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Wing
+      ctx.beginPath();
+      ctx.moveTo(6, -14);
+      ctx.lineTo(36, -30);
+      ctx.lineTo(38, 14);
+      ctx.lineTo(22, 16);
+      ctx.lineTo(6, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Gold Jedi Order Wing Flaps
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-32, -18, 4, 16);
+      ctx.fillRect(28, -18, 4, 16);
+
+      // Sleek Center Fuselage
+      ctx.fillStyle = '#1e1b4b';
+      ctx.strokeStyle = '#e0e7ff';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -40);
+      ctx.lineTo(12, -14);
+      ctx.lineTo(8, 20);
+      ctx.lineTo(-8, 20);
+      ctx.lineTo(-12, -14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Pulsing Kyber Crystal Bubble Canopy
+      const kyberScale = 1 + Math.sin(now * 0.01) * 0.15;
+      ctx.fillStyle = '#c084fc';
+      ctx.shadowColor = '#e879f9';
+      ctx.shadowBlur = 20;
+      ctx.beginPath();
+      ctx.arc(0, -4, 7 * kyberScale, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, -4, 3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
   }
 
   // ==========================================
@@ -1588,6 +2107,128 @@ export const drawMountedBlaster = (ctx: CanvasRenderingContext2D, blaster: Blast
         ctx.beginPath();
         ctx.arc(px, bTop, isCenter ? 4 : 3, 0, Math.PI * 2);
         ctx.fill();
+      });
+      break;
+    }
+
+    // 10. IMPERIAL TWIN HEAVY BLASTER
+    case 'blaster-tie-twin': {
+      [-8, 8].forEach(bx => {
+        ctx.fillStyle = '#18181b';
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 1.8;
+        ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = 12;
+        ctx.fillRect(bx - 2.5, -24, 5, 16);
+        ctx.strokeRect(bx - 2.5, -24, 5, 16);
+
+        // Green Energy Glow Vent
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(bx - 1.5, -26, 3, 4);
+      });
+      break;
+    }
+
+    // 11. T-65 QUAD LASER CANNONS (X-Wing 4-Point Setup)
+    case 'blaster-xwing-quad': {
+      // 4 Wingtip Long Cannons
+      [-34, 34].forEach(wx => {
+        // Upper Cannon
+        ctx.fillStyle = '#334155';
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.8;
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 14;
+        ctx.fillRect(wx - 2, -42, 4, 26);
+        ctx.strokeRect(wx - 2, -42, 4, 26);
+
+        // Flash Suppressor Tip
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(wx - 3, -44, 6, 3.5);
+
+        // Lower Cannon
+        ctx.fillStyle = '#334155';
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.8;
+        ctx.fillRect(wx - 2, -4, 4, 20);
+        ctx.strokeRect(wx - 2, -4, 4, 20);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(wx - 3, -6, 6, 3);
+      });
+      break;
+    }
+
+    // 12. CORELLIAN QUAD-LASER TURRET (Falcon Heavy Turret)
+    case 'blaster-falcon-quad': {
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(0, -18, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 4 Heavy Barrels
+      [-6, -2, 2, 6].forEach((bx, idx) => {
+        const isCenter = idx === 1 || idx === 2;
+        const bLen = isCenter ? 26 : 22;
+        const bTop = isCenter ? -42 : -38;
+        ctx.fillStyle = '#475569';
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(bx - 1.5, bTop, 3, bLen);
+        ctx.strokeRect(bx - 1.5, bTop, 3, bLen);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(bx - 2, bTop - 2, 4, 2.5);
+      });
+      break;
+    }
+
+    // 13. PROTON TORPEDO TUBES
+    case 'blaster-proton': {
+      [-10, 10].forEach(px => {
+        ctx.fillStyle = '#451a03';
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 14;
+        ctx.fillRect(px - 3.5, -34, 7, 20);
+        ctx.strokeRect(px - 3.5, -34, 7, 20);
+
+        // Glowing Torpedo Chamber Warhead
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(px, -34, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      break;
+    }
+
+    // 14. KYBER CRYSTAL FOCUS ARRAY
+    case 'blaster-kyber': {
+      // Center Convergence Dish + 2 Flanks
+      [-20, 0, 20].forEach((kx, idx) => {
+        const isCenter = idx === 1;
+        const kTop = isCenter ? -48 : -26;
+        ctx.save();
+        ctx.translate(kx, kTop);
+        ctx.rotate(now * (idx === 0 ? -0.005 : idx === 2 ? 0.005 : 0));
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#e879f9';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(0, 0, isCenter ? 7 : 5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, isCenter ? 3.5 : 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       });
       break;
     }
@@ -2000,6 +2641,171 @@ export const drawLaserPreview = (
       ctx.restore();
       break;
     }
+
+    // 13. REBEL RUBY BLASTER BOLT (Star Wars Classic Crimson Plasma)
+    case 'rebel_red': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(239, 68, 68, 0.2)');
+      grad.addColorStop(0.5, '#ef4444');
+      grad.addColorStop(1, '#f87171');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 18;
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // Super-hot white plasma core
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      // Rounded Capsule Head
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(w / 2, 8, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // 14. IMPERIAL EMERALD GREEN BOLT (TIE Fighter Heavy Plasma)
+    case 'imperial_green': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(34, 197, 94, 0.2)');
+      grad.addColorStop(0.5, '#22c55e');
+      grad.addColorStop(1, '#4ade80');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#22c55e';
+      ctx.shadowBlur = 18;
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      // Green Plasma Head
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#4ade80';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(w / 2, 8, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // 15. REPUBLIC ION ELECTRIC BLUE
+    case 'ion_blue': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(0, 240, 255, 0.2)');
+      grad.addColorStop(0.5, '#00f0ff');
+      grad.addColorStop(1, '#38bdf8');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 20;
+      ctx.lineWidth = 6.5;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Electric Ion Sparks
+      for (let i = 0; i < 3; i++) {
+        const sy = (now * 0.05 + i * 18) % (h - 20) + 10;
+        const sx = w / 2 + Math.sin(now * 0.01 + i) * 6;
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(sx, h - sy, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(w / 2, 8, 5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // 16. MANDALORIAN BESKAR AMBER
+    case 'mando_amber': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(245, 158, 11, 0.2)');
+      grad.addColorStop(0.5, '#f59e0b');
+      grad.addColorStop(1, '#fbbf24');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 20;
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fef08a';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(w / 2, 8, 5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // 17. JEDI KYBER AMETHYST PULSE
+    case 'kyber_purple': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(192, 132, 252, 0.2)');
+      grad.addColorStop(0.5, '#c084fc');
+      grad.addColorStop(1, '#e879f9');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 22;
+      ctx.lineWidth = 7.5;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Rotating Kyber Diamond
+      ctx.save();
+      ctx.translate(w / 2, 10);
+      ctx.rotate(now * 0.008);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#e879f9';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(0, -7);
+      ctx.lineTo(5, 0);
+      ctx.lineTo(0, 7);
+      ctx.lineTo(-5, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      break;
+    }
   }
 
   ctx.restore();
@@ -2062,6 +2868,36 @@ export const getBlasterMuzzleOrigins = (
         { x: shipX, y: shipY - 52 * scale },
         { x: shipX + 16 * scale, y: shipY - 40 * scale },
         { x: shipX + 30 * scale, y: shipY - 28 * scale }
+      ];
+    case 'blaster-tie-twin':
+      return [
+        { x: shipX - 8 * scale, y: shipY - 26 * scale },
+        { x: shipX + 8 * scale, y: shipY - 26 * scale }
+      ];
+    case 'blaster-xwing-quad':
+      return [
+        { x: shipX - 34 * scale, y: shipY - 44 * scale },
+        { x: shipX + 34 * scale, y: shipY - 44 * scale },
+        { x: shipX - 34 * scale, y: shipY - 6 * scale },
+        { x: shipX + 34 * scale, y: shipY - 6 * scale }
+      ];
+    case 'blaster-falcon-quad':
+      return [
+        { x: shipX - 6 * scale, y: shipY - 38 * scale },
+        { x: shipX - 2 * scale, y: shipY - 42 * scale },
+        { x: shipX + 2 * scale, y: shipY - 42 * scale },
+        { x: shipX + 6 * scale, y: shipY - 38 * scale }
+      ];
+    case 'blaster-proton':
+      return [
+        { x: shipX - 10 * scale, y: shipY - 36 * scale },
+        { x: shipX + 10 * scale, y: shipY - 36 * scale }
+      ];
+    case 'blaster-kyber':
+      return [
+        { x: shipX - 20 * scale, y: shipY - 26 * scale },
+        { x: shipX, y: shipY - 48 * scale },
+        { x: shipX + 20 * scale, y: shipY - 26 * scale }
       ];
     default:
       return [{ x: shipX, y: shipY - 30 * scale }];

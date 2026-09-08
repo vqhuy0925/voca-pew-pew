@@ -145,7 +145,7 @@ export interface SpaceshipItem {
   glowColor: string;
   cockpitColor: string;
   wingSpan: number;
-  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly' | 'kitty' | 'mecha' | 'phoenix' | 'valkyrie' | 'chrono';
+  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly' | 'kitty' | 'mecha' | 'phoenix' | 'valkyrie' | 'chrono' | 'xwing' | 'falcon' | 'tie' | 'naboo' | 'jedi';
   perkDescription: string;
   soundType: 'classic' | 'electric' | 'heavy' | 'cosmic' | 'divine';
 }
@@ -161,7 +161,7 @@ export interface BlasterItem {
   spreadAngle: number;
   cannonColor: string;
   description: string;
-  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine';
+  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam';
 }
 
 export interface LaserBeamItem {
@@ -175,7 +175,7 @@ export interface LaserBeamItem {
   trailColor: string;
   coreColor: string;
   beamWidth: number;
-  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova';
+  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple';
   description: string;
 }
 
@@ -398,6 +398,83 @@ export const SPACESHIPS: SpaceshipItem[] = [
     modelType: 'chrono',
     perkDescription: 'Tuyệt tác vũ trụ tối thượng! Vòng xoáy không-thời gian bẻ cong mọi quy luật vũ trụ.',
     soundType: 'divine'
+  },
+
+  // 🌌 STAR WARS ICONIC FLEET
+  {
+    id: 'ship-tie',
+    name: 'TIE Interceptor',
+    nameVi: 'Chiến Cơ TIE Đế Chế',
+    rarity: 'RARE',
+    priceGems: 150,
+    icon: '🛸',
+    color: '#18181b',
+    glowColor: '#22c55e',
+    cockpitColor: '#ef4444',
+    wingSpan: 32,
+    modelType: 'tie',
+    perkDescription: 'Cánh pin năng lượng mặt trời vát nhọn cùng mắt kính ngắm đỏ rực uy dũng.',
+    soundType: 'classic'
+  },
+  {
+    id: 'ship-xwing',
+    name: 'T-65B X-Wing Starfighter',
+    nameVi: 'Chiến Cơ X-Wing Red 5',
+    rarity: 'EPIC',
+    priceGems: 260,
+    icon: '🚀',
+    color: '#334155',
+    glowColor: '#ef4444',
+    cockpitColor: '#38bdf8',
+    wingSpan: 36,
+    modelType: 'xwing',
+    perkDescription: 'Cánh chữ X S-Foils huyền thoại với robot R2-D2 hỗ trợ xoay đầu phát sáng!',
+    soundType: 'classic'
+  },
+  {
+    id: 'ship-naboo',
+    name: 'Naboo N-1 Starfighter',
+    nameVi: 'Phi Thuyền Hoàng Gia Naboo N-1',
+    rarity: 'LEGENDARY',
+    priceGems: 490,
+    icon: '✨',
+    color: '#713f12',
+    glowColor: '#facc15',
+    cockpitColor: '#93c5fd',
+    wingSpan: 34,
+    modelType: 'naboo',
+    perkDescription: 'Mũi crôm bóng loáng phản quang ánh sao, thân thon dài mạ vàng hoàng gia.',
+    soundType: 'electric'
+  },
+  {
+    id: 'ship-falcon',
+    name: 'Millennium Falcon',
+    nameVi: 'Thần Ưng Ngàn Năm',
+    rarity: 'LEGENDARY',
+    priceGems: 650,
+    icon: '🦅',
+    color: '#1e293b',
+    glowColor: '#00f0ff',
+    cockpitColor: '#00f0ff',
+    wingSpan: 42,
+    modelType: 'falcon',
+    perkDescription: 'Huyền thoại vũ trụ của Han Solo với tháp pháo Quad-Laser và luồng xả Hyperdrive xanh neon!',
+    soundType: 'heavy'
+  },
+  {
+    id: 'ship-jedi',
+    name: 'Jedi Master Interceptor',
+    nameVi: 'Chiến Hạm Hiệp Sĩ Jedi',
+    rarity: 'MYTHIC',
+    priceGems: 1050,
+    icon: '⚔️',
+    color: '#2e1065',
+    glowColor: '#c084fc',
+    cockpitColor: '#e0e7ff',
+    wingSpan: 40,
+    modelType: 'jedi',
+    perkDescription: 'Tích hợp tinh thể Kyber thuần khiết, biểu tượng Jedi bảo vệ hòa bình ngân hà!',
+    soundType: 'divine'
   }
 ];
 
@@ -527,6 +604,73 @@ export const BLASTERS: BlasterItem[] = [
     cannonColor: '#f43f5e',
     description: 'Thần pháo 5 nòng tối thượng bao trùm toàn bộ bầu trời với uy lực hủy diệt!',
     fireSound: 'divine'
+  },
+
+  // 🌌 STAR WARS ARSENAL
+  {
+    id: 'blaster-tie-twin',
+    name: 'Imperial Twin Blaster',
+    nameVi: 'Pháo Đôi TIE Đế Chế',
+    rarity: 'RARE',
+    priceGems: 120,
+    icon: '🟢',
+    barrelCount: 2,
+    spreadAngle: 0.05,
+    cannonColor: '#22c55e',
+    description: 'Bắn 2 tia plasma xanh lục đặc trưng của hạm đội hoàng gia Đế Chế.',
+    fireSound: 'starwars_tie'
+  },
+  {
+    id: 'blaster-xwing-quad',
+    name: 'T-65 Quad Lasers',
+    nameVi: 'Pháo 4 Nòng X-Wing',
+    rarity: 'EPIC',
+    priceGems: 240,
+    icon: '🔴',
+    barrelCount: 4,
+    spreadAngle: 0.14,
+    cannonColor: '#ef4444',
+    description: '4 nòng pháo đầu cánh xả đạn plasma đỏ dồn dập chuẩn xác!',
+    fireSound: 'starwars_blaster'
+  },
+  {
+    id: 'blaster-falcon-quad',
+    name: 'Corellian Quad-Turret',
+    nameVi: 'Tháp Pháo 4 Nòng Falcon',
+    rarity: 'LEGENDARY',
+    priceGems: 520,
+    icon: '🔵',
+    barrelCount: 4,
+    spreadAngle: 0.16,
+    cannonColor: '#00f0ff',
+    description: 'Tháp pháo xoay 4 nòng uy lực quét sạch chướng ngại vật phía trước!',
+    fireSound: 'starwars_quad'
+  },
+  {
+    id: 'blaster-proton',
+    name: 'Proton Torpedo Tubes',
+    nameVi: 'Ống Phóng Ngư Lôi Proton',
+    rarity: 'LEGENDARY',
+    priceGems: 620,
+    icon: '🟡',
+    barrelCount: 2,
+    spreadAngle: 0.08,
+    cannonColor: '#f59e0b',
+    description: 'Phóng ra 2 quả ngư lôi ánh sáng xanh-vàng phát nổ uy lực chấn động!',
+    fireSound: 'proton_torpedo'
+  },
+  {
+    id: 'blaster-kyber',
+    name: 'Kyber Super-Array',
+    nameVi: 'Pháo Hội Tụ Tinh Thể Kyber',
+    rarity: 'MYTHIC',
+    priceGems: 1100,
+    icon: '🟣',
+    barrelCount: 3,
+    spreadAngle: 0.12,
+    cannonColor: '#c084fc',
+    description: 'Hội tụ sức mạnh thần bí của đá Kyber tạo chùm laze tím bất khả chiến bại!',
+    fireSound: 'kyber_beam'
   }
 ];
 
@@ -707,6 +851,78 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     beamWidth: 7,
     particleType: 'supernova',
     description: 'Đỉnh cao nghệ thuật vũ trụ! Bão siêu tân tinh chuyển màu liên tục với mưa kim cương.'
+  },
+
+  // 🌌 STAR WARS PLASMA BOLTS
+  {
+    id: 'laser-rebel-red',
+    name: 'Rebel Ruby Blaster Bolt',
+    nameVi: 'Tia Plasma Đỏ Liên Minh',
+    rarity: 'RARE',
+    priceGems: 80,
+    icon: '🔴',
+    beamColor: '#ef4444',
+    trailColor: 'rgba(239, 68, 68, 0.45)',
+    coreColor: '#ffffff',
+    beamWidth: 4.5,
+    particleType: 'rebel_red',
+    description: 'Viên đạn plasma khí Gas Tibanna đỏ rực kinh điển của phi đội Khởi Nghĩa.'
+  },
+  {
+    id: 'laser-imperial-green',
+    name: 'Imperial Emerald Bolt',
+    nameVi: 'Tia Laze Xanh Lục Đế Chế',
+    rarity: 'RARE',
+    priceGems: 90,
+    icon: '🟢',
+    beamColor: '#22c55e',
+    trailColor: 'rgba(34, 197, 94, 0.45)',
+    coreColor: '#ffffff',
+    beamWidth: 4.5,
+    particleType: 'imperial_green',
+    description: 'Đạn laze xanh lục năng lượng cực cao của các chiến cơ TIE hoàng gia.'
+  },
+  {
+    id: 'laser-ion-blue',
+    name: 'Republic Ion Pulse',
+    nameVi: 'Tia Ion Xanh Republic',
+    rarity: 'EPIC',
+    priceGems: 220,
+    icon: '🔵',
+    beamColor: '#00f0ff',
+    trailColor: 'rgba(0, 240, 255, 0.5)',
+    coreColor: '#ffffff',
+    beamWidth: 5,
+    particleType: 'ion_blue',
+    description: 'Tia xung điện Ion xanh neon làm tê liệt và nổ tung mọi mục tiêu.'
+  },
+  {
+    id: 'laser-mando-amber',
+    name: 'Mando Beskar Amber Bolt',
+    nameVi: 'Tia Hổ Phách Mandalorian',
+    rarity: 'LEGENDARY',
+    priceGems: 460,
+    icon: '🟡',
+    beamColor: '#f59e0b',
+    trailColor: 'rgba(245, 158, 11, 0.5)',
+    coreColor: '#ffffff',
+    beamWidth: 5.5,
+    particleType: 'mando_amber',
+    description: 'Đạn pháo vàng hổ phách hạng nặng mang tinh thần thợ săn tiền thưởng.'
+  },
+  {
+    id: 'laser-kyber-purple',
+    name: 'Jedi Kyber Amethyst Pulse',
+    nameVi: 'Tia Laze Tím Tinh Thể Kyber',
+    rarity: 'MYTHIC',
+    priceGems: 880,
+    icon: '🟣',
+    beamColor: '#c084fc',
+    trailColor: 'rgba(192, 132, 252, 0.55)',
+    coreColor: '#ffffff',
+    beamWidth: 6,
+    particleType: 'kyber_purple',
+    description: 'Tia sáng tím thần bí của bậc thầy Jedi quyền uy, tỏa ra các mảnh pha lê lấp lánh.'
   }
 ];
 

@@ -393,9 +393,13 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         // 1. Update Spawner & Enemies
         const enemies = spawner.update(deltaTime);
 
-        // 2. Check Victory condition
+        // 2. Check Victory condition (with Star Wars Hyperspace Jump effect)
         if (spawner.getRemainingWordsCount() === 0) {
-          onVictory();
+          particleSys.setHyperspace(true);
+          soundFx.playHyperdriveJump();
+          setTimeout(() => {
+            onVictory();
+          }, 450);
           return;
         }
 
@@ -526,16 +530,60 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fill();
     ctx.stroke();
 
-    // Target pointer triangle above if locked-on
+    // Star Wars Trench Run / Targeting Computer Reticle HUD when locked-on
     if (enemy.isTargeted) {
       ctx.save();
-      ctx.fillStyle = equippedLaser.beamColor || '#00f0ff';
+      const reticleColor = equippedLaser.beamColor || '#00f0ff';
+      ctx.strokeStyle = reticleColor;
+      ctx.fillStyle = reticleColor;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = reticleColor;
+      ctx.shadowBlur = 14;
+
+      const pad = 6;
+      const bracketLen = 14;
+
+      // Top-Left bracket
       ctx.beginPath();
-      ctx.moveTo(x + width / 2, y - 8);
-      ctx.lineTo(x + width / 2 - 10, y - 20);
-      ctx.lineTo(x + width / 2 + 10, y - 20);
+      ctx.moveTo(x - pad, y - pad + bracketLen);
+      ctx.lineTo(x - pad, y - pad);
+      ctx.lineTo(x - pad + bracketLen, y - pad);
+      ctx.stroke();
+
+      // Top-Right bracket
+      ctx.beginPath();
+      ctx.moveTo(x + width + pad - bracketLen, y - pad);
+      ctx.lineTo(x + width + pad, y - pad);
+      ctx.lineTo(x + width + pad, y - pad + bracketLen);
+      ctx.stroke();
+
+      // Bottom-Left bracket
+      ctx.beginPath();
+      ctx.moveTo(x - pad, y + height + pad - bracketLen);
+      ctx.lineTo(x - pad, y + height + pad);
+      ctx.lineTo(x - pad + bracketLen, y + height + pad);
+      ctx.stroke();
+
+      // Bottom-Right bracket
+      ctx.beginPath();
+      ctx.moveTo(x + width + pad - bracketLen, y + height + pad);
+      ctx.lineTo(x + width + pad, y + height + pad);
+      ctx.lineTo(x + width + pad, y + height + pad - bracketLen);
+      ctx.stroke();
+
+      // Lock-On Pointer Triangle & Telemetry Badge above
+      ctx.beginPath();
+      ctx.moveTo(x + width / 2, y - 6);
+      ctx.lineTo(x + width / 2 - 8, y - 18);
+      ctx.lineTo(x + width / 2 + 8, y - 18);
       ctx.closePath();
       ctx.fill();
+
+      // Telemetry Text
+      ctx.font = 'bold 10px Fredoka, monospace, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ LOCK', x + width / 2, y - 22);
+
       ctx.restore();
     }
 

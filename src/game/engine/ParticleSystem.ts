@@ -12,7 +12,7 @@ interface Star {
 
 interface EnhancedLaser extends LaserBolt {
   beamWidth?: number;
-  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova';
+  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple';
   trailColor?: string;
   coreColor?: string;
 }
@@ -24,10 +24,15 @@ export class ParticleSystem {
   private floatingTexts: FloatingText[] = [];
   private width: number = 800;
   private height: number = 600;
+  private isHyperspace: boolean = false;
 
   constructor(width: number, height: number) {
     this.resize(width, height);
-    this.initStars(80);
+    this.initStars(90);
+  }
+
+  public setHyperspace(active: boolean) {
+    this.isHyperspace = active;
   }
 
   public resize(w: number, h: number) {
@@ -156,10 +161,11 @@ export class ParticleSystem {
 
   public update() {
     // Update Stars
+    const speedMult = this.isHyperspace ? 24 : 1;
     for (const s of this.stars) {
-      s.y += s.speed;
+      s.y += s.speed * speedMult;
       if (s.y > this.height) {
-        s.y = 0;
+        s.y = this.isHyperspace ? -20 : 0;
         s.x = Math.random() * this.width;
       }
     }
@@ -172,7 +178,7 @@ export class ParticleSystem {
       laser.currentY = laser.startY + (laser.targetY - laser.startY) * Math.min(laser.progress, 1);
 
       // Trailing sparks while laser flies
-      if (Math.random() < 0.35 && laser.progress < 0.9) {
+      if (Math.random() < 0.4 && laser.progress < 0.9) {
         this.particles.push({
           x: laser.currentX + (Math.random() - 0.5) * 6,
           y: laser.currentY + (Math.random() - 0.5) * 6,
@@ -218,14 +224,27 @@ export class ParticleSystem {
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
-    // Draw Stars
+    // Draw Stars (Normal or Hyperspace Streaks)
     for (const s of this.stars) {
       ctx.save();
-      ctx.globalAlpha = s.alpha;
+      ctx.globalAlpha = this.isHyperspace ? 0.9 : s.alpha;
       ctx.fillStyle = s.color;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.strokeStyle = s.color;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = this.isHyperspace ? 12 : 0;
+
+      if (this.isHyperspace) {
+        // Hyperspace light speed jump streak lines
+        ctx.lineWidth = s.size * 1.2;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y - s.speed * 32);
+        ctx.lineTo(s.x, s.y);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
     }
 
@@ -618,6 +637,202 @@ export class ParticleSystem {
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'rebel_red') {
+        // 13. Rebel Ruby Plasma Bolt (Authentic Star Wars Red Capsule Bolt)
+        const boltLen = 28;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(239, 68, 68, 0)');
+        boltGrad.addColorStop(0.3, '#dc2626');
+        boltGrad.addColorStop(0.8, '#ef4444');
+        boltGrad.addColorStop(1, '#fee2e2');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 22;
+        ctx.lineWidth = bWidth * 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Hot White Inner Plasma Core
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1.8, bWidth * 0.45);
+        ctx.beginPath();
+        ctx.moveTo(laser.currentX - Math.cos(angle) * (boltLen * 0.7), laser.currentY - Math.sin(angle) * (boltLen * 0.7));
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Starburst Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, bWidth * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'imperial_green') {
+        // 14. Imperial Emerald Plasma Bolt (TIE Fighter Green Bolt)
+        const boltLen = 28;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(34, 197, 94, 0)');
+        boltGrad.addColorStop(0.3, '#16a34a');
+        boltGrad.addColorStop(0.8, '#22c55e');
+        boltGrad.addColorStop(1, '#dcfce7');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#22c55e';
+        ctx.shadowBlur = 22;
+        ctx.lineWidth = bWidth * 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Hot White Core
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1.8, bWidth * 0.45);
+        ctx.beginPath();
+        ctx.moveTo(laser.currentX - Math.cos(angle) * (boltLen * 0.7), laser.currentY - Math.sin(angle) * (boltLen * 0.7));
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, bWidth * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'ion_blue') {
+        // 15. Republic Ion Electric Blue Bolt
+        const boltLen = 32;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(0, 240, 255, 0)');
+        boltGrad.addColorStop(0.4, '#0284c7');
+        boltGrad.addColorStop(0.8, '#00f0ff');
+        boltGrad.addColorStop(1, '#ffffff');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 24;
+        ctx.lineWidth = bWidth * 1.6;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(2, bWidth * 0.5);
+        ctx.stroke();
+
+        // Tip Spark
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, bWidth * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'mando_amber') {
+        // 16. Mandalorian Beskar Amber Bolt
+        const boltLen = 30;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(245, 158, 11, 0)');
+        boltGrad.addColorStop(0.3, '#d97706');
+        boltGrad.addColorStop(0.8, '#f59e0b');
+        boltGrad.addColorStop(1, '#fef08a');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 22;
+        ctx.lineWidth = bWidth * 1.6;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1.8, bWidth * 0.45);
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.fillStyle = '#fef08a';
+        ctx.shadowColor = '#fbbf24';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, bWidth * 0.75, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'kyber_purple') {
+        // 17. Jedi Kyber Amethyst Pulse
+        const boltLen = 34;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(192, 132, 252, 0)');
+        boltGrad.addColorStop(0.4, '#9333ea');
+        boltGrad.addColorStop(0.8, '#c084fc');
+        boltGrad.addColorStop(1, '#fdf4ff');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#a855f7';
+        ctx.shadowBlur = 24;
+        ctx.lineWidth = bWidth * 1.7;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(2, bWidth * 0.5);
+        ctx.stroke();
+
+        // Kyber Diamond Star at Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.rotate(Date.now() * 0.015);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#e879f9';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(0, -7);
+        ctx.lineTo(5, 0);
+        ctx.lineTo(0, 7);
+        ctx.lineTo(-5, 0);
+        ctx.closePath();
         ctx.fill();
         ctx.restore();
 

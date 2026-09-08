@@ -445,7 +445,7 @@ class SoundController {
   }
 
   // Custom Laser pew sounds for different blasters
-  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' = 'pew') {
+  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam' = 'pew') {
     if (this.isMuted) return;
     try {
       this.initCtx();
@@ -453,7 +453,95 @@ class SoundController {
 
       const now = this.ctx.currentTime;
 
-      if (soundType === 'dual') {
+      if (soundType === 'starwars_blaster') {
+        // Authentic Star Wars Blaster (Ben Burtt Guy-wire metallic twang + laser chirp)
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1650, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.09);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(2200, now);
+        filter.frequency.exponentialRampToValueAtTime(300, now + 0.09);
+        filter.Q.setValueAtTime(3.5, now);
+
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.09);
+
+        // Also play a subtle cute Droid chirp 25% of the time on hit
+        if (Math.random() < 0.25) {
+          this.playDroidChirp();
+        }
+      } else if (soundType === 'starwars_quad') {
+        // Millennium Falcon Quad-Laser Heavy Staggered Burst
+        [0, 0.025, 0.05, 0.075].forEach((offset, idx) => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(1400 - idx * 60, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(90, now + offset + 0.07);
+          gain.gain.setValueAtTime(0.2, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.07);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.07);
+        });
+      } else if (soundType === 'starwars_tie') {
+        // TIE Fighter High-Pitched Twin Green Laser
+        [0, 0.03].forEach(offset => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(1900, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(220, now + offset + 0.08);
+          gain.gain.setValueAtTime(0.22, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.08);
+        });
+      } else if (soundType === 'proton_torpedo') {
+        // Proton Torpedo Energy Launch Whine + Sub-Bass
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(2400, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(90, now + 0.22);
+        gain.gain.setValueAtTime(0.32, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } else if (soundType === 'kyber_beam') {
+        // Jedi Kyber Crystal Focus Beam Harmonic Chord
+        [880, 1320, 1760].forEach((freq, idx) => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.6, now + 0.16);
+          gain.gain.setValueAtTime(0.18 / (idx + 1), now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        });
+      } else if (soundType === 'dual') {
         // Two quick burst pews
         [0, 0.04].forEach(offset => {
           const osc = this.ctx!.createOscillator();
@@ -543,6 +631,72 @@ class SoundController {
       } else {
         this.playPew();
       }
+    } catch {
+      // Ignore
+    }
+  }
+
+  // R2-D2 Style Astromech Droid Whistling Chirp
+  public playDroidChirp() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const pitches = [
+        [1800, 2400, 2100],
+        [2200, 1700, 2600],
+        [1500, 2100, 2900, 2400]
+      ];
+      const selectedPhrase = pitches[Math.floor(Math.random() * pitches.length)];
+
+      selectedPhrase.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'sine';
+        const start = now + idx * 0.045;
+        osc.frequency.setValueAtTime(freq, start);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.15, start + 0.04);
+
+        gain.gain.setValueAtTime(0.12, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.045);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.045);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Hyperdrive Light Speed Jump Whoosh
+  public playHyperdriveJump() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Rising engine charge sweep
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(120, now);
+      osc.frequency.exponentialRampToValueAtTime(3200, now + 0.5);
+
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.35);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.55);
     } catch {
       // Ignore
     }

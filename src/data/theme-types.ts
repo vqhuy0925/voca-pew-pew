@@ -109,6 +109,24 @@ export const THEME_CONFIGS: Record<ThemeStyle, ThemeConfig> = {
     textColor: 'text-amber-300',
     buttonGradient: 'from-amber-400 via-yellow-400 to-orange-400',
     buttonBorder: 'border-amber-700'
+  },
+  galactic_starwars: {
+    id: 'galactic_starwars',
+    nameVi: 'Chiến Tranh Giữa Các Vì Sao',
+    nameEn: 'Galactic Fleet (Star Wars)',
+    icon: '🌌',
+    badge: 'STAR WARS VIỄN TƯỞNG',
+    description: 'Không gian vũ trụ sâu thẳm, buồng lái máy bay chiến đấu và ánh sáng laser rực rỡ.',
+    primaryColor: '#ef4444',
+    secondaryColor: '#00f0ff',
+    accentColor: '#facc15',
+    bgGradient: 'from-[#030712] via-[#0b0f19] to-[#020617]',
+    cardBg: 'bg-slate-900/95',
+    borderAccent: 'border-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.35)]',
+    glowColor: 'rgba(0, 240, 255, 0.5)',
+    textColor: 'text-cyan-300',
+    buttonGradient: 'from-cyan-400 via-blue-500 to-indigo-600',
+    buttonBorder: 'border-cyan-700'
   }
 };
 
