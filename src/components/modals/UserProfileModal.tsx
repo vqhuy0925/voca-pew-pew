@@ -107,8 +107,6 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   // Step 2 -> Step 3
   const handleStep2Next = () => {
     soundFx.playClick();
-    const recRealm = getRealmByAge(age);
-    setSelectedRealmId(recRealm.id);
     setStep(3);
   };
 

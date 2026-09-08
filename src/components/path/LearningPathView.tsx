@@ -45,20 +45,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenProfileModal,
   onOpenArmory
 }) => {
-  // Determine active realm (defaults to user's saved realm, or realm based on current level, or user age)
-  const [activeRealmId, setActiveRealmId] = useState<string>(() => {
-    if (progress.selectedRealmId) return progress.selectedRealmId;
-    if (progress.userAge) return getRealmByAge(progress.userAge).id;
-    return 'realm-1';
-  });
-
-  // Sync state if progress.selectedRealmId changes from outside
-  useEffect(() => {
-    if (progress.selectedRealmId && progress.selectedRealmId !== activeRealmId) {
-      setActiveRealmId(progress.selectedRealmId);
-    }
-  }, [progress.selectedRealmId]);
-
+  // Derive active realm directly from user progress to always stay in sync
+  const activeRealmId = progress.selectedRealmId || (progress.userAge ? getRealmByAge(progress.userAge).id : 'realm-1');
   const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [jumpChapter, setJumpChapter] = useState<string>('');
@@ -116,7 +104,6 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 
   const handleSelectRealm = (realmId: string) => {
     soundFx.playClick();
-    setActiveRealmId(realmId);
     setSearchQuery('');
     setJumpChapter('');
     onUpdateProgress(p => ({ ...p, selectedRealmId: realmId }));
@@ -128,7 +115,6 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     soundFx.playClick();
     const targetRealm = getRealmByChapterNumber(num);
     if (targetRealm.id !== activeRealmId) {
-      setActiveRealmId(targetRealm.id);
       onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
     }
     setSearchQuery('');
@@ -149,7 +135,6 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     if (curUnit) {
       const targetRealm = getRealmByChapterNumber(curUnit.unitNumber);
       if (targetRealm.id !== activeRealmId) {
-        setActiveRealmId(targetRealm.id);
         onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
       }
       setTimeout(() => {
