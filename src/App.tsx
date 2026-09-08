@@ -1,6 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GameStats, EnemyItem } from './data/types';
 import { LevelNode, UserProgress } from './data/progress-types';
+import {
+  DifficultyLevel,
+  DIFFICULTY_CONFIGS,
+  getSpaceshipById,
+  getBlasterById,
+  getLaserById
+} from './data/upgrade-types';
 import { ALL_LEVELS, getNextLevel } from './data/learning-path-data';
 import {
   loadUserProgress,
@@ -15,6 +22,7 @@ import { WarmupModal } from './components/modals/WarmupModal';
 import { ChestRewardModal } from './components/modals/ChestRewardModal';
 import { RefillHeartsModal } from './components/modals/RefillHeartsModal';
 import { UserProfileModal } from './components/modals/UserProfileModal';
+import { ArmoryModal } from './components/modals/ArmoryModal';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
@@ -48,6 +56,7 @@ export const App: React.FC = () => {
     const saved = loadUserProgress();
     return !saved.userName;
   });
+  const [showArmoryModal, setShowArmoryModal] = useState<boolean>(false);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
     return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
@@ -57,6 +66,8 @@ export const App: React.FC = () => {
   const [activeTarget, setActiveTarget] = useState<EnemyItem | null>(null);
   const [suggestedChar, setSuggestedChar] = useState<string | undefined>(undefined);
   const [totalLevelWords, setTotalLevelWords] = useState<number>(0);
+  const [timeRemaining, setTimeRemaining] = useState<number>(45);
+  const [totalLevelTime, setTotalLevelTime] = useState<number>(45);
   const [showRefillModal, setShowRefillModal] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
@@ -86,6 +97,13 @@ export const App: React.FC = () => {
     setShowProfileModal(false);
   };
 
+  const handleSelectDifficulty = (diff: DifficultyLevel) => {
+    handleUpdateProgress(prev => ({
+      ...prev,
+      selectedDifficulty: diff
+    }));
+  };
+
   const handleSelectLevel = (level: LevelNode) => {
     setSelectedLevel(level);
 
@@ -103,6 +121,9 @@ export const App: React.FC = () => {
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
     setSuggestedChar(undefined);
+    const diffConfig = DIFFICULTY_CONFIGS[progress.selectedDifficulty || 'NORMAL'];
+    setTimeRemaining(diffConfig.timeLimitSeconds);
+    setTotalLevelTime(diffConfig.timeLimitSeconds);
     if (progress.hearts <= 0) {
       handleUpdateProgress(p => refillHearts(p));
     }
@@ -114,6 +135,9 @@ export const App: React.FC = () => {
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
     setSuggestedChar(undefined);
+    const diffConfig = DIFFICULTY_CONFIGS[progress.selectedDifficulty || 'NORMAL'];
+    setTimeRemaining(diffConfig.timeLimitSeconds);
+    setTotalLevelTime(diffConfig.timeLimitSeconds);
     if (progress.hearts <= 0) {
       handleUpdateProgress(p => refillHearts(p));
     }
@@ -146,6 +170,11 @@ export const App: React.FC = () => {
     setScreen('GAME_OVER');
   }, [handleUpdateProgress]);
 
+  const handleTimerUpdate = useCallback((remaining: number, total: number) => {
+    setTimeRemaining(remaining);
+    setTotalLevelTime(total);
+  }, []);
+
   const handleVictory = useCallback(() => {
     let starsEarned = 1;
     if (stats.stationHealth >= 80 && stats.accuracy >= 80) {
@@ -154,19 +183,24 @@ export const App: React.FC = () => {
       starsEarned = 2;
     }
 
+    const diff = progress.selectedDifficulty || 'NORMAL';
+    const diffCfg = DIFFICULTY_CONFIGS[diff];
+    const finalXp = Math.round(selectedLevel.xpReward * diffCfg.xpMultiplier);
+    const finalGems = Math.round(selectedLevel.gemReward * diffCfg.gemMultiplier + (timeRemaining > 15 ? 10 : 0));
+
     handleUpdateProgress(prev =>
       completeLevelProgress(
         prev,
         selectedLevel.id,
         starsEarned,
         stats.score,
-        selectedLevel.xpReward,
-        selectedLevel.gemReward
+        finalXp,
+        finalGems
       )
     );
 
     setScreen('VICTORY');
-  }, [stats, selectedLevel, handleUpdateProgress]);
+  }, [stats, selectedLevel, progress.selectedDifficulty, timeRemaining, handleUpdateProgress]);
 
   const handleNextLevel = () => {
     const nextLvl = getNextLevel(selectedLevel.id);
@@ -194,6 +228,9 @@ export const App: React.FC = () => {
   };
 
   const nextLevel = getNextLevel(selectedLevel.id);
+  const equippedShip = getSpaceshipById(progress.equippedShipId);
+  const equippedBlaster = getBlasterById(progress.equippedBlasterId);
+  const equippedLaser = getLaserById(progress.equippedLaserId);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-space-dark select-none font-game">
@@ -205,6 +242,7 @@ export const App: React.FC = () => {
           onUpdateProgress={handleUpdateProgress}
           onOpenRefillModal={() => setShowRefillModal(true)}
           onOpenProfileModal={() => setShowProfileModal(true)}
+          onOpenArmory={() => setShowArmoryModal(true)}
         />
       )}
 
@@ -216,6 +254,10 @@ export const App: React.FC = () => {
             gameState={screen === 'PLAYING' ? 'PLAYING' : 'PAUSED'}
             level={selectedLevel}
             stats={stats}
+            difficulty={progress.selectedDifficulty || 'NORMAL'}
+            equippedShip={equippedShip}
+            equippedBlaster={equippedBlaster}
+            equippedLaser={equippedLaser}
             onStatsUpdate={setStats}
             onGameOver={handleGameOver}
             onVictory={handleVictory}
@@ -223,6 +265,7 @@ export const App: React.FC = () => {
             onTotalWordsSet={setTotalLevelWords}
             onSuggestCharChange={setSuggestedChar}
             onRegisterInputHandler={registerInputHandler}
+            onTimerUpdate={handleTimerUpdate}
           />
 
           {screen === 'PLAYING' && (
@@ -233,6 +276,9 @@ export const App: React.FC = () => {
                 hearts={progress.hearts}
                 maxHearts={progress.maxHearts}
                 totalWords={totalLevelWords}
+                timeRemaining={timeRemaining}
+                totalTime={totalLevelTime}
+                difficulty={progress.selectedDifficulty || 'NORMAL'}
                 isMuted={isMuted}
                 onToggleMute={handleToggleMute}
                 onPause={handlePause}
@@ -253,6 +299,10 @@ export const App: React.FC = () => {
       {screen === 'WARMUP' && (
         <WarmupModal
           level={selectedLevel}
+          selectedDifficulty={progress.selectedDifficulty || 'NORMAL'}
+          onSelectDifficulty={handleSelectDifficulty}
+          onOpenArmory={() => setShowArmoryModal(true)}
+          equippedShipId={progress.equippedShipId}
           onStartGame={handleStartBattle}
           onClose={handleGoToMap}
         />
@@ -284,11 +334,14 @@ export const App: React.FC = () => {
           stats={stats}
           level={selectedLevel}
           hasNextLevel={!!nextLevel}
+          difficulty={progress.selectedDifficulty || 'NORMAL'}
+          timeRemaining={timeRemaining}
           userName={progress.userName}
           avatar={progress.avatar}
           onNextLevel={handleNextLevel}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
+          onOpenArmory={() => setShowArmoryModal(true)}
         />
       )}
 
@@ -323,8 +376,18 @@ export const App: React.FC = () => {
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}
         />
       )}
+
+      {/* 10. Armory / Upgrade Shop Modal */}
+      {showArmoryModal && (
+        <ArmoryModal
+          progress={progress}
+          onUpdateProgress={handleUpdateProgress}
+          onClose={() => setShowArmoryModal(false)}
+        />
+      )}
     </div>
   );
 };
 
 export default App;
+

@@ -22,10 +22,10 @@ export class EnemySpawner {
     this.canvasHeight = h;
   }
 
-  public loadLevel(level: LevelNode) {
+  public loadLevel(level: LevelNode, difficultyMultiplier: number = 1.0) {
     this.isBossLevel = level.type === 'BOSS_BATTLE';
-    this.spawnInterval = level.spawnInterval || 2200;
-    this.baseSpeed = (level.speedMultiplier || 0.6) * 1.0;
+    this.spawnInterval = Math.max(1400, (level.spawnInterval || 2200) / (difficultyMultiplier > 1 ? 1.15 : difficultyMultiplier < 1 ? 0.9 : 1.0));
+    this.baseSpeed = (level.speedMultiplier || 0.6) * difficultyMultiplier;
 
     // Duplicate words slightly if word list is short (to provide 6-8 enemies per standard level)
     let words = [...level.words];
@@ -37,8 +37,9 @@ export class EnemySpawner {
     this.wordsQueue = words.sort(() => Math.random() - 0.5);
     this.totalLevelWordsCount = this.wordsQueue.length;
     this.enemies = [];
-    this.spawnTimer = 800; // Spawn first enemy quickly
+    this.spawnTimer = 600; // Spawn first enemy quickly
   }
+
 
   public getEnemies(): EnemyItem[] {
     return this.enemies;

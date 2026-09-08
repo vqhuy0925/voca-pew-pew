@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Sparkles, Rocket } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 
@@ -9,13 +9,15 @@ interface TopNavBarProps {
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal?: () => void;
   onOpenProfileModal?: () => void;
+  onOpenArmory?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
   progress,
   onUpdateProgress,
   onOpenRefillModal,
-  onOpenProfileModal
+  onOpenProfileModal,
+  onOpenArmory
 }) => {
   const toggleSound = () => {
     const isMuted = soundFx.toggleMute();
@@ -51,44 +53,51 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </button>
         </div>
 
-        {/* Stats Pill Badges (Streak, Gems, Hearts, XP) */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Stats Pill Badges (Armory, Streak, Gems, Hearts, XP) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* Armory Shop Quick Button */}
+          {onOpenArmory && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenArmory();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-600/30 to-purple-600/30 hover:from-pink-600/50 hover:to-purple-600/50 border-2 border-pink-400/70 hover:border-pink-300 rounded-2xl text-pink-200 font-game font-extrabold text-xs sm:text-sm shadow-sm transition active:scale-95 cursor-pointer"
+              title="Xưởng Nâng Cấp Tàu & Vũ Khí"
+            >
+              <Rocket className="w-4 h-4 text-pink-400 animate-bounce" />
+              <span className="hidden sm:inline">Xưởng Nâng Cấp</span>
+              <span className="sm:hidden">Nâng Cấp</span>
+            </button>
+          )}
+
           {/* Daily Streak */}
           <div
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/15 border-2 border-amber-400/60 rounded-2xl text-amber-300 font-game font-bold text-base shadow-sm"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/15 border-2 border-amber-400/60 rounded-2xl text-amber-300 font-game font-bold text-sm sm:text-base shadow-sm"
             title="Chuỗi ngày học liên tiếp"
           >
-            <Flame className="w-5 h-5 text-orange-400 fill-orange-400 animate-pulse" />
+            <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400 animate-pulse" />
             <span>{progress.streakDays}</span>
           </div>
 
           {/* Gems */}
           <div
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-cyan-500/15 border-2 border-cyan-400/60 rounded-2xl text-cyan-200 font-game font-bold text-base shadow-sm"
+            className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-cyan-500/15 border-2 border-cyan-400/60 rounded-2xl text-cyan-200 font-game font-bold text-sm sm:text-base shadow-sm"
             title="Kim cương thưởng"
           >
-            <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400" />
+            <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400" />
             <span>{progress.gems}</span>
           </div>
 
           {/* Hearts (Life system) */}
           <button
             onClick={onOpenRefillModal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-400/60 rounded-2xl text-rose-300 font-game font-bold text-base shadow-sm transition active:scale-95 cursor-pointer"
+            className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-400/60 rounded-2xl text-rose-300 font-game font-bold text-sm sm:text-base shadow-sm transition active:scale-95 cursor-pointer"
             title="Trái tim mạng chơi (Bấm để nạp)"
           >
-            <Heart className="w-5 h-5 text-rose-500 fill-rose-500 animate-bounce" />
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500 animate-bounce" />
             <span>{progress.hearts}/{progress.maxHearts}</span>
           </button>
-
-          {/* Total XP Badge */}
-          <div
-            className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-500/15 border-2 border-purple-400/60 rounded-2xl text-purple-200 font-game font-bold text-base shadow-sm"
-            title="Tổng điểm kinh nghiệm"
-          >
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <span>{progress.totalXp} XP</span>
-          </div>
 
           {/* Audio Toggle */}
           <button
@@ -107,3 +116,4 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
     </header>
   );
 };
+

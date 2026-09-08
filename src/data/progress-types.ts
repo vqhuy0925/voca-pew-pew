@@ -1,4 +1,5 @@
 import { VocabWord } from './types';
+import { DifficultyLevel } from './upgrade-types';
 
 export type LevelType = 'STANDARD' | 'SPEED_RUSH' | 'BOSS_BATTLE' | 'CHEST_REWARD';
 
@@ -58,4 +59,12 @@ export interface UserProgress {
   soundEnabled: boolean;
   speechEnabled: boolean;
   keyboardHintsEnabled: boolean;
+
+  // Equipment & Upgrades
+  equippedShipId: string;
+  equippedBlasterId: string;
+  equippedLaserId: string;
+  unlockedUpgradeIds: string[];
+  selectedDifficulty: DifficultyLevel;
 }
+

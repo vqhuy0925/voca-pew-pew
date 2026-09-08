@@ -383,6 +383,125 @@ class SoundController {
       // Ignore
     }
   }
+
+  // Upgrade Success Fanfare
+  public playUpgradeSuccess() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5]; // C5, E5, G5, C6, E6
+
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'triangle';
+        const start = now + idx * 0.08;
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.22, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.35);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Ticking / Countdown Urgency
+  public playTickTock(isUrgent: boolean = false) {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = isUrgent ? 'sawtooth' : 'sine';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(isUrgent ? 880 : 600, now);
+      osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+
+      gain.gain.setValueAtTime(isUrgent ? 0.2 : 0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.05);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Custom Laser pew sounds for different blasters
+  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' = 'pew') {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+
+      if (soundType === 'dual') {
+        // Two quick burst pews
+        [0, 0.04].forEach(offset => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(950, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(120, now + offset + 0.1);
+          gain.gain.setValueAtTime(0.18, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.1);
+        });
+      } else if (soundType === 'plasma') {
+        // High-pitched resonance laser
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(350, now + 0.15);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (soundType === 'cannon') {
+        // Deep energy pulse
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1400, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.18);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      } else {
+        this.playPew();
+      }
+    } catch {
+      // Ignore
+    }
+  }
 }
+
 
 export const soundFx = new SoundController();

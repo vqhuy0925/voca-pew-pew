@@ -1,17 +1,32 @@
 import React, { useEffect, useRef } from 'react';
 import { EnemyItem, GameStats, GameState } from '../data/types';
 import { LevelNode } from '../data/progress-types';
+import {
+  DifficultyLevel,
+  SpaceshipItem,
+  BlasterItem,
+  LaserBeamItem,
+  DIFFICULTY_CONFIGS,
+  getSpaceshipById,
+  getBlasterById,
+  getLaserById
+} from '../data/upgrade-types';
 import { ParticleSystem } from './engine/ParticleSystem';
 import { EnemySpawner } from './engine/EnemySpawner';
 import { InputHandler } from './engine/InputHandler';
 import { CollisionEngine } from './engine/CollisionEngine';
 import { soundFx } from './engine/SoundController';
 import { speechHelper } from './engine/SpeechHelper';
+import { drawSpaceship, getBlasterMuzzleOrigins } from './engine/ShipRenderer';
 
 interface GameCanvasProps {
   gameState: GameState;
   level: LevelNode;
   stats: GameStats;
+  difficulty?: DifficultyLevel;
+  equippedShip?: SpaceshipItem;
+  equippedBlaster?: BlasterItem;
+  equippedLaser?: LaserBeamItem;
   onStatsUpdate: (updater: (prev: GameStats) => GameStats) => void;
   onGameOver: () => void;
   onVictory: () => void;
@@ -19,19 +34,25 @@ interface GameCanvasProps {
   onTotalWordsSet?: (count: number) => void;
   onSuggestCharChange?: (char?: string) => void;
   onRegisterInputHandler?: (handler: (char: string) => void) => void;
+  onTimerUpdate?: (remainingSeconds: number, totalSeconds: number) => void;
 }
 
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   gameState,
   level,
   stats,
+  difficulty = 'NORMAL',
+  equippedShip = getSpaceshipById('ship-scout'),
+  equippedBlaster = getBlasterById('blaster-single'),
+  equippedLaser = getLaserById('laser-cyan'),
   onStatsUpdate,
   onGameOver,
   onVictory,
   onTargetChange,
   onTotalWordsSet,
   onSuggestCharChange,
-  onRegisterInputHandler
+  onRegisterInputHandler,
+  onTimerUpdate
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particleSysRef = useRef<ParticleSystem | null>(null);
@@ -41,6 +62,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
   const lastSpokenEnemyIdRef = useRef<string | null>(null);
+
+  // Mission Timer Refs
+  const diffConfig = DIFFICULTY_CONFIGS[difficulty] || DIFFICULTY_CONFIGS.NORMAL;
+  const totalSeconds = diffConfig.timeLimitSeconds;
+  const timeRemainingRef = useRef<number>(totalSeconds);
+  const lastTickSecondRef = useRef<number>(totalSeconds);
 
   // Initialize Game Systems
   useEffect(() => {
@@ -63,8 +90,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     inputHandlerRef.current = inputHandler;
     collisionEngineRef.current = collisionEngine;
 
-    // Load level data & preload native audio
-    spawner.loadLevel(level);
+    // Reset Timer
+    timeRemainingRef.current = totalSeconds;
+    lastTickSecondRef.current = totalSeconds;
+    if (onTimerUpdate) {
+      onTimerUpdate(totalSeconds, totalSeconds);
+    }
+
+    // Load level data with difficulty speed multiplier
+    spawner.loadLevel(level, diffConfig.speedMultiplier);
     speechHelper.preloadWords(level.words.map(w => w.word));
     if (onTotalWordsSet) {
       onTotalWordsSet(spawner.getTotalWordsCount());
@@ -86,7 +120,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [level]);
+  }, [level, difficulty]);
 
   // Handle Input processing function
   const processInput = (char: string) => {
@@ -136,11 +170,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 36);
         }
 
-        // Shoot colorful laser from spaceship
+        // Custom Laser sound
+        soundFx.playCustomLaser(equippedBlaster.fireSound);
+
+        // Calculate laser firing origins based on equipped blaster
         const shipX = canvas.width / 2;
-        const shipY = canvas.height - 80;
+        const shipY = canvas.height - 60;
+        const origins = getBlasterMuzzleOrigins(shipX, shipY, equippedBlaster, 1.0);
+
         if (result.laserTargetPos) {
-          particleSys.addLaser(shipX, shipY, result.laserTargetPos.x, result.laserTargetPos.y, '#00f0ff');
+          particleSys.addMultiLaser(origins, result.laserTargetPos.x, result.laserTargetPos.y, equippedLaser);
         }
 
         // If whole word is defeated
@@ -148,8 +187,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           wordsDefeated++;
           score += 100;
           soundFx.playExplosion();
-          particleSys.addExplosion(result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y + 25, result.defeatedEnemy.color, 36);
-          particleSys.addFloatingText(`+${100 + comboBonus} ${result.defeatedEnemy.emoji}`, result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y, '#39ff14', 28);
+          particleSys.addExplosion(
+            result.defeatedEnemy.x + result.defeatedEnemy.width / 2,
+            result.defeatedEnemy.y + 25,
+            equippedLaser.beamColor || result.defeatedEnemy.color,
+            36
+          );
+          particleSys.addFloatingText(
+            `+${100 + comboBonus} ${result.defeatedEnemy.emoji}`,
+            result.defeatedEnemy.x + result.defeatedEnemy.width / 2,
+            result.defeatedEnemy.y,
+            '#39ff14',
+            28
+          );
 
           // Find full vocab item to add to review list
           const vocabMatch = level.words.find(w => w.word.toLowerCase() === result.defeatedEnemy?.word.toLowerCase());
@@ -187,7 +237,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     if (onRegisterInputHandler) {
       onRegisterInputHandler(processInput);
     }
-  }, [onRegisterInputHandler, gameState]);
+  }, [onRegisterInputHandler, gameState, equippedBlaster, equippedLaser]);
 
   // Physical Keyboard listener
   useEffect(() => {
@@ -201,7 +251,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState, level]);
+  }, [gameState, level, equippedBlaster, equippedLaser]);
 
   // Game Loop
   useEffect(() => {
@@ -227,6 +277,29 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const collisionEngine = collisionEngineRef.current;
 
       if (spawner && particleSys && collisionEngine) {
+        // 0. Update Mission Timer
+        timeRemainingRef.current = Math.max(0, timeRemainingRef.current - deltaTime / 1000);
+        const currentSec = Math.ceil(timeRemainingRef.current);
+
+        if (currentSec !== lastTickSecondRef.current) {
+          lastTickSecondRef.current = currentSec;
+          if (onTimerUpdate) {
+            onTimerUpdate(currentSec, totalSeconds);
+          }
+          if (currentSec <= 5 && currentSec > 0) {
+            soundFx.playTickTock(true);
+            particleSys.addFloatingText(`⏱️ ${currentSec}s!`, canvas.width / 2, canvas.height * 0.25, '#f43f5e', 32);
+          }
+        }
+
+        // Time Out Check
+        if (timeRemainingRef.current <= 0) {
+          soundFx.playGameOver();
+          particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 40);
+          onGameOver();
+          return;
+        }
+
         // 1. Update Spawner & Enemies
         const enemies = spawner.update(deltaTime);
 
@@ -277,9 +350,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [gameState, onGameOver, onVictory]);
+  }, [gameState, onGameOver, onVictory, totalSeconds]);
 
-  // Main Drawing Function with Kid-Friendly Visuals
+  // Main Drawing Function with Dynamic Ship Skins & Custom Visuals
   const renderGame = (
     ctx: CanvasRenderingContext2D,
     w: number,
@@ -301,9 +374,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Draw Defense Shield Line (Bubbly glowing line)
     const defenseY = h - 100;
     ctx.save();
-    ctx.strokeStyle = '#38bdf8';
+    ctx.strokeStyle = equippedShip.glowColor || '#38bdf8';
     ctx.lineWidth = 4;
-    ctx.shadowColor = '#38bdf8';
+    ctx.shadowColor = equippedShip.glowColor || '#38bdf8';
     ctx.shadowBlur = 18;
     ctx.setLineDash([14, 10]);
     ctx.beginPath();
@@ -323,9 +396,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       drawEnemy(ctx, enemy);
     }
 
-    // Draw Player Spaceship Turret at Bottom Center
-    drawPlayerShip(ctx, w / 2, h - 60);
+    // Draw Dynamic Player Spaceship Turret at Bottom Center
+    drawSpaceship(ctx, w / 2, h - 60, equippedShip, equippedBlaster);
   };
+
 
   const drawEnemy = (ctx: CanvasRenderingContext2D, enemy: EnemyItem) => {
     ctx.save();
@@ -343,9 +417,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Glowing Pill Card
     if (enemy.isTargeted) {
-      ctx.shadowColor = '#00f0ff';
+      ctx.shadowColor = equippedLaser.beamColor || '#00f0ff';
       ctx.shadowBlur = 28;
-      ctx.strokeStyle = '#00f0ff';
+      ctx.strokeStyle = equippedLaser.beamColor || '#00f0ff';
       ctx.lineWidth = 4.5;
     } else {
       ctx.shadowColor = enemy.color;
@@ -364,7 +438,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Target pointer triangle above if locked-on
     if (enemy.isTargeted) {
       ctx.save();
-      ctx.fillStyle = '#00f0ff';
+      ctx.fillStyle = equippedLaser.beamColor || '#00f0ff';
       ctx.beginPath();
       ctx.moveTo(x + width / 2, y - 8);
       ctx.lineTo(x + width / 2 - 10, y - 20);
@@ -430,57 +504,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.restore();
   };
 
-  const drawPlayerShip = (ctx: CanvasRenderingContext2D, shipX: number, shipY: number) => {
-    ctx.save();
-    ctx.translate(shipX, shipY);
-
-    // Thruster Flame Glow
-    const flameHeight = 16 + Math.sin(Date.now() * 0.02) * 6;
-    ctx.fillStyle = '#ff9900';
-    ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 22;
-    ctx.beginPath();
-    ctx.moveTo(-10, 20);
-    ctx.lineTo(0, 20 + flameHeight);
-    ctx.lineTo(10, 20);
-    ctx.closePath();
-    ctx.fill();
-
-    // Cute Space Rocket Ship
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2.5;
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 14;
-
-    ctx.beginPath();
-    ctx.moveTo(0, -30);
-    ctx.lineTo(26, 18);
-    ctx.lineTo(12, 14);
-    ctx.lineTo(0, 20);
-    ctx.lineTo(-12, 14);
-    ctx.lineTo(-26, 18);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Friendly Cockpit Glass
-    ctx.fillStyle = '#38bdf8';
-    ctx.beginPath();
-    ctx.arc(0, -4, 7, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Dual Cute Cannons
-    ctx.fillStyle = '#f472b6';
-    ctx.fillRect(-24, -6, 5, 14);
-    ctx.fillRect(19, -6, 5, 14);
-
-    ctx.restore();
-  };
-
   return (
     <div className="relative w-full h-full overflow-hidden bg-space-dark select-none">
       <canvas ref={canvasRef} className="w-full h-full block cursor-default" />
     </div>
   );
 };
+
+export default GameCanvas;
+

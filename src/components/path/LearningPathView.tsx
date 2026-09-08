@@ -12,6 +12,7 @@ interface LearningPathViewProps {
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal: () => void;
   onOpenProfileModal: () => void;
+  onOpenArmory: () => void;
 }
 
 // Zigzag offsets for winding saga path
@@ -22,7 +23,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onSelectLevel,
   onUpdateProgress,
   onOpenRefillModal,
-  onOpenProfileModal
+  onOpenProfileModal,
+  onOpenArmory
 }) => {
   // Calculate overall completion percentage
   const totalLevels = LEARNING_UNITS.reduce((acc, u) => acc + u.levels.length, 0);
@@ -38,7 +40,9 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onUpdateProgress={onUpdateProgress}
         onOpenRefillModal={onOpenRefillModal}
         onOpenProfileModal={onOpenProfileModal}
+        onOpenArmory={onOpenArmory}
       />
+
 
       {/* Main Container */}
       <main className="max-w-xl mx-auto px-4 py-6 pb-24">

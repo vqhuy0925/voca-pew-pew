@@ -32,7 +32,7 @@ export const getInitialUserProgress = (): UserProgress => {
     levelProgressMap: getInitialLevelProgressMap(),
     hearts: 5,
     maxHearts: 5,
-    gems: 50, // Starting bonus gems 💎
+    gems: 60, // Starting bonus gems 💎
     totalXp: 0,
     streakDays: 1,
     lastActiveDate: today,
@@ -41,7 +41,14 @@ export const getInitialUserProgress = (): UserProgress => {
     createdAt: today,
     soundEnabled: true,
     speechEnabled: true,
-    keyboardHintsEnabled: true
+    keyboardHintsEnabled: true,
+
+    // Default Equipment
+    equippedShipId: 'ship-scout',
+    equippedBlasterId: 'blaster-single',
+    equippedLaserId: 'laser-cyan',
+    unlockedUpgradeIds: ['ship-scout', 'blaster-single', 'laser-cyan'],
+    selectedDifficulty: 'NORMAL'
   };
 };
 
@@ -83,6 +90,23 @@ export const loadUserProgress = (): UserProgress => {
     parsed.totalVisits = (parsed.totalVisits || 0) + 1;
     parsed.lastVisitTimestamp = Date.now();
     parsed.createdAt = parsed.createdAt || today;
+
+    // Ensure equipment fields exist
+    parsed.equippedShipId = parsed.equippedShipId || 'ship-scout';
+    parsed.equippedBlasterId = parsed.equippedBlasterId || 'blaster-single';
+    parsed.equippedLaserId = parsed.equippedLaserId || 'laser-cyan';
+    parsed.unlockedUpgradeIds = Array.isArray(parsed.unlockedUpgradeIds) && parsed.unlockedUpgradeIds.length > 0
+      ? parsed.unlockedUpgradeIds
+      : ['ship-scout', 'blaster-single', 'laser-cyan'];
+    parsed.selectedDifficulty = parsed.selectedDifficulty || 'NORMAL';
+
+    // Ensure base items are always in unlockedUpgradeIds
+    const baseItems = ['ship-scout', 'blaster-single', 'laser-cyan'];
+    baseItems.forEach(id => {
+      if (!parsed.unlockedUpgradeIds.includes(id)) {
+        parsed.unlockedUpgradeIds.push(id);
+      }
+    });
 
     // Ensure all levels in ALL_LEVELS exist in levelProgressMap
     ALL_LEVELS.forEach((lvl, idx) => {
@@ -185,3 +209,53 @@ export const deductHeart = (prev: UserProgress): UserProgress => {
   saveUserProgress(updated);
   return updated;
 };
+
+export const unlockAndEquipItem = (
+  prev: UserProgress,
+  itemId: string,
+  itemType: 'ship' | 'blaster' | 'laser',
+  priceGems: number
+): UserProgress => {
+  if (prev.gems < priceGems && !prev.unlockedUpgradeIds.includes(itemId)) {
+    return prev; // Not enough gems
+  }
+
+  const newUnlocked = new Set(prev.unlockedUpgradeIds);
+  const isNewUnlock = !newUnlocked.has(itemId);
+  newUnlocked.add(itemId);
+
+  const remainingGems = isNewUnlock ? Math.max(0, prev.gems - priceGems) : prev.gems;
+
+  const updated: UserProgress = {
+    ...prev,
+    gems: remainingGems,
+    unlockedUpgradeIds: Array.from(newUnlocked),
+    equippedShipId: itemType === 'ship' ? itemId : prev.equippedShipId,
+    equippedBlasterId: itemType === 'blaster' ? itemId : prev.equippedBlasterId,
+    equippedLaserId: itemType === 'laser' ? itemId : prev.equippedLaserId
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const equipItem = (
+  prev: UserProgress,
+  itemId: string,
+  itemType: 'ship' | 'blaster' | 'laser'
+): UserProgress => {
+  if (!prev.unlockedUpgradeIds.includes(itemId)) {
+    return prev;
+  }
+
+  const updated: UserProgress = {
+    ...prev,
+    equippedShipId: itemType === 'ship' ? itemId : prev.equippedShipId,
+    equippedBlasterId: itemType === 'blaster' ? itemId : prev.equippedBlasterId,
+    equippedLaserId: itemType === 'laser' ? itemId : prev.equippedLaserId
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
