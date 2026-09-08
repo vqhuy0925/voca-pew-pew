@@ -1,16 +1,18 @@
 import React, { useEffect } from 'react';
 import { GameStats } from '../data/types';
-import { LevelNode, UserGender, ThemeStyle, MascotId } from '../data/progress-types';
+import { LevelNode, UserGender, ThemeStyle, MascotId, UserProgress } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
+import { calculateLevelClearRewards } from '../services/progressStorage';
 
 interface VictoryModalProps {
   stats: GameStats;
   level: LevelNode;
+  progress: UserProgress;
   hasNextLevel: boolean;
   difficulty?: DifficultyLevel;
   timeRemaining?: number;
@@ -28,9 +30,9 @@ interface VictoryModalProps {
 export const VictoryModal: React.FC<VictoryModalProps> = ({
   stats,
   level,
+  progress,
   hasNextLevel,
   difficulty = 'NORMAL',
-  timeRemaining = 0,
   userName,
   avatar = '🚀',
   gender = 'neutral',
@@ -42,16 +44,18 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
-  let stars = 1;
-  if (stats.stationHealth >= 80 && stats.accuracy >= 80) {
-    stars = 3;
-  } else if (stats.stationHealth >= 40) {
-    stars = 2;
-  }
 
-  const diffConfig = DIFFICULTY_CONFIGS[difficulty] || DIFFICULTY_CONFIGS.NORMAL;
-  const xpAwarded = Math.round(level.xpReward * diffConfig.xpMultiplier);
-  const gemAwarded = Math.round(level.gemReward * diffConfig.gemMultiplier + (timeRemaining > 15 ? 10 : 0));
+  const reward = calculateLevelClearRewards(
+    progress,
+    level,
+    stats.stationHealth,
+    stats.accuracy,
+    difficulty
+  );
+
+  const stars = reward.starsEarned;
+  const xpAwarded = reward.totalXpEarned;
+  const gemAwarded = reward.totalGemsEarned;
 
   useEffect(() => {
     soundFx.playVictory();
@@ -141,6 +145,46 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Diamond Reward Breakdown Box */}
+        {gemAwarded > 0 ? (
+          <div className="bg-sky-950/40 border border-sky-500/40 rounded-2xl p-3 mb-4 text-left">
+            <div className="text-xs text-sky-300 font-extrabold uppercase flex items-center gap-1.5 mb-2">
+              <Award className="w-3.5 h-3.5" /> Chi Tiết Thưởng Kim Cương:
+            </div>
+            <div className="space-y-1 text-xs text-slate-200">
+              {reward.isFirstClear && reward.baseGems > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>✨ Vượt màn lần đầu:</span>
+                  <span className="font-bold text-sky-300">+{reward.baseGems} 💎</span>
+                </div>
+              )}
+              {reward.starBonusGems > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>🌟 3 Sao xuất sắc:</span>
+                  <span className="font-bold text-yellow-300">+{reward.starBonusGems} 💎</span>
+                </div>
+              )}
+              {reward.accuracyBonusGems > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>🎯 Chính xác 100%:</span>
+                  <span className="font-bold text-emerald-300">+{reward.accuracyBonusGems} 💎</span>
+                </div>
+              )}
+              {reward.heroicBonusGems > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>🔥 Thử thách Heroic:</span>
+                  <span className="font-bold text-rose-300">+{reward.heroicBonusGems} 💎</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-2.5 mb-4 text-xs text-slate-400 flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>Đã hoàn thành trước đó • Nhận <strong>+{xpAwarded} XP</strong> rèn luyện!</span>
+          </div>
+        )}
 
         {/* Word / Sentence Review Grid */}
         {level.words.length > 0 && (

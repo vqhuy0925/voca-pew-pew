@@ -445,7 +445,7 @@ class SoundController {
   }
 
   // Custom Laser pew sounds for different blasters
-  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' = 'pew') {
+  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' = 'pew') {
     if (this.isMuted) return;
     try {
       this.initCtx();
@@ -494,6 +494,52 @@ class SoundController {
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.18);
+      } else if (soundType === 'gatling') {
+        // Rapid 4-shot hyper gatling spray
+        [0, 0.03, 0.06, 0.09].forEach((offset, idx) => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(1100 + idx * 80, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(180, now + offset + 0.06);
+          gain.gain.setValueAtTime(0.14, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.06);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.06);
+        });
+      } else if (soundType === 'vortex') {
+        // Deep resonant cosmic vortex
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(1600, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } else if (soundType === 'divine') {
+        // Holy chime shimmer celestial pulse
+        const freqs = [880, 1108, 1320, 1760];
+        freqs.forEach((freq, idx) => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          osc.type = 'triangle';
+          const st = now + idx * 0.03;
+          osc.frequency.setValueAtTime(freq, st);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.5, st + 0.2);
+          gain.gain.setValueAtTime(0.16, st);
+          gain.gain.exponentialRampToValueAtTime(0.01, st + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx!.destination);
+          osc.start(st);
+          osc.stop(st + 0.22);
+        });
       } else {
         this.playPew();
       }
@@ -501,7 +547,39 @@ class SoundController {
       // Ignore
     }
   }
+
+  // Mythic Unlock Celestial Fanfare
+  public playMythicUnlock() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98, 2093.0]; // C5, E5, G5, C6, E6, G6, C7
+
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+
+        osc.type = 'sine';
+        const start = now + idx * 0.07;
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.25, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.45);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(start);
+        osc.stop(start + 0.45);
+      });
+    } catch {
+      // Ignore
+    }
+  }
 }
 
-
 export const soundFx = new SoundController();
+

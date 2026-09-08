@@ -37,7 +37,7 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     speedMultiplier: 1.0,
     timeLimitSeconds: 45,
     xpMultiplier: 1.25,
-    gemMultiplier: 1.25,
+    gemMultiplier: 1.0,
     color: '#facc15',
     description: 'Tốc độ tiêu chuẩn, thử thách phản xạ gõ phím!'
   },
@@ -50,9 +50,87 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     speedMultiplier: 1.3,
     timeLimitSeconds: 32,
     xpMultiplier: 1.8,
-    gemMultiplier: 2.0,
+    gemMultiplier: 1.5,
     color: '#f43f5e',
-    description: 'Đếm ngược gấp gáp, từ rơi nhanh, x2 thưởng Kim Cương!'
+    description: 'Đếm ngược gấp gáp, từ rơi nhanh, thưởng thêm Kim Cương quý giá!'
+  }
+};
+
+export type ItemRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC';
+
+export interface RarityConfig {
+  id: ItemRarity;
+  nameVi: string;
+  nameEn: string;
+  badge: string;
+  color: string;
+  glowColor: string;
+  borderColor: string;
+  bgGradient: string;
+  textGradient: string;
+  icon: string;
+}
+
+export const RARITY_CONFIGS: Record<ItemRarity, RarityConfig> = {
+  COMMON: {
+    id: 'COMMON',
+    nameVi: 'Phổ Thông',
+    nameEn: 'Common',
+    badge: '🟢 PHỔ THÔNG',
+    color: '#4ade80',
+    glowColor: 'rgba(74, 222, 128, 0.4)',
+    borderColor: 'border-emerald-500/60',
+    bgGradient: 'from-emerald-950/60 to-slate-900/90',
+    textGradient: 'text-emerald-400',
+    icon: '🌱'
+  },
+  RARE: {
+    id: 'RARE',
+    nameVi: 'Hiếm',
+    nameEn: 'Rare',
+    badge: '🔵 HIẾM',
+    color: '#38bdf8',
+    glowColor: 'rgba(56, 189, 248, 0.45)',
+    borderColor: 'border-sky-500/70',
+    bgGradient: 'from-sky-950/60 to-slate-900/90',
+    textGradient: 'text-sky-400',
+    icon: '💎'
+  },
+  EPIC: {
+    id: 'EPIC',
+    nameVi: 'Sử Thi',
+    nameEn: 'Epic',
+    badge: '🟣 SỬ THI',
+    color: '#c084fc',
+    glowColor: 'rgba(192, 132, 252, 0.5)',
+    borderColor: 'border-purple-500/80',
+    bgGradient: 'from-purple-950/60 to-slate-900/90',
+    textGradient: 'text-purple-300',
+    icon: '🔮'
+  },
+  LEGENDARY: {
+    id: 'LEGENDARY',
+    nameVi: 'Huyền Thoại',
+    nameEn: 'Legendary',
+    badge: '🟡 HUYỀN THOẠI',
+    color: '#fbbf24',
+    glowColor: 'rgba(251, 191, 36, 0.6)',
+    borderColor: 'border-amber-400',
+    bgGradient: 'from-amber-950/70 to-slate-900/90',
+    textGradient: 'text-amber-300',
+    icon: '👑'
+  },
+  MYTHIC: {
+    id: 'MYTHIC',
+    nameVi: 'Thần Thoại',
+    nameEn: 'Mythic',
+    badge: '🌌 THẦN THOẠI',
+    color: '#f43f5e',
+    glowColor: 'rgba(244, 63, 94, 0.7)',
+    borderColor: 'border-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.45)]',
+    bgGradient: 'from-rose-950/70 via-purple-950/60 to-slate-900/90',
+    textGradient: 'text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-300',
+    icon: '✨'
   }
 };
 
@@ -60,49 +138,54 @@ export interface SpaceshipItem {
   id: string;
   name: string;
   nameVi: string;
+  rarity: ItemRarity;
   priceGems: number;
   icon: string;
   color: string;
   glowColor: string;
   cockpitColor: string;
   wingSpan: number;
-  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly';
+  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly' | 'kitty' | 'mecha' | 'phoenix' | 'valkyrie' | 'chrono';
   perkDescription: string;
-  soundType: 'classic' | 'electric' | 'heavy' | 'cosmic';
+  soundType: 'classic' | 'electric' | 'heavy' | 'cosmic' | 'divine';
 }
 
 export interface BlasterItem {
   id: string;
   name: string;
   nameVi: string;
+  rarity: ItemRarity;
   priceGems: number;
   icon: string;
-  barrelCount: 1 | 2 | 3 | 4;
+  barrelCount: 1 | 2 | 3 | 4 | 5;
   spreadAngle: number;
   cannonColor: string;
   description: string;
-  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon';
+  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine';
 }
 
 export interface LaserBeamItem {
   id: string;
   name: string;
   nameVi: string;
+  rarity: ItemRarity;
   priceGems: number;
   icon: string;
   beamColor: string;
   trailColor: string;
   coreColor: string;
   beamWidth: number;
-  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal';
+  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova';
   description: string;
 }
 
 export const SPACESHIPS: SpaceshipItem[] = [
+  // 🟢 COMMON
   {
     id: 'ship-scout',
     name: 'Star Scout',
     nameVi: 'Phi Thuyền Tân Thủ',
+    rarity: 'COMMON',
     priceGems: 0,
     icon: '🚀',
     color: '#1e293b',
@@ -113,11 +196,14 @@ export const SPACESHIPS: SpaceshipItem[] = [
     perkDescription: 'Cân bằng & dễ điều khiển cho phi công nhí.',
     soundType: 'classic'
   },
+
+  // 🔵 RARE
   {
     id: 'ship-pegasus',
     name: 'Starlight Pegasus',
     nameVi: 'Ngựa Bay Tinh Vân',
-    priceGems: 30,
+    rarity: 'RARE',
+    priceGems: 60,
     icon: '🦄',
     color: '#3b0764',
     glowColor: '#f472b6',
@@ -131,7 +217,8 @@ export const SPACESHIPS: SpaceshipItem[] = [
     id: 'ship-sakura',
     name: 'Celestial Sakura',
     nameVi: 'Hoa Tiên Tinh Cầu',
-    priceGems: 60,
+    rarity: 'RARE',
+    priceGems: 90,
     icon: '🌸',
     color: '#500724',
     glowColor: '#fb7185',
@@ -145,7 +232,8 @@ export const SPACESHIPS: SpaceshipItem[] = [
     id: 'ship-thunder',
     name: 'Thunder Bolt',
     nameVi: 'Tia Chớp Vàng',
-    priceGems: 80,
+    rarity: 'RARE',
+    priceGems: 120,
     icon: '⚡',
     color: '#3b2d04',
     glowColor: '#facc15',
@@ -155,39 +243,14 @@ export const SPACESHIPS: SpaceshipItem[] = [
     perkDescription: 'Động cơ lôi điện siêu tốc, hiệu ứng chớp sáng cực ngầu!',
     soundType: 'electric'
   },
-  {
-    id: 'ship-aurora',
-    name: 'Starlight Dolphin',
-    nameVi: 'Cá Heo Ánh Sao',
-    priceGems: 100,
-    icon: '🐬',
-    color: '#064e3b',
-    glowColor: '#2dd4bf',
-    cockpitColor: '#ccfbf1',
-    wingSpan: 32,
-    modelType: 'aurora',
-    perkDescription: 'Lướt sóng êm ái xuyên qua các dải cực quang vũ trụ kỳ ảo.',
-    soundType: 'cosmic'
-  },
-  {
-    id: 'ship-butterfly',
-    name: 'Astral Butterfly',
-    nameVi: 'Bướm Tiên Ngân Hà',
-    priceGems: 120,
-    icon: '🦋',
-    color: '#311042',
-    glowColor: '#e879f9',
-    cockpitColor: '#fdf4ff',
-    wingSpan: 36,
-    modelType: 'butterfly',
-    perkDescription: 'Đôi cánh bướm dạ quang biến đổi 7 sắc lộng lẫy và kiêu sa.',
-    soundType: 'cosmic'
-  },
+
+  // 🟣 EPIC
   {
     id: 'ship-ufo',
     name: 'Neon UFO',
     nameVi: 'Đĩa Bay Cyber',
-    priceGems: 140,
+    rarity: 'EPIC',
+    priceGems: 200,
     icon: '🛸',
     color: '#064e3b',
     glowColor: '#34d399',
@@ -198,40 +261,153 @@ export const SPACESHIPS: SpaceshipItem[] = [
     soundType: 'cosmic'
   },
   {
+    id: 'ship-aurora',
+    name: 'Starlight Dolphin',
+    nameVi: 'Cá Heo Ánh Sao',
+    rarity: 'EPIC',
+    priceGems: 240,
+    icon: '🐬',
+    color: '#064e3b',
+    glowColor: '#2dd4bf',
+    cockpitColor: '#ccfbf1',
+    wingSpan: 32,
+    modelType: 'aurora',
+    perkDescription: 'Lướt sóng êm ái xuyên qua các dải cực quang vũ trụ kỳ ảo.',
+    soundType: 'cosmic'
+  },
+  {
+    id: 'ship-kitty',
+    name: 'Galaxy Kitty Pop',
+    nameVi: 'Mèo Miu Vũ Trụ',
+    rarity: 'EPIC',
+    priceGems: 280,
+    icon: '🐱',
+    color: '#4a044e',
+    glowColor: '#f472b6',
+    cockpitColor: '#fdf4ff',
+    wingSpan: 32,
+    modelType: 'kitty',
+    perkDescription: 'Đôi tai mèo dạ quang xinh xắn cùng ống xả khói hình trái tim đáng yêu!',
+    soundType: 'cosmic'
+  },
+  {
+    id: 'ship-butterfly',
+    name: 'Astral Butterfly',
+    nameVi: 'Bướm Tiên Ngân Hà',
+    rarity: 'EPIC',
+    priceGems: 320,
+    icon: '🦋',
+    color: '#311042',
+    glowColor: '#e879f9',
+    cockpitColor: '#fdf4ff',
+    wingSpan: 36,
+    modelType: 'butterfly',
+    perkDescription: 'Đôi cánh bướm dạ quang biến đổi 7 sắc lộng lẫy và kiêu sa.',
+    soundType: 'cosmic'
+  },
+
+  // 🟡 LEGENDARY
+  {
     id: 'ship-dragon',
     name: 'Dragon Blaze',
     nameVi: 'Rồng Lửa Ngân Hà',
-    priceGems: 160,
+    rarity: 'LEGENDARY',
+    priceGems: 480,
     icon: '🐲',
     color: '#4c0519',
     glowColor: '#f43f5e',
     cockpitColor: '#fda4af',
     wingSpan: 34,
     modelType: 'dragon',
-    perkDescription: 'Cánh rồng phun lửa đuôi kép siêu uy lực!',
+    perkDescription: 'Cánh rồng phun lửa đuôi kép siêu uy lực, uy chấn toàn cõi không gian!',
     soundType: 'heavy'
+  },
+  {
+    id: 'ship-mecha',
+    name: 'Cyber Mecha Paladin',
+    nameVi: 'Chiến Giáp Mecha Tương Lai',
+    rarity: 'LEGENDARY',
+    priceGems: 580,
+    icon: '🤖',
+    color: '#082f49',
+    glowColor: '#00f0ff',
+    cockpitColor: '#e0f2fe',
+    wingSpan: 36,
+    modelType: 'mecha',
+    perkDescription: 'Cánh năng lượng công nghệ cao cùng các bit bay hộ tống tự động phát sáng.',
+    soundType: 'electric'
   },
   {
     id: 'ship-aegis',
     name: 'Solar Aegis',
     nameVi: 'Siêu Chiến Hạm Hoàng Gia',
-    priceGems: 200,
+    rarity: 'LEGENDARY',
+    priceGems: 680,
     icon: '👑',
     color: '#311042',
     glowColor: '#c084fc',
     cockpitColor: '#f472b6',
     wingSpan: 38,
     modelType: 'aegis',
-    perkDescription: 'Chiến hạm tối thượng của Vua và Nữ Hoàng Ngân Hà!',
+    perkDescription: 'Chiến hạm hoàng kim với 4 viên pha lê hộ vệ xoay quanh!',
     soundType: 'cosmic'
+  },
+
+  // 🌌 MYTHIC / CELESTIAL
+  {
+    id: 'ship-phoenix',
+    name: 'Phoenix Sovereign',
+    nameVi: 'Phượng Hoàng Bất Diệt',
+    rarity: 'MYTHIC',
+    priceGems: 950,
+    icon: '🔥',
+    color: '#431407',
+    glowColor: '#ea580c',
+    cockpitColor: '#fef08a',
+    wingSpan: 40,
+    modelType: 'phoenix',
+    perkDescription: 'Thần thú phượng hoàng lửa bất tử tỏa hào quang thái dương vĩnh cửu!',
+    soundType: 'heavy'
+  },
+  {
+    id: 'ship-valkyrie',
+    name: 'Aurora Valkyrie',
+    nameVi: 'Nữ Thần Ánh Sáng Valkyrie',
+    rarity: 'MYTHIC',
+    priceGems: 1100,
+    icon: '🌟',
+    color: '#1e1b4b',
+    glowColor: '#a855f7',
+    cockpitColor: '#fdf4ff',
+    wingSpan: 42,
+    modelType: 'valkyrie',
+    perkDescription: 'Đôi cánh quang phổ 7 màu rực rỡ mang sức mạnh bảo hộ của Nữ Thần Ánh Sáng.',
+    soundType: 'divine'
+  },
+  {
+    id: 'ship-chrono',
+    name: 'Chrono Void Dragon',
+    nameVi: 'Rồng Hư Không Thời Gian',
+    rarity: 'MYTHIC',
+    priceGems: 1350,
+    icon: '🌌',
+    color: '#090514',
+    glowColor: '#8b5cf6',
+    cockpitColor: '#c084fc',
+    wingSpan: 44,
+    modelType: 'chrono',
+    perkDescription: 'Tuyệt tác vũ trụ tối thượng! Vòng xoáy không-thời gian bẻ cong mọi quy luật vũ trụ.',
+    soundType: 'divine'
   }
 ];
 
 export const BLASTERS: BlasterItem[] = [
+  // 🟢 COMMON
   {
     id: 'blaster-single',
     name: 'Standard Blaster',
     nameVi: 'Súng Nòng Đơn',
+    rarity: 'COMMON',
     priceGems: 0,
     icon: '🔫',
     barrelCount: 1,
@@ -240,11 +416,14 @@ export const BLASTERS: BlasterItem[] = [
     description: 'Nòng súng căn bản bắn 1 tia thẳng chuẩn xác.',
     fireSound: 'pew'
   },
+
+  // 🔵 RARE
   {
     id: 'blaster-dual',
     name: 'Twin Blasters',
     nameVi: 'Súng Nòng Kép',
-    priceGems: 50,
+    rarity: 'RARE',
+    priceGems: 70,
     icon: '💥',
     barrelCount: 2,
     spreadAngle: 0,
@@ -256,7 +435,8 @@ export const BLASTERS: BlasterItem[] = [
     id: 'blaster-starflower',
     name: 'Blossom Starburst',
     nameVi: 'Pháo Hoa Sao Băng',
-    priceGems: 90,
+    rarity: 'RARE',
+    priceGems: 110,
     icon: '🌺',
     barrelCount: 2,
     spreadAngle: 0.08,
@@ -264,11 +444,14 @@ export const BLASTERS: BlasterItem[] = [
     description: 'Bắn ra chùm cánh hoa phát sáng lung linh huyền ảo!',
     fireSound: 'plasma'
   },
+
+  // 🟣 EPIC
   {
     id: 'blaster-tri',
     name: 'Plasma Tri-Cannon',
     nameVi: 'Súng 3 Nòng Plasma',
-    priceGems: 130,
+    rarity: 'EPIC',
+    priceGems: 220,
     icon: '🔱',
     barrelCount: 3,
     spreadAngle: 0.12,
@@ -277,24 +460,83 @@ export const BLASTERS: BlasterItem[] = [
     fireSound: 'plasma'
   },
   {
+    id: 'blaster-lotus',
+    name: 'Lotus Blossom Mortar',
+    nameVi: 'Pháo Đài Sen Ngọc Thần Tiên',
+    rarity: 'EPIC',
+    priceGems: 300,
+    icon: '🪷',
+    barrelCount: 3,
+    spreadAngle: 0.14,
+    cannonColor: '#2dd4bf',
+    description: '3 đài sen ngọc bích phát tán chùm xung kích tinh khiết.',
+    fireSound: 'plasma'
+  },
+
+  // 🟡 LEGENDARY
+  {
     id: 'blaster-rainbow',
     name: 'Cosmic Starburst',
     nameVi: 'Pháo Cầu Vồng Vũ Trụ',
-    priceGems: 180,
+    rarity: 'LEGENDARY',
+    priceGems: 450,
     icon: '🌟',
     barrelCount: 3,
     spreadAngle: 0.18,
     cannonColor: '#fbbf24',
     description: 'Phóng ra chùm đạn lấp lánh ánh sao cầu vồng!',
     fireSound: 'cannon'
+  },
+  {
+    id: 'blaster-quad',
+    name: 'Quad Hyper Gatling',
+    nameVi: 'Đại Bác 4 Nòng Sấm Sét',
+    rarity: 'LEGENDARY',
+    priceGems: 600,
+    icon: '⚡',
+    barrelCount: 4,
+    spreadAngle: 0.16,
+    cannonColor: '#facc15',
+    description: '4 nòng xoay siêu tốc xả bão đạn liên hồi!',
+    fireSound: 'gatling'
+  },
+
+  // 🌌 MYTHIC / CELESTIAL
+  {
+    id: 'blaster-void',
+    name: 'Void Singularity Vortex',
+    nameVi: 'Pháo Lỗ Đen Hư Không',
+    rarity: 'MYTHIC',
+    priceGems: 880,
+    icon: '🌀',
+    barrelCount: 2,
+    spreadAngle: 0.1,
+    cannonColor: '#8b5cf6',
+    description: 'Phóng ra 2 quả cầu lỗ đen hút sạch thiên thạch cản đường!',
+    fireSound: 'vortex'
+  },
+  {
+    id: 'blaster-penta',
+    name: 'Supernova Penta-Blaster',
+    nameVi: 'Thần Pháo 5 Nòng Thái Dương',
+    rarity: 'MYTHIC',
+    priceGems: 1250,
+    icon: '☀️',
+    barrelCount: 5,
+    spreadAngle: 0.24,
+    cannonColor: '#f43f5e',
+    description: 'Thần pháo 5 nòng tối thượng bao trùm toàn bộ bầu trời với uy lực hủy diệt!',
+    fireSound: 'divine'
   }
 ];
 
 export const LASER_BEAMS: LaserBeamItem[] = [
+  // 🟢 COMMON
   {
     id: 'laser-cyan',
     name: 'Neon Cyan Laser',
     nameVi: 'Tia Laze Xanh Ngọc',
+    rarity: 'COMMON',
     priceGems: 0,
     icon: '💠',
     beamColor: '#00f0ff',
@@ -304,11 +546,14 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     particleType: 'spark',
     description: 'Tia laze cổ điển rực rỡ sắc xanh đại dương.'
   },
+
+  // 🔵 RARE
   {
     id: 'laser-heart',
     name: 'Love Nova Pulse',
     nameVi: 'Tia Trái Tim Sao Tím',
-    priceGems: 30,
+    rarity: 'RARE',
+    priceGems: 50,
     icon: '💖',
     beamColor: '#ec4899',
     trailColor: 'rgba(236, 72, 153, 0.45)',
@@ -321,7 +566,8 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     id: 'laser-sakura',
     name: 'Sakura Petal Stream',
     nameVi: 'Mưa Cánh Hoa Tinh Vân',
-    priceGems: 55,
+    rarity: 'RARE',
+    priceGems: 80,
     icon: '🌸',
     beamColor: '#fb7185',
     trailColor: 'rgba(251, 113, 133, 0.45)',
@@ -334,7 +580,8 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     id: 'laser-pink',
     name: 'Pink Plasma Pulse',
     nameVi: 'Tia Plasma Hồng Tím',
-    priceGems: 70,
+    rarity: 'RARE',
+    priceGems: 110,
     icon: '💕',
     beamColor: '#f472b6',
     trailColor: 'rgba(244, 114, 182, 0.4)',
@@ -343,11 +590,14 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     particleType: 'plasma',
     description: 'Tia plasma năng lượng kẹo ngọt với đốm sáng bay quanh.'
   },
+
+  // 🟣 EPIC
   {
     id: 'laser-crystal',
     name: 'Diamond Prism Laser',
     nameVi: 'Tia Pha Lê Kim Cương',
-    priceGems: 95,
+    rarity: 'EPIC',
+    priceGems: 200,
     icon: '💎',
     beamColor: '#a855f7',
     trailColor: 'rgba(168, 85, 247, 0.45)',
@@ -357,36 +607,55 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     description: 'Tia khúc xạ pha lê lấp lánh như hàng triệu viên kim cương.'
   },
   {
+    id: 'laser-matrix',
+    name: 'Cyber Matrix Glitch',
+    nameVi: 'Tia Ma Trận Điện Tử Neon',
+    rarity: 'EPIC',
+    priceGems: 250,
+    icon: '🟩',
+    beamColor: '#10b981',
+    trailColor: 'rgba(16, 185, 129, 0.45)',
+    coreColor: '#ecfdf5',
+    beamWidth: 4.5,
+    particleType: 'matrix',
+    description: 'Tia ma trận số Hacker màu xanh neon phát ra các khối dữ liệu điện tử ảo diệu.'
+  },
+  {
     id: 'laser-lightning',
     name: 'Golden Thunder Ray',
     nameVi: 'Tia Lôi Điện Vàng Sét',
-    priceGems: 115,
+    rarity: 'EPIC',
+    priceGems: 290,
     icon: '⚡',
     beamColor: '#facc15',
     trailColor: 'rgba(250, 204, 21, 0.4)',
     coreColor: '#ffffff',
-    beamWidth: 4,
+    beamWidth: 4.5,
     particleType: 'lightning',
     description: 'Tia sét vàng zig-zag phát ra tia lửa chớp điện chói lòa.'
   },
+
+  // 🟡 LEGENDARY
   {
     id: 'laser-flame',
     name: 'Ruby Magma Blast',
     nameVi: 'Tia Hỏa Long Ruby',
-    priceGems: 140,
+    rarity: 'LEGENDARY',
+    priceGems: 420,
     icon: '🔥',
     beamColor: '#f43f5e',
     trailColor: 'rgba(244, 63, 94, 0.4)',
     coreColor: '#fef08a',
     beamWidth: 5,
     particleType: 'flame',
-    description: 'Tia lửa nung chảy mọi thiên thạch trên đường đi.'
+    description: 'Tia lửa hỏa long nung chảy mọi thiên thạch trên đường đi.'
   },
   {
     id: 'laser-rainbow',
     name: 'Rainbow Cosmic Ray',
     nameVi: 'Tia Cầu Vồng Ngân Hà',
-    priceGems: 170,
+    rarity: 'LEGENDARY',
+    priceGems: 520,
     icon: '🌈',
     beamColor: '#38bdf8',
     trailColor: 'rgba(236, 72, 153, 0.5)',
@@ -394,6 +663,50 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     beamWidth: 5.5,
     particleType: 'rainbow',
     description: 'Chùm sáng 7 sắc cầu vồng ảo diệu bậc nhất vũ trụ!'
+  },
+
+  // 🌌 MYTHIC / CELESTIAL
+  {
+    id: 'laser-void',
+    name: 'Void Nebula Singularity',
+    nameVi: 'Tia Hư Không Tím Huyền Bí',
+    rarity: 'MYTHIC',
+    priceGems: 750,
+    icon: '🔮',
+    beamColor: '#8b5cf6',
+    trailColor: 'rgba(139, 92, 246, 0.5)',
+    coreColor: '#ede9fe',
+    beamWidth: 6,
+    particleType: 'void',
+    description: 'Tia năng lượng hư không sâu thẳm xoáy tròn hút các vì sao lấp lánh!'
+  },
+  {
+    id: 'laser-sunlight',
+    name: 'Holy Celestial Sunlight',
+    nameVi: 'Tia Thánh Quang Thái Dương',
+    rarity: 'MYTHIC',
+    priceGems: 950,
+    icon: '☀️',
+    beamColor: '#fbbf24',
+    trailColor: 'rgba(251, 191, 36, 0.55)',
+    coreColor: '#ffffff',
+    beamWidth: 6.5,
+    particleType: 'sunlight',
+    description: 'Ánh sáng thần thánh rực rỡ với ngôi sao 4 cánh chói lòa và hào quang thiên sứ!'
+  },
+  {
+    id: 'laser-supernova',
+    name: 'Prismatic Supernova Storm',
+    nameVi: 'Bão Laze Đa Sắc Tối Thượng',
+    rarity: 'MYTHIC',
+    priceGems: 1300,
+    icon: '✨',
+    beamColor: '#ec4899',
+    trailColor: 'rgba(0, 240, 255, 0.6)',
+    coreColor: '#ffffff',
+    beamWidth: 7,
+    particleType: 'supernova',
+    description: 'Đỉnh cao nghệ thuật vũ trụ! Bão siêu tân tinh chuyển màu liên tục với mưa kim cương.'
   }
 ];
 

@@ -46,7 +46,7 @@ export const getInitialUserProgress = (): UserProgress => {
     levelProgressMap: initialMap,
     hearts: 5,
     maxHearts: 5,
-    gems: 100, // Starting bonus gems 💎
+    gems: 15, // Starting bonus starter gems 💎
     totalXp: 0,
     streakDays: 1,
     lastActiveDate: today,
@@ -63,6 +63,109 @@ export const getInitialUserProgress = (): UserProgress => {
     equippedLaserId: 'laser-cyan',
     unlockedUpgradeIds: ['ship-scout', 'blaster-single', 'laser-cyan'],
     selectedDifficulty: 'NORMAL'
+  };
+};
+
+export const getStreakBonusGems = (streakDays: number): number => {
+  if (streakDays === 3) return 5;
+  if (streakDays === 7) return 12;
+  if (streakDays === 14) return 25;
+  if (streakDays === 30) return 50;
+  return 0;
+};
+
+export interface ClearRewardBreakdown {
+  isFirstClear: boolean;
+  baseGems: number;
+  starBonusGems: number;
+  accuracyBonusGems: number;
+  heroicBonusGems: number;
+  totalGemsEarned: number;
+  totalXpEarned: number;
+  starsEarned: number;
+  newStarsEarned: number;
+}
+
+export const calculateLevelClearRewards = (
+  prev: UserProgress,
+  level: { id: string; type?: string; xpReward: number; gemReward: number },
+  stationHealth: number,
+  accuracy: number,
+  difficulty: 'EASY' | 'NORMAL' | 'HEROIC' = 'NORMAL'
+): ClearRewardBreakdown => {
+  let starsEarned = 1;
+  if (stationHealth >= 80 && accuracy >= 80) {
+    starsEarned = 3;
+  } else if (stationHealth >= 40) {
+    starsEarned = 2;
+  }
+
+  const currentProgress = prev.levelProgressMap[level.id] || {
+    levelId: level.id,
+    isUnlocked: true,
+    isCompleted: false,
+    stars: 0,
+    highScore: 0
+  };
+
+  const isFirstClear = !currentProgress.isCompleted;
+  const previousStars = currentProgress.stars || 0;
+  const newStarsEarned = Math.max(0, starsEarned - previousStars);
+
+  const diffMultiplier = difficulty === 'HEROIC' ? 1.8 : difficulty === 'EASY' ? 1.0 : 1.25;
+  const totalXpEarned = Math.round(level.xpReward * diffMultiplier);
+
+  let baseGems = 0;
+  let starBonusGems = 0;
+  let accuracyBonusGems = 0;
+  let heroicBonusGems = 0;
+
+  if (isFirstClear) {
+    if (level.type === 'CHEST_REWARD') {
+      baseGems = 15;
+    } else if (level.type === 'BOSS_BATTLE') {
+      baseGems = 7;
+    } else if (level.type === 'SPEED_RUSH') {
+      baseGems = 4;
+    } else {
+      baseGems = 2;
+    }
+
+    if (starsEarned === 3) {
+      starBonusGems = 1;
+    }
+  } else {
+    // Replay mode: No base diamond inflation
+    if (newStarsEarned > 0) {
+      starBonusGems = newStarsEarned; // 1 gem per newly earned star
+    }
+  }
+
+  // Bonus for 100% accuracy (zero mistypes)
+  if (accuracy >= 100) {
+    accuracyBonusGems = 1;
+  }
+
+  // Bonus for clearing on Heroic difficulty
+  if (difficulty === 'HEROIC') {
+    heroicBonusGems = 1;
+  }
+
+  // For replays without star increase, only give at most 1 token gem for heroic + 100% accuracy
+  const totalGemsEarned = isFirstClear
+    ? (baseGems + starBonusGems + accuracyBonusGems + heroicBonusGems)
+    : (newStarsEarned > 0 ? starBonusGems : (accuracyBonusGems && heroicBonusGems ? 1 : 0));
+
+  return {
+    isFirstClear,
+    baseGems,
+    starBonusGems,
+    accuracyBonusGems,
+    heroicBonusGems,
+    totalGemsEarned,
+    totalXpEarned,
+    starsEarned,
+    newStarsEarned
   };
 };
 
@@ -87,6 +190,10 @@ export const loadUserProgress = (): UserProgress => {
       if (diffDays === 1) {
         parsed.streakDays += 1;
         parsed.lastActiveDate = today;
+        const streakBonus = getStreakBonusGems(parsed.streakDays);
+        if (streakBonus > 0) {
+          parsed.gems = (parsed.gems || 0) + streakBonus;
+        }
       } else if (diffDays > 1) {
         parsed.streakDays = 1;
         parsed.lastActiveDate = today;

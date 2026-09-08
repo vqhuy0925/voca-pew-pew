@@ -4,6 +4,8 @@ import {
   SpaceshipItem,
   BlasterItem,
   LaserBeamItem,
+  ItemRarity,
+  RARITY_CONFIGS,
   SPACESHIPS,
   BLASTERS,
   LASER_BEAMS,
@@ -14,7 +16,7 @@ import {
 import { unlockAndEquipItem, equipItem } from '../../services/progressStorage';
 import { soundFx } from '../../game/engine/SoundController';
 import { drawSpaceship, drawBlasterPreview, drawLaserPreview, getBlasterMuzzleOrigins } from '../../game/engine/ShipRenderer';
-import { Gem, Sparkles, X, Check, Lock, Rocket, Zap, Shield, Play } from 'lucide-react';
+import { Gem, Sparkles, X, Check, Lock, Rocket, Zap, Play, Filter, Award } from 'lucide-react';
 import { MascotWidget } from '../mascot/MascotWidget';
 
 interface ArmoryModalProps {
@@ -24,6 +26,7 @@ interface ArmoryModalProps {
 }
 
 type TabType = 'SHIPS' | 'BLASTERS' | 'LASERS';
+type RarityFilterType = 'ALL' | ItemRarity;
 
 // Mini Canvas component for Ship Thumbnails
 const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = ({ ship, isSelected }) => {
@@ -46,13 +49,18 @@ const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = ({
     return () => cancelAnimationFrame(animId);
   }, [ship]);
 
+  const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
+
   return (
     <div
       className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-cyan-950/80 border-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.4)]'
-          : 'bg-slate-900/90 border-slate-700'
+          ? 'bg-cyan-950/90 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-105'
+          : `${rarity.borderColor} bg-slate-900/90`
       }`}
+      style={{
+        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+      }}
     >
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
@@ -79,13 +87,18 @@ const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> 
     return () => cancelAnimationFrame(animId);
   }, [blaster]);
 
+  const rarity = RARITY_CONFIGS[blaster.rarity] || RARITY_CONFIGS.COMMON;
+
   return (
     <div
       className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-pink-950/80 border-pink-400 shadow-[0_0_12px_rgba(244,114,182,0.4)]'
-          : 'bg-slate-900/90 border-slate-700'
+          ? 'bg-pink-950/90 border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.4)] scale-105'
+          : `${rarity.borderColor} bg-slate-900/90`
       }`}
+      style={{
+        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+      }}
     >
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
@@ -112,13 +125,18 @@ const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = 
     return () => cancelAnimationFrame(animId);
   }, [laser]);
 
+  const rarity = RARITY_CONFIGS[laser.rarity] || RARITY_CONFIGS.COMMON;
+
   return (
     <div
       className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-amber-950/80 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]'
-          : 'bg-slate-900/90 border-slate-700'
+          ? 'bg-amber-950/90 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] scale-105'
+          : `${rarity.borderColor} bg-slate-900/90`
       }`}
+      style={{
+        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+      }}
     >
       <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
     </div>
@@ -131,6 +149,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   onClose
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('SHIPS');
+  const [rarityFilter, setRarityFilter] = useState<RarityFilterType>('ALL');
   const [previewShipId, setPreviewShipId] = useState<string>(progress.equippedShipId || 'ship-scout');
   const [previewBlasterId, setPreviewBlasterId] = useState<string>(progress.equippedBlasterId || 'blaster-single');
   const [previewLaserId, setPreviewLaserId] = useState<string>(progress.equippedLaserId || 'laser-cyan');
@@ -143,6 +162,16 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   const activeShip = getSpaceshipById(previewShipId);
   const activeBlaster = getBlasterById(previewBlasterId);
   const activeLaser = getLaserById(previewLaserId);
+
+  // Unlocked items stats
+  const unlockedShipsCount = SPACESHIPS.filter(s => progress.unlockedUpgradeIds.includes(s.id)).length;
+  const unlockedBlastersCount = BLASTERS.filter(b => progress.unlockedUpgradeIds.includes(b.id)).length;
+  const unlockedLasersCount = LASER_BEAMS.filter(l => progress.unlockedUpgradeIds.includes(l.id)).length;
+
+  // Filter items by rarity
+  const filteredShips = SPACESHIPS.filter(s => rarityFilter === 'ALL' || s.rarity === rarityFilter);
+  const filteredBlasters = BLASTERS.filter(b => rarityFilter === 'ALL' || b.rarity === rarityFilter);
+  const filteredLasers = LASER_BEAMS.filter(l => rarityFilter === 'ALL' || l.rarity === rarityFilter);
 
   // Live Canvas Preview of Ship & Lasers
   useEffect(() => {
@@ -172,7 +201,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         ctx.save();
         ctx.globalAlpha = Math.max(0, l.alpha);
 
-        if (l.particleType === 'rainbow') {
+        if (l.particleType === 'rainbow' || l.particleType === 'supernova') {
           const grad = ctx.createLinearGradient(l.x, l.y + 24, l.x, l.y);
           grad.addColorStop(0, '#f43f5e');
           grad.addColorStop(0.3, '#fbbf24');
@@ -180,6 +209,15 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           grad.addColorStop(1, '#c084fc');
           ctx.strokeStyle = grad;
           ctx.shadowColor = '#38bdf8';
+        } else if (l.particleType === 'sunlight') {
+          ctx.strokeStyle = '#fbbf24';
+          ctx.shadowColor = '#fde047';
+        } else if (l.particleType === 'void') {
+          ctx.strokeStyle = '#8b5cf6';
+          ctx.shadowColor = '#c084fc';
+        } else if (l.particleType === 'matrix') {
+          ctx.strokeStyle = '#10b981';
+          ctx.shadowColor = '#34d399';
         } else if (l.particleType === 'heart') {
           ctx.strokeStyle = '#ec4899';
           ctx.shadowColor = '#f472b6';
@@ -203,7 +241,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           ctx.shadowColor = l.color;
         }
 
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 16;
         ctx.lineWidth = l.width;
         ctx.beginPath();
         ctx.moveTo(l.x, l.y + 24);
@@ -270,7 +308,8 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   const handleUnlockOrEquip = (
     itemId: string,
     itemType: 'ship' | 'blaster' | 'laser',
-    priceGems: number
+    priceGems: number,
+    rarity: ItemRarity
   ) => {
     const isUnlocked = progress.unlockedUpgradeIds.includes(itemId);
 
@@ -279,7 +318,11 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
       onUpdateProgress(prev => equipItem(prev, itemId, itemType));
     } else {
       if (progress.gems >= priceGems) {
-        soundFx.playUpgradeSuccess();
+        if (rarity === 'MYTHIC' || rarity === 'LEGENDARY') {
+          soundFx.playMythicUnlock();
+        } else {
+          soundFx.playUpgradeSuccess();
+        }
         soundFx.playGemPickup();
         onUpdateProgress(prev => unlockAndEquipItem(prev, itemId, itemType, priceGems));
       } else {
@@ -293,56 +336,62 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-3 border-cyan-400 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(0,240,255,0.35)] my-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-3 border-cyan-400 rounded-3xl p-4 sm:p-7 shadow-[0_0_60px_rgba(0,240,255,0.35)] my-4 text-white max-h-[95vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={() => {
             soundFx.playClick();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer border border-slate-700"
+          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer border border-slate-700 z-10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header with Gems Counter */}
+        {/* Header with Gems Counter & Unlocked Badges */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pr-12">
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs sm:text-sm font-extrabold uppercase">
               <Rocket className="w-4 h-4" /> Xưởng Chế Tạo Ngân Hà
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-yellow-300 mt-1">
-              TỦ ĐỒ CHƠI & VŨ KHÍ 🛠️
+              BỘ SƯU TẬP TÀU & VŨ KHÍ 🛠️
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-2 border-cyan-400 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-            <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-bounce" />
-            <div className="text-right">
-              <div className="text-[10px] text-slate-400 font-bold uppercase">Kim Cương</div>
-              <div className="text-lg font-extrabold font-game text-white">{progress.gems} 💎</div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-2 border-cyan-400 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+              <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-bounce" />
+              <div className="text-right">
+                <div className="text-[10px] text-slate-400 font-bold uppercase">Kim Cương</div>
+                <div className="text-lg font-extrabold font-game text-white">{progress.gems} 💎</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Live Interactive Preview Box */}
-        <div className="relative bg-slate-950/85 border-2 border-slate-800 rounded-3xl p-3.5 mb-5 flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden">
+        <div className="relative bg-slate-950/85 border-2 border-slate-800 rounded-3xl p-3.5 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden shadow-xl">
           <div className="relative w-48 h-32 bg-slate-900/95 rounded-2xl border-2 border-cyan-400/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
             <canvas ref={previewCanvasRef} width={192} height={128} className="w-full h-full block" />
             <div className="absolute top-2 left-2 text-[10px] font-extrabold text-cyan-300 bg-slate-950/90 px-2 py-0.5 rounded-md border border-cyan-400/50">
-              MÔ HÌNH 3D TRỰC QUAN
+              MÔ HÌNH TRỰC QUAN
             </div>
           </div>
 
-          <div className="flex-1 text-center sm:text-left">
-            <div className="text-xs text-cyan-400 font-extrabold uppercase flex items-center gap-1.5 justify-center sm:justify-start">
-              <span>{activeShip.icon} {activeShip.nameVi}</span> • <span>{activeBlaster.nameVi}</span>
+          <div className="flex-1 text-center sm:text-left min-w-0">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mb-1">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${RARITY_CONFIGS[activeShip.rarity]?.borderColor} ${RARITY_CONFIGS[activeShip.rarity]?.textGradient} bg-slate-900/90`}>
+                {RARITY_CONFIGS[activeShip.rarity]?.badge}
+              </span>
+              <span className="text-sm font-extrabold text-white truncate">{activeShip.nameVi}</span>
             </div>
-            <div className="text-sm font-bold text-white mt-1">{activeShip.perkDescription}</div>
-            <div className="text-xs text-amber-300 mt-1 flex items-center gap-1.5 justify-center sm:justify-start">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Tia Đạn: <strong>{activeLaser.nameVi}</strong> ({activeLaser.description})</span>
+            <div className="text-xs text-slate-300 leading-tight line-clamp-2">{activeShip.perkDescription}</div>
+            <div className="text-[11px] text-amber-300 mt-1.5 flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+              <span>Súng: <strong>{activeBlaster.nameVi}</strong></span>
+              <span>•</span>
+              <span>Laze: <strong>{activeLaser.nameVi}</strong></span>
             </div>
           </div>
 
@@ -357,8 +406,8 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           </button>
         </div>
 
-        {/* 3 Categories Navigation Tabs */}
-        <div className="grid grid-cols-3 gap-2 mb-5">
+        {/* 3 Categories Navigation Tabs with Counters */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
           <button
             onClick={() => {
               soundFx.playClick();
@@ -371,7 +420,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
             }`}
           >
             <Rocket className="w-4 h-4" />
-            <span>TÀU VŨ TRỤ ({SPACESHIPS.length})</span>
+            <span>TÀU ({unlockedShipsCount}/{SPACESHIPS.length})</span>
           </button>
 
           <button
@@ -386,7 +435,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
             }`}
           >
             <Zap className="w-4 h-4" />
-            <span>SÚNG BẮN ({BLASTERS.length})</span>
+            <span>SÚNG ({unlockedBlastersCount}/{BLASTERS.length})</span>
           </button>
 
           <button
@@ -401,18 +450,60 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
             }`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>TIA LAZE ({LASER_BEAMS.length})</span>
+            <span>LAZE ({unlockedLasersCount}/{LASER_BEAMS.length})</span>
           </button>
         </div>
 
-        {/* Tab 1: Spaceships with Live Mini-Canvases for each model! */}
+        {/* Rarity Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none text-xs">
+          <span className="text-slate-400 flex items-center gap-1 font-bold pl-1">
+            <Filter className="w-3.5 h-3.5" /> Lọc:
+          </span>
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setRarityFilter('ALL');
+            }}
+            className={`px-3 py-1 rounded-xl font-bold transition whitespace-nowrap cursor-pointer ${
+              rarityFilter === 'ALL'
+                ? 'bg-white text-slate-950 shadow-sm'
+                : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            Tất Cả
+          </button>
+          {(['COMMON', 'RARE', 'EPIC', 'LEGENDARY', 'MYTHIC'] as ItemRarity[]).map((rKey) => {
+            const rCfg = RARITY_CONFIGS[rKey];
+            const isSelected = rarityFilter === rKey;
+            return (
+              <button
+                key={rKey}
+                onClick={() => {
+                  soundFx.playClick();
+                  setRarityFilter(rKey);
+                }}
+                className={`px-3 py-1 rounded-xl font-bold transition whitespace-nowrap cursor-pointer border ${
+                  isSelected
+                    ? `${rCfg.borderColor} ${rCfg.bgGradient} text-white shadow-md`
+                    : 'bg-slate-900/80 text-slate-400 hover:text-white border-slate-800'
+                }`}
+              >
+                {rCfg.badge}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab 1: Spaceships */}
         {activeTab === 'SHIPS' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {SPACESHIPS.map((ship) => {
+            {filteredShips.map((ship) => {
               const isUnlocked = progress.unlockedUpgradeIds.includes(ship.id);
               const isEquipped = progress.equippedShipId === ship.id;
               const isPreviewing = previewShipId === ship.id;
               const canAfford = progress.gems >= ship.priceGems;
+              const diffGems = ship.priceGems - progress.gems;
+              const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
 
               return (
                 <div
@@ -420,58 +511,66 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
                   onClick={() => setPreviewShipId(ship.id)}
                   className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
                     isEquipped
-                      ? 'bg-cyan-950/60 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+                      ? 'bg-cyan-950/70 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)]'
                       : isPreviewing
                       ? 'bg-slate-900 border-cyan-500/80 ring-2 ring-cyan-400/40'
                       : isUnlocked
                       ? 'bg-slate-900/80 border-slate-700 hover:border-cyan-500'
-                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <ShipThumbnail ship={ship} isSelected={isPreviewing || isEquipped} />
-                    <div>
-                      <div className="font-extrabold font-game text-base text-white flex items-center gap-2">
-                        {ship.nameVi}
-                        {isEquipped && (
-                          <span className="px-2 py-0.5 bg-emerald-500/30 border border-emerald-400 text-emerald-300 text-[10px] rounded-full">
-                            Đang Dùng
-                          </span>
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                          {rarity.badge}
+                        </span>
+                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
+                          {ship.nameVi}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight">{ship.perkDescription}</div>
+                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{ship.perkDescription}</div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
                     <div className="text-xs font-bold text-amber-300">
-                      {ship.priceGems === 0 ? 'Miễn Phí' : `${ship.priceGems} 💎`}
+                      {ship.priceGems === 0 ? (
+                        <span className="text-emerald-400">Miễn Phí</span>
+                      ) : (
+                        <span>{ship.priceGems} 💎</span>
+                      )}
                     </div>
 
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleUnlockOrEquip(ship.id, 'ship', ship.priceGems);
+                        handleUnlockOrEquip(ship.id, 'ship', ship.priceGems, ship.rarity);
                       }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                         isEquipped
                           ? 'bg-emerald-500 text-slate-950 cursor-default'
                           : isUnlocked
                           ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 active:scale-95'
                           : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95'
-                          : 'bg-slate-800 text-slate-400 opacity-60 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
                       }`}
                     >
                       {isEquipped ? (
                         <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐÃ TRANG BỊ
+                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
                         </>
                       ) : isUnlocked ? (
                         'TRANG BỊ'
-                      ) : (
+                      ) : canAfford ? (
                         <>
                           <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({ship.priceGems} 💎)
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
                         </>
                       )}
                     </button>
@@ -485,11 +584,13 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         {/* Tab 2: Blasters */}
         {activeTab === 'BLASTERS' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {BLASTERS.map((blaster) => {
+            {filteredBlasters.map((blaster) => {
               const isUnlocked = progress.unlockedUpgradeIds.includes(blaster.id);
               const isEquipped = progress.equippedBlasterId === blaster.id;
               const isPreviewing = previewBlasterId === blaster.id;
               const canAfford = progress.gems >= blaster.priceGems;
+              const diffGems = blaster.priceGems - progress.gems;
+              const rarity = RARITY_CONFIGS[blaster.rarity] || RARITY_CONFIGS.COMMON;
 
               return (
                 <div
@@ -497,58 +598,66 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
                   onClick={() => setPreviewBlasterId(blaster.id)}
                   className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
                     isEquipped
-                      ? 'bg-pink-950/60 border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.3)]'
+                      ? 'bg-pink-950/70 border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.3)]'
                       : isPreviewing
                       ? 'bg-slate-900 border-pink-500/80 ring-2 ring-pink-400/40'
                       : isUnlocked
                       ? 'bg-slate-900/80 border-slate-700 hover:border-pink-500'
-                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <BlasterThumbnail blaster={blaster} isSelected={isPreviewing || isEquipped} />
-                    <div>
-                      <div className="font-extrabold font-game text-base text-white flex items-center gap-2">
-                        {blaster.nameVi}
-                        {isEquipped && (
-                          <span className="px-2 py-0.5 bg-emerald-500/30 border border-emerald-400 text-emerald-300 text-[10px] rounded-full">
-                            Đang Dùng
-                          </span>
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                          {rarity.badge}
+                        </span>
+                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
+                          {blaster.nameVi}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight">{blaster.description}</div>
+                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{blaster.description}</div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
                     <div className="text-xs font-bold text-amber-300">
-                      {blaster.priceGems === 0 ? 'Miễn Phí' : `${blaster.priceGems} 💎`}
+                      {blaster.priceGems === 0 ? (
+                        <span className="text-emerald-400">Miễn Phí</span>
+                      ) : (
+                        <span>{blaster.priceGems} 💎</span>
+                      )}
                     </div>
 
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleUnlockOrEquip(blaster.id, 'blaster', blaster.priceGems);
+                        handleUnlockOrEquip(blaster.id, 'blaster', blaster.priceGems, blaster.rarity);
                       }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                         isEquipped
                           ? 'bg-emerald-500 text-slate-950 cursor-default'
                           : isUnlocked
                           ? 'bg-pink-500 hover:bg-pink-400 text-white active:scale-95'
                           : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95'
-                          : 'bg-slate-800 text-slate-400 opacity-60 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
                       }`}
                     >
                       {isEquipped ? (
                         <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐÃ TRANG BỊ
+                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
                         </>
                       ) : isUnlocked ? (
                         'TRANG BỊ'
-                      ) : (
+                      ) : canAfford ? (
                         <>
                           <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({blaster.priceGems} 💎)
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
                         </>
                       )}
                     </button>
@@ -562,11 +671,13 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         {/* Tab 3: Lasers */}
         {activeTab === 'LASERS' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {LASER_BEAMS.map((laser) => {
+            {filteredLasers.map((laser) => {
               const isUnlocked = progress.unlockedUpgradeIds.includes(laser.id);
               const isEquipped = progress.equippedLaserId === laser.id;
               const isPreviewing = previewLaserId === laser.id;
               const canAfford = progress.gems >= laser.priceGems;
+              const diffGems = laser.priceGems - progress.gems;
+              const rarity = RARITY_CONFIGS[laser.rarity] || RARITY_CONFIGS.COMMON;
 
               return (
                 <div
@@ -574,58 +685,66 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
                   onClick={() => setPreviewLaserId(laser.id)}
                   className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
                     isEquipped
-                      ? 'bg-amber-950/60 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
+                      ? 'bg-amber-950/70 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
                       : isPreviewing
                       ? 'bg-slate-900 border-amber-500/80 ring-2 ring-amber-400/40'
                       : isUnlocked
                       ? 'bg-slate-900/80 border-slate-700 hover:border-amber-500'
-                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <LaserThumbnail laser={laser} isSelected={isPreviewing || isEquipped} />
-                    <div>
-                      <div className="font-extrabold font-game text-base text-white flex items-center gap-2">
-                        {laser.nameVi}
-                        {isEquipped && (
-                          <span className="px-2 py-0.5 bg-emerald-500/30 border border-emerald-400 text-emerald-300 text-[10px] rounded-full">
-                            Đang Dùng
-                          </span>
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                          {rarity.badge}
+                        </span>
+                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
+                          {laser.nameVi}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight">{laser.description}</div>
+                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{laser.description}</div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
                     <div className="text-xs font-bold text-amber-300">
-                      {laser.priceGems === 0 ? 'Miễn Phí' : `${laser.priceGems} 💎`}
+                      {laser.priceGems === 0 ? (
+                        <span className="text-emerald-400">Miễn Phí</span>
+                      ) : (
+                        <span>{laser.priceGems} 💎</span>
+                      )}
                     </div>
 
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleUnlockOrEquip(laser.id, 'laser', laser.priceGems);
+                        handleUnlockOrEquip(laser.id, 'laser', laser.priceGems, laser.rarity);
                       }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
                         isEquipped
                           ? 'bg-emerald-500 text-slate-950 cursor-default'
                           : isUnlocked
                           ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'
                           : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95'
-                          : 'bg-slate-800 text-slate-400 opacity-60 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
                       }`}
                     >
                       {isEquipped ? (
                         <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐÃ TRANG BỊ
+                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
                         </>
                       ) : isUnlocked ? (
                         'TRANG BỊ'
-                      ) : (
+                      ) : canAfford ? (
                         <>
                           <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({laser.priceGems} 💎)
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
                         </>
                       )}
                     </button>
@@ -637,11 +756,11 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         )}
 
         {/* Bottom Mascot Tip */}
-        <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+        <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
           <MascotWidget
             mascotId={progress.mascotId}
             mood="happy"
-            customMessage="Chăm chỉ học thêm nhiều từ vựng để mở khóa trọn bộ siêu tàu vũ trụ nhé! 🚀"
+            customMessage="Chăm chỉ học và đạt 3 sao mỗi màn để tích lũy kim cương mở khóa thần hạm nhé! 🚀💎"
           />
 
           <button

@@ -15,7 +15,8 @@ import {
   saveUserProgress,
   completeLevelProgress,
   deductHeart,
-  refillHearts
+  refillHearts,
+  calculateLevelClearRewards
 } from './services/progressStorage';
 
 import { LearningPathView } from './components/path/LearningPathView';
@@ -219,31 +220,28 @@ export const App: React.FC = () => {
   }, []);
 
   const handleVictory = useCallback(() => {
-    let starsEarned = 1;
-    if (stats.stationHealth >= 80 && stats.accuracy >= 80) {
-      starsEarned = 3;
-    } else if (stats.stationHealth >= 40) {
-      starsEarned = 2;
-    }
-
     const diff = progress.selectedDifficulty || 'NORMAL';
-    const diffCfg = DIFFICULTY_CONFIGS[diff];
-    const finalXp = Math.round(selectedLevel.xpReward * diffCfg.xpMultiplier);
-    const finalGems = Math.round(selectedLevel.gemReward * diffCfg.gemMultiplier + (timeRemaining > 15 ? 10 : 0));
+    const reward = calculateLevelClearRewards(
+      progress,
+      selectedLevel,
+      stats.stationHealth,
+      stats.accuracy,
+      diff
+    );
 
     handleUpdateProgress(prev =>
       completeLevelProgress(
         prev,
         selectedLevel.id,
-        starsEarned,
+        reward.starsEarned,
         stats.score,
-        finalXp,
-        finalGems
+        reward.totalXpEarned,
+        reward.totalGemsEarned
       )
     );
 
     setScreen('VICTORY');
-  }, [stats, selectedLevel, progress.selectedDifficulty, timeRemaining, handleUpdateProgress]);
+  }, [stats, selectedLevel, progress, handleUpdateProgress]);
 
   const handleNextLevel = () => {
     const nextLvl = getNextLevel(selectedLevel.id);
@@ -370,6 +368,7 @@ export const App: React.FC = () => {
         <VictoryModal
           stats={stats}
           level={selectedLevel}
+          progress={progress}
           hasNextLevel={!!nextLevel}
           difficulty={progress.selectedDifficulty || 'NORMAL'}
           timeRemaining={timeRemaining}

@@ -18,16 +18,20 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
   onClose
 }) => {
   const [isOpened, setIsOpened] = useState(false);
+  const isFirstTime = !progress.levelProgressMap[level.id]?.isCompleted;
+  const gemRewardAmount = isFirstTime ? 15 : 0;
+  const xpRewardAmount = isFirstTime ? 50 : 20;
 
   useEffect(() => {
     soundFx.playChestOpen();
     setIsOpened(true);
 
-    // Give reward immediately
-    onUpdateProgress(prev =>
-      completeLevelProgress(prev, level.id, 3, 100, level.xpReward, level.gemReward)
-    );
-  }, [level]);
+    if (isFirstTime) {
+      onUpdateProgress(prev =>
+        completeLevelProgress(prev, level.id, 3, 100, xpRewardAmount, gemRewardAmount)
+      );
+    }
+  }, [level.id]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none">
@@ -49,13 +53,13 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
           <div className="p-4 rounded-3xl bg-cyan-500/15 border-2 border-cyan-400/50 flex flex-col items-center">
             <Gem className="w-9 h-9 text-cyan-400 fill-cyan-400 mb-1 animate-pulse" />
             <div className="text-sm text-cyan-300 font-extrabold uppercase">Kim Cương</div>
-            <div className="text-3xl font-game font-extrabold text-white">+{level.gemReward}</div>
+            <div className="text-3xl font-game font-extrabold text-white">+{gemRewardAmount}</div>
           </div>
 
           <div className="p-4 rounded-3xl bg-purple-500/15 border-2 border-purple-400/50 flex flex-col items-center">
             <Sparkles className="w-9 h-9 text-purple-400 fill-purple-400 mb-1" />
             <div className="text-sm text-purple-300 font-extrabold uppercase">Kinh Nghiệm</div>
-            <div className="text-3xl font-game font-extrabold text-white">+{level.xpReward} XP</div>
+            <div className="text-3xl font-game font-extrabold text-white">+{xpRewardAmount} XP</div>
           </div>
         </div>
 
