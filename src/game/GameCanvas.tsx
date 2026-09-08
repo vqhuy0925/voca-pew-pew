@@ -63,8 +63,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     inputHandlerRef.current = inputHandler;
     collisionEngineRef.current = collisionEngine;
 
-    // Load level data
+    // Load level data & preload native audio
     spawner.loadLevel(level);
+    speechHelper.preloadWords(level.words.map(w => w.word));
     if (onTotalWordsSet) {
       onTotalWordsSet(spawner.getTotalWordsCount());
     }
@@ -132,7 +133,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         if (combo % 3 === 0) {
           soundFx.playCombo(Math.floor(combo / 3));
-          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 30);
+          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 36);
         }
 
         // Shoot colorful laser from spaceship
@@ -148,7 +149,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           score += 100;
           soundFx.playExplosion();
           particleSys.addExplosion(result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y + 25, result.defeatedEnemy.color, 36);
-          particleSys.addFloatingText(`+${100 + comboBonus} ${result.defeatedEnemy.emoji}`, result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y, '#39ff14', 24);
+          particleSys.addFloatingText(`+${100 + comboBonus} ${result.defeatedEnemy.emoji}`, result.defeatedEnemy.x + result.defeatedEnemy.width / 2, result.defeatedEnemy.y, '#39ff14', 28);
 
           // Find full vocab item to add to review list
           const vocabMatch = level.words.find(w => w.word.toLowerCase() === result.defeatedEnemy?.word.toLowerCase());
@@ -242,7 +243,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             spawner.removeEnemy(breached.id);
             soundFx.playHeartLost();
             particleSys.addExplosion(breached.x + breached.width / 2, canvas.height - 100, '#ff0055', 24);
-            particleSys.addFloatingText('-1 ❤️', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 24);
+            particleSys.addFloatingText('-1 ❤️', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 28);
           }
 
           onStatsUpdate(prev => {
@@ -311,8 +312,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.stroke();
 
     // Defense Line Label
-    ctx.font = 'bold 13px Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
+    ctx.font = 'bold 15px Fredoka, sans-serif';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
     ctx.textAlign = 'right';
     ctx.fillText('KHIÊN BẢO VỆ VŨ TRỤ 🛡️', w - 30, defenseY - 10);
     ctx.restore();
@@ -338,23 +339,23 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     const y = enemy.y;
     const width = enemy.width;
     const height = enemy.height;
-    const radius = 20;
+    const radius = 24;
 
     // Glowing Pill Card
     if (enemy.isTargeted) {
       ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 25;
+      ctx.shadowBlur = 28;
       ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 4.5;
     } else {
       ctx.shadowColor = enemy.color;
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.strokeStyle = enemy.color;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
     }
 
-    // Badge Background Box
-    ctx.fillStyle = enemy.isTargeted ? 'rgba(16, 22, 64, 0.95)' : 'rgba(12, 16, 44, 0.85)';
+    // Badge Background Box (Dark high-contrast slate)
+    ctx.fillStyle = enemy.isTargeted ? 'rgba(15, 23, 62, 0.96)' : 'rgba(11, 15, 42, 0.90)';
     ctx.beginPath();
     ctx.roundRect(x, y, width, height, radius);
     ctx.fill();
@@ -365,23 +366,23 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.save();
       ctx.fillStyle = '#00f0ff';
       ctx.beginPath();
-      ctx.moveTo(x + width / 2, y - 6);
-      ctx.lineTo(x + width / 2 - 8, y - 16);
-      ctx.lineTo(x + width / 2 + 8, y - 16);
+      ctx.moveTo(x + width / 2, y - 8);
+      ctx.lineTo(x + width / 2 - 10, y - 20);
+      ctx.lineTo(x + width / 2 + 10, y - 20);
       ctx.closePath();
       ctx.fill();
       ctx.restore();
     }
 
     // Draw Emoji
-    ctx.font = '26px serif';
+    ctx.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText(enemy.emoji, x + 12, y + height / 2 - 4);
+    ctx.fillText(enemy.emoji, x + 14, y + height / 2 - 2);
 
     // Draw Word Letters (Split into typed and untyped)
-    const letterStartX = x + 48;
-    ctx.font = 'bold 27px Fredoka, sans-serif';
+    const letterStartX = x + 58;
+    ctx.font = 'bold 32px Fredoka, system-ui, sans-serif';
     ctx.textBaseline = 'middle';
 
     let currentX = letterStartX;
@@ -393,37 +394,38 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       if (isTyped) {
         ctx.fillStyle = '#4ade80';
         ctx.shadowColor = '#4ade80';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 14;
       } else if (isCurrentChar) {
         ctx.fillStyle = '#facc15';
         ctx.shadowColor = '#facc15';
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 20;
       } else {
         ctx.fillStyle = '#ffffff';
         ctx.shadowBlur = 0;
       }
 
-      ctx.fillText(char, currentX, y + 22);
+      ctx.fillText(char, currentX, y + 25);
 
       // Underline active char
       if (isCurrentChar) {
+        const charWidth = ctx.measureText(char).width;
         ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.moveTo(currentX - 1, y + 36);
-        ctx.lineTo(currentX + 16, y + 36);
+        ctx.moveTo(currentX - 1, y + 42);
+        ctx.lineTo(currentX + charWidth + 1, y + 42);
         ctx.stroke();
       }
 
-      currentX += ctx.measureText(char).width + 3;
+      currentX += ctx.measureText(char).width + 3.5;
     }
 
     // Vietnamese Meaning Subtext
-    ctx.font = 'bold 12px Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.font = 'bold 15px Fredoka, system-ui, sans-serif';
+    ctx.fillStyle = '#bae6fd';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(`(${enemy.meaningVi})`, x + 48, y + 43);
+    ctx.fillText(`(${enemy.meaningVi})`, x + 58, y + 51);
 
     ctx.restore();
   };

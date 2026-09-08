@@ -52,51 +52,51 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
           <Heart className="w-10 h-10 text-rose-500 fill-rose-500" />
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-bold font-game text-white mb-1">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-white mb-1.5">
           NẠP TRÁI TIM ❤️
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300 mb-6">
+        <p className="text-sm sm:text-base text-slate-200 mb-6">
           Trái tim giúp bé không bị ngắt quãng khi đang bảo vệ trạm không gian!
         </p>
 
         {/* Options */}
-        <div className="space-y-3 mb-6">
+        <div className="space-y-3.5 mb-6">
           {/* Refill with gems */}
           <button
             onClick={handleRefillWithGems}
             disabled={!canAfford}
-            className={`w-full p-4 rounded-2xl border-2 flex items-center justify-between transition ${
+            className={`w-full p-4 rounded-3xl border-2 flex items-center justify-between transition ${
               canAfford
                 ? 'bg-cyan-500/15 border-cyan-400 hover:bg-cyan-500/25 cursor-pointer active:scale-95'
                 : 'bg-slate-800/40 border-slate-700 opacity-50 cursor-not-allowed'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">💎</div>
+            <div className="flex items-center gap-3.5">
+              <div className="text-3xl">💎</div>
               <div className="text-left">
-                <div className="font-game font-bold text-white text-base">Hồi phục 5 Trái Tim</div>
-                <div className="text-xs text-slate-400">Dùng kim cương đã thu thập</div>
+                <div className="font-game font-extrabold text-white text-lg">Hồi phục 5 Trái Tim</div>
+                <div className="text-sm text-slate-300">Dùng kim cương đã thu thập</div>
               </div>
             </div>
-            <div className="px-3 py-1.5 bg-cyan-400 text-slate-950 font-game font-bold rounded-xl text-sm flex items-center gap-1">
-              <Gem className="w-4 h-4 fill-slate-950" /> {GEM_COST}
+            <div className="px-3.5 py-2 bg-cyan-400 text-slate-950 font-game font-extrabold rounded-xl text-base flex items-center gap-1.5">
+              <Gem className="w-5 h-5 fill-slate-950" /> {GEM_COST}
             </div>
           </button>
 
           {/* Free Kid practice refill */}
           <button
             onClick={handleFreeRefill}
-            className="w-full p-4 rounded-2xl bg-emerald-500/15 border-2 border-emerald-400 hover:bg-emerald-500/25 flex items-center justify-between transition cursor-pointer active:scale-95"
+            className="w-full p-4 rounded-3xl bg-emerald-500/15 border-2 border-emerald-400 hover:bg-emerald-500/25 flex items-center justify-between transition cursor-pointer active:scale-95"
           >
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">✨</div>
+            <div className="flex items-center gap-3.5">
+              <div className="text-3xl">✨</div>
               <div className="text-left">
-                <div className="font-game font-bold text-white text-base">Nạp Miễn Phí Cho Bé</div>
-                <div className="text-xs text-emerald-300 font-medium">Bé tiếp tục học vui vẻ!</div>
+                <div className="font-game font-extrabold text-white text-lg">Nạp Miễn Phí Cho Bé</div>
+                <div className="text-sm text-emerald-300 font-semibold">Bé tiếp tục học vui vẻ!</div>
               </div>
             </div>
-            <div className="px-3 py-1.5 bg-emerald-400 text-slate-950 font-game font-bold rounded-xl text-sm flex items-center gap-1">
-              <Sparkles className="w-4 h-4" /> Miễn phí
+            <div className="px-3.5 py-2 bg-emerald-400 text-slate-950 font-game font-extrabold rounded-xl text-base flex items-center gap-1.5">
+              <Sparkles className="w-5 h-5" /> Miễn phí
             </div>
           </button>
         </div>

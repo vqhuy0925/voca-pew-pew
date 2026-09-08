@@ -68,9 +68,9 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
     >
       {/* Current Active Floating Tag (Duolingo "BẮT ĐẦU" / "START" callout) */}
       {isCurrent && (
-        <div className="absolute -top-9 z-20 animate-bounce">
-          <div className="bg-white text-slate-900 font-game font-bold text-xs uppercase px-3 py-1 rounded-xl shadow-lg border-2 border-emerald-400 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+        <div className="absolute -top-10 z-20 animate-bounce">
+          <div className="bg-white text-slate-900 font-game font-extrabold text-xs sm:text-sm uppercase px-3.5 py-1 rounded-xl shadow-lg border-2 border-emerald-400 flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
             <span>Bắt Đầu</span>
           </div>
           <div className="w-2.5 h-2.5 bg-white rotate-45 mx-auto -mt-1 border-r border-b border-emerald-400" />
@@ -79,14 +79,14 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
 
       {/* Outer Pulse Ring for Current Active Node */}
       {isCurrent && (
-        <div className="absolute inset-0 w-20 h-20 -top-1 -left-1 rounded-full bg-emerald-400/30 animate-ping pointer-events-none" />
+        <div className="absolute inset-0 w-22 h-22 -top-1 -left-1 rounded-full bg-emerald-400/30 animate-ping pointer-events-none" />
       )}
 
       {/* Main Circular 3D Button */}
       <button
         onClick={handleClick}
         disabled={!isUnlocked}
-        className={`relative w-18 h-18 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center font-game font-bold transition-all duration-150 select-none ${
+        className={`relative w-20 h-20 sm:w-22 sm:h-22 rounded-full flex flex-col items-center justify-center font-game font-bold transition-all duration-150 select-none ${
           isUnlocked
             ? 'cursor-pointer hover:scale-105 active:translate-y-1.5 active:border-b-0'
             : 'cursor-not-allowed opacity-60'
@@ -94,12 +94,12 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
       >
         {/* Node Icon / State */}
         {!isUnlocked ? (
-          <Lock className="w-7 h-7 text-slate-400" />
+          <Lock className="w-8 h-8 text-slate-400" />
         ) : (
           <div className="flex flex-col items-center">
-            <span className="text-2xl sm:text-3xl leading-none">{level.icon}</span>
+            <span className="text-3xl sm:text-4xl leading-none">{level.icon}</span>
             {level.type !== 'CHEST_REWARD' && (
-              <span className="text-[11px] font-bold mt-0.5 tracking-tight text-white/90">
+              <span className="text-xs font-extrabold mt-0.5 tracking-tight text-white">
                 {level.levelNumber}
               </span>
             )}
@@ -108,8 +108,8 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
       </button>
 
       {/* Title Below Node */}
-      <div className="mt-2 text-center max-w-[130px]">
-        <div className={`font-game font-bold text-xs sm:text-sm line-clamp-1 ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
+      <div className="mt-2 text-center max-w-[150px]">
+        <div className={`font-game font-bold text-sm sm:text-base line-clamp-1 ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
           {level.titleVi}
         </div>
 
@@ -119,9 +119,9 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
             {[1, 2, 3].map(sIndex => (
               <Star
                 key={sIndex}
-                className={`w-3.5 h-3.5 ${
+                className={`w-4 h-4 ${
                   sIndex <= stars
-                    ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_6px_rgba(255,230,0,0.8)]'
+                    ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(255,230,0,0.9)]'
                     : 'text-slate-700 fill-slate-800'
                 }`}
               />

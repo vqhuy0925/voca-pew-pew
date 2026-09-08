@@ -85,7 +85,7 @@ export class EnemySpawner {
     const colors = ['#38bdf8', '#4ade80', '#facc15', '#f472b6', '#c084fc', '#fb923c'];
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
-    const estimatedWidth = Math.max(130, vocab.word.length * 28 + 65);
+    const estimatedWidth = Math.max(160, vocab.word.length * 34 + 82);
     const minX = 30;
     const maxX = Math.max(minX + 20, this.canvasWidth - estimatedWidth - 30);
 
@@ -94,7 +94,7 @@ export class EnemySpawner {
     if (topEnemies.length > 0) {
       for (let attempt = 0; attempt < 5; attempt++) {
         const candidateX = minX + Math.random() * (maxX - minX);
-        const hasOverlap = topEnemies.some(e => Math.abs(e.x - candidateX) < 140);
+        const hasOverlap = topEnemies.some(e => Math.abs(e.x - candidateX) < 160);
         if (!hasOverlap) {
           bestX = candidateX;
           break;
@@ -112,7 +112,7 @@ export class EnemySpawner {
       y: -50,
       speed: this.baseSpeed + Math.random() * 0.15,
       width: estimatedWidth,
-      height: 56,
+      height: 68,
       color: chosenColor,
       isTargeted: false,
       shakeTime: 0

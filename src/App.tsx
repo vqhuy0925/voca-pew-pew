@@ -22,6 +22,7 @@ import { VictoryModal } from './components/VictoryModal';
 import { GameOverModal } from './components/GameOverModal';
 import { PauseModal } from './components/PauseModal';
 import { soundFx } from './game/engine/SoundController';
+import { speechHelper } from './game/engine/SpeechHelper';
 
 type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
@@ -56,9 +57,10 @@ export const App: React.FC = () => {
 
   const virtualInputHandlerRef = useRef<((char: string) => void) | null>(null);
 
-  // Sync soundFx mute state with loaded progress
+  // Sync soundFx and speechHelper mute state with loaded progress
   useEffect(() => {
     soundFx.isMuted = !progress.soundEnabled;
+    speechHelper.setEnabled(progress.soundEnabled);
     setIsMuted(!progress.soundEnabled);
   }, [progress.soundEnabled]);
 
@@ -120,6 +122,7 @@ export const App: React.FC = () => {
 
   const handleToggleMute = () => {
     const muted = soundFx.toggleMute();
+    speechHelper.setEnabled(!muted);
     setIsMuted(muted);
     handleUpdateProgress(p => ({ ...p, soundEnabled: !muted }));
   };

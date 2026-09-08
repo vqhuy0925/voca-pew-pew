@@ -39,16 +39,16 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       {/* Main Container */}
       <main className="max-w-xl mx-auto px-4 py-6 pb-24">
         {/* Welcome & Progress Card */}
-        <div className="bg-gradient-to-r from-cyan-600/30 via-indigo-600/30 to-pink-600/30 border-2 border-cyan-400/40 rounded-3xl p-5 mb-8 shadow-xl backdrop-blur-md">
+        <div className="bg-gradient-to-r from-cyan-600/30 via-indigo-600/30 to-pink-600/30 border-2 border-cyan-400/40 rounded-3xl p-5 sm:p-6 mb-8 shadow-xl backdrop-blur-md">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs font-bold mb-2">
-                <Sparkles className="w-3.5 h-3.5" /> Lộ trình học Lớp 2
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-sm font-bold mb-2">
+                <Sparkles className="w-4 h-4" /> Lộ trình học Lớp 2
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold font-game text-white">
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-game text-white">
                 Hành Trình Từ Vựng Vũ Trụ 🌟
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 mt-1">
+              <p className="text-sm sm:text-base text-slate-200 mt-1">
                 Hoàn thành các bài học để bảo vệ ngân hà và nhận thật nhiều Kim Cương!
               </p>
             </div>
@@ -58,13 +58,13 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 
           {/* Progress Bar */}
           <div className="mt-4 pt-3 border-t border-slate-700/60">
-            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5">
-              <span className="flex items-center gap-1">
-                <Trophy className="w-3.5 h-3.5 text-yellow-400" /> Tiến độ khám phá
+            <div className="flex justify-between text-sm font-bold text-slate-200 mb-1.5">
+              <span className="flex items-center gap-1.5">
+                <Trophy className="w-4 h-4 text-yellow-400" /> Tiến độ khám phá
               </span>
-              <span className="text-cyan-300">{completedCount}/{totalLevels} màn ({progressPercent}%)</span>
+              <span className="text-cyan-300 font-bold">{completedCount}/{totalLevels} màn ({progressPercent}%)</span>
             </div>
-            <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+            <div className="w-full h-3.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
               <div
                 className="h-full bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(0,240,255,0.5)]"
                 style={{ width: `${progressPercent}%` }}
@@ -85,21 +85,21 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
               <section key={unit.id} className="relative">
                 {/* Unit Header Card */}
                 <div
-                  className={`bg-gradient-to-r ${unit.bannerBg} border-2 border-slate-700/80 rounded-3xl p-5 shadow-lg mb-8 backdrop-blur-md`}
+                  className={`bg-gradient-to-r ${unit.bannerBg} border-2 border-slate-700/80 rounded-3xl p-5 sm:p-6 shadow-lg mb-8 backdrop-blur-md`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+                      <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300">
                         Chương {unit.unitNumber}
                       </div>
-                      <h3 className="text-lg sm:text-xl font-bold font-game text-white flex items-center gap-2 mt-0.5">
+                      <h3 className="text-xl sm:text-2xl font-bold font-game text-white flex items-center gap-2 mt-1">
                         <span>{unit.icon}</span> {unit.titleVi}
                       </h3>
-                      <p className="text-xs text-slate-300 mt-1">{unit.description}</p>
+                      <p className="text-sm text-slate-200 mt-1">{unit.description}</p>
                     </div>
 
-                    <div className="px-3 py-1.5 bg-slate-900/80 border border-slate-700 rounded-2xl text-xs font-bold text-yellow-300 flex items-center gap-1.5 flex-shrink-0">
-                      <BookOpen className="w-3.5 h-3.5" />
+                    <div className="px-3.5 py-1.5 bg-slate-900/85 border border-slate-700 rounded-2xl text-sm font-bold text-yellow-300 flex items-center gap-1.5 flex-shrink-0">
+                      <BookOpen className="w-4 h-4" />
                       <span>{unitCompletedCount}/{unit.levels.length}</span>
                     </div>
                   </div>

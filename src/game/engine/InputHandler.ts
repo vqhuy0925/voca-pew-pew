@@ -1,6 +1,5 @@
 import { EnemyItem, VocabWord } from '../../data/types';
 import { soundFx } from './SoundController';
-import { speechHelper } from './SpeechHelper';
 
 export interface InputResult {
   hitLetter: boolean;
@@ -79,7 +78,6 @@ export class InputHandler {
         // Check if word is fully typed
         if (currentTarget.typedIndex >= currentTarget.word.length) {
           soundFx.playExplosion();
-          speechHelper.speak(currentTarget.word);
           this.targetEnemyId = null;
 
           return {

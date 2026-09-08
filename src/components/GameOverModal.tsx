@@ -25,11 +25,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           🥺🚀
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-bold font-game text-rose-400 mb-1">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-rose-400 mb-1.5">
           OOPS! KHÔNG SAO ĐÂU! ❤️
         </h2>
-        <p className="text-slate-300 text-xs sm:text-sm mb-5">
-          Bé hãy thử lại màn <span className="text-cyan-300 font-bold">{level.titleVi}</span> để gõ chính xác hơn nhé!
+        <p className="text-slate-200 text-sm sm:text-base mb-5">
+          Bé hãy thử lại màn <span className="text-cyan-300 font-extrabold">{level.titleVi}</span> để gõ chính xác hơn nhé!
         </p>
 
         {/* Mascot Encouragement */}
@@ -44,9 +44,9 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className="w-full py-4 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-bold text-xl rounded-2xl border-b-6 border-emerald-700 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-4.5 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-extrabold text-2xl rounded-2xl border-b-6 border-emerald-700 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
           >
-            <RotateCcw className="w-5 h-5 stroke-[3]" />
+            <RotateCcw className="w-6 h-6 stroke-[3]" />
             THỬ LẠI NGAY (MIỄN PHÍ)
           </button>
 
@@ -55,9 +55,9 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onGoToMap();
             }}
-            className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-game font-bold rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-game font-bold text-base rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
-            <Map className="w-4 h-4 text-cyan-400" />
+            <Map className="w-5 h-5 text-cyan-400" />
             Quay Về Bản Đồ
           </button>
         </div>

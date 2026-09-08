@@ -31,15 +31,18 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
     stars = 2;
   }
 
-  // Play Star fanfares sequentially on open
+  // Play Star fanfares sequentially on open & preload words
   useEffect(() => {
     soundFx.playVictory();
+    if (level.words.length > 0) {
+      speechHelper.preloadWords(level.words.map(w => w.word));
+    }
     for (let i = 1; i <= stars; i++) {
       setTimeout(() => {
         soundFx.playStarPop(i);
       }, 500 + i * 350);
     }
-  }, [stars]);
+  }, [stars, level]);
 
   const handleSpeak = (word: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,11 +58,11 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           <Trophy className="w-10 h-10 text-yellow-300" />
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-bold font-game text-yellow-300 drop-shadow mb-1">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-yellow-300 drop-shadow mb-1.5">
           HOÀN THÀNH BÀI HỌC! 🎉
         </h2>
-        <p className="text-slate-300 text-xs sm:text-sm mb-4">
-          Bé đã hoàn thành xuất sắc <span className="font-bold text-cyan-300">{level.titleVi}</span>!
+        <p className="text-slate-200 text-sm sm:text-base mb-5">
+          Bé đã hoàn thành xuất sắc <span className="font-extrabold text-cyan-300">{level.titleVi}</span>!
         </p>
 
         {/* 3 Stars Fanfare */}
@@ -80,46 +83,46 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Rewards Earned (XP & Gems) */}
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="bg-purple-500/15 border-2 border-purple-400/50 rounded-2xl p-3 flex items-center justify-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+          <div className="bg-purple-500/15 border-2 border-purple-400/50 rounded-2xl p-3.5 flex items-center justify-center gap-2.5">
+            <Sparkles className="w-6 h-6 text-purple-400" />
             <div className="text-left">
-              <div className="text-[10px] text-purple-300 uppercase font-bold">Kinh Nghiệm</div>
-              <div className="text-lg font-bold font-game text-white">+{level.xpReward} XP</div>
+              <div className="text-xs text-purple-300 uppercase font-extrabold">Kinh Nghiệm</div>
+              <div className="text-xl font-extrabold font-game text-white">+{level.xpReward} XP</div>
             </div>
           </div>
 
-          <div className="bg-cyan-500/15 border-2 border-cyan-400/50 rounded-2xl p-3 flex items-center justify-center gap-2">
-            <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400" />
+          <div className="bg-cyan-500/15 border-2 border-cyan-400/50 rounded-2xl p-3.5 flex items-center justify-center gap-2.5">
+            <Gem className="w-6 h-6 text-cyan-400 fill-cyan-400" />
             <div className="text-left">
-              <div className="text-[10px] text-cyan-300 uppercase font-bold">Kim Cương</div>
-              <div className="text-lg font-bold font-game text-white">+{level.gemReward} 💎</div>
+              <div className="text-xs text-cyan-300 uppercase font-extrabold">Kim Cương</div>
+              <div className="text-xl font-extrabold font-game text-white">+{level.gemReward} 💎</div>
             </div>
           </div>
         </div>
 
         {/* Word Review Sticker Album */}
         {level.words.length > 0 && (
-          <div className="text-left bg-slate-950/80 border-2 border-slate-800 rounded-2xl p-3.5 mb-6">
-            <div className="text-xs uppercase tracking-wider text-cyan-300 font-bold mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" /> Bảng Ôn Tập Từ Vựng Vừa Học:
+          <div className="text-left bg-slate-950/80 border-2 border-slate-800 rounded-2xl p-4 mb-6">
+            <div className="text-sm uppercase tracking-wider text-cyan-300 font-extrabold mb-2.5 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> Bảng Ôn Tập Từ Vựng Vừa Học:
             </div>
 
-            <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 gap-2.5 max-h-40 overflow-y-auto pr-1">
               {level.words.map((item) => (
                 <div
                   key={item.id}
                   onClick={(e) => handleSpeak(item.word, e)}
-                  className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 cursor-pointer transition active:scale-95 group"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 cursor-pointer transition active:scale-95 group"
                   title="Bấm để nghe phát âm"
                 >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <span className="text-xl">{item.emoji}</span>
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <span className="text-2xl">{item.emoji}</span>
                     <div className="leading-tight">
-                      <div className="font-bold text-white text-sm group-hover:text-cyan-300">{item.word}</div>
-                      <div className="text-[10px] text-slate-400 truncate">{item.meaningVi}</div>
+                      <div className="font-extrabold text-white text-base group-hover:text-cyan-300">{item.word}</div>
+                      <div className="text-xs text-cyan-200 font-semibold truncate">{item.meaningVi}</div>
                     </div>
                   </div>
-                  <Volume2 className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 flex-shrink-0" />
+                  <Volume2 className="w-4.5 h-4.5 text-slate-400 group-hover:text-cyan-400 flex-shrink-0" />
                 </div>
               ))}
             </div>
@@ -132,29 +135,29 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Main Action Buttons */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           {hasNextLevel && (
             <button
               onClick={() => {
                 soundFx.playClick();
                 onNextLevel();
               }}
-              className="w-full py-4 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 font-game font-bold text-xl rounded-2xl border-b-6 border-emerald-700 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4.5 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 font-game font-extrabold text-2xl rounded-2xl border-b-6 border-emerald-700 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
             >
               <span>TIẾP TỤC MÀN TIẾP THEO</span>
-              <ArrowRight className="w-6 h-6 stroke-[3]" />
+              <ArrowRight className="w-7 h-7 stroke-[3]" />
             </button>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <button
               onClick={() => {
                 soundFx.playClick();
                 onRestart();
               }}
-              className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-game font-bold rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-game font-bold text-base rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-5 h-5" />
               Chơi Lại
             </button>
 
@@ -163,9 +166,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 soundFx.playClick();
                 onGoToMap();
               }}
-              className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-game font-bold rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-game font-bold text-base rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
-              <Map className="w-4 h-4 text-cyan-400" />
+              <Map className="w-5 h-5 text-cyan-400" />
               Bản Đồ Bài Học
             </button>
           </div>

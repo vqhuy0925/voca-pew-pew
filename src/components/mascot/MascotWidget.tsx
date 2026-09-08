@@ -69,10 +69,10 @@ export const MascotWidget: React.FC<MascotWidgetProps> = ({
   return (
     <div className={`relative flex items-center gap-2 select-none ${className}`}>
       {/* Speech Bubble */}
-      <div className="relative bg-white text-slate-800 px-3.5 py-1.5 rounded-2xl rounded-bl-none text-xs sm:text-sm font-bold shadow-md border-2 border-amber-300 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-1">
-          {mood === 'celebrating' && <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />}
-          {mood === 'oopsie' && <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-400" />}
+      <div className="relative bg-white text-slate-900 px-4 py-2 rounded-2xl rounded-bl-none text-sm sm:text-base font-extrabold shadow-lg border-2 border-amber-300 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-1.5">
+          {mood === 'celebrating' && <Sparkles className="w-4 h-4 text-amber-500 fill-amber-400" />}
+          {mood === 'oopsie' && <Heart className="w-4 h-4 text-rose-500 fill-rose-400" />}
           <span>{bubbleText}</span>
         </div>
       </div>

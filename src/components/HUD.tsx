@@ -43,11 +43,11 @@ export const HUD: React.FC<HUDProps> = ({
             <Pause className="w-5 h-5 text-cyan-300" />
           </button>
 
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-slate-900/85 border-2 border-slate-700 rounded-2xl backdrop-blur-md">
-            <span className="text-xl">{level.icon}</span>
+          <div className="hidden sm:flex items-center gap-2.5 px-4 py-2 bg-slate-900/90 border-2 border-slate-700 rounded-2xl backdrop-blur-md">
+            <span className="text-2xl">{level.icon}</span>
             <div>
-              <div className="text-[10px] text-cyan-300 font-bold uppercase">Màn {level.levelNumber}</div>
-              <div className="text-xs font-bold text-white leading-none">{level.titleVi}</div>
+              <div className="text-xs text-cyan-300 font-extrabold uppercase">Màn {level.levelNumber}</div>
+              <div className="text-sm font-bold text-white leading-tight">{level.titleVi}</div>
             </div>
           </div>
         </div>
@@ -65,24 +65,24 @@ export const HUD: React.FC<HUDProps> = ({
         {/* Right: Hearts & Score */}
         <div className="flex items-center gap-2 pointer-events-auto">
           {/* 5 Hearts Display */}
-          <div className="flex items-center gap-1 bg-slate-900/85 border-2 border-rose-500/50 rounded-2xl px-3 py-1.5 shadow-md">
-            <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-bounce" />
-            <span className="font-game font-bold text-sm text-rose-400">
+          <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-rose-500/60 rounded-2xl px-3.5 py-1.5 shadow-md">
+            <Heart className="w-5 h-5 text-rose-500 fill-rose-500 animate-bounce" />
+            <span className="font-game font-bold text-base text-rose-300">
               {hearts}/{maxHearts}
             </span>
           </div>
 
           {/* Score Badge */}
-          <div className="flex items-center gap-1.5 bg-slate-900/85 border-2 border-amber-400/50 rounded-2xl px-3 py-1.5 shadow-md">
-            <Sparkles className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-            <span className="font-game font-bold text-sm text-yellow-300">{stats.score}</span>
+          <div className="flex items-center gap-1.5 bg-slate-900/90 border-2 border-amber-400/60 rounded-2xl px-3.5 py-1.5 shadow-md">
+            <Sparkles className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+            <span className="font-game font-bold text-base text-yellow-300">{stats.score}</span>
           </div>
 
           {/* Streak Combo */}
           {stats.combo > 1 && (
-            <div className="hidden md:flex items-center gap-1 bg-gradient-to-r from-pink-600 to-rose-600 border-2 border-pink-300 rounded-2xl px-3 py-1.5 shadow-md animate-bounce">
-              <Flame className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-              <span className="font-game font-bold text-xs text-white">x{stats.combo}</span>
+            <div className="hidden md:flex items-center gap-1.5 bg-gradient-to-r from-pink-600 to-rose-600 border-2 border-pink-300 rounded-2xl px-3.5 py-1.5 shadow-md animate-bounce">
+              <Flame className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+              <span className="font-game font-bold text-sm text-white">x{stats.combo}</span>
             </div>
           )}
 

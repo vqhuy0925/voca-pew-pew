@@ -16,12 +16,10 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
   onStartGame,
   onClose
 }) => {
-  // Automatically pronounce the first word on open
+  // Preload vocabulary audio on open (no auto-play, plays when child taps cards)
   useEffect(() => {
     if (level.words.length > 0) {
-      setTimeout(() => {
-        speechHelper.speak(level.words[0].word);
-      }, 500);
+      speechHelper.preloadWords(level.words.map(w => w.word));
     }
   }, [level]);
 
@@ -48,39 +46,39 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         </button>
 
         {/* Header Badge */}
-        <div className="inline-flex items-center gap-1.5 px-4 py-1 bg-cyan-500/15 border border-cyan-400/40 rounded-full text-cyan-300 text-xs font-bold mb-2">
-          <Sparkles className="w-3.5 h-3.5" /> Màn {level.levelNumber} • {level.titleVi}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-sm font-bold mb-2">
+          <Sparkles className="w-4 h-4" /> Màn {level.levelNumber} • {level.titleVi}
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-bold font-game text-white mb-1">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-white mb-1.5 tracking-wide">
           LÀM QUEN TỪ VỰNG 📖
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300 mb-5">
+        <p className="text-sm sm:text-base text-slate-200 mb-5">
           Bé hãy bấm vào từng thẻ để nghe phát âm chuẩn trước khi bắt đầu nhé!
         </p>
 
         {/* Words Grid Flashcards */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-3.5 mb-6">
           {level.words.map((item) => (
             <div
               key={item.id}
               onClick={(e) => handleSpeak(item.word, e)}
-              className="relative p-3.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700/90 border-2 border-slate-700 hover:border-cyan-400 cursor-pointer transition transform hover:scale-105 active:scale-95 shadow-md flex flex-col items-center group"
+              className="relative p-4 rounded-3xl bg-slate-800/90 hover:bg-slate-700/95 border-2 border-slate-700 hover:border-cyan-400 cursor-pointer transition transform hover:scale-105 active:scale-95 shadow-lg flex flex-col items-center group"
             >
-              <span className="text-4xl mb-1">{item.emoji}</span>
-              <div className="font-game font-bold text-lg text-white group-hover:text-cyan-300 leading-tight">
+              <span className="text-5xl mb-2">{item.emoji}</span>
+              <div className="font-game font-extrabold text-2xl sm:text-3xl text-white group-hover:text-cyan-300 leading-tight">
                 {item.word}
               </div>
-              <div className="text-[11px] text-cyan-300 font-medium">
+              <div className="text-sm text-cyan-300 font-semibold mt-0.5">
                 {item.pronunciation || ''}
               </div>
-              <div className="text-xs text-slate-400 mt-0.5">
+              <div className="text-base font-bold text-amber-300 mt-1">
                 {item.meaningVi}
               </div>
 
               {/* Little sound icon badge */}
-              <div className="absolute top-2 right-2 p-1.5 rounded-full bg-cyan-500/20 text-cyan-300 group-hover:bg-cyan-400 group-hover:text-slate-950 transition">
-                <Volume2 className="w-3.5 h-3.5" />
+              <div className="absolute top-2.5 right-2.5 p-2 rounded-full bg-cyan-500/25 text-cyan-300 group-hover:bg-cyan-400 group-hover:text-slate-950 transition">
+                <Volume2 className="w-4 h-4" />
               </div>
             </div>
           ))}
@@ -94,9 +92,9 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         {/* Action Button: Start Game */}
         <button
           onClick={handleStart}
-          className="w-full py-4 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-bold text-xl rounded-2xl border-b-6 border-emerald-600 active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_rgba(0,240,255,0.4)] transition flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-4.5 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-extrabold text-2xl rounded-2xl border-b-6 border-emerald-600 active:border-b-0 active:translate-y-1.5 shadow-[0_10px_30px_rgba(0,240,255,0.4)] transition flex items-center justify-center gap-2.5 cursor-pointer"
         >
-          <Play className="w-6 h-6 fill-slate-950" />
+          <Play className="w-7 h-7 fill-slate-950" />
           BẮT ĐẦU CHIẾN ĐẤU!
         </button>
       </div>

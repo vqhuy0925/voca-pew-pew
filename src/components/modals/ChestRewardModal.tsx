@@ -37,25 +37,25 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
           {isOpened ? '🎁✨' : '📦'}
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-bold font-game text-yellow-300 mb-1">
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-game text-yellow-300 mb-1.5">
           CHÚC MỪNG BÉ! 🎉
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300 mb-6">
-          Bé đã mở khóa thành công <span className="text-amber-300 font-bold">{level.titleVi}</span>!
+        <p className="text-sm sm:text-base text-slate-200 mb-6">
+          Bé đã mở khóa thành công <span className="text-amber-300 font-extrabold">{level.titleVi}</span>!
         </p>
 
         {/* Rewards Box */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="p-4 rounded-2xl bg-cyan-500/15 border-2 border-cyan-400/50 flex flex-col items-center">
-            <Gem className="w-8 h-8 text-cyan-400 fill-cyan-400 mb-1 animate-pulse" />
-            <div className="text-xs text-cyan-300 font-bold uppercase">Kim Cương</div>
-            <div className="text-2xl font-game font-bold text-white">+{level.gemReward}</div>
+        <div className="grid grid-cols-2 gap-3.5 mb-6">
+          <div className="p-4 rounded-3xl bg-cyan-500/15 border-2 border-cyan-400/50 flex flex-col items-center">
+            <Gem className="w-9 h-9 text-cyan-400 fill-cyan-400 mb-1 animate-pulse" />
+            <div className="text-sm text-cyan-300 font-extrabold uppercase">Kim Cương</div>
+            <div className="text-3xl font-game font-extrabold text-white">+{level.gemReward}</div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-purple-500/15 border-2 border-purple-400/50 flex flex-col items-center">
-            <Sparkles className="w-8 h-8 text-purple-400 fill-purple-400 mb-1" />
-            <div className="text-xs text-purple-300 font-bold uppercase">Kinh Nghiệm</div>
-            <div className="text-2xl font-game font-bold text-white">+{level.xpReward} XP</div>
+          <div className="p-4 rounded-3xl bg-purple-500/15 border-2 border-purple-400/50 flex flex-col items-center">
+            <Sparkles className="w-9 h-9 text-purple-400 fill-purple-400 mb-1" />
+            <div className="text-sm text-purple-300 font-extrabold uppercase">Kinh Nghiệm</div>
+            <div className="text-3xl font-game font-extrabold text-white">+{level.xpReward} XP</div>
           </div>
         </div>
 
@@ -65,9 +65,9 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
             soundFx.playGemPickup();
             onClose();
           }}
-          className="w-full py-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-bold text-xl rounded-2xl border-b-6 border-amber-600 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full py-4.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-extrabold text-2xl rounded-2xl border-b-6 border-amber-600 active:border-b-0 active:translate-y-1.5 shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
         >
-          <Check className="w-6 h-6 stroke-[3]" />
+          <Check className="w-7 h-7 stroke-[3]" />
           NHẬN THƯỞNG NGAY
         </button>
       </div>
