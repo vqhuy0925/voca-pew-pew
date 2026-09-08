@@ -579,6 +579,74 @@ class SoundController {
       // Ignore
     }
   }
+
+  // Energy Charge Power Up sound ⚡🔋
+  public playEnergyCharge() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      // Rising energy sweep
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(960, now + 0.35);
+
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.4);
+
+      // Chime sparkle at peak
+      const chime = this.ctx.createOscillator();
+      const chimeGain = this.ctx.createGain();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(1320, now + 0.2);
+      chime.frequency.exponentialRampToValueAtTime(1760, now + 0.45);
+      chimeGain.gain.setValueAtTime(0.18, now + 0.2);
+      chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+      chime.connect(chimeGain);
+      chimeGain.connect(this.ctx.destination);
+      chime.start(now + 0.2);
+      chime.stop(now + 0.45);
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Energy Depleted Warning sound ⚡
+  public playEnergyWarning() {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const now = this.ctx.currentTime;
+      [0, 0.12].forEach(offset => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(380, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(260, now + offset + 0.09);
+        gain.gain.setValueAtTime(0.18, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.09);
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.09);
+      });
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 export const soundFx = new SoundController();

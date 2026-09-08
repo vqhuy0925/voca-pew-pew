@@ -47,6 +47,8 @@ export type ThemeStyle = 'cosmic_cyan' | 'sweet_sakura' | 'galaxy_purple' | 'aur
 
 export type MascotId = 'cosmo_dog' | 'luna_cat' | 'stella_unicorn' | 'pixel_robot' | 'spark_fox';
 
+export type DailyEnergyMode = 'relaxed' | 'balanced' | 'intense';
+
 export interface UserProgress {
   userName: string;         // Learner's name (e.g. 'Bé Bắp', 'Minh Trí')
   avatar: string;           // Selected emoji avatar (e.g. '🚀', '🦄', '🐱')
@@ -70,6 +72,12 @@ export interface UserProgress {
   soundEnabled: boolean;
   speechEnabled: boolean;
   keyboardHintsEnabled: boolean;
+
+  // Energy & Daily Learning Limit System ⚡
+  energy: number;
+  maxEnergy: number;
+  lastEnergyDate: string;
+  dailyEnergyMode: DailyEnergyMode;
 
   // Equipment & Upgrades
   equippedShipId: string;

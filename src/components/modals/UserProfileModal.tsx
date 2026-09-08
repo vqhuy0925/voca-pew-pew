@@ -18,7 +18,8 @@ import {
 import { soundFx } from '../../game/engine/SoundController';
 import { MascotWidget } from '../mascot/MascotWidget';
 import { AGE_REALMS, getRealmByAge, getRealmById } from '../../data/learning-path-data';
-import { UserGender, ThemeStyle, MascotId } from '../../data/progress-types';
+import { UserGender, ThemeStyle, MascotId, DailyEnergyMode } from '../../data/progress-types';
+import { DAILY_ENERGY_CAPS } from '../../services/progressStorage';
 import {
   THEME_CONFIGS,
   MASCOT_CONFIGS,
@@ -29,6 +30,7 @@ import {
   getAgeAdaptiveSuggestedNames,
   getPersonaAddressing
 } from '../../services/personaMessageHelper';
+import { Zap } from 'lucide-react';
 
 interface UserProfileModalProps {
   initialName?: string;
@@ -38,6 +40,7 @@ interface UserProfileModalProps {
   initialGender?: UserGender;
   initialTheme?: ThemeStyle;
   initialMascotId?: MascotId;
+  initialDailyEnergyMode?: DailyEnergyMode;
   isFirstTime?: boolean;
   onSave: (
     name: string,
@@ -46,7 +49,8 @@ interface UserProfileModalProps {
     realmId?: string,
     gender?: UserGender,
     themeStyle?: ThemeStyle,
-    mascotId?: MascotId
+    mascotId?: MascotId,
+    dailyEnergyMode?: DailyEnergyMode
   ) => void;
   onClose?: () => void;
 }
@@ -76,6 +80,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   initialGender = 'neutral',
   initialTheme = 'cosmic_cyan',
   initialMascotId = 'cosmo_dog',
+  initialDailyEnergyMode = 'balanced',
   isFirstTime = false,
   onSave,
   onClose
@@ -83,14 +88,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   // Wizard steps for first-time user (1: Name & Gender, 2: Age, 3: Confirm)
   const [step, setStep] = useState<number>(1);
 
-  // Tab for returning user: 'learning' (Hồ sơ & Lộ trình) | 'appearance' (Màu sắc & Thú cưng)
-  const [activeTab, setActiveTab] = useState<'learning' | 'appearance'>('learning');
+  // Tab for returning user: 'learning' (Hồ sơ & Lộ trình) | 'energy' (Mục tiêu học) | 'appearance' (Màu sắc & Thú cưng)
+  const [activeTab, setActiveTab] = useState<'learning' | 'energy' | 'appearance'>('learning');
 
   const [name, setName] = useState<string>(initialName);
   const [avatar, setAvatar] = useState<string>(initialAvatar || '🚀');
   const [gender, setGender] = useState<UserGender>(initialGender);
   const [themeStyle, setThemeStyle] = useState<ThemeStyle>(initialTheme);
   const [mascotId, setMascotId] = useState<MascotId>(initialMascotId);
+  const [dailyEnergyMode, setDailyEnergyMode] = useState<DailyEnergyMode>(initialDailyEnergyMode);
   const [avatarFilter, setAvatarFilter] = useState<'all' | 'girl' | 'boy' | 'neutral'>('all');
   const [showAvatarPicker, setShowAvatarPicker] = useState<boolean>(false);
   const [age, setAge] = useState<number>(initialAge || 8);
@@ -192,7 +198,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const defaultFallbackName = addressing.name;
     const finalName = name.trim() || (isFirstTime ? defaultFallbackName : 'Học Viên');
     soundFx.playClick();
-    onSave(finalName, avatar, age, selectedRealmId, gender, themeStyle, mascotId);
+    onSave(finalName, avatar, age, selectedRealmId, gender, themeStyle, mascotId, dailyEnergyMode);
   };
 
   const filteredAvatars = avatarFilter === 'all'
@@ -644,22 +650,38 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               </div>
             </div>
 
-            {/* TAB SELECTOR: (1) Lộ Trình Học vs (2) Giao Diện & Bạn Thú Cưng */}
-            <div className="grid grid-cols-2 p-1 bg-slate-950/90 rounded-2xl border border-slate-800">
+            {/* TAB SELECTOR: (1) Lộ Trình Học | (2) Năng Lượng & Mục Tiêu | (3) Giao Diện */}
+            <div className="grid grid-cols-3 p-1 bg-slate-950/90 rounded-2xl border border-slate-800">
               <button
                 type="button"
                 onClick={() => {
                   soundFx.playClick();
                   setActiveTab('learning');
                 }}
-                className={`py-2.5 px-3 rounded-xl font-game font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+                className={`py-2 px-2 rounded-xl font-game font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer ${
                   activeTab === 'learning'
                     ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>Cấp Độ & Lộ Trình</span>
+                <span>Lộ Trình</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  setActiveTab('energy');
+                }}
+                className={`py-2 px-2 rounded-xl font-game font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                  activeTab === 'energy'
+                    ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Zap className="w-4 h-4" />
+                <span>Năng Lượng ⚡</span>
               </button>
 
               <button
@@ -668,16 +690,70 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   soundFx.playClick();
                   setActiveTab('appearance');
                 }}
-                className={`py-2.5 px-3 rounded-xl font-game font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+                className={`py-2 px-2 rounded-xl font-game font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition cursor-pointer ${
                   activeTab === 'appearance'
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md font-extrabold'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <Palette className="w-4 h-4" />
-                <span>Màu Sắc & Bạn Đồng Hành</span>
+                <span>Giao Diện</span>
               </button>
             </div>
+
+            {/* ================= TAB 2: DAILY ENERGY GOAL ================= */}
+            {activeTab === 'energy' && (
+              <div className="space-y-3 text-left animate-in fade-in duration-200">
+                <div>
+                  <span className="text-xs font-bold text-yellow-300 uppercase tracking-wider block mb-1">
+                    Mục Tiêu Năng Lượng & Giới Hạn Học Mỗi Ngày ⚡:
+                  </span>
+                  <p className="text-xs text-slate-400">
+                    Phụ huynh & học viên có thể tùy chọn khối lượng học phù hợp để tránh mỏi mắt:
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  {(['relaxed', 'balanced', 'intense'] as DailyEnergyMode[]).map((mKey) => {
+                    const cfg = DAILY_ENERGY_CAPS[mKey];
+                    const isSelected = dailyEnergyMode === mKey;
+
+                    return (
+                      <button
+                        key={mKey}
+                        type="button"
+                        onClick={() => {
+                          soundFx.playClick();
+                          setDailyEnergyMode(mKey);
+                        }}
+                        className={`w-full p-3 rounded-2xl flex items-center justify-between transition cursor-pointer border-2 ${
+                          isSelected
+                            ? 'bg-yellow-500/20 border-yellow-400 text-white shadow-md'
+                            : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl sm:text-3xl">{cfg.icon}</span>
+                          <div>
+                            <div className={`font-game font-bold text-sm sm:text-base ${isSelected ? 'text-yellow-300' : 'text-white'}`}>
+                              {cfg.label} ({cfg.maxEnergy}⚡)
+                            </div>
+                            <div className="text-xs text-slate-400 mt-0.5">
+                              {cfg.subLabel}
+                            </div>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <div className="w-6 h-6 rounded-full bg-yellow-400 text-slate-950 flex items-center justify-center font-bold text-xs">
+                            ✓
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* ================= TAB 1: LEARNING AGE & REALM ================= */}
             {activeTab === 'learning' && (

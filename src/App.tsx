@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GameStats, EnemyItem } from './data/types';
-import { LevelNode, UserProgress, UserGender, ThemeStyle, MascotId } from './data/progress-types';
+import { LevelNode, UserProgress, UserGender, ThemeStyle, MascotId, DailyEnergyMode } from './data/progress-types';
 import {
   DifficultyLevel,
   DIFFICULTY_CONFIGS,
@@ -16,13 +16,17 @@ import {
   completeLevelProgress,
   deductHeart,
   refillHearts,
-  calculateLevelClearRewards
+  calculateLevelClearRewards,
+  getEnergyCostForLevel,
+  deductEnergy,
+  updateDailyEnergyMode
 } from './services/progressStorage';
 
 import { LearningPathView } from './components/path/LearningPathView';
 import { WarmupModal } from './components/modals/WarmupModal';
 import { ChestRewardModal } from './components/modals/ChestRewardModal';
 import { RefillHeartsModal } from './components/modals/RefillHeartsModal';
+import { EnergyModal } from './components/modals/EnergyModal';
 import { UserProfileModal } from './components/modals/UserProfileModal';
 import { ArmoryModal } from './components/modals/ArmoryModal';
 import { GameCanvas } from './game/GameCanvas';
@@ -58,6 +62,7 @@ export const App: React.FC = () => {
     return !saved.userName;
   });
   const [showArmoryModal, setShowArmoryModal] = useState<boolean>(false);
+  const [showEnergyModal, setShowEnergyModal] = useState<boolean>(false);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
     return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
@@ -121,23 +126,30 @@ export const App: React.FC = () => {
     realmId?: string,
     gender?: UserGender,
     themeStyle?: ThemeStyle,
-    mascotId?: MascotId
+    mascotId?: MascotId,
+    dailyEnergyMode?: DailyEnergyMode
   ) => {
     const targetRealm = realmId ? getRealmById(realmId) : getRealmByAge(userAge);
     const resolvedRealmId = targetRealm.id;
     const firstLevelOfRealm = targetRealm.units[0]?.levels[0]?.id || ALL_LEVELS[0].id;
 
-    handleUpdateProgress(prev => ({
-      ...prev,
-      userName: name,
-      avatar,
-      userAge,
-      gender: gender || prev.gender || 'neutral',
-      themeStyle: themeStyle || prev.themeStyle || 'cosmic_cyan',
-      mascotId: mascotId || prev.mascotId || 'cosmo_dog',
-      selectedRealmId: resolvedRealmId,
-      currentLevelId: (!prev.userName || prev.currentLevelId === ALL_LEVELS[0].id) ? firstLevelOfRealm : prev.currentLevelId
-    }));
+    handleUpdateProgress(prev => {
+      let updated: UserProgress = {
+        ...prev,
+        userName: name,
+        avatar,
+        userAge,
+        gender: gender || prev.gender || 'neutral',
+        themeStyle: themeStyle || prev.themeStyle || 'cosmic_cyan',
+        mascotId: mascotId || prev.mascotId || 'cosmo_dog',
+        selectedRealmId: resolvedRealmId,
+        currentLevelId: (!prev.userName || prev.currentLevelId === ALL_LEVELS[0].id) ? firstLevelOfRealm : prev.currentLevelId
+      };
+      if (dailyEnergyMode && dailyEnergyMode !== prev.dailyEnergyMode) {
+        updated = updateDailyEnergyMode(updated, dailyEnergyMode);
+      }
+      return updated;
+    });
     setShowProfileModal(false);
   };
 
@@ -165,6 +177,13 @@ export const App: React.FC = () => {
   };
 
   const handleStartBattle = () => {
+    const energyCost = getEnergyCostForLevel(selectedLevel.type);
+    if (progress.energy < energyCost) {
+      soundFx.playEnergyWarning();
+      setShowEnergyModal(true);
+      return;
+    }
+    handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
@@ -179,6 +198,13 @@ export const App: React.FC = () => {
   };
 
   const handleRestart = () => {
+    const energyCost = getEnergyCostForLevel(selectedLevel.type);
+    if (progress.energy < energyCost) {
+      soundFx.playEnergyWarning();
+      setShowEnergyModal(true);
+      return;
+    }
+    handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
     setStats({ ...INITIAL_STATS, clearedWordsList: [] });
     setActiveTarget(null);
@@ -280,6 +306,7 @@ export const App: React.FC = () => {
           onSelectLevel={handleSelectLevel}
           onUpdateProgress={handleUpdateProgress}
           onOpenRefillModal={() => setShowRefillModal(true)}
+          onOpenEnergyModal={() => setShowEnergyModal(true)}
           onOpenProfileModal={() => setShowProfileModal(true)}
           onOpenArmory={() => setShowArmoryModal(true)}
         />
@@ -342,6 +369,9 @@ export const App: React.FC = () => {
           onSelectDifficulty={handleSelectDifficulty}
           onOpenArmory={() => setShowArmoryModal(true)}
           equippedShipId={progress.equippedShipId}
+          energy={progress.energy}
+          dailyEnergyMode={progress.dailyEnergyMode}
+          onOpenEnergyModal={() => setShowEnergyModal(true)}
           onStartGame={handleStartBattle}
           onClose={handleGoToMap}
         />
@@ -413,7 +443,16 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 9. User Profile / Welcome Modal */}
+      {/* 9. Energy & Rest Recharge Modal */}
+      {showEnergyModal && (
+        <EnergyModal
+          progress={progress}
+          onUpdateProgress={handleUpdateProgress}
+          onClose={() => setShowEnergyModal(false)}
+        />
+      )}
+
+      {/* 10. User Profile / Welcome Modal */}
       {showProfileModal && (
         <UserProfileModal
           initialName={progress.userName}
@@ -423,13 +462,14 @@ export const App: React.FC = () => {
           initialGender={progress.gender || 'neutral'}
           initialTheme={progress.themeStyle || 'cosmic_cyan'}
           initialMascotId={progress.mascotId || 'cosmo_dog'}
+          initialDailyEnergyMode={progress.dailyEnergyMode || 'balanced'}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}
         />
       )}
 
-      {/* 10. Armory / Upgrade Shop Modal */}
+      {/* 11. Armory / Upgrade Shop Modal */}
       {showArmoryModal && (
         <ArmoryModal
           progress={progress}

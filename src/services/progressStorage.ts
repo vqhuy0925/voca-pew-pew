@@ -1,7 +1,19 @@
-import { UserProgress, LevelProgress } from '../data/progress-types';
+import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
+
+export const DAILY_ENERGY_CAPS: Record<DailyEnergyMode, { maxEnergy: number; label: string; subLabel: string; icon: string }> = {
+  relaxed: { maxEnergy: 60, label: 'Nhẹ Nhàng', subLabel: '15-20 phút • ~6 màn/ngày', icon: '🌿' },
+  balanced: { maxEnergy: 100, label: 'Tiêu Chuẩn', subLabel: '25-30 phút • ~10 màn/ngày (Khuyên Dùng)', icon: '🚀' },
+  intense: { maxEnergy: 150, label: 'Siêu Năng', subLabel: '40-50 phút • ~15 màn/ngày', icon: '🏆' }
+};
+
+export const getEnergyCostForLevel = (levelType?: string): number => {
+  if (levelType === 'BOSS_BATTLE') return 15;
+  if (levelType === 'CHEST_REWARD') return 0;
+  return 10;
+};
 
 const getTodayDateString = (): string => {
   const d = new Date();
@@ -56,6 +68,12 @@ export const getInitialUserProgress = (): UserProgress => {
     soundEnabled: true,
     speechEnabled: true,
     keyboardHintsEnabled: true,
+
+    // Energy & Daily Limit System ⚡
+    energy: 100,
+    maxEnergy: 100,
+    lastEnergyDate: today,
+    dailyEnergyMode: 'balanced',
 
     // Default Equipment
     equippedShipId: 'ship-scout',
@@ -214,6 +232,20 @@ export const loadUserProgress = (): UserProgress => {
     parsed.totalVisits = (parsed.totalVisits || 0) + 1;
     parsed.lastVisitTimestamp = Date.now();
     parsed.createdAt = parsed.createdAt || today;
+
+    // Ensure Energy & Daily Limits
+    const validModes: DailyEnergyMode[] = ['relaxed', 'balanced', 'intense'];
+    parsed.dailyEnergyMode = validModes.includes(parsed.dailyEnergyMode) ? parsed.dailyEnergyMode : 'balanced';
+    const targetMaxEnergy = DAILY_ENERGY_CAPS[parsed.dailyEnergyMode]?.maxEnergy || 100;
+    parsed.maxEnergy = targetMaxEnergy;
+
+    if (!parsed.lastEnergyDate || parsed.lastEnergyDate !== today) {
+      // New day: Full energy recharge! ⚡🔋
+      parsed.energy = targetMaxEnergy;
+      parsed.lastEnergyDate = today;
+    } else {
+      parsed.energy = typeof parsed.energy === 'number' ? Math.min(parsed.energy, targetMaxEnergy) : targetMaxEnergy;
+    }
 
     // Ensure equipment fields exist
     parsed.equippedShipId = parsed.equippedShipId || 'ship-scout';
@@ -393,6 +425,57 @@ export const equipItem = (
     equippedLaserId: itemType === 'laser' ? itemId : prev.equippedLaserId
   };
 
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const deductEnergy = (prev: UserProgress, amount: number): UserProgress => {
+  const updated: UserProgress = {
+    ...prev,
+    energy: Math.max(0, prev.energy - amount)
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const refillEnergyWithGems = (
+  prev: UserProgress,
+  gemCost: number,
+  energyAmount: number
+): UserProgress => {
+  if (prev.gems < gemCost) return prev;
+  const updated: UserProgress = {
+    ...prev,
+    gems: Math.max(0, prev.gems - gemCost),
+    energy: Math.min(prev.maxEnergy, prev.energy + energyAmount)
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const refillEnergyFromReview = (
+  prev: UserProgress,
+  energyGain: number
+): UserProgress => {
+  const updated: UserProgress = {
+    ...prev,
+    energy: Math.min(prev.maxEnergy, prev.energy + energyGain)
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const updateDailyEnergyMode = (
+  prev: UserProgress,
+  mode: DailyEnergyMode
+): UserProgress => {
+  const newMax = DAILY_ENERGY_CAPS[mode]?.maxEnergy || 100;
+  const updated: UserProgress = {
+    ...prev,
+    dailyEnergyMode: mode,
+    maxEnergy: newMax,
+    energy: Math.min(prev.energy, newMax)
+  };
   saveUserProgress(updated);
   return updated;
 };

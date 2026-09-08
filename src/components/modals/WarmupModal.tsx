@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { LevelNode, ThemeStyle } from '../../data/progress-types';
+import { LevelNode, ThemeStyle, DailyEnergyMode } from '../../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../../data/upgrade-types';
 import { THEME_CONFIGS } from '../../data/theme-types';
-import { Volume2, Play, X } from 'lucide-react';
+import { getEnergyCostForLevel } from '../../services/progressStorage';
+import { Volume2, Play, X, Zap } from 'lucide-react';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { soundFx } from '../../game/engine/SoundController';
 
@@ -13,6 +14,9 @@ interface WarmupModalProps {
   onSelectDifficulty?: (diff: DifficultyLevel) => void;
   onOpenArmory?: () => void;
   equippedShipId?: string;
+  energy?: number;
+  dailyEnergyMode?: DailyEnergyMode;
+  onOpenEnergyModal?: () => void;
   onStartGame: () => void;
   onClose: () => void;
 }
@@ -22,11 +26,16 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
   themeStyle = 'cosmic_cyan',
   selectedDifficulty = 'NORMAL',
   onSelectDifficulty,
+  energy = 100,
+  dailyEnergyMode = 'balanced',
+  onOpenEnergyModal,
   onStartGame,
   onClose
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const [playingId, setPlayingId] = React.useState<string | null>(null);
+  const energyCost = getEnergyCostForLevel(level.type);
+  const hasEnoughEnergy = energy >= energyCost;
 
   useEffect(() => {
     if (level.words.length > 0) {
@@ -45,6 +54,13 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
   };
 
   const handleStart = () => {
+    if (!hasEnoughEnergy) {
+      soundFx.playEnergyWarning();
+      if (onOpenEnergyModal) {
+        onOpenEnergyModal();
+      }
+      return;
+    }
     soundFx.playClick();
     onStartGame();
   };
@@ -66,11 +82,18 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         </button>
 
         {/* Header */}
-        <div className="text-left mb-5">
-          <div className={`text-xs sm:text-sm font-black ${theme.textColor} uppercase tracking-wide`}>
-            Màn {level.levelNumber}
+        <div className="text-left mb-5 pr-12">
+          <div className="flex items-center gap-2.5">
+            <span className={`text-xs sm:text-sm font-black ${theme.textColor} uppercase tracking-wide`}>
+              Màn {level.levelNumber}
+            </span>
+            {/* Energy Cost Tag */}
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-400/30 text-xs font-black">
+              <Zap className="w-3.5 h-3.5 fill-yellow-400" />
+              <span>-{energyCost}⚡</span>
+            </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black font-game text-white mt-0.5">
+          <h2 className="text-2xl sm:text-3xl font-black font-game text-white mt-1">
             {level.titleVi}
           </h2>
           <p className="text-sm text-slate-300 mt-1">
@@ -154,14 +177,24 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
           })}
         </div>
 
-        {/* Action Button: Start Game */}
-        <button
-          onClick={handleStart}
-          className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
-        >
-          <Play className="w-5 h-5 fill-slate-950" />
-          <span>BẮT ĐẦU CHƠI</span>
-        </button>
+        {/* Action Button: Start Game or Recharge Energy */}
+        {hasEnoughEnergy ? (
+          <button
+            onClick={handleStart}
+            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
+          >
+            <Play className="w-5 h-5 fill-slate-950" />
+            <span>BẮT ĐẦU CHƠI (-{energyCost}⚡)</span>
+          </button>
+        ) : (
+          <button
+            onClick={handleStart}
+            className="w-full py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl shadow-lg border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer animate-pulse"
+          >
+            <Zap className="w-5 h-5 fill-slate-950" />
+            <span>HẾT NĂNG LƯỢNG • BẤM ĐỂ NẠP / NGHỈ NGƠI ⚡</span>
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Palette } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -9,6 +9,7 @@ interface TopNavBarProps {
   progress: UserProgress;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal?: () => void;
+  onOpenEnergyModal?: () => void;
   onOpenProfileModal?: () => void;
   onOpenArmory?: () => void;
 }
@@ -17,6 +18,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   progress,
   onUpdateProgress,
   onOpenRefillModal,
+  onOpenEnergyModal,
   onOpenProfileModal,
   onOpenArmory
 }) => {
@@ -85,6 +87,23 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400" />
             <span>{progress.streakDays}</span>
           </div>
+
+          {/* Energy Reactor Pill ⚡ */}
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              if (onOpenEnergyModal) onOpenEnergyModal();
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl font-game font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer border ${
+              progress.energy <= 15
+                ? 'bg-rose-500/15 border-rose-400/50 text-rose-300 hover:bg-rose-500/25 animate-pulse'
+                : 'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-400/30 text-yellow-300 hover:border-yellow-400/50'
+            }`}
+            title="Năng lượng học tập hôm nay (Bấm để xem/nạp)"
+          >
+            <Zap className={`w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
+            <span>{`${progress.energy}⚡`}</span>
+          </button>
 
           {/* Gems */}
           <div

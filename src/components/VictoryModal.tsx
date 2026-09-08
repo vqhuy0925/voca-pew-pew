@@ -3,7 +3,7 @@ import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId, UserProgress } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
@@ -111,9 +111,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </h2>
           <span className="text-2xl">{gender === 'girl' ? '🌸' : gender === 'boy' ? '⚡' : '✨'}</span>
         </div>
-        <p className={`${theme.textColor} font-bold text-sm mt-0.5`}>
-          {level.titleVi} • Màn {level.levelNumber}
-        </p>
+        <div className="flex items-center justify-center gap-2 mt-1 flex-wrap">
+          <span className={`${theme.textColor} font-bold text-sm`}>
+            {level.titleVi} • Màn {level.levelNumber}
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 text-xs font-bold border border-yellow-400/30">
+            <Zap className="w-3 h-3 fill-yellow-400" />
+            <span>{progress.energy}⚡ còn lại</span>
+          </span>
+        </div>
 
         {/* Mascot Cheering Widget */}
         <div className="flex justify-center my-3">

@@ -23,6 +23,7 @@ interface LearningPathViewProps {
   onSelectLevel: (level: LevelNode) => void;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onOpenRefillModal: () => void;
+  onOpenEnergyModal?: () => void;
   onOpenProfileModal: () => void;
   onOpenArmory: () => void;
 }
@@ -35,6 +36,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onSelectLevel,
   onUpdateProgress,
   onOpenRefillModal,
+  onOpenEnergyModal,
   onOpenProfileModal,
   onOpenArmory
 }) => {
@@ -122,6 +124,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         progress={progress}
         onUpdateProgress={onUpdateProgress}
         onOpenRefillModal={onOpenRefillModal}
+        onOpenEnergyModal={onOpenEnergyModal}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}
       />
