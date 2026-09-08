@@ -12,7 +12,7 @@ interface Star {
 
 interface EnhancedLaser extends LaserBolt {
   beamWidth?: number;
-  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame';
+  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal';
   trailColor?: string;
   coreColor?: string;
 }
@@ -377,8 +377,106 @@ export class ParticleSystem {
 
         // Inner Yellow Core
         ctx.fillStyle = '#fef08a';
+      } else if (laser.particleType === 'heart') {
+        // 5. Love Nova Beam with Floating Pulsing Hearts
+        ctx.strokeStyle = laser.trailColor || 'rgba(236, 72, 153, 0.4)';
+        ctx.lineWidth = bWidth * 1.2;
+        ctx.shadowColor = '#f472b6';
+        ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(0, 0, bWidth * 0.7, 0, Math.PI * 2);
+        ctx.moveTo(laser.startX, laser.startY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Inner Core
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Heart Projectile Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.rotate(angle + Math.PI / 2);
+        ctx.fillStyle = '#f472b6';
+        ctx.shadowColor = '#fda4af';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(0, 4);
+        ctx.bezierCurveTo(-8, -6, -10, -12, 0, -16);
+        ctx.bezierCurveTo(10, -12, 8, -6, 0, 4);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-2, -8, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'sakura') {
+        // 6. Sakura Petal Stream
+        ctx.strokeStyle = laser.trailColor || 'rgba(251, 113, 133, 0.4)';
+        ctx.lineWidth = bWidth * 1.3;
+        ctx.shadowColor = '#fb7185';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(laser.startX, laser.startY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Fluttering Petal at the tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.rotate(angle + Math.PI / 2 + Math.sin(Date.now() * 0.01) * 0.5);
+        ctx.fillStyle = '#fda4af';
+        ctx.shadowColor = '#fb7185';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.bezierCurveTo(6, -4, 5, 6, 0, 9);
+        ctx.bezierCurveTo(-5, 6, -6, -4, 0, -9);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+      } else if (laser.particleType === 'crystal') {
+        // 7. Diamond Prism Laser
+        ctx.strokeStyle = laser.trailColor || 'rgba(168, 85, 247, 0.4)';
+        ctx.lineWidth = bWidth * 1.4;
+        ctx.shadowColor = '#c084fc';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(laser.startX, laser.startY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // White core
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        // Rotating Crystal Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.rotate(Date.now() * 0.01);
+        ctx.fillStyle = '#e879f9';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.lineTo(7, 0);
+        ctx.lineTo(0, 9);
+        ctx.lineTo(-7, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 

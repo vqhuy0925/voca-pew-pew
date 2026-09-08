@@ -1,36 +1,53 @@
 import React from 'react';
 import { GameStats } from '../data/types';
-import { LevelNode } from '../data/progress-types';
+import { LevelNode, UserGender, ThemeStyle, MascotId } from '../data/progress-types';
+import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
 import { RotateCcw, Map, Heart } from 'lucide-react';
 import { soundFx } from '../game/engine/SoundController';
+import { MascotWidget } from './mascot/MascotWidget';
 
 interface GameOverModalProps {
   stats: GameStats;
   level: LevelNode;
   userName?: string;
   avatar?: string;
+  gender?: UserGender;
+  themeStyle?: ThemeStyle;
+  mascotId?: MascotId;
   onRestart: () => void;
   onGoToMap: () => void;
 }
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   level,
+  userName,
+  avatar = '🚀',
+  gender = 'neutral',
+  themeStyle = 'cosmic_cyan',
+  mascotId = 'cosmo_dog',
   onRestart,
   onGoToMap
 }) => {
+  const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
+  const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none">
-      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 to-[#181128] border-2 border-slate-700 rounded-3xl p-6 sm:p-7 shadow-2xl text-center">
-        {/* Oops Icon */}
-        <div className="w-20 h-20 mx-auto mb-3 bg-rose-500/15 border-2 border-rose-400/40 rounded-full flex items-center justify-center text-4xl shadow-inner">
-          🥺🚀
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none animate-in fade-in duration-200">
+      <div className={`relative w-full max-w-md bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_30px_${theme.glowColor}] text-center`}>
+        {/* Mascot Comforting Widget */}
+        <div className="flex justify-center mb-4">
+          <MascotWidget
+            mascotId={mascotId}
+            mood="oopsie"
+            customMessage={`Không sao cả ${userName || 'bạn ơi'}! ${mascot.name} luôn ở đây đồng hành cùng bạn! ❤️`}
+          />
         </div>
 
-        <h2 className="text-3xl font-black font-game text-rose-400 mb-1.5">
+        <h2 className="text-3xl font-black font-game text-rose-400 mb-1">
           KHÔNG SAO CẢ!
         </h2>
         <p className="text-slate-200 text-sm sm:text-base mb-6">
-          Hãy thử lại màn <span className="text-cyan-300 font-extrabold">{level.titleVi}</span> để vượt qua nhé!
+          Hãy cùng {avatar} thử lại màn <span className={`${theme.textColor} font-extrabold`}>{level.titleVi}</span> để vượt qua nhé!
         </p>
 
         {/* Action Buttons */}
@@ -40,7 +57,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className="w-full py-4 bg-gradient-to-r from-cyan-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 border-teal-600 active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer"
+            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
           >
             <RotateCcw className="w-5 h-5 stroke-[3]" />
             <span>THỬ LẠI NGAY</span>
@@ -61,3 +78,4 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
     </div>
   );
 };
+

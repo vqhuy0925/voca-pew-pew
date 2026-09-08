@@ -180,6 +180,15 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           grad.addColorStop(1, '#c084fc');
           ctx.strokeStyle = grad;
           ctx.shadowColor = '#38bdf8';
+        } else if (l.particleType === 'heart') {
+          ctx.strokeStyle = '#ec4899';
+          ctx.shadowColor = '#f472b6';
+        } else if (l.particleType === 'sakura') {
+          ctx.strokeStyle = '#fb7185';
+          ctx.shadowColor = '#fda4af';
+        } else if (l.particleType === 'crystal') {
+          ctx.strokeStyle = '#c084fc';
+          ctx.shadowColor = '#e879f9';
         } else if (l.particleType === 'lightning') {
           ctx.strokeStyle = '#facc15';
           ctx.shadowColor = '#fef08a';
@@ -630,6 +639,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         {/* Bottom Mascot Tip */}
         <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
           <MascotWidget
+            mascotId={progress.mascotId}
             mood="happy"
             customMessage="Chăm chỉ học thêm nhiều từ vựng để mở khóa trọn bộ siêu tàu vũ trụ nhé! 🚀"
           />

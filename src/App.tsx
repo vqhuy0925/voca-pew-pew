@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GameStats, EnemyItem } from './data/types';
-import { LevelNode, UserProgress } from './data/progress-types';
+import { LevelNode, UserProgress, UserGender, ThemeStyle, MascotId } from './data/progress-types';
 import {
   DifficultyLevel,
   DIFFICULTY_CONFIGS,
@@ -8,6 +8,7 @@ import {
   getBlasterById,
   getLaserById
 } from './data/upgrade-types';
+import { THEME_CONFIGS } from './data/theme-types';
 import { ALL_LEVELS, getNextLevel, getRealmByAge, getRealmById } from './data/learning-path-data';
 import {
   loadUserProgress,
@@ -88,7 +89,15 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  const handleSaveProfile = (name: string, avatar: string, userAge: number, realmId?: string) => {
+  const handleSaveProfile = (
+    name: string,
+    avatar: string,
+    userAge: number,
+    realmId?: string,
+    gender?: UserGender,
+    themeStyle?: ThemeStyle,
+    mascotId?: MascotId
+  ) => {
     const targetRealm = realmId ? getRealmById(realmId) : getRealmByAge(userAge);
     const resolvedRealmId = targetRealm.id;
     const firstLevelOfRealm = targetRealm.units[0]?.levels[0]?.id || ALL_LEVELS[0].id;
@@ -98,6 +107,9 @@ export const App: React.FC = () => {
       userName: name,
       avatar,
       userAge,
+      gender: gender || prev.gender || 'neutral',
+      themeStyle: themeStyle || prev.themeStyle || 'cosmic_cyan',
+      mascotId: mascotId || prev.mascotId || 'cosmo_dog',
       selectedRealmId: resolvedRealmId,
       currentLevelId: (!prev.userName || prev.currentLevelId === ALL_LEVELS[0].id) ? firstLevelOfRealm : prev.currentLevelId
     }));
@@ -286,6 +298,7 @@ export const App: React.FC = () => {
                 timeRemaining={timeRemaining}
                 totalTime={totalLevelTime}
                 difficulty={progress.selectedDifficulty || 'NORMAL'}
+                themeStyle={progress.themeStyle}
                 isMuted={isMuted}
                 onToggleMute={handleToggleMute}
                 onPause={handlePause}
@@ -306,6 +319,7 @@ export const App: React.FC = () => {
       {screen === 'WARMUP' && (
         <WarmupModal
           level={selectedLevel}
+          themeStyle={progress.themeStyle}
           selectedDifficulty={progress.selectedDifficulty || 'NORMAL'}
           onSelectDifficulty={handleSelectDifficulty}
           onOpenArmory={() => setShowArmoryModal(true)}
@@ -345,6 +359,9 @@ export const App: React.FC = () => {
           timeRemaining={timeRemaining}
           userName={progress.userName}
           avatar={progress.avatar}
+          gender={progress.gender}
+          themeStyle={progress.themeStyle}
+          mascotId={progress.mascotId}
           onNextLevel={handleNextLevel}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
@@ -359,6 +376,9 @@ export const App: React.FC = () => {
           level={selectedLevel}
           userName={progress.userName}
           avatar={progress.avatar}
+          gender={progress.gender}
+          themeStyle={progress.themeStyle}
+          mascotId={progress.mascotId}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
         />
@@ -380,6 +400,9 @@ export const App: React.FC = () => {
           initialAvatar={progress.avatar}
           initialAge={progress.userAge || 8}
           initialRealmId={progress.selectedRealmId}
+          initialGender={progress.gender || 'neutral'}
+          initialTheme={progress.themeStyle || 'cosmic_cyan'}
+          initialMascotId={progress.mascotId || 'cosmo_dog'}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}

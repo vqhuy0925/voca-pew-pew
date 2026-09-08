@@ -36,6 +36,9 @@ export const getInitialUserProgress = (): UserProgress => {
   return {
     userName: '',
     avatar: '🚀',
+    gender: 'neutral',
+    themeStyle: 'cosmic_cyan',
+    mascotId: 'cosmo_dog',
     userAge: 8,
     selectedRealmId: 'realm-1',
     currentLevelId: ALL_LEVELS[0].id,
@@ -96,6 +99,9 @@ export const loadUserProgress = (): UserProgress => {
     // Ensure profile and visit tracking fields exist & track visit
     parsed.userName = parsed.userName ?? '';
     parsed.avatar = parsed.avatar || '🚀';
+    parsed.gender = parsed.gender || 'neutral';
+    parsed.themeStyle = parsed.themeStyle || 'cosmic_cyan';
+    parsed.mascotId = parsed.mascotId || 'cosmo_dog';
     parsed.userAge = parsed.userAge || 8;
     parsed.selectedRealmId = parsed.selectedRealmId || 'realm-1';
     parsed.totalVisits = (parsed.totalVisits || 0) + 1;

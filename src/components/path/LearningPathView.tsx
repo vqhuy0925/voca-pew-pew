@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { LEARNING_UNITS, ALL_LEVELS, AGE_REALMS, getRealmByChapterNumber, getRealmByAge, getRealmById } from '../../data/learning-path-data';
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { getSpaceshipById, getBlasterById, getLaserById } from '../../data/upgrade-types';
+import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
 import { LevelNodeButton } from './LevelNodeButton';
 import { TopNavBar } from './TopNavBar';
 import { MascotWidget } from '../mascot/MascotWidget';
@@ -21,7 +22,8 @@ import {
   Zap,
   Award,
   Compass,
-  RefreshCw
+  RefreshCw,
+  Palette
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 
@@ -45,6 +47,9 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenProfileModal,
   onOpenArmory
 }) => {
+  const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
+  const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
+
   // Derive active realm directly from user progress to always stay in sync
   const activeRealmId = progress.selectedRealmId || (progress.userAge ? getRealmByAge(progress.userAge).id : 'realm-1');
   const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
@@ -147,7 +152,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full overflow-y-auto bg-gradient-to-b from-[#090b1e] via-[#0d102b] to-[#080918] text-white select-none">
+    <div className={`relative w-full h-full overflow-y-auto bg-gradient-to-b ${theme.bgGradient} text-white select-none transition-colors duration-500`}>
       {/* Top Bar */}
       <TopNavBar
         progress={progress}
@@ -419,17 +424,21 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           <aside className="hidden xl:flex flex-col gap-5 w-72 2xl:w-80 flex-shrink-0 sticky top-20 self-start">
             {/* 1. Mascot Companion Widget Card */}
             <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-4.5 backdrop-blur-xl shadow-xl text-left">
-              <div className="text-xs font-game font-extrabold text-cyan-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-cyan-400" />
-                <span>Bạn Đồng Hành Cosmo</span>
+              <div className="text-xs font-game font-extrabold text-cyan-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span>Bạn Đồng Hành {mascot.name}</span>
+                </span>
+                <span className="text-base">{mascot.icon}</span>
               </div>
               <div className="flex justify-center py-2">
                 <MascotWidget
+                  mascotId={progress.mascotId}
                   mood="happy"
                   customMessage={
                     realmPercent > 50
                       ? `Tuyệt vời! Bạn đã vượt qua ${realmPercent}% cõi ${currentRealm.nameVi}! 🚀`
-                      : `Cùng chinh phục ${currentRealm.nameVi} để thu thập sao và nâng cấp chiến hạm nhé! ✨`
+                      : `Cùng ${mascot.name} chinh phục ${currentRealm.nameVi} để thu thập sao và kim cương nhé! ✨`
                   }
                 />
               </div>
@@ -517,7 +526,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       {/* Floating "Tiếp tục bài học" Quick Button */}
       <button
         onClick={handleJumpToCurrent}
-        className="fixed bottom-6 right-6 z-40 px-5 py-3.5 bg-gradient-to-r from-cyan-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 text-slate-950 font-game font-black text-sm sm:text-base rounded-2xl shadow-[0_10px_30px_rgba(0,240,255,0.4)] border border-white/60 flex items-center gap-2 cursor-pointer transition active:scale-95 hover:scale-105"
+        className={`fixed bottom-6 right-6 z-40 px-5 py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-base rounded-2xl shadow-[0_10px_30px_${theme.glowColor}] border border-white/60 flex items-center gap-2 cursor-pointer transition active:scale-95 hover:scale-105`}
         title="Nhảy tới bài học hiện tại"
       >
         <Target className="w-4 h-4 stroke-[3]" />

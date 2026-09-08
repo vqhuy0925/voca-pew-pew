@@ -1,8 +1,9 @@
 import React from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Palette } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
+import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
 
 interface TopNavBarProps {
   progress: UserProgress;
@@ -25,7 +26,12 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
     onUpdateProgress(p => ({ ...p, soundEnabled: !isMuted }));
   };
 
-  const displayName = progress.userName?.trim() || 'Phi Hành Gia';
+  const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
+  const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
+  const defaultFallbackName = progress.gender === 'girl' ? 'Công Chúa Nhỏ' : progress.gender === 'boy' ? 'Phi Hành Gia' : 'Nhà Thám Hiểm';
+  const displayName = progress.userName?.trim() || defaultFallbackName;
+
+  const genderBadge = progress.gender === 'girl' ? '💖' : progress.gender === 'boy' ? '⚡' : '🌟';
 
   return (
     <header className="sticky top-0 z-40 w-full bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3 shadow-md select-none">
@@ -34,16 +40,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onOpenProfileModal}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 transition cursor-pointer active:scale-95 group shadow-sm"
-            title="Đổi tên & nhân vật"
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:${theme.borderAccent} transition cursor-pointer active:scale-95 group shadow-sm`}
+            title="Đổi tên, phong cách, màu sắc & bạn đồng hành"
           >
-            <span className="text-2xl sm:text-3xl drop-shadow">{progress.avatar || '🚀'}</span>
+            <div className="relative">
+              <span className="text-2xl sm:text-3xl drop-shadow">{progress.avatar || '🚀'}</span>
+              <span className="absolute -bottom-1 -right-1 text-xs">{genderBadge}</span>
+            </div>
             <div className="text-left hidden sm:block">
-              <div className="font-game font-extrabold text-sm sm:text-base text-white group-hover:text-cyan-300 transition truncate max-w-[130px]">
+              <div className={`font-game font-extrabold text-sm sm:text-base text-white group-hover:${theme.textColor} transition truncate max-w-[130px]`}>
                 {displayName}
               </div>
-              <div className="text-xs text-cyan-400 font-bold">
-                {progress.userAge ? `${progress.userAge} tuổi` : 'Học viên'}
+              <div className="text-xs text-slate-400 font-bold flex items-center gap-1">
+                <span>{mascot.icon} {mascot.name}</span>
+                <span>•</span>
+                <span>{progress.userAge ? `${progress.userAge} tuổi` : 'Học viên'}</span>
               </div>
             </div>
           </button>

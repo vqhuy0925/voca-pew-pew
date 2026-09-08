@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
-import { LevelNode } from '../../data/progress-types';
+import { LevelNode, ThemeStyle } from '../../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../../data/upgrade-types';
+import { THEME_CONFIGS } from '../../data/theme-types';
 import { Volume2, Play, X } from 'lucide-react';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { soundFx } from '../../game/engine/SoundController';
 
 interface WarmupModalProps {
   level: LevelNode;
+  themeStyle?: ThemeStyle;
   selectedDifficulty?: DifficultyLevel;
   onSelectDifficulty?: (diff: DifficultyLevel) => void;
   onOpenArmory?: () => void;
@@ -17,11 +19,13 @@ interface WarmupModalProps {
 
 export const WarmupModal: React.FC<WarmupModalProps> = ({
   level,
+  themeStyle = 'cosmic_cyan',
   selectedDifficulty = 'NORMAL',
   onSelectDifficulty,
   onStartGame,
   onClose
 }) => {
+  const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const [playingId, setPlayingId] = React.useState<string | null>(null);
 
   useEffect(() => {
@@ -48,19 +52,19 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
   const difficulties: DifficultyLevel[] = ['EASY', 'NORMAL', 'HEROIC'];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-[#101438] border-2 border-slate-700 rounded-3xl p-6 sm:p-7 shadow-2xl text-center my-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
+      <div className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_35px_${theme.glowColor}] text-center my-4`}>
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer border border-slate-700"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
         <div className="text-left mb-5">
-          <div className="text-xs sm:text-sm font-black text-cyan-400 uppercase tracking-wide">
+          <div className={`text-xs sm:text-sm font-black ${theme.textColor} uppercase tracking-wide`}>
             Màn {level.levelNumber}
           </div>
           <h2 className="text-2xl sm:text-3xl font-black font-game text-white mt-0.5">
@@ -89,8 +93,8 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
                 onClick={(e) => handleSpeak(item.id, item.word, e)}
                 className={`relative p-3.5 rounded-2xl border cursor-pointer transition active:scale-95 flex group ${
                   isPlaying
-                    ? 'bg-cyan-950/60 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_20px_rgba(0,240,255,0.3)]'
-                    : 'bg-slate-950/80 hover:bg-slate-800/90 border-slate-800 hover:border-cyan-400/80'
+                    ? `${theme.cardBg} ${theme.borderAccent} ring-2 ring-white/30 shadow-md`
+                    : 'bg-slate-950/80 hover:bg-slate-800/90 border-slate-800 hover:border-slate-600'
                 } ${
                   isLong ? 'flex-row items-center text-left gap-3.5' : 'flex-col items-center text-center'
                 }`}
@@ -100,31 +104,16 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
                 </span>
 
                 <div className="flex-1 min-w-0">
-                  <div className={`font-game font-extrabold leading-tight ${
-                    isPlaying ? 'text-cyan-300' : 'text-white group-hover:text-cyan-300'
-                  } ${
-                    isLong ? 'text-sm sm:text-base' : 'text-lg sm:text-xl'
-                  }`}>
+                  <div className={`font-game font-bold ${isLong ? 'text-sm sm:text-base' : 'text-base sm:text-lg'} text-white group-hover:text-cyan-300 truncate`}>
                     {item.word}
                   </div>
-                  {item.pronunciation && (
-                    <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                      {item.pronunciation}
-                    </div>
-                  )}
-                  <div className={`font-bold text-yellow-300 mt-1 ${isLong ? 'text-xs sm:text-sm' : 'text-xs sm:text-sm'}`}>
+                  <div className="text-xs sm:text-sm text-yellow-300 font-medium truncate mt-0.5">
                     {item.meaningVi}
                   </div>
                 </div>
 
                 {/* Sound icon */}
-                <div className={`p-1.5 rounded-xl transition flex-shrink-0 ${
-                  isPlaying
-                    ? 'bg-cyan-500 text-slate-950 animate-pulse'
-                    : 'bg-slate-800/80 text-slate-400 group-hover:text-cyan-300'
-                } ${
-                  isLong ? 'ml-auto' : 'absolute top-2.5 right-2.5'
-                }`}>
+                <div className={`p-1.5 rounded-full ${isPlaying ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-400'} ml-auto self-center`}>
                   <Volume2 className="w-4 h-4" />
                 </div>
               </button>
@@ -165,7 +154,7 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         {/* Action Button: Start Game */}
         <button
           onClick={handleStart}
-          className="w-full py-4 bg-gradient-to-r from-cyan-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 text-slate-950 font-game font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 border-teal-600 active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer"
+          className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
         >
           <Play className="w-5 h-5 fill-slate-950" />
           <span>BẮT ĐẦU CHƠI</span>
@@ -174,4 +163,3 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
     </div>
   );
 };
-

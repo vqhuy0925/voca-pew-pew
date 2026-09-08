@@ -458,6 +458,351 @@ export const drawSpaceship = (
       ctx.fill();
       break;
     }
+
+    // ==========================================
+    // 6. STARLIGHT PEGASUS (Magical Winged Unicorn Ship)
+    // ==========================================
+    case 'pegasus': {
+      // Stardust Sparkle Trail Thrusters
+      [-12, 12].forEach((tx) => {
+        ctx.fillStyle = '#f472b6';
+        ctx.shadowColor = '#e879f9';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(tx - 4, 16);
+        ctx.lineTo(tx, 16 + flameHeight + 4);
+        ctx.lineTo(tx + 4, 16);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(tx, 16 + flameHeight * 0.4, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Angelic / Pegasus Feathered Wings
+      const wingFlap = Math.sin(now * 0.006) * 3;
+      ctx.fillStyle = '#3b0764';
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f472b6';
+      ctx.shadowBlur = 16;
+
+      // Left Wing
+      ctx.beginPath();
+      ctx.moveTo(-8, 2);
+      ctx.bezierCurveTo(-24, -14 + wingFlap, -38, -4 + wingFlap, -34, 14 + wingFlap);
+      ctx.lineTo(-24, 8);
+      ctx.lineTo(-20, 16);
+      ctx.lineTo(-10, 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Wing
+      ctx.beginPath();
+      ctx.moveTo(8, 2);
+      ctx.bezierCurveTo(24, -14 + wingFlap, 38, -4 + wingFlap, 34, 14 + wingFlap);
+      ctx.lineTo(24, 8);
+      ctx.lineTo(20, 16);
+      ctx.lineTo(10, 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Wing Feathers Detail Lines
+      ctx.strokeStyle = '#fbcfe8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-12, 4);
+      ctx.lineTo(-28, 4 + wingFlap);
+      ctx.moveTo(12, 4);
+      ctx.lineTo(28, 4 + wingFlap);
+      ctx.stroke();
+
+      // Sleek Pearlescent Fuselage
+      ctx.fillStyle = '#1e1035';
+      ctx.strokeStyle = '#e879f9';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -32);
+      ctx.bezierCurveTo(12, -18, 14, 8, 8, 18);
+      ctx.lineTo(-8, 18);
+      ctx.bezierCurveTo(-14, 8, -12, -18, 0, -32);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Golden Starlight Unicorn Horn
+      ctx.fillStyle = '#fde047';
+      ctx.shadowColor = '#fef08a';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.moveTo(0, -42);
+      ctx.lineTo(3.5, -30);
+      ctx.lineTo(-3.5, -30);
+      ctx.closePath();
+      ctx.fill();
+
+      // Pulsing Star Heart Cockpit Dome
+      ctx.fillStyle = '#f472b6';
+      ctx.shadowColor = '#f472b6';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(0, -6, 7.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-2, -8, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 7. CELESTIAL SAKURA (Floral Crystal Blossom Ship)
+    // ==========================================
+    case 'sakura': {
+      // Soft Rose Mist Thruster
+      ctx.fillStyle = '#fb7185';
+      ctx.shadowColor = '#fda4af';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.ellipse(0, 16 + flameHeight * 0.5, 12, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 5 Floating Rotating Sakura Petal Shields
+      const petalAngleOffset = now * 0.002;
+      for (let i = 0; i < 5; i++) {
+        const pAngle = (Math.PI * 2 * i) / 5 + petalAngleOffset;
+        const px = Math.cos(pAngle) * 26;
+        const py = Math.sin(pAngle) * 20;
+
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(pAngle + Math.PI / 2);
+        ctx.fillStyle = '#fda4af';
+        ctx.shadowColor = '#fb7185';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.bezierCurveTo(6, -4, 5, 6, 0, 9);
+        ctx.bezierCurveTo(-5, 6, -6, -4, 0, -9);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Blossom Bud Fuselage Hull
+      ctx.fillStyle = '#4c0519';
+      ctx.strokeStyle = '#fb7185';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.moveTo(0, -34);
+      ctx.bezierCurveTo(18, -12, 16, 12, 6, 18);
+      ctx.lineTo(-6, 18);
+      ctx.bezierCurveTo(-16, 12, -18, -12, 0, -34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Rose Gold Inlay Details
+      ctx.fillStyle = '#ffe4e6';
+      ctx.beginPath();
+      ctx.moveTo(0, -26);
+      ctx.lineTo(6, -10);
+      ctx.lineTo(0, -4);
+      ctx.lineTo(-6, -10);
+      ctx.closePath();
+      ctx.fill();
+
+      // Glowing Sakura Blossom Core
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#fb7185';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(0, -4, 5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 8. STARLIGHT DOLPHIN (Streamlined Cyan/Magenta Sea Glider)
+    // ==========================================
+    case 'aurora': {
+      // Aqua Plasma Jet Stream
+      ctx.fillStyle = '#2dd4bf';
+      ctx.shadowColor = '#5eead4';
+      ctx.shadowBlur = 20;
+      ctx.beginPath();
+      ctx.moveTo(-8, 16);
+      ctx.lineTo(0, 18 + flameHeight + 4);
+      ctx.lineTo(8, 16);
+      ctx.closePath();
+      ctx.fill();
+
+      // Curved Dolphin Flipper Wings
+      ctx.fillStyle = '#0f766e';
+      ctx.strokeStyle = '#2dd4bf';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#2dd4bf';
+      ctx.shadowBlur = 14;
+
+      // Left Flipper
+      ctx.beginPath();
+      ctx.moveTo(-10, -2);
+      ctx.bezierCurveTo(-24, 4, -34, 16, -26, 22);
+      ctx.bezierCurveTo(-20, 18, -14, 10, -10, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Flipper
+      ctx.beginPath();
+      ctx.moveTo(10, -2);
+      ctx.bezierCurveTo(24, 4, 34, 16, 26, 22);
+      ctx.bezierCurveTo(20, 18, 14, 10, 10, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Smooth Streamlined Hydro-Fuselage
+      ctx.fillStyle = '#042f2e';
+      ctx.strokeStyle = '#2dd4bf';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -36); // Dolphin nose
+      ctx.bezierCurveTo(14, -18, 16, 6, 8, 16);
+      ctx.lineTo(-8, 16);
+      ctx.bezierCurveTo(-16, 6, -14, -18, 0, -36);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Glowing Teal & Magenta Aurora Side Stripes
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, -24);
+      ctx.lineTo(-8, 6);
+      ctx.moveTo(0, -24);
+      ctx.lineTo(8, 6);
+      ctx.stroke();
+
+      // Crystal Ocean Visor
+      ctx.fillStyle = '#a7f3d0';
+      ctx.shadowColor = '#2dd4bf';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.ellipse(0, -10, 7, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 9. ASTRAL BUTTERFLY (Prismatic Neon Butterfly)
+    // ==========================================
+    case 'butterfly': {
+      // Soft Multicolored Fairy Dust Thruster
+      const dustAlpha = 0.6 + Math.sin(now * 0.01) * 0.3;
+      ctx.fillStyle = `rgba(232, 121, 249, ${dustAlpha})`;
+      ctx.shadowColor = '#e879f9';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(0, 18 + flameHeight * 0.4, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Butterfly Flapping Motion
+      const flapScale = 0.85 + Math.sin(now * 0.008) * 0.15;
+
+      // Double Wing Layers (Upper & Lower Wings)
+      ctx.save();
+      ctx.scale(flapScale, 1.0);
+
+      // Upper Left Wing
+      ctx.fillStyle = '#581c87';
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.moveTo(-6, -8);
+      ctx.bezierCurveTo(-26, -30, -42, -16, -34, 4);
+      ctx.lineTo(-6, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Upper Right Wing
+      ctx.beginPath();
+      ctx.moveTo(6, -8);
+      ctx.bezierCurveTo(26, -30, 42, -16, 34, 4);
+      ctx.lineTo(6, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Lower Left Wing
+      ctx.fillStyle = '#3b0764';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.moveTo(-6, 4);
+      ctx.bezierCurveTo(-30, 8, -34, 26, -14, 22);
+      ctx.lineTo(-4, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Lower Right Wing
+      ctx.beginPath();
+      ctx.moveTo(6, 4);
+      ctx.bezierCurveTo(30, 8, 34, 26, 14, 22);
+      ctx.lineTo(4, 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Wing Gem Eye Patterns
+      ctx.fillStyle = '#fde047';
+      ctx.shadowColor = '#facc15';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(-22, -12, 3.5, 0, Math.PI * 2);
+      ctx.arc(22, -12, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Slender Butterfly Body Chrysalis
+      ctx.fillStyle = '#2e1065';
+      ctx.strokeStyle = '#e879f9';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 6, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Antennae
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-2, -12);
+      ctx.quadraticCurveTo(-10, -22, -14, -28);
+      ctx.moveTo(2, -12);
+      ctx.quadraticCurveTo(10, -22, 14, -28);
+      ctx.stroke();
+
+      // Antenna Tips
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-14, -28, 2.5, 0, Math.PI * 2);
+      ctx.arc(14, -28, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
   }
 
   // ==========================================
@@ -526,7 +871,34 @@ export const drawMountedBlaster = (ctx: CanvasRenderingContext2D, blaster: Blast
       break;
     }
 
-    // 3. PLASMA TRI-CANNON
+    // 3. BLOSSOM STARBURST / PHÁO HOA SAO BĂNG
+    case 'blaster-starflower': {
+      [-22, 22].forEach(wx => {
+        // Floral Crystal Pod
+        ctx.fillStyle = '#4c0519';
+        ctx.strokeStyle = '#fb7185';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#fda4af';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(wx, -12, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Sakura Emitter Barrel
+        ctx.fillStyle = '#f43f5e';
+        ctx.fillRect(wx - 2.5, -28, 5, 16);
+
+        // Petal Muzzle Core
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(wx, -30, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      break;
+    }
+
+    // 4. PLASMA TRI-CANNON
     case 'blaster-tri': {
       // Center Main Accelerator + 2 Outriggers
       // Center Heavy Plasma Core
@@ -566,7 +938,7 @@ export const drawMountedBlaster = (ctx: CanvasRenderingContext2D, blaster: Blast
       break;
     }
 
-    // 4. COSMIC STARBURST PRISM CANNONS
+    // 5. COSMIC STARBURST PRISM CANNONS
     case 'blaster-rainbow': {
       // Golden Prism Main Cannon + Twin Star Outriggers
       ctx.fillStyle = '#78350f';
@@ -668,7 +1040,70 @@ export const drawLaserPreview = (
       break;
     }
 
-    // 2. PINK PLASMA PULSE (Pulsing Energy Orbs)
+    // 2. LOVE NOVA PULSE (Floating Hearts)
+    case 'heart': {
+      const orbY = ((now * 0.04) % (h - 20)) + 10;
+      const cy = h - orbY;
+
+      // Glowing pink stream
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(236, 72, 153, 0.2)');
+      grad.addColorStop(1, '#ec4899');
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#f472b6';
+      ctx.shadowBlur = 16;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // Floating Heart Shape
+      ctx.fillStyle = '#f472b6';
+      ctx.shadowColor = '#fda4af';
+      ctx.shadowBlur = 16;
+      ctx.save();
+      ctx.translate(w / 2, cy);
+      const hScale = 0.8 + Math.sin(now * 0.01) * 0.15;
+      ctx.scale(hScale, hScale);
+      ctx.beginPath();
+      ctx.moveTo(0, 4);
+      ctx.bezierCurveTo(-8, -6, -10, -12, 0, -16);
+      ctx.bezierCurveTo(10, -12, 8, -6, 0, 4);
+      ctx.fill();
+      ctx.restore();
+      break;
+    }
+
+    // 3. SAKURA PETAL STREAM
+    case 'sakura': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(251, 113, 133, 0.2)');
+      grad.addColorStop(1, '#fb7185');
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#fb7185';
+      ctx.shadowBlur = 16;
+      ctx.lineWidth = 4.5;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // 3 Fluttering Cherry Blossom Petals
+      for (let i = 0; i < 3; i++) {
+        const py = ((now * 0.05 + i * 25) % (h - 20)) + 10;
+        const px = w / 2 + Math.sin(now * 0.005 + i * 2) * 10;
+        ctx.fillStyle = '#fda4af';
+        ctx.shadowColor = '#fb7185';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.ellipse(px, h - py, 6, 3.5, (now * 0.004) + i, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+    }
+
+    // 4. PINK PLASMA PULSE (Pulsing Energy Orbs)
     case 'plasma': {
       const orbY = (now * 0.05) % (h - 20) + 10;
       // Main Plasma Sphere
@@ -698,7 +1133,46 @@ export const drawLaserPreview = (
       break;
     }
 
-    // 3. GOLDEN LIGHTNING (Zig-Zag Electric Arcs)
+    // 5. DIAMOND CRYSTAL PRISM
+    case 'crystal': {
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(168, 85, 247, 0.3)');
+      grad.addColorStop(0.5, '#c084fc');
+      grad.addColorStop(1, '#ffffff');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 18;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // Rotating Crystal Diamond Head
+      ctx.save();
+      ctx.translate(w / 2, 12);
+      ctx.rotate(now * 0.005);
+      ctx.fillStyle = '#e879f9';
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.moveTo(0, -8);
+      ctx.lineTo(6, 0);
+      ctx.lineTo(0, 8);
+      ctx.lineTo(-6, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      break;
+    }
+
+    // 6. GOLDEN LIGHTNING (Zig-Zag Electric Arcs)
     case 'lightning': {
       ctx.strokeStyle = '#facc15';
       ctx.shadowColor = '#fef08a';
@@ -724,7 +1198,7 @@ export const drawLaserPreview = (
       break;
     }
 
-    // 4. RUBY MAGMA (Blazing Fireball Rocket)
+    // 7. RUBY MAGMA (Blazing Fireball Rocket)
     case 'flame': {
       const flameY = (now * 0.06) % (h - 20) + 10;
       const cy = h - flameY;
@@ -753,7 +1227,7 @@ export const drawLaserPreview = (
       break;
     }
 
-    // 5. RAINBOW COSMIC (Dynamic Color-Shifting Wave)
+    // 8. RAINBOW COSMIC (Dynamic Color-Shifting Wave)
     case 'rainbow': {
       const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
       grad.addColorStop(0, '#f43f5e');
@@ -803,11 +1277,23 @@ export const getBlasterMuzzleOrigins = (
         { x: shipX - 26 * scale, y: shipY - 26 * scale },
         { x: shipX + 26 * scale, y: shipY - 26 * scale }
       ];
+    case 'blaster-starflower':
+      return [
+        { x: shipX - 22 * scale, y: shipY - 30 * scale },
+        { x: shipX + 22 * scale, y: shipY - 30 * scale }
+      ];
+    case 'blaster-tri':
     case 'blaster-triple':
       return [
         { x: shipX - 26 * scale, y: shipY - 14 * scale },
         { x: shipX, y: shipY - 48 * scale },
         { x: shipX + 26 * scale, y: shipY - 14 * scale }
+      ];
+    case 'blaster-rainbow':
+      return [
+        { x: shipX - 28 * scale, y: shipY - 20 * scale },
+        { x: shipX, y: shipY - 48 * scale },
+        { x: shipX + 28 * scale, y: shipY - 20 * scale }
       ];
     case 'blaster-quad':
       return [
@@ -820,4 +1306,5 @@ export const getBlasterMuzzleOrigins = (
       return [{ x: shipX, y: shipY - 30 * scale }];
   }
 };
+
 

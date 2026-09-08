@@ -1,7 +1,8 @@
 import React from 'react';
 import { GameStats } from '../data/types';
-import { LevelNode } from '../data/progress-types';
+import { LevelNode, ThemeStyle } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
+import { THEME_CONFIGS } from '../data/theme-types';
 import { Heart, Sparkles, Volume2, VolumeX, Pause, Timer } from 'lucide-react';
 
 interface HUDProps {
@@ -13,6 +14,7 @@ interface HUDProps {
   timeRemaining?: number;
   totalTime?: number;
   difficulty?: DifficultyLevel;
+  themeStyle?: ThemeStyle;
   isMuted: boolean;
   onToggleMute: () => void;
   onPause: () => void;
@@ -27,10 +29,12 @@ export const HUD: React.FC<HUDProps> = ({
   timeRemaining,
   totalTime = 45,
   difficulty = 'NORMAL',
+  themeStyle = 'cosmic_cyan',
   isMuted,
   onToggleMute,
   onPause
 }) => {
+  const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   // Calculate progress percentage for the current lesson
   const progressPercent = totalWords > 0
     ? Math.min(100, Math.round((stats.wordsDefeated / totalWords) * 100))

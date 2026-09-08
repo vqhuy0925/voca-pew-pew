@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { GameStats } from '../data/types';
-import { LevelNode } from '../data/progress-types';
+import { LevelNode, UserGender, ThemeStyle, MascotId } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
+import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
 import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
+import { MascotWidget } from './mascot/MascotWidget';
 
 interface VictoryModalProps {
   stats: GameStats;
@@ -14,6 +16,9 @@ interface VictoryModalProps {
   timeRemaining?: number;
   userName?: string;
   avatar?: string;
+  gender?: UserGender;
+  themeStyle?: ThemeStyle;
+  mascotId?: MascotId;
   onNextLevel: () => void;
   onRestart: () => void;
   onGoToMap: () => void;
@@ -28,10 +33,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   timeRemaining = 0,
   userName,
   avatar = '🚀',
+  gender = 'neutral',
+  themeStyle = 'cosmic_cyan',
+  mascotId = 'cosmo_dog',
   onNextLevel,
   onRestart,
   onGoToMap
 }) => {
+  const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
+  const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
   let stars = 1;
   if (stats.stationHealth >= 80 && stats.accuracy >= 80) {
     stars = 3;
@@ -68,8 +78,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto select-none">
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 to-[#101438] border-2 border-slate-700 rounded-3xl p-6 sm:p-7 shadow-2xl text-center my-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto select-none animate-in fade-in duration-200">
+      <div className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-6 sm:p-7 shadow-[0_0_40px_${theme.glowColor}] text-center my-4`}>
         {/* 3 Stars Fanfare */}
         <div className="flex justify-center items-center gap-3 my-2">
           {[1, 2, 3].map((starIndex) => (
@@ -86,19 +96,32 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           ))}
         </div>
 
-        {/* Title */}
-        <h2 className="text-3xl sm:text-4xl font-black font-game text-white tracking-wide mt-2">
-          CHIẾN THẮNG!
-        </h2>
-        <p className="text-cyan-300 font-bold text-sm mt-0.5">
+        {/* Title & Learner Badge */}
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <span className="text-2xl">{avatar}</span>
+          <h2 className="text-3xl sm:text-4xl font-black font-game text-white tracking-wide">
+            CHIẾN THẮNG!
+          </h2>
+          <span className="text-2xl">{gender === 'girl' ? '🌸' : gender === 'boy' ? '⚡' : '✨'}</span>
+        </div>
+        <p className={`${theme.textColor} font-bold text-sm mt-0.5`}>
           {level.titleVi} • Màn {level.levelNumber}
         </p>
 
+        {/* Mascot Cheering Widget */}
+        <div className="flex justify-center my-3">
+          <MascotWidget
+            mascotId={mascotId}
+            mood="celebrating"
+            customMessage={`Hoan hô ${userName || 'bạn'}! ${mascot.name} tự hào về bạn lắm luôn! 🎉`}
+          />
+        </div>
+
         {/* Score & Rewards Summary */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 my-5">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 my-4">
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
             <div className="text-slate-400 text-xs font-bold uppercase">Điểm số</div>
-            <div className="text-xl sm:text-2xl font-black font-game text-cyan-400 mt-1">{stats.score}</div>
+            <div className={`text-xl sm:text-2xl font-black font-game ${theme.textColor} mt-1`}>{stats.score}</div>
           </div>
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
             <div className="text-slate-400 text-xs font-bold uppercase">Kinh nghiệm</div>
@@ -118,12 +141,12 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Word / Sentence Review Grid */}
         {level.words.length > 0 && (
-          <div className="text-left bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 mb-6">
+          <div className="text-left bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 mb-5">
             <div className="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2.5">
               {level.words.some(w => w.word.length > 20) ? 'Câu thoại đã chinh phục (Bấm để luyện nói):' : 'Từ vựng đã chinh phục:'}
             </div>
 
-            <div className={`max-h-44 overflow-y-auto pr-1 ${
+            <div className={`max-h-40 overflow-y-auto pr-1 ${
               level.words.some(w => w.word.length > 20) ? 'grid grid-cols-1 gap-2' : 'grid grid-cols-2 gap-2.5'
             }`}>
               {level.words.map((item) => {
@@ -134,20 +157,20 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                     onClick={(e) => handleSpeak(item.id, item.word, e)}
                     className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition text-left gap-2 ${
                       isPlaying
-                        ? 'bg-cyan-950/70 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.25)]'
-                        : 'bg-slate-900 border-slate-800 hover:border-cyan-400/60'
+                        ? `${theme.cardBg} ${theme.borderAccent} shadow-md`
+                        : 'bg-slate-900 border-slate-800 hover:border-slate-600'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
                       <span className="text-2xl flex-shrink-0">{item.emoji}</span>
                       <div className="truncate leading-tight flex-1 min-w-0">
-                        <div className={`font-extrabold text-xs sm:text-sm truncate ${isPlaying ? 'text-cyan-300' : 'text-white'}`}>
+                        <div className={`font-extrabold text-xs sm:text-sm truncate ${isPlaying ? theme.textColor : 'text-white'}`}>
                           {item.word}
                         </div>
                         <div className="text-[11px] sm:text-xs text-yellow-300 font-medium truncate">{item.meaningVi}</div>
                       </div>
                     </div>
-                    <Volume2 className={`w-4 h-4 flex-shrink-0 ml-1 ${isPlaying ? 'text-cyan-300 animate-pulse' : 'text-cyan-400'}`} />
+                    <Volume2 className={`w-4 h-4 flex-shrink-0 ml-1 ${isPlaying ? theme.textColor : 'text-slate-400'}`} />
                   </button>
                 );
               })}
@@ -163,7 +186,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 soundFx.playClick();
                 onNextLevel();
               }}
-              className="w-full py-4 bg-gradient-to-r from-cyan-400 to-teal-300 hover:from-cyan-300 hover:to-teal-200 text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 border-teal-600 active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer"
+              className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer`}
             >
               <span>MÀN TIẾP THEO</span>
               <ArrowRight className="w-5 h-5 stroke-[3]" />

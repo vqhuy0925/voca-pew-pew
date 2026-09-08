@@ -41,11 +41,20 @@ export interface LevelProgress {
   lastPlayedAt?: number;
 }
 
+export type UserGender = 'boy' | 'girl' | 'neutral';
+
+export type ThemeStyle = 'cosmic_cyan' | 'sweet_sakura' | 'galaxy_purple' | 'aurora_emerald' | 'solar_amber';
+
+export type MascotId = 'cosmo_dog' | 'luna_cat' | 'stella_unicorn' | 'pixel_robot' | 'spark_fox';
+
 export interface UserProgress {
   userName: string;         // Learner's name (e.g. 'Bé Bắp', 'Minh Trí')
-  avatar: string;           // Selected emoji avatar (e.g. '🚀', '🐱')
+  avatar: string;           // Selected emoji avatar (e.g. '🚀', '🦄', '🐱')
+  gender?: UserGender;      // 'boy' | 'girl' | 'neutral'
+  themeStyle?: ThemeStyle;  // App color & visual theme
+  mascotId?: MascotId;      // Companion mascot
   userAge?: number;         // 7 to 18
-  selectedRealmId?: string; // 'realm-1' to 'realm-6'
+  selectedRealmId?: string; // 'realm-1' to 'realm-8'
   currentLevelId: string;
   unlockedLevelIds: string[];
   levelProgressMap: Record<string, LevelProgress>;
@@ -69,3 +78,4 @@ export interface UserProgress {
   unlockedUpgradeIds: string[];
   selectedDifficulty: DifficultyLevel;
 }
+
