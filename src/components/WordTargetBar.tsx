@@ -12,7 +12,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   if (!target) {
     return (
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none">
-        <div className="bg-slate-950/70 backdrop-blur-md border border-cyan-500/30 rounded-full px-4 py-1.5 text-cyan-300 text-xs font-game font-bold flex items-center gap-1.5 shadow-md">
+        <div className="bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 rounded-full px-5 py-2 text-cyan-300 text-xs sm:text-sm font-game font-extrabold flex items-center gap-2 shadow-lg">
           <span>Gõ chữ cái đầu tiên để ngắm bắn 🎯</span>
         </div>
       </div>
@@ -27,13 +27,13 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
 
   return (
     <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none">
-      <div className="bg-slate-950/90 backdrop-blur-xl border-2 border-cyan-400/80 rounded-2xl px-5 py-2.5 shadow-[0_4px_25px_rgba(0,240,255,0.3)] flex items-center gap-3.5 transition-all">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-3xl px-6 py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-4 transition-all">
         {/* Emoji */}
-        <span className="text-3xl sm:text-4xl flex-shrink-0">{target.emoji}</span>
+        <span className="text-4xl sm:text-5xl flex-shrink-0 drop-shadow">{target.emoji}</span>
 
         <div>
           {/* Letters display */}
-          <div className="flex items-center gap-1 font-game text-3xl sm:text-4xl font-extrabold tracking-wider leading-none">
+          <div className="flex items-center gap-1.5 font-game text-3xl sm:text-5xl font-black tracking-wider leading-none">
             {target.word.split('').map((char, index) => {
               const isTyped = index < target.typedIndex;
               const isCurrent = index === target.typedIndex;
@@ -41,12 +41,12 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
               return (
                 <span
                   key={index}
-                  className={`transition-all duration-100 inline-block uppercase ${
+                  className={`transition-all duration-100 inline-block uppercase drop-shadow-md ${
                     isTyped
-                      ? 'text-emerald-400 font-extrabold'
+                      ? 'text-emerald-400 font-black'
                       : isCurrent
-                      ? 'text-yellow-300 bg-yellow-400/20 px-1 rounded border border-yellow-400/80 animate-pulse'
-                      : 'text-slate-300'
+                      ? 'text-yellow-300 bg-yellow-400/20 px-1.5 rounded-lg border-2 border-yellow-400 animate-pulse'
+                      : 'text-slate-400'
                   }`}
                 >
                   {char}
@@ -56,7 +56,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
           </div>
 
           {/* Vietnamese meaning */}
-          <div className="text-xs sm:text-sm text-cyan-200 font-semibold mt-1">
+          <div className="text-sm sm:text-base text-cyan-200 font-bold mt-1.5 drop-shadow">
             {target.meaningVi}
           </div>
         </div>
@@ -64,10 +64,10 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
         {/* Pronounce audio button */}
         <button
           onClick={handleSpeak}
-          className="p-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 transition active:scale-95 cursor-pointer ml-1"
+          className="p-2.5 rounded-2xl bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 transition active:scale-95 cursor-pointer ml-1 shadow-sm"
           title="Nghe phát âm"
         >
-          <Volume2 className="w-5 h-5" />
+          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       </div>
     </div>

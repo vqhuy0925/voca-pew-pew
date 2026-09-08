@@ -42,49 +42,49 @@ export const HUD: React.FC<HUDProps> = ({
     : 100;
 
   return (
-    <div className="absolute top-0 left-0 right-0 p-2 sm:p-3 pointer-events-none flex flex-col z-20 select-none">
-      <div className="max-w-3xl mx-auto w-full flex items-center justify-between gap-2">
+    <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 pointer-events-none flex flex-col z-20 select-none">
+      <div className="max-w-4xl mx-auto w-full flex items-center justify-between gap-3">
         {/* Left: Pause & Level Badge */}
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2.5 pointer-events-auto">
           <button
             onClick={onPause}
-            className="p-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 rounded-xl transition text-slate-200 shadow-sm active:scale-95 cursor-pointer backdrop-blur-md"
+            className="p-2.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 rounded-2xl transition text-slate-200 shadow-md active:scale-95 cursor-pointer backdrop-blur-md"
             title="Tạm dừng"
           >
-            <Pause className="w-4 h-4 text-cyan-300" />
+            <Pause className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
           </button>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/80 border border-slate-700/80 rounded-xl backdrop-blur-md">
-            <span className="text-base">{level.icon}</span>
-            <span className="text-xs font-game font-extrabold text-white">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl backdrop-blur-md shadow-md">
+            <span className="text-xl sm:text-2xl">{level.icon}</span>
+            <span className="text-xs sm:text-sm font-game font-black text-white">
               Màn {level.levelNumber}
             </span>
           </div>
         </div>
 
         {/* Center: Sleek Dual Progress (Words & Timer) */}
-        <div className="flex-1 max-w-xs sm:max-w-sm pointer-events-auto flex flex-col gap-1 px-2">
+        <div className="flex-1 max-w-xs sm:max-w-md pointer-events-auto flex flex-col gap-1.5 px-2">
           {/* Progress bar */}
-          <div className="w-full h-2.5 bg-slate-950/80 rounded-full border border-slate-800 overflow-hidden flex items-center p-0.5">
+          <div className="w-full h-3 bg-slate-950/90 rounded-full border border-slate-800 overflow-hidden flex items-center p-0.5 shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transition-all duration-300"
+              className="h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(0,240,255,0.6)]"
               style={{ width: `${Math.max(5, progressPercent)}%` }}
             />
           </div>
 
           {/* Time Remaining Bar */}
           {timeRemaining !== undefined && (
-            <div className="flex items-center justify-between text-[11px] font-bold px-0.5">
-              <span className="text-slate-400">
+            <div className="flex items-center justify-between text-xs sm:text-sm font-bold px-1">
+              <span className="text-slate-300">
                 {stats.wordsDefeated}/{totalWords} từ
               </span>
 
               <span
                 className={`flex items-center gap-1 font-game ${
-                  isUrgent ? 'text-rose-400 animate-pulse font-extrabold' : 'text-cyan-300'
+                  isUrgent ? 'text-rose-400 animate-pulse font-black text-sm' : 'text-cyan-300 font-extrabold'
                 }`}
               >
-                <Timer className="w-3 h-3" />
+                <Timer className="w-3.5 h-3.5" />
                 {timeRemaining}s
               </span>
             </div>
@@ -92,31 +92,31 @@ export const HUD: React.FC<HUDProps> = ({
         </div>
 
         {/* Right: Hearts, Score & Mute */}
-        <div className="flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2 sm:gap-2.5 pointer-events-auto">
           {/* Hearts */}
-          <div className="flex items-center gap-1 bg-slate-900/80 border border-rose-500/40 rounded-xl px-2.5 py-1 backdrop-blur-md">
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span className="font-game font-bold text-xs text-rose-300">
+          <div className="flex items-center gap-1.5 bg-slate-900/90 border border-rose-500/40 rounded-2xl px-3 py-1.5 backdrop-blur-md shadow-md">
+            <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+            <span className="font-game font-black text-xs sm:text-sm text-rose-300">
               {hearts}/{maxHearts}
             </span>
           </div>
 
           {/* Score */}
-          <div className="flex items-center gap-1 bg-slate-900/80 border border-amber-400/40 rounded-xl px-2.5 py-1 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            <span className="font-game font-bold text-xs text-yellow-300">{stats.score}</span>
+          <div className="flex items-center gap-1.5 bg-slate-900/90 border border-amber-400/40 rounded-2xl px-3 py-1.5 backdrop-blur-md shadow-md">
+            <Sparkles className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+            <span className="font-game font-black text-xs sm:text-sm text-yellow-300">{stats.score}</span>
           </div>
 
           {/* Mute Button */}
           <button
             onClick={onToggleMute}
-            className="p-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-500 rounded-xl transition text-slate-200 shadow-sm active:scale-95 cursor-pointer backdrop-blur-md"
+            className="p-2.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-500 rounded-2xl transition text-slate-200 shadow-md active:scale-95 cursor-pointer backdrop-blur-md"
             title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
           >
             {isMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
+              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             )}
           </button>
         </div>

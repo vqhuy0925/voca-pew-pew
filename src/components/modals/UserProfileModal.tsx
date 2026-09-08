@@ -118,10 +118,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* 1. Age Selector */}
         <div className="mb-5 text-left">
-          <label className="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">
+          <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
             1. Chọn Độ Tuổi / Khối Lớp của bạn:
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {AGE_OPTIONS.map((item) => {
               const isSelected = age === item.age;
               return (
@@ -129,16 +129,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   key={item.age}
                   type="button"
                   onClick={() => handleSelectAge(item.age)}
-                  className={`p-2.5 rounded-xl flex items-center gap-2 text-left transition-all cursor-pointer border-2 ${
+                  className={`p-3 rounded-2xl flex items-center gap-2.5 text-left transition-all cursor-pointer border-2 ${
                     isSelected
-                      ? 'bg-cyan-500/30 border-cyan-400 scale-[1.02] shadow-[0_0_12px_rgba(0,240,255,0.4)]'
+                      ? 'bg-cyan-500/30 border-cyan-400 scale-[1.02] shadow-[0_0_15px_rgba(0,240,255,0.4)]'
                       : 'bg-slate-800/80 border-slate-700 hover:border-slate-500 hover:bg-slate-800'
                   }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-2xl">{item.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-white truncate">{item.label}</div>
-                    <div className="text-[10px] text-cyan-300 font-semibold">Chương {AGE_REALMS[item.realmNum - 1].startChapter}-{AGE_REALMS[item.realmNum - 1].endChapter}</div>
+                    <div className="text-xs sm:text-sm font-extrabold text-white truncate">{item.label}</div>
+                    <div className="text-[11px] text-cyan-300 font-bold">Chương {AGE_REALMS[item.realmNum - 1].startChapter}-{AGE_REALMS[item.realmNum - 1].endChapter}</div>
                   </div>
                 </button>
               );
@@ -146,15 +146,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           </div>
 
           {/* Target Realm Preview banner */}
-          <div className="mt-3 p-3 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-slate-900 border border-cyan-500/30 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">{targetRealm.icon}</span>
+          <div className="mt-3.5 p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/70 to-slate-900 border border-cyan-500/40 flex items-center justify-between text-xs sm:text-sm shadow-md">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{targetRealm.icon}</span>
               <div className="text-left">
-                <span className="font-bold text-cyan-300">{targetRealm.nameVi}</span> ({targetRealm.ageRange})
-                <div className="text-[11px] text-slate-300">{targetRealm.wordLengthHint} • Tốc độ mục tiêu: {targetRealm.targetWpm}</div>
+                <div className="font-extrabold text-cyan-300 text-sm">{targetRealm.nameVi} ({targetRealm.ageRange})</div>
+                <div className="text-xs text-slate-300 mt-0.5">{targetRealm.wordLengthHint} • Tốc độ mục tiêu: <span className="text-yellow-300 font-bold">{targetRealm.targetWpm}</span></div>
               </div>
             </div>
-            <div className="px-2.5 py-1 bg-cyan-500/20 border border-cyan-400/40 rounded-lg text-cyan-300 font-bold text-[11px]">
+            <div className="px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-xl text-cyan-300 font-extrabold text-xs">
               Chương {targetRealm.startChapter} - {targetRealm.endChapter}
             </div>
           </div>
@@ -162,7 +162,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* 2. Avatar Selector */}
         <div className="mb-5 text-left">
-          <label className="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">
+          <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
             2. Chọn biểu tượng phi hành gia:
           </label>
           <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -173,15 +173,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   key={item.emoji}
                   type="button"
                   onClick={() => handleSelectAvatar(item.emoji)}
-                  className={`p-2 rounded-xl flex flex-col items-center justify-center transition-all cursor-pointer border-2 ${
+                  className={`p-2.5 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer border-2 ${
                     isSelected
                       ? 'bg-cyan-500/30 border-cyan-400 scale-105 shadow-[0_0_12px_rgba(0,240,255,0.5)]'
                       : 'bg-slate-800/80 border-slate-700 hover:border-slate-500 hover:bg-slate-800'
                   }`}
                   title={item.label}
                 >
-                  <span className="text-2xl sm:text-3xl">{item.emoji}</span>
-                  <span className="text-[10px] font-semibold text-slate-300 truncate w-full text-center mt-1">
+                  <span className="text-2xl sm:text-3xl drop-shadow">{item.emoji}</span>
+                  <span className="text-xs font-bold text-slate-200 truncate w-full text-center mt-1">
                     {item.label}
                   </span>
                 </button>
@@ -192,7 +192,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
         {/* 3. Name Input Form */}
         <form onSubmit={handleSubmit} className="mb-5 text-left">
-          <label className="block text-xs font-bold uppercase tracking-wider text-cyan-300 mb-2">
+          <label className="block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
             3. Nhập tên hoặc biệt danh của bạn:
           </label>
           <div className="relative">
