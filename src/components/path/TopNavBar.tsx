@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Sparkles, Rocket } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 
@@ -28,87 +28,82 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   const displayName = progress.userName?.trim() || 'Phi Hành Gia';
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-900/90 backdrop-blur-md border-b-2 border-slate-800 px-3 sm:px-4 py-2.5 shadow-md select-none">
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
-        {/* App Logo & Player Profile */}
+    <header className="sticky top-0 z-40 w-full bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 py-2.5 shadow-sm select-none">
+      <div className="max-w-4xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+        {/* Left: Brand Logo & Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-xl sm:text-2xl shadow-md border-2 border-white/40 transform hover:rotate-6 transition flex-shrink-0">
-            🚀
-          </div>
-          <div className="hidden md:block">
-            <h1 className="font-game font-extrabold text-lg lg:text-xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-400 to-yellow-300 leading-tight">
-              VOCAB PEW PEW
-            </h1>
-            <span className="text-xs text-cyan-300 font-semibold">Space Adventure</span>
-          </div>
-
-          {/* Player Profile Chip */}
           <button
             onClick={onOpenProfileModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700/90 border-2 border-cyan-400/50 hover:border-cyan-300 rounded-2xl text-cyan-200 font-game font-bold text-sm shadow-sm transition active:scale-95 cursor-pointer max-w-[130px] sm:max-w-[170px]"
-            title="Hồ sơ phi hành gia (Bấm để đổi tên & biểu tượng)"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 transition cursor-pointer active:scale-95 group"
+            title="Đổi tên & nhân vật"
           >
-            <span className="text-base sm:text-lg">{progress.avatar || '🚀'}</span>
-            <span className="truncate">{displayName}</span>
+            <span className="text-xl sm:text-2xl">{progress.avatar || '🚀'}</span>
+            <div className="text-left hidden sm:block">
+              <div className="font-game font-extrabold text-xs text-white group-hover:text-cyan-300 transition truncate max-w-[110px]">
+                {displayName}
+              </div>
+              <div className="text-[10px] text-cyan-400 font-semibold">
+                {progress.userAge ? `${progress.userAge} tuổi` : 'Học viên'}
+              </div>
+            </div>
           </button>
         </div>
 
-        {/* Stats Pill Badges (Armory, Streak, Gems, Hearts, XP) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5">
-          {/* Armory Shop Quick Button */}
+        {/* Center/Right: Resource Status Pills */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Armory Shop Button */}
           {onOpenArmory && (
             <button
               onClick={() => {
                 soundFx.playClick();
                 onOpenArmory();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-pink-600/30 to-purple-600/30 hover:from-pink-600/50 hover:to-purple-600/50 border-2 border-pink-400/70 hover:border-pink-300 rounded-2xl text-pink-200 font-game font-extrabold text-xs sm:text-sm shadow-sm transition active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/40 rounded-xl text-purple-300 font-game font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer"
               title="Xưởng Nâng Cấp Tàu & Vũ Khí"
             >
-              <Rocket className="w-4 h-4 text-pink-400 animate-bounce" />
-              <span className="hidden sm:inline">Xưởng Nâng Cấp</span>
-              <span className="sm:hidden">Nâng Cấp</span>
+              <Rocket className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden md:inline">Xưởng Tàu</span>
             </button>
           )}
 
           {/* Daily Streak */}
           <div
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/15 border-2 border-amber-400/60 rounded-2xl text-amber-300 font-game font-bold text-sm sm:text-base shadow-sm"
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-500/10 border border-amber-400/30 rounded-xl text-amber-300 font-game font-bold text-xs sm:text-sm"
             title="Chuỗi ngày học liên tiếp"
           >
-            <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400 animate-pulse" />
+            <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
             <span>{progress.streakDays}</span>
           </div>
 
           {/* Gems */}
           <div
-            className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-cyan-500/15 border-2 border-cyan-400/60 rounded-2xl text-cyan-200 font-game font-bold text-sm sm:text-base shadow-sm"
-            title="Kim cương thưởng"
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-cyan-500/10 border border-cyan-400/30 rounded-xl text-cyan-200 font-game font-bold text-xs sm:text-sm"
+            title="Kim cương"
           >
-            <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400" />
+            <Gem className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400" />
             <span>{progress.gems}</span>
           </div>
 
-          {/* Hearts (Life system) */}
+          {/* Hearts */}
           <button
             onClick={onOpenRefillModal}
-            className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border-2 border-rose-400/60 rounded-2xl text-rose-300 font-game font-bold text-sm sm:text-base shadow-sm transition active:scale-95 cursor-pointer"
-            title="Trái tim mạng chơi (Bấm để nạp)"
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-400/30 rounded-xl text-rose-300 font-game font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer"
+            title="Mạng chơi (Bấm để nạp thêm)"
           >
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500 animate-bounce" />
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
             <span>{progress.hearts}/{progress.maxHearts}</span>
           </button>
 
-          {/* Audio Toggle */}
+          {/* Sound Toggle */}
           <button
             onClick={toggleSound}
-            className="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 hover:border-cyan-400 text-slate-300 hover:text-cyan-300 transition active:scale-95 shadow-sm"
+            className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white transition active:scale-95 cursor-pointer"
             title={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
           >
             {progress.soundEnabled ? (
-              <Volume2 className="w-4 h-4 text-cyan-400" />
+              <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
             ) : (
-              <VolumeX className="w-4 h-4 text-rose-400" />
+              <VolumeX className="w-3.5 h-3.5 text-rose-400" />
             )}
           </button>
         </div>

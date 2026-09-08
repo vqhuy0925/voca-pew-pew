@@ -371,24 +371,24 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Draw Particles & Floating Stars
     particleSys.draw(ctx);
 
-    // Draw Defense Shield Line (Bubbly glowing line)
+    // Draw Defense Shield Line (Clean glowing dash)
     const defenseY = h - 100;
     ctx.save();
     ctx.strokeStyle = equippedShip.glowColor || '#38bdf8';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 2.5;
     ctx.shadowColor = equippedShip.glowColor || '#38bdf8';
-    ctx.shadowBlur = 18;
-    ctx.setLineDash([14, 10]);
+    ctx.shadowBlur = 10;
+    ctx.setLineDash([12, 8]);
     ctx.beginPath();
-    ctx.moveTo(20, defenseY);
-    ctx.lineTo(w - 20, defenseY);
+    ctx.moveTo(16, defenseY);
+    ctx.lineTo(w - 16, defenseY);
     ctx.stroke();
 
-    // Defense Line Label
-    ctx.font = 'bold 15px Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.95)';
+    // Defense Line Label (Subtle & clean)
+    ctx.font = 'bold 12px Fredoka, sans-serif';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
     ctx.textAlign = 'right';
-    ctx.fillText('KHIÊN BẢO VỆ VŨ TRỤ 🛡️', w - 30, defenseY - 10);
+    ctx.fillText('🛡️ PHÒNG TUYẾN', w - 24, defenseY - 8);
     ctx.restore();
 
     // Draw Floating Enemies (Words)
