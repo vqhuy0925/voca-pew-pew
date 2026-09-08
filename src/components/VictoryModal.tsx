@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { GameStats } from '../data/types';
 import { LevelNode } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 
@@ -98,20 +98,20 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         <div className="grid grid-cols-3 gap-2 sm:gap-3 my-5">
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
             <div className="text-slate-400 text-xs font-bold uppercase">Điểm số</div>
-            <div className="text-xl sm:text-2xl font-black font-game text-cyan-400 mt-1">{score}</div>
+            <div className="text-xl sm:text-2xl font-black font-game text-cyan-400 mt-1">{stats.score}</div>
           </div>
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
             <div className="text-slate-400 text-xs font-bold uppercase">Kinh nghiệm</div>
             <div className="text-xl sm:text-2xl font-black font-game text-amber-400 mt-1 flex items-center justify-center gap-1">
               <Flame className="w-4 h-4 fill-current" />
-              <span>+{level.xpReward}</span>
+              <span>+{xpAwarded}</span>
             </div>
           </div>
           <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3">
             <div className="text-slate-400 text-xs font-bold uppercase">Kim cương</div>
             <div className="text-xl sm:text-2xl font-black font-game text-sky-400 mt-1 flex items-center justify-center gap-1">
               <Gem className="w-4 h-4 fill-current" />
-              <span>+{level.gemReward}</span>
+              <span>+{gemAwarded}</span>
             </div>
           </div>
         </div>

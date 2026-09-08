@@ -104,7 +104,7 @@ class SpeechHelper {
       if (!this.audioCache.has(url)) {
         try {
           const audio = new Audio();
-          audio.referrerPolicy = 'no-referrer';
+          (audio as unknown as HTMLElement).setAttribute('referrerpolicy', 'no-referrer');
           audio.src = url;
           audio.preload = 'auto';
           this.audioCache.set(url, audio);
@@ -157,7 +157,7 @@ class SpeechHelper {
       let audio = this.audioCache.get(url);
       if (!audio) {
         audio = new Audio();
-        audio.referrerPolicy = 'no-referrer';
+        (audio as unknown as HTMLElement).setAttribute('referrerpolicy', 'no-referrer');
         audio.src = url;
         audio.preload = 'auto';
         this.audioCache.set(url, audio);
