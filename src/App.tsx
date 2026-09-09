@@ -17,6 +17,7 @@ import {
   deductHeart,
   refillHearts,
   calculateLevelClearRewards,
+  ClearRewardBreakdown,
   getEnergyCostForLevel,
   deductEnergy,
   updateDailyEnergyMode
@@ -31,6 +32,7 @@ import { UserProfileModal } from './components/modals/UserProfileModal';
 import { ArmoryModal } from './components/modals/ArmoryModal';
 import { LeaderboardModal } from './components/modals/LeaderboardModal';
 import { AstronautCardModal } from './components/modals/AstronautCardModal';
+import { DiamondGuideModal } from './components/modals/DiamondGuideModal';
 import { LeaderboardEntry } from './services/firebase/leaderboardService';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
@@ -69,6 +71,8 @@ export const App: React.FC = () => {
   const [showEnergyModal, setShowEnergyModal] = useState<boolean>(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
   const [showAstronautCardModal, setShowAstronautCardModal] = useState<boolean>(false);
+  const [showDiamondGuideModal, setShowDiamondGuideModal] = useState<boolean>(false);
+  const [lastRewardBreakdown, setLastRewardBreakdown] = useState<ClearRewardBreakdown | null>(null);
   const [selectedCardPlayer, setSelectedCardPlayer] = useState<LeaderboardEntry | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
@@ -279,6 +283,7 @@ export const App: React.FC = () => {
       stats.accuracy,
       diff
     );
+    setLastRewardBreakdown(reward);
 
     handleUpdateProgress(prev =>
       completeLevelProgress(
@@ -335,6 +340,7 @@ export const App: React.FC = () => {
             setSelectedCardPlayer(null);
             setShowAstronautCardModal(true);
           }}
+          onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
         />
       )}
 
@@ -437,6 +443,7 @@ export const App: React.FC = () => {
           gender={progress.gender}
           themeStyle={progress.themeStyle}
           mascotId={progress.mascotId}
+          rewardBreakdown={lastRewardBreakdown || undefined}
           onNextLevel={handleNextLevel}
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
@@ -446,6 +453,7 @@ export const App: React.FC = () => {
             setSelectedCardPlayer(null);
             setShowAstronautCardModal(true);
           }}
+          onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
         />
       )}
 
@@ -507,6 +515,7 @@ export const App: React.FC = () => {
           progress={progress}
           onUpdateProgress={handleUpdateProgress}
           onClose={() => setShowArmoryModal(false)}
+          onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
         />
       )}
 
@@ -531,6 +540,18 @@ export const App: React.FC = () => {
           onClose={() => {
             setShowAstronautCardModal(false);
             setSelectedCardPlayer(null);
+          }}
+        />
+      )}
+
+      {/* 14. Diamond Guide Modal (Bí Kíp Săn Kim Cương 💎) */}
+      {showDiamondGuideModal && (
+        <DiamondGuideModal
+          progress={progress}
+          onClose={() => setShowDiamondGuideModal(false)}
+          onOpenArmory={() => {
+            setShowDiamondGuideModal(false);
+            setShowArmoryModal(true);
           }}
         />
       )}

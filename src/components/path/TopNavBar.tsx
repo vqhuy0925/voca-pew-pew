@@ -15,6 +15,7 @@ interface TopNavBarProps {
   onOpenArmory?: () => void;
   onOpenLeaderboard?: () => void;
   onOpenAstronautCard?: () => void;
+  onOpenDiamondGuide?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
@@ -25,7 +26,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenProfileModal,
   onOpenArmory,
   onOpenLeaderboard,
-  onOpenAstronautCard
+  onOpenAstronautCard,
+  onOpenDiamondGuide
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
 
@@ -153,13 +155,17 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </button>
 
           {/* Gems */}
-          <div
-            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-cyan-500/10 border border-cyan-400/30 border-b-2 border-b-cyan-900/50 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm"
-            title="Kim cương"
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              if (onOpenDiamondGuide) onOpenDiamondGuide();
+            }}
+            className="btn-3d flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-3 border-b-cyan-800 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm transition cursor-pointer"
+            title="Kim cương (Bấm để xem bí kíp kiếm kim cương 💎)"
           >
-            <Gem className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-cyan-400 fill-cyan-400" />
+            <Gem className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-cyan-400 fill-cyan-400 animate-pulse" />
             <span>{progress.gems}</span>
-          </div>
+          </button>
 
           {/* Hearts */}
           <button

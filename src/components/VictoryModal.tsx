@@ -7,7 +7,7 @@ import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckC
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
-import { calculateLevelClearRewards } from '../services/progressStorage';
+import { calculateLevelClearRewards, ClearRewardBreakdown } from '../services/progressStorage';
 
 interface VictoryModalProps {
   stats: GameStats;
@@ -21,12 +21,14 @@ interface VictoryModalProps {
   gender?: UserGender;
   themeStyle?: ThemeStyle;
   mascotId?: MascotId;
+  rewardBreakdown?: ClearRewardBreakdown;
   onNextLevel: () => void;
   onRestart: () => void;
   onGoToMap: () => void;
   onOpenArmory?: () => void;
   onOpenLeaderboard?: () => void;
   onOpenAstronautCard?: () => void;
+  onOpenDiamondGuide?: () => void;
 }
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
@@ -40,16 +42,18 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   gender = 'neutral',
   themeStyle = 'cosmic_cyan',
   mascotId = 'cosmo_dog',
+  rewardBreakdown,
   onNextLevel,
   onRestart,
   onGoToMap,
   onOpenLeaderboard,
-  onOpenAstronautCard
+  onOpenAstronautCard,
+  onOpenDiamondGuide
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
 
-  const reward = calculateLevelClearRewards(
+  const reward = rewardBreakdown || calculateLevelClearRewards(
     progress,
     level,
     stats.stationHealth,
@@ -71,7 +75,12 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         soundFx.playStarPop(i);
       }, 400 + i * 300);
     }
-  }, [stars, level]);
+    if (gemAwarded > 0) {
+      setTimeout(() => {
+        soundFx.playGemPickup();
+      }, 400 + stars * 300 + 200);
+    }
+  }, [stars, level, gemAwarded]);
 
   const [playingId, setPlayingId] = React.useState<string | null>(null);
 
@@ -159,44 +168,62 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Diamond Reward Breakdown Box */}
-        {gemAwarded > 0 ? (
-          <div className="bg-sky-950/40 border border-sky-500/40 rounded-2xl p-3 mb-4 text-left">
-            <div className="text-xs text-sky-300 font-extrabold uppercase flex items-center gap-1.5 mb-2">
+        <div className="bg-sky-950/40 border border-sky-500/40 rounded-2xl p-3.5 mb-4 text-left">
+          <div className="text-xs text-sky-300 font-extrabold uppercase flex items-center justify-between gap-1.5 mb-2.5">
+            <div className="flex items-center gap-1.5">
               <Award className="w-3.5 h-3.5" /> Chi Tiết Thưởng Kim Cương:
             </div>
-            <div className="space-y-1 text-xs text-slate-200">
-              {reward.isFirstClear && reward.baseGems > 0 && (
-                <div className="flex justify-between items-center">
-                  <span>✨ Vượt màn lần đầu:</span>
-                  <span className="font-bold text-sky-300">+{reward.baseGems} 💎</span>
-                </div>
-              )}
-              {reward.starBonusGems > 0 && (
-                <div className="flex justify-between items-center">
-                  <span>🌟 3 Sao xuất sắc:</span>
-                  <span className="font-bold text-yellow-300">+{reward.starBonusGems} 💎</span>
-                </div>
-              )}
-              {reward.accuracyBonusGems > 0 && (
-                <div className="flex justify-between items-center">
-                  <span>🎯 Chính xác 100%:</span>
-                  <span className="font-bold text-emerald-300">+{reward.accuracyBonusGems} 💎</span>
-                </div>
-              )}
-              {reward.heroicBonusGems > 0 && (
-                <div className="flex justify-between items-center">
-                  <span>🔥 Thử thách Heroic:</span>
-                  <span className="font-bold text-rose-300">+{reward.heroicBonusGems} 💎</span>
-                </div>
-              )}
-            </div>
+            {onOpenDiamondGuide && (
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  onOpenDiamondGuide();
+                }}
+                className="text-[11px] text-cyan-300 hover:text-cyan-100 font-bold flex items-center gap-1 cursor-pointer bg-cyan-500/20 px-2 py-0.5 rounded-lg border border-cyan-400/40"
+              >
+                <span>💡 Bí kíp 💎</span>
+              </button>
+            )}
           </div>
-        ) : (
-          <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-2.5 mb-4 text-xs text-slate-400 flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Đã hoàn thành trước đó • Nhận <strong>+{xpAwarded} XP</strong> rèn luyện!</span>
+          <div className="space-y-1.5 text-xs text-slate-200">
+            {reward.starBonusGems > 0 && (
+              <div className="flex justify-between items-center bg-slate-900/60 px-2.5 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                  <span>Đạt {stars} Sao xuất sắc:</span>
+                </span>
+                <span className="font-orbitron font-extrabold text-yellow-300">+{reward.starBonusGems} 💎</span>
+              </div>
+            )}
+            {reward.isFirstClear && (reward.firstClearBonusGems || reward.baseGems) > 0 && (
+              <div className="flex justify-between items-center bg-slate-900/60 px-2.5 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Mở khóa màn chơi mới:</span>
+                </span>
+                <span className="font-orbitron font-extrabold text-sky-300">+{reward.firstClearBonusGems || reward.baseGems} 💎</span>
+              </div>
+            )}
+            {reward.accuracyBonusGems > 0 && (
+              <div className="flex justify-between items-center bg-slate-900/60 px-2.5 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1.5">
+                  <span>🎯</span>
+                  <span>Xạ thủ chuẩn xác ({stats.accuracy}%):</span>
+                </span>
+                <span className="font-orbitron font-extrabold text-emerald-300">+{reward.accuracyBonusGems} 💎</span>
+              </div>
+            )}
+            {reward.heroicBonusGems > 0 && (
+              <div className="flex justify-between items-center bg-slate-900/60 px-2.5 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1.5">
+                  <span>🔥</span>
+                  <span>Thử thách Heroic:</span>
+                </span>
+                <span className="font-orbitron font-extrabold text-rose-300">+{reward.heroicBonusGems} 💎</span>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Leaderboard Rank Boost Banner */}
         <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-2.5 mb-4 flex items-center justify-between gap-2 text-left">

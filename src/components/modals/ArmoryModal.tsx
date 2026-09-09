@@ -23,6 +23,7 @@ interface ArmoryModalProps {
   progress: UserProgress;
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onClose: () => void;
+  onOpenDiamondGuide?: () => void;
 }
 
 type TabType = 'SHIPS' | 'BLASTERS' | 'LASERS';
@@ -127,7 +128,8 @@ const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = 
 export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   progress,
   onUpdateProgress,
-  onClose
+  onClose,
+  onOpenDiamondGuide
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('SHIPS');
   const [rarityFilter, setRarityFilter] = useState<RarityFilterType>('ALL');
@@ -342,13 +344,23 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border-2 border-cyan-400 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenDiamondGuide) onOpenDiamondGuide();
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border-2 border-cyan-400 hover:border-cyan-300 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)] transition active:scale-95 cursor-pointer"
+              title="Bấm để xem Bí kíp săn Kim Cương 💎"
+            >
               <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-bounce" />
               <div className="text-right">
-                <div className="text-[10px] text-slate-400 font-bold uppercase font-orbitron">Kim Cương</div>
+                <div className="text-[10px] text-cyan-300 font-bold uppercase font-orbitron flex items-center gap-1">
+                  <span>Kim Cương</span>
+                  <span className="text-[9px] bg-cyan-500/30 px-1 rounded">Bí kíp 💡</span>
+                </div>
                 <div className="text-lg font-extrabold font-orbitron text-white tracking-wide">{progress.gems} 💎</div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

@@ -111,6 +111,7 @@ export const getStreakBonusGems = (streakDays: number): number => {
 export interface ClearRewardBreakdown {
   isFirstClear: boolean;
   baseGems: number;
+  firstClearBonusGems: number;
   starBonusGems: number;
   accuracyBonusGems: number;
   heroicBonusGems: number;
@@ -149,50 +150,42 @@ export const calculateLevelClearRewards = (
   const diffMultiplier = difficulty === 'HEROIC' ? 1.8 : difficulty === 'EASY' ? 1.0 : 1.25;
   const totalXpEarned = Math.round(level.xpReward * diffMultiplier);
 
-  let baseGems = 0;
-  let starBonusGems = 0;
-  let accuracyBonusGems = 0;
-  let heroicBonusGems = 0;
+  // 1. Star Reward: Every round awards 1 gem per star (1⭐ = +1💎, 2⭐ = +2💎, 3⭐ = +3💎)
+  // This guarantees learners always receive gems for their effort, even when practicing old lessons!
+  const starBonusGems = starsEarned;
 
+  // 2. First Clear Bonus: Big rewards for discovering new territory
+  let firstClearBonusGems = 0;
   if (isFirstClear) {
     if (level.type === 'CHEST_REWARD') {
-      baseGems = 15;
+      firstClearBonusGems = 15;
     } else if (level.type === 'BOSS_BATTLE') {
-      baseGems = 7;
+      firstClearBonusGems = 8;
     } else if (level.type === 'SPEED_RUSH') {
-      baseGems = 4;
+      firstClearBonusGems = 4;
     } else {
-      baseGems = 2;
-    }
-
-    if (starsEarned === 3) {
-      starBonusGems = 1;
-    }
-  } else {
-    // Replay mode: No base diamond inflation
-    if (newStarsEarned > 0) {
-      starBonusGems = newStarsEarned; // 1 gem per newly earned star
+      firstClearBonusGems = 2;
     }
   }
 
-  // Bonus for 100% accuracy (zero mistypes)
-  if (accuracy >= 100) {
+  // 3. Accuracy Bonus: +1 gem for sniper-like precision (>= 90%)
+  let accuracyBonusGems = 0;
+  if (accuracy >= 90) {
     accuracyBonusGems = 1;
   }
 
-  // Bonus for clearing on Heroic difficulty
+  // 4. Heroic Bonus: +1 gem for tackling hard mode
+  let heroicBonusGems = 0;
   if (difficulty === 'HEROIC') {
     heroicBonusGems = 1;
   }
 
-  // For replays without star increase, only give at most 1 token gem for heroic + 100% accuracy
-  const totalGemsEarned = isFirstClear
-    ? (baseGems + starBonusGems + accuracyBonusGems + heroicBonusGems)
-    : (newStarsEarned > 0 ? starBonusGems : (accuracyBonusGems && heroicBonusGems ? 1 : 0));
+  const totalGemsEarned = starBonusGems + firstClearBonusGems + accuracyBonusGems + heroicBonusGems;
 
   return {
     isFirstClear,
-    baseGems,
+    baseGems: firstClearBonusGems,
+    firstClearBonusGems,
     starBonusGems,
     accuracyBonusGems,
     heroicBonusGems,
