@@ -144,36 +144,32 @@ interface FirestoreGuild {
 
 ---
 
-### 🟣 GIAI ĐOẠN 3: Khoe Chiến Tích & Vật Phẩm (Showcase & Flexing)
+### 🟢 GIAI ĐOẠN 3: Khoe Chiến Tích & Vật Phẩm (Showcase & Flexing) — [HOÀN THÀNH ✅]
 > **Mục tiêu:** Cho phép học sinh tự hào chia sẻ thành tích, vật phẩm tàu vũ trụ đã mở khóa với bạn bè và phụ huynh.
 
-- [ ] **Task 3.1: Hệ thống Danh hiệu & Huy hiệu Thành tích (Badges & Titles)**
-  - Mở rộng `src/data/progress-types.ts` bổ sung `unlockedBadgeIds` và `activeTitle`.
-  - Tạo danh sách huy hiệu đặc biệt trong `src/data/badge-data.ts`:
-    - 🎯 *Siêu Xạ Thủ*: Đạt combo 20 từ liên tiếp không bắn trượt.
-    - 🔥 *Chiến Binh Bất Diệt*: Đạt chuỗi 7 ngày học liên tục.
-    - 👑 *Thợ Săn Trùm*: Đánh bại 5 Boss từ vựng.
-    - 🌌 *Bậc Thầy Thiên Hà*: Hoàn thành 100% sao của 1 Realm.
-    - 🛸 *Nhà Sưu Tập Tàu*: Mở khóa toàn bộ 6 chiến cơ vũ trụ.
+- [x] **Task 3.1: Hệ thống Danh hiệu & Huy hiệu Thành tích (Badges & Titles)**
+  - Mở rộng `src/data/progress-types.ts` bổ sung `unlockedBadgeIds`, `selectedBadgeIds`, và `activeTitle`.
+  - Tạo danh sách huy hiệu phong phú trong `src/data/badge-data.ts` (16+ huy hiệu đặc biệt, cơ chế tự động mở khóa và trao tặng danh hiệu vũ trụ).
+  - Tích hợp kiểm tra và tự động cập nhật danh hiệu/huy hiệu khi mở app và khi chiến thắng màn chơi trong `progressStorage.ts`.
 
-- [ ] **Task 3.2: Thẻ Căn Cước Phi Hành Gia (Astronaut Citizen ID Card)**
-  - Tạo component `src/components/modals/AstronautCardModal.tsx`.
-  - Thiết kế thẻ phong cách Hologram không gian:
-    - Hiển thị mô hình 2D tàu chiến + màu tia laser + tên súng đang trang bị.
-    - Tên học sinh + Friend Tag (`#PEW-XXXX`) + Danh hiệu cao quý.
-    - 3 Huy hiệu danh giá nhất người chơi tự chọn để gắn lên ngực áo.
-    - Thống kê: Tổng từ vựng đã nắm vững, Số màn 3 sao, Số ngày streak.
+- [x] **Task 3.2: Thẻ Căn Cước Phi Hành Gia (Astronaut Citizen ID Card)**
+  - Tạo component `src/components/modals/AstronautCardModal.tsx` với phong cách Hologram không gian rực rỡ:
+    - Hiển thị mô hình 2D tàu chiến + màu tia laser + tên súng đang trang bị trực tiếp từ Canvas engine.
+    - Tên học sinh + Friend Tag (`#PEW-XXXX`) + Danh hiệu cao quý + Cõi thiên hà.
+    - 3 Huy hiệu danh giá nhất người chơi tự do chọn gắn lên ngực áo.
+    - Thống kê: Tổng từ vựng đã nắm vững, Số màn 3 sao, Số ngày streak, Tổng điểm XP.
 
-- [ ] **Task 3.3: Tính năng 1-Click Xuất Ảnh Khoe Bạn Bè (Share Image Generator)**
-  - Sử dụng Canvas API trực tiếp trong game (hoặc html2canvas nhẹ) để vẽ thẻ thành hình ảnh PNG chất lượng cao.
-  - Nút **"Tải Thẻ Về Máy"** và nút **"Sao Chép Ảnh"** để gửi ngay qua Zalo, Messenger hoặc đăng Story Facebook.
-  - Phụ huynh có thể in ra giấy làm phần thưởng khen ngợi cho bé.
+- [x] **Task 3.3: Tính năng 1-Click Xuất Ảnh Khoe Bạn Bè (Share Image Generator)**
+  - Tạo dịch vụ `src/services/shareCardGenerator.ts` dùng HTML5 Canvas API thuần (100% không phụ thuộc thư viện nặng, zero lag):
+    - Vẽ thẻ với độ phân giải cao 1200x675 HD, đầy đủ hiệu ứng phát sáng, mạch điện sci-fi và con dấu chứng nhận liên đoàn.
+    - Nút **"Tải Thẻ Về Máy (PNG)"** cho phép lưu ảnh tức thì.
+    - Nút **"Sao Chép Ảnh"** copy trực tiếp vào Clipboard để paste vào Zalo / Messenger.
+    - Nút **"Chia Sẻ (Share)"** kích hoạt Web Share API trên điện thoại/máy tính bảng.
 
-- [ ] **Task 3.4: Xem Nhà Chứa Tàu của bạn bè (Friend Profile & Hangar View)**
-  - Khi bấm vào bất kỳ người chơi nào trên Bảng Xếp Hạng, mở popup xem chi tiết:
-    - Tàu vũ trụ, vũ khí họ đang dùng.
-    - Danh sách huy hiệu mà họ đã đạt được.
-    - Nút *"Gửi Lời Chúc Mừng 🚀"* (tương tác nhẹ không cần chat văn bản để bảo vệ trẻ em).
+- [x] **Task 3.4: Xem Nhà Chứa Tàu của bạn bè (Friend Profile & Hangar View)**
+  - Bấm vào bất kỳ bạn nào trên Bảng Xếp Hạng hoặc trên Bục Vinh Quang Top 3 để mở xem Thẻ Căn Cước của bạn ấy.
+  - Tích hợp bộ nút tương tác cổ vũ an toàn cho trẻ em (🚀 Bắn Pháo Hoa, ⭐ Tặng Ngôi Sao, 👏 Vỗ Tay Cổ Vũ, 🔥 Tiếp Thêm Lửa) kèm hiệu ứng âm thanh Web Audio sinh động.
+
 
 ---
 

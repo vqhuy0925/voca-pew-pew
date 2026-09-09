@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebaseConfig';
 import { getCurrentUid, getOrInitPlayerTag, isOnlineAuth } from './authService';
 import { UserProgress } from '../../data/progress-types';
+import { calculateWordsMastered } from '../../data/badge-data';
 
 export type SyncStatus = 'offline' | 'idle' | 'syncing' | 'synced' | 'error';
 
@@ -98,11 +99,15 @@ export const queueCloudSync = (progress: UserProgress) => {
         completedLevelsCount: completedCount,
         streakDays: progress.streakDays || 1,
         gems: progress.gems || 0,
-        equippedShipId: progress.equippedShipId || 'ship_scout_dart',
-        equippedBlasterId: progress.equippedBlasterId || 'blaster_pulse_single',
-        equippedLaserId: progress.equippedLaserId || 'laser_cyan',
+        equippedShipId: progress.equippedShipId || 'ship-scout',
+        equippedBlasterId: progress.equippedBlasterId || 'blaster-single',
+        equippedLaserId: progress.equippedLaserId || 'laser-cyan',
         unlockedUpgradeIds: progress.unlockedUpgradeIds || [],
         dailyEnergyMode: progress.dailyEnergyMode || 'balanced',
+        activeTitle: progress.activeTitle || 'Phi Hành Gia Tập Sự',
+        unlockedBadgeIds: progress.unlockedBadgeIds || [],
+        selectedBadgeIds: progress.selectedBadgeIds || [],
+        wordsMastered: calculateWordsMastered(progress),
         lastActiveDate: progress.lastActiveDate,
         lastWeeklyReset: weekId,
         updatedAt: serverTimestamp()

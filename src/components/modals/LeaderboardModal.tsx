@@ -28,10 +28,15 @@ import {
 
 interface LeaderboardModalProps {
   progress: UserProgress;
+  onSelectPlayer?: (entry: LeaderboardEntry) => void;
   onClose: () => void;
 }
 
-export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, onClose }) => {
+export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
+  progress,
+  onSelectPlayer,
+  onClose
+}) => {
   const [activeTab, setActiveTab] = useState<LeaderboardCategory>('weekly');
   const [selectedRealmId, setSelectedRealmId] = useState<string>(progress.selectedRealmId || 'realm-1');
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -206,12 +211,19 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, on
                 <div className="pt-4 pb-2 px-2 flex items-end justify-center gap-2 sm:gap-4">
                   {/* Top 2: Silver 🥈 */}
                   {top2 && (
-                    <div className="flex-1 max-w-[150px] sm:max-w-[170px] flex flex-col items-center">
+                    <div
+                      onClick={() => {
+                        soundFx.playClick();
+                        onSelectPlayer?.(top2);
+                      }}
+                      className="flex-1 max-w-[150px] sm:max-w-[170px] flex flex-col items-center cursor-pointer group transition-transform hover:scale-105 active:scale-95"
+                      title="Bấm để xem Thẻ Căn Cước Phi Hành Gia"
+                    >
                       <div className="relative mb-1">
-                        <div className="text-3xl sm:text-4xl drop-shadow-md">{top2.avatar}</div>
+                        <div className="text-3xl sm:text-4xl drop-shadow-md group-hover:scale-110 transition">{top2.avatar}</div>
                         <span className="absolute -bottom-1 -right-1 text-base">🥈</span>
                       </div>
-                      <div className="font-bold text-xs sm:text-sm text-slate-200 truncate w-full text-center">
+                      <div className="font-bold text-xs sm:text-sm text-slate-200 truncate w-full text-center group-hover:text-cyan-300 transition">
                         {top2.userName}
                       </div>
                       <div className="text-[11px] font-mono text-cyan-400 font-bold mb-1">
@@ -234,15 +246,22 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, on
                   )}
 
                   {/* Top 1: Gold 🥇 (Center, Tallest) */}
-                  <div className="flex-1 max-w-[160px] sm:max-w-[190px] flex flex-col items-center z-10">
+                  <div
+                    onClick={() => {
+                      soundFx.playClick();
+                      onSelectPlayer?.(top1);
+                    }}
+                    className="flex-1 max-w-[160px] sm:max-w-[190px] flex flex-col items-center z-10 cursor-pointer group transition-transform hover:scale-105 active:scale-95"
+                    title="Bấm để xem Thẻ Căn Cước Quán Quân"
+                  >
                     <div className="relative mb-1">
                       <Crown className="w-6 h-6 text-yellow-400 absolute -top-5 left-1/2 -translate-x-1/2 animate-bounce" />
-                      <div className="text-4xl sm:text-5xl drop-shadow-[0_0_15px_rgba(250,204,21,0.7)]">
+                      <div className="text-4xl sm:text-5xl drop-shadow-[0_0_15px_rgba(250,204,21,0.7)] group-hover:scale-110 transition">
                         {top1.avatar}
                       </div>
                       <span className="absolute -bottom-1 -right-1 text-lg">🥇</span>
                     </div>
-                    <div className="font-bold text-sm sm:text-base text-yellow-300 truncate w-full text-center">
+                    <div className="font-bold text-sm sm:text-base text-yellow-300 truncate w-full text-center group-hover:text-yellow-200 transition">
                       {top1.userName}
                     </div>
                     <div className="text-xs font-mono text-yellow-400/80 font-bold mb-1">
@@ -266,12 +285,19 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, on
 
                   {/* Top 3: Bronze 🥉 */}
                   {top3 && (
-                    <div className="flex-1 max-w-[150px] sm:max-w-[170px] flex flex-col items-center">
+                    <div
+                      onClick={() => {
+                        soundFx.playClick();
+                        onSelectPlayer?.(top3);
+                      }}
+                      className="flex-1 max-w-[150px] sm:max-w-[170px] flex flex-col items-center cursor-pointer group transition-transform hover:scale-105 active:scale-95"
+                      title="Bấm để xem Thẻ Căn Cước Phi Hành Gia"
+                    >
                       <div className="relative mb-1">
-                        <div className="text-3xl sm:text-4xl drop-shadow-md">{top3.avatar}</div>
+                        <div className="text-3xl sm:text-4xl drop-shadow-md group-hover:scale-110 transition">{top3.avatar}</div>
                         <span className="absolute -bottom-1 -right-1 text-base">🥉</span>
                       </div>
-                      <div className="font-bold text-xs sm:text-sm text-slate-200 truncate w-full text-center">
+                      <div className="font-bold text-xs sm:text-sm text-slate-200 truncate w-full text-center group-hover:text-cyan-300 transition">
                         {top3.userName}
                       </div>
                       <div className="text-[11px] font-mono text-cyan-400 font-bold mb-1">
@@ -304,11 +330,16 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, on
                   return (
                     <div
                       key={entry.uid}
-                      className={`flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border transition ${
+                      onClick={() => {
+                        soundFx.playClick();
+                        onSelectPlayer?.(entry);
+                      }}
+                      className={`flex items-center justify-between p-2.5 sm:p-3 rounded-2xl border transition cursor-pointer active:scale-98 ${
                         isUser
-                          ? 'bg-cyan-500/15 border-cyan-400/80 shadow-md shadow-cyan-500/20'
+                          ? 'bg-cyan-500/15 border-cyan-400/80 shadow-md shadow-cyan-500/20 hover:bg-cyan-500/25'
                           : 'bg-slate-950/60 hover:bg-slate-900/80 border-slate-800/80 hover:border-slate-700'
                       }`}
+                      title="Bấm để xem Thẻ Căn Cước Phi Hành Gia"
                     >
                       {/* Left: Rank & Avatar & Details */}
                       <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
@@ -423,6 +454,19 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ progress, on
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            {onSelectPlayer && (
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  if (userEntry) onSelectPlayer(userEntry);
+                }}
+                className="px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-orbitron font-black text-xs rounded-xl shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                title="Mở Thẻ Căn Cước Phi Hành Gia của bạn"
+              >
+                <span>THẺ CỦA BẠN</span>
+                <Sparkles className="w-3.5 h-3.5" />
+              </button>
+            )}
             <div className="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 text-right">
               <div className="text-[10px] text-slate-400 font-bold uppercase">
                 {activeTab === 'weekly' ? 'XP Tuần Này' : 'Tổng XP'}

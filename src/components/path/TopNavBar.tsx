@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -14,6 +14,7 @@ interface TopNavBarProps {
   onOpenProfileModal?: () => void;
   onOpenArmory?: () => void;
   onOpenLeaderboard?: () => void;
+  onOpenAstronautCard?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
@@ -23,7 +24,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenEnergyModal,
   onOpenProfileModal,
   onOpenArmory,
-  onOpenLeaderboard
+  onOpenLeaderboard,
+  onOpenAstronautCard
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
 
@@ -106,6 +108,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             >
               <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-pulse" />
               <span className="hidden sm:inline">BXH</span>
+            </button>
+          )}
+
+          {/* Astronaut Citizen ID Card Button 🪪 */}
+          {onOpenAstronautCard && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenAstronautCard();
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 hover:border-cyan-300 rounded-2xl text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm"
+              title="Thẻ Căn Cước Phi Hành Gia & Chia Sẻ Chiến Tích"
+            >
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              <span className="hidden sm:inline">Thẻ ID</span>
             </button>
           )}
 

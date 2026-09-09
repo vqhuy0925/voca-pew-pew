@@ -3,7 +3,7 @@ import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId, UserProgress } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap, Trophy } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap, Trophy, Shield } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
@@ -26,6 +26,7 @@ interface VictoryModalProps {
   onGoToMap: () => void;
   onOpenArmory?: () => void;
   onOpenLeaderboard?: () => void;
+  onOpenAstronautCard?: () => void;
 }
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
@@ -42,7 +43,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   onNextLevel,
   onRestart,
   onGoToMap,
-  onOpenLeaderboard
+  onOpenLeaderboard,
+  onOpenAstronautCard
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
@@ -275,6 +277,20 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             >
               <span>MÀN TIẾP THEO</span>
               <ArrowRight className="w-5 h-5 stroke-[3]" />
+            </button>
+          )}
+
+          {onOpenAstronautCard && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenAstronautCard();
+              }}
+              className="w-full py-3 px-4 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-400/50 hover:border-cyan-300 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+              title="Xuất ảnh Thẻ Căn Cước Phi Hành Gia để khoe bạn bè và phụ huynh"
+            >
+              <Shield className="w-4 h-4 text-cyan-400" />
+              <span>KHOE THẺ PHI HÀNH GIA 🚀</span>
             </button>
           )}
 

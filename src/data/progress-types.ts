@@ -94,5 +94,10 @@ export interface UserProgress {
   // Leaderboard & Weekly Competition (Phase 2) 🏆
   weeklyXp?: number;                // XP earned in the current week
   lastWeeklyReset?: string;         // Week identifier e.g. '2026-W37'
+
+  // Showcase & Citizen ID (Phase 3) 🎖️
+  unlockedBadgeIds?: string[];      // Array of earned badge IDs
+  selectedBadgeIds?: string[];      // Up to 3 featured badge IDs for Citizen ID
+  activeTitle?: string;             // Active astronaut title e.g. 'Xạ Thủ Tập Sự'
 }
 

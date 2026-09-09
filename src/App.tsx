@@ -30,6 +30,8 @@ import { EnergyModal } from './components/modals/EnergyModal';
 import { UserProfileModal } from './components/modals/UserProfileModal';
 import { ArmoryModal } from './components/modals/ArmoryModal';
 import { LeaderboardModal } from './components/modals/LeaderboardModal';
+import { AstronautCardModal } from './components/modals/AstronautCardModal';
+import { LeaderboardEntry } from './services/firebase/leaderboardService';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
@@ -66,6 +68,8 @@ export const App: React.FC = () => {
   const [showArmoryModal, setShowArmoryModal] = useState<boolean>(false);
   const [showEnergyModal, setShowEnergyModal] = useState<boolean>(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
+  const [showAstronautCardModal, setShowAstronautCardModal] = useState<boolean>(false);
+  const [selectedCardPlayer, setSelectedCardPlayer] = useState<LeaderboardEntry | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
     return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
@@ -327,6 +331,10 @@ export const App: React.FC = () => {
           onOpenProfileModal={() => setShowProfileModal(true)}
           onOpenArmory={() => setShowArmoryModal(true)}
           onOpenLeaderboard={() => setShowLeaderboardModal(true)}
+          onOpenAstronautCard={() => {
+            setSelectedCardPlayer(null);
+            setShowAstronautCardModal(true);
+          }}
         />
       )}
 
@@ -434,6 +442,10 @@ export const App: React.FC = () => {
           onGoToMap={handleGoToMap}
           onOpenArmory={() => setShowArmoryModal(true)}
           onOpenLeaderboard={() => setShowLeaderboardModal(true)}
+          onOpenAstronautCard={() => {
+            setSelectedCardPlayer(null);
+            setShowAstronautCardModal(true);
+          }}
         />
       )}
 
@@ -502,7 +514,24 @@ export const App: React.FC = () => {
       {showLeaderboardModal && (
         <LeaderboardModal
           progress={progress}
+          onSelectPlayer={(entry) => {
+            setSelectedCardPlayer(entry);
+            setShowAstronautCardModal(true);
+          }}
           onClose={() => setShowLeaderboardModal(false)}
+        />
+      )}
+
+      {/* 13. Astronaut Citizen ID Card & 1-Click Share Modal */}
+      {showAstronautCardModal && (
+        <AstronautCardModal
+          currentProgress={progress}
+          targetEntry={selectedCardPlayer}
+          onUpdateProgress={handleUpdateProgress}
+          onClose={() => {
+            setShowAstronautCardModal(false);
+            setSelectedCardPlayer(null);
+          }}
         />
       )}
     </div>

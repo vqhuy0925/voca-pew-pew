@@ -2,6 +2,7 @@ import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-t
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
+import { checkAndUnlockBadges, DEFAULT_TITLE } from '../data/badge-data';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -90,7 +91,12 @@ export const getInitialUserProgress = (): UserProgress => {
 
     // Leaderboard
     weeklyXp: 0,
-    lastWeeklyReset: getWeekIdentifier()
+    lastWeeklyReset: getWeekIdentifier(),
+
+    // Showcase & Citizen ID
+    unlockedBadgeIds: [],
+    selectedBadgeIds: [],
+    activeTitle: DEFAULT_TITLE
   };
 };
 
@@ -310,6 +316,17 @@ export const loadUserProgress = (): UserProgress => {
       parsed.weeklyXp = typeof parsed.weeklyXp === 'number' ? parsed.weeklyXp : 0;
     }
 
+    // Ensure Showcase & Citizen ID (Phase 3)
+    parsed.unlockedBadgeIds = Array.isArray(parsed.unlockedBadgeIds) ? parsed.unlockedBadgeIds : [];
+    parsed.selectedBadgeIds = Array.isArray(parsed.selectedBadgeIds) ? parsed.selectedBadgeIds : [];
+    parsed.activeTitle = parsed.activeTitle || DEFAULT_TITLE;
+
+    // Evaluate badges for past achievements
+    const { updatedProgress } = checkAndUnlockBadges(parsed);
+    parsed.unlockedBadgeIds = updatedProgress.unlockedBadgeIds;
+    parsed.selectedBadgeIds = updatedProgress.selectedBadgeIds;
+    parsed.activeTitle = updatedProgress.activeTitle;
+
     saveUserProgress(parsed);
     return parsed;
   } catch (err) {
@@ -388,8 +405,26 @@ export const completeLevelProgress = (
     lastActiveDate: getTodayDateString()
   };
 
-  saveUserProgress(updatedUser);
-  return updatedUser;
+  const { updatedProgress: userWithBadges } = checkAndUnlockBadges(updatedUser);
+  saveUserProgress(userWithBadges);
+  return userWithBadges;
+};
+
+/**
+ * Update astronaut's featured badges and active title
+ */
+export const updateAstronautShowcase = (
+  activeTitle: string,
+  selectedBadgeIds: string[]
+): UserProgress => {
+  const current = loadUserProgress();
+  const updated: UserProgress = {
+    ...current,
+    activeTitle,
+    selectedBadgeIds: selectedBadgeIds.slice(0, 3)
+  };
+  saveUserProgress(updated);
+  return updated;
 };
 
 export const refillHearts = (prev: UserProgress): UserProgress => {
