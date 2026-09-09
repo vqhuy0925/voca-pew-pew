@@ -376,27 +376,29 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const collisionEngine = collisionEngineRef.current;
 
       if (spawner && particleSys && collisionEngine) {
-        // 0. Update Mission Timer
-        timeRemainingRef.current = Math.max(0, timeRemainingRef.current - deltaTime / 1000);
-        const currentSec = Math.ceil(timeRemainingRef.current);
+        // 0. Update Mission Timer (Only if time limit exists)
+        if (totalSeconds > 0) {
+          timeRemainingRef.current = Math.max(0, timeRemainingRef.current - deltaTime / 1000);
+          const currentSec = Math.ceil(timeRemainingRef.current);
 
-        if (currentSec !== lastTickSecondRef.current) {
-          lastTickSecondRef.current = currentSec;
-          if (onTimerUpdate) {
-            onTimerUpdate(currentSec, totalSeconds);
+          if (currentSec !== lastTickSecondRef.current) {
+            lastTickSecondRef.current = currentSec;
+            if (onTimerUpdate) {
+              onTimerUpdate(currentSec, totalSeconds);
+            }
+            if (currentSec <= 5 && currentSec > 0) {
+              soundFx.playTickTock(true);
+              particleSys.addFloatingText(`⏱️ ${currentSec}s!`, canvas.width / 2, canvas.height * 0.25, '#f43f5e', 32);
+            }
           }
-          if (currentSec <= 5 && currentSec > 0) {
-            soundFx.playTickTock(true);
-            particleSys.addFloatingText(`⏱️ ${currentSec}s!`, canvas.width / 2, canvas.height * 0.25, '#f43f5e', 32);
-          }
-        }
 
-        // Time Out Check
-        if (timeRemainingRef.current <= 0) {
-          soundFx.playGameOver();
-          particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 40);
-          onGameOver();
-          return;
+          // Time Out Check
+          if (timeRemainingRef.current <= 0) {
+            soundFx.playGameOver();
+            particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 40);
+            onGameOver();
+            return;
+          }
         }
 
         // 1. Update Spawner & Enemies

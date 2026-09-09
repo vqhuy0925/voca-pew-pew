@@ -1,4 +1,4 @@
-export type DifficultyLevel = 'EASY' | 'NORMAL' | 'HEROIC';
+export type DifficultyLevel = 'ZEN' | 'EASY' | 'NORMAL' | 'HEROIC';
 
 export interface DifficultyConfig {
   id: DifficultyLevel;
@@ -7,7 +7,7 @@ export interface DifficultyConfig {
   badge: string;
   emoji: string;
   speedMultiplier: number;
-  timeLimitSeconds: number;
+  timeLimitSeconds: number; // 0 = unlimited time (Zen mode)
   xpMultiplier: number;
   gemMultiplier: number;
   color: string;
@@ -15,6 +15,19 @@ export interface DifficultyConfig {
 }
 
 export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
+  ZEN: {
+    id: 'ZEN',
+    title: 'Zen',
+    titleVi: 'Tập Gõ Thư Giãn',
+    badge: '🧘 ZEN',
+    emoji: '🧘',
+    speedMultiplier: 0.45,
+    timeLimitSeconds: 0,
+    xpMultiplier: 0.9,
+    gemMultiplier: 0.8,
+    color: '#38bdf8',
+    description: 'Không đếm ngược hết giờ, từ rơi siêu chậm để bé thong thả tập đúng ngón tay!'
+  },
   EASY: {
     id: 'EASY',
     title: 'Easy',

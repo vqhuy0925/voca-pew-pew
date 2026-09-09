@@ -3,6 +3,7 @@ import { EnemyItem } from '../data/types';
 import { Volume2 } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
+import { FingerGuideBadge } from './common/FingerGuideBadge';
 
 interface WordTargetBarProps {
   target: EnemyItem | null;
@@ -25,6 +26,8 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
     soundFx.playClick();
     speechHelper.speak(target.word, true);
   };
+
+  const currentChar = target.typedIndex < target.word.length ? target.word[target.typedIndex] : undefined;
 
   return (
     <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[95vw] md:max-w-3xl w-full px-2 sm:px-0">
@@ -82,9 +85,14 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
             })}
           </div>
 
-          {/* Vietnamese meaning with high readability */}
-          <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-game font-extrabold mt-1.5 drop-shadow tracking-wide truncate sm:whitespace-normal">
-            {target.meaningVi}
+          {/* Vietnamese meaning & Finger Guide Badge Row */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
+            <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-game font-extrabold drop-shadow tracking-wide truncate sm:whitespace-normal">
+              {target.meaningVi}
+            </div>
+            {currentChar && (
+              <FingerGuideBadge currentChar={currentChar} className="mt-0.5" />
+            )}
           </div>
         </div>
 

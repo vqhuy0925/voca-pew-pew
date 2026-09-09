@@ -55,9 +55,17 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
         <h2 className="text-3xl font-black font-orbitron text-rose-400 mb-1 tracking-wider">
           {modalMessages.heading}
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base mb-6">
+        <p className="text-slate-200 text-sm sm:text-base mb-4">
           Hãy cùng {avatar} thử lại màn <span className={`${theme.textColor} font-extrabold`}>{level.titleVi}</span>, {modalMessages.bodySub}
         </p>
+
+        {/* Zen tip */}
+        <div className="bg-sky-950/60 border border-sky-500/30 rounded-2xl p-3 mb-5 text-xs text-sky-200 text-left flex items-start gap-2">
+          <span className="text-base flex-shrink-0">💡</span>
+          <span>
+            <strong>Mẹo cho bé:</strong> Ba mẹ có thể chọn chế độ <strong>🧘 ZEN (Tập gõ)</strong> trước khi chơi để không bị hết giờ và thong thả tập đúng ngón tay!
+          </span>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-3">

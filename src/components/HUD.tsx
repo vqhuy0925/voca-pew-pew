@@ -81,13 +81,18 @@ export const HUD: React.FC<HUDProps> = ({
             />
           </div>
 
-          {/* Time Remaining Bar */}
-          {timeRemaining !== undefined && (
-            <div className="flex items-center justify-between text-[11px] sm:text-sm font-bold px-0.5">
-              <span className="text-slate-300 whitespace-nowrap font-orbitron text-[10px] sm:text-xs font-bold">
-                {stats.wordsDefeated}/{totalWords} từ
-              </span>
+          {/* Words Count & Timer / Zen Badge */}
+          <div className="flex items-center justify-between text-[11px] sm:text-sm font-bold px-0.5">
+            <span className="text-slate-300 whitespace-nowrap font-orbitron text-[10px] sm:text-xs font-bold">
+              {stats.wordsDefeated}/{totalWords} từ
+            </span>
 
+            {difficulty === 'ZEN' || totalTime === 0 ? (
+              <span className="flex items-center gap-1 font-game text-sky-300 font-extrabold text-[10px] sm:text-xs bg-sky-500/20 px-2 py-0.5 rounded-lg border border-sky-400/40">
+                <span>🧘</span>
+                <span>Tập gõ Zen</span>
+              </span>
+            ) : timeRemaining !== undefined ? (
               <span
                 className={`flex items-center gap-1 font-orbitron whitespace-nowrap tracking-wide ${
                   isUrgent ? 'text-rose-400 animate-pulse font-black text-xs sm:text-sm drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]' : 'text-cyan-300 font-extrabold'
@@ -96,8 +101,8 @@ export const HUD: React.FC<HUDProps> = ({
                 <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 {timeRemaining}s
               </span>
-            </div>
-          )}
+            ) : null}
+          </div>
         </div>
 
         {/* Right: Hearts, Score & Mute */}

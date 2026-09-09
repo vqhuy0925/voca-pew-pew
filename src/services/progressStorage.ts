@@ -1,4 +1,5 @@
 import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-types';
+import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
@@ -126,7 +127,7 @@ export const calculateLevelClearRewards = (
   level: { id: string; type?: string; xpReward: number; gemReward: number },
   stationHealth: number,
   accuracy: number,
-  difficulty: 'EASY' | 'NORMAL' | 'HEROIC' = 'NORMAL'
+  difficulty: DifficultyLevel = 'NORMAL'
 ): ClearRewardBreakdown => {
   let starsEarned = 1;
   if (stationHealth >= 80 && accuracy >= 80) {
@@ -147,7 +148,7 @@ export const calculateLevelClearRewards = (
   const previousStars = currentProgress.stars || 0;
   const newStarsEarned = Math.max(0, starsEarned - previousStars);
 
-  const diffMultiplier = difficulty === 'HEROIC' ? 1.8 : difficulty === 'EASY' ? 1.0 : 1.25;
+  const diffMultiplier = DIFFICULTY_CONFIGS[difficulty]?.xpMultiplier ?? 1.25;
   const totalXpEarned = Math.round(level.xpReward * diffMultiplier);
 
   // 1. Star Reward: Every round awards 1 gem per star (1⭐ = +1💎, 2⭐ = +2💎, 3⭐ = +3💎)

@@ -65,7 +65,7 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
     onStartGame();
   };
 
-  const difficulties: DifficultyLevel[] = ['EASY', 'NORMAL', 'HEROIC'];
+  const difficulties: DifficultyLevel[] = ['ZEN', 'EASY', 'NORMAL', 'HEROIC'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
@@ -148,33 +148,40 @@ export const WarmupModal: React.FC<WarmupModalProps> = ({
         </div>
 
         {/* Difficulty Selector */}
-        <div className="flex items-center justify-between gap-2 p-1.5 bg-slate-950 rounded-2xl border border-slate-800 mb-6">
-          {difficulties.map((diff) => {
-            const cfg = DIFFICULTY_CONFIGS[diff];
-            const isSelected = selectedDifficulty === diff;
+        <div className="mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1.5 bg-slate-950 rounded-2xl border border-slate-800">
+            {difficulties.map((diff) => {
+              const cfg = DIFFICULTY_CONFIGS[diff];
+              const isSelected = selectedDifficulty === diff;
 
-            return (
-              <button
-                key={diff}
-                type="button"
-                onClick={() => {
-                  soundFx.playClick();
-                  if (onSelectDifficulty) onSelectDifficulty(diff);
-                }}
-                className={`flex-1 py-2 px-2.5 rounded-xl text-xs sm:text-sm font-game font-extrabold transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                  isSelected
-                    ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/20'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                style={{
-                  color: isSelected ? cfg.color : undefined
-                }}
-              >
-                <span>{cfg.emoji}</span>
-                <span>{cfg.titleVi}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={diff}
+                  type="button"
+                  onClick={() => {
+                    soundFx.playClick();
+                    if (onSelectDifficulty) onSelectDifficulty(diff);
+                  }}
+                  className={`py-2 px-2 rounded-xl text-xs sm:text-sm font-game font-extrabold transition cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 ${
+                    isSelected
+                      ? 'bg-slate-800 text-white shadow-sm ring-1 ring-white/20'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  style={{
+                    color: isSelected ? cfg.color : undefined
+                  }}
+                >
+                  <span>{cfg.emoji}</span>
+                  <span className="truncate">{cfg.badge.split(' ')[1] || cfg.titleVi}</span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Active Difficulty Note */}
+          <div className="mt-2 text-xs text-slate-300 font-medium px-2 flex items-center justify-center gap-1.5">
+            <span className="text-amber-300">💡</span>
+            <span>{DIFFICULTY_CONFIGS[selectedDifficulty]?.description}</span>
+          </div>
         </div>
 
         {/* Action Button: Start Game or Recharge Energy */}
