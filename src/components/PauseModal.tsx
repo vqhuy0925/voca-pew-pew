@@ -18,27 +18,27 @@ export const PauseModal: React.FC<PauseModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none">
-      <div className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-3 border-cyan-400/60 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(0,240,255,0.3)] text-center animate-in zoom-in-95 duration-200">
-        <div className="w-16 h-16 mx-auto mb-3 bg-cyan-500/20 border-3 border-cyan-400 rounded-full flex items-center justify-center text-3xl shadow-lg">
+      <div className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-2 sm:border-3 border-cyan-400/80 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,240,255,0.35)] text-center animate-in zoom-in-95 duration-200">
+        <div className="w-16 h-16 mx-auto mb-3 bg-cyan-500/20 border-2 sm:border-3 border-cyan-400 border-b-4 border-b-cyan-600 rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_25px_rgba(0,240,255,0.4)]">
           ⏸️
         </div>
 
         <h2 className="text-3xl sm:text-4xl font-extrabold font-orbitron text-white mb-1.5 tracking-wider starwars-cyan-glow">
           TẠM DỪNG 🚀
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base mb-6">
+        <p className="text-slate-200 text-sm sm:text-base mb-6 font-game">
           Đang chơi: <span className="text-cyan-300 font-extrabold">{level.titleVi}</span>
         </p>
 
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           <button
             onClick={() => {
               soundFx.playClick();
               onResume();
             }}
-            className="w-full py-4 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-orbitron font-extrabold text-lg sm:text-xl rounded-2xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 shadow-md transition flex items-center justify-center gap-2 cursor-pointer tracking-wider"
+            className="btn-3d btn-3d-emerald w-full py-4 text-slate-950 font-orbitron font-extrabold text-lg sm:text-xl rounded-2xl shadow-lg flex items-center justify-center gap-2.5 tracking-wider"
           >
-            <Play className="w-6 h-6 fill-slate-950" />
+            <Play className="w-6 h-6 fill-slate-950 stroke-[2.5]" />
             TIẾP TỤC CHƠI
           </button>
 
@@ -47,9 +47,9 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-game font-bold text-base rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-white font-game font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-sm"
           >
-            <RotateCcw className="w-5 h-5" />
+            <RotateCcw className="w-5 h-5 text-amber-400" />
             Chơi Lại Màn Này
           </button>
 
@@ -58,7 +58,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onGoToMap();
             }}
-            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-game font-bold text-base rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white font-game font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-sm"
           >
             <Map className="w-5 h-5 text-cyan-400" />
             Về Bản Đồ Bài Học

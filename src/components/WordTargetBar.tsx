@@ -12,8 +12,9 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   if (!target) {
     return (
       <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[92vw]">
-        <div className="bg-slate-950/85 backdrop-blur-md border border-cyan-500/40 rounded-full px-3.5 py-1.5 sm:px-5 sm:py-2 text-cyan-300 text-[11px] sm:text-sm font-game font-extrabold flex items-center gap-1.5 sm:gap-2 shadow-lg whitespace-nowrap">
-          <span>Gõ chữ cái đầu tiên để ngắm bắn 🎯</span>
+        <div className="bg-slate-950/90 backdrop-blur-md border-2 border-cyan-500/50 border-b-4 border-b-cyan-700 rounded-2xl px-4 py-2 text-cyan-200 text-xs sm:text-sm font-game font-extrabold flex items-center gap-2 shadow-[0_4px_20px_rgba(0,240,255,0.25)] whitespace-nowrap">
+          <span className="text-base">🎯</span>
+          <span>Gõ chữ cái đầu tiên để ngắm bắn mục tiêu!</span>
         </div>
       </div>
     );
@@ -25,25 +26,19 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
     speechHelper.speak(target.word, true);
   };
 
-  const isSentence = target.word.length > 20;
-
   return (
-    <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[94vw] md:max-w-3xl w-full px-2 sm:px-0">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-2 border-cyan-400 rounded-2xl sm:rounded-3xl px-3 sm:px-6 py-2 sm:py-3 shadow-[0_4px_30px_rgba(0,240,255,0.4)] flex items-center gap-2.5 sm:gap-4 transition-all">
-        {/* Emoji */}
-        <span className="text-3xl sm:text-4xl md:text-5xl flex-shrink-0 drop-shadow">{target.emoji}</span>
+    <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[95vw] md:max-w-3xl w-full px-2 sm:px-0">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400/80 rounded-2xl sm:rounded-3xl p-3 sm:px-5 sm:py-3.5 shadow-[0_8px_35px_rgba(0,240,255,0.35)] flex items-center gap-3 sm:gap-4 transition-all">
+        {/* Animated Emoji Badge */}
+        <div className="relative flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 shadow-inner">
+          <span className="text-3xl sm:text-4xl drop-shadow-md transform hover:scale-110 transition-transform">
+            {target.emoji}
+          </span>
+        </div>
 
         <div className="min-w-0 flex-1">
-          {/* Letters display */}
-          <div className={`flex flex-wrap items-center gap-1 font-orbitron font-black tracking-widest leading-tight ${
-            target.word.length > 40
-              ? 'text-base sm:text-xl md:text-2xl'
-              : target.word.length > 24
-              ? 'text-lg sm:text-2xl md:text-3xl'
-              : target.word.length > 12
-              ? 'text-2xl sm:text-3xl md:text-4xl'
-              : 'text-3xl sm:text-5xl'
-          }`}>
+          {/* Tactile Letter Tiles */}
+          <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 leading-none">
             {target.word.split('').map((char, index) => {
               const isTyped = index < target.typedIndex;
               const isCurrent = index === target.typedIndex;
@@ -53,12 +48,12 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
                 return (
                   <span
                     key={index}
-                    className={`inline-block px-1 rounded transition-all ${
+                    className={`inline-flex items-center justify-center px-1.5 h-8 sm:h-10 rounded-lg transition-all ${
                       isCurrent
-                        ? 'bg-yellow-400/30 border border-yellow-400 text-yellow-300 animate-pulse text-xs sm:text-sm py-0.5'
+                        ? 'bg-yellow-400/30 border-2 border-yellow-400 text-yellow-300 animate-pulse text-xs sm:text-sm'
                         : isTyped
-                        ? 'text-emerald-400/40 w-1.5 sm:w-2'
-                        : 'w-1.5 sm:w-2.5'
+                        ? 'text-emerald-400/40 w-2 sm:w-3'
+                        : 'w-2 sm:w-3'
                     }`}
                   >
                     {isCurrent ? '␣' : ' '}
@@ -69,12 +64,16 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
               return (
                 <span
                   key={index}
-                  className={`transition-all duration-100 inline-block uppercase drop-shadow-md ${
+                  className={`inline-flex items-center justify-center font-orbitron uppercase rounded-xl transition-all duration-150 select-none ${
+                    target.word.length > 20
+                      ? 'px-1.5 py-0.5 min-w-[1.5rem] h-8 text-base sm:text-xl font-bold'
+                      : 'px-2 py-1 min-w-[1.85rem] sm:min-w-[2.4rem] h-9 sm:h-11 text-xl sm:text-2xl md:text-3xl font-black'
+                  } ${
                     isTyped
-                      ? 'text-emerald-400 font-black'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/60 border-b-3 border-b-emerald-600 shadow-[0_2px_8px_rgba(16,185,129,0.3)]'
                       : isCurrent
-                      ? 'text-yellow-300 bg-yellow-400/25 px-1 rounded-lg border-2 border-yellow-400 animate-pulse'
-                      : 'text-slate-400'
+                      ? 'bg-yellow-400/35 text-yellow-200 border-2 border-yellow-300 border-b-4 border-b-yellow-500 shadow-[0_0_18px_rgba(253,224,71,0.7)] scale-110 -translate-y-0.5 animate-pulse font-black'
+                      : 'bg-slate-900/80 text-slate-400 border border-slate-700/80 border-b-2 border-b-slate-800'
                   }`}
                 >
                   {char}
@@ -83,19 +82,20 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
             })}
           </div>
 
-          {/* Vietnamese meaning */}
-          <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-bold mt-1 drop-shadow truncate sm:whitespace-normal">
+          {/* Vietnamese meaning with high readability */}
+          <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-game font-extrabold mt-1.5 drop-shadow tracking-wide truncate sm:whitespace-normal">
             {target.meaningVi}
           </div>
         </div>
 
-        {/* Pronounce audio button */}
+        {/* 3D Chunky Audio Pronunciation Button */}
         <button
           onClick={handleSpeak}
-          className="p-2 sm:p-2.5 rounded-2xl bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/60 text-cyan-300 transition active:scale-95 cursor-pointer flex-shrink-0 shadow-sm"
-          title="Nghe phát âm cả câu"
+          className="btn-3d btn-3d-cyan min-w-[48px] min-h-[48px] w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex-shrink-0 shadow-md"
+          title="Nghe phát âm từ này"
+          aria-label="Nghe phát âm"
         >
-          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-slate-950 stroke-[2.5]" />
         </button>
       </div>
     </div>

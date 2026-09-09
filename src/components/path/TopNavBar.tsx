@@ -80,7 +80,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         </div>
 
         {/* Center/Right: Resource Status Pills */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap justify-end">
           {/* Armory Shop Button */}
           {onOpenArmory && (
             <button
@@ -88,10 +88,10 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenArmory();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/40 rounded-2xl text-purple-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm hover:border-purple-300"
+              className="btn-3d px-3 py-1.5 sm:px-3.5 sm:py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-400/50 border-b-3 border-b-purple-800 rounded-2xl text-purple-200 font-orbitron font-extrabold text-xs sm:text-sm transition shadow-sm hover:border-purple-300"
               title="Xưởng Nâng Cấp Tàu & Vũ Khí"
             >
-              <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+              <Rocket className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-purple-400 mr-1 sm:mr-1.5" />
               <span className="hidden sm:inline">Xưởng Tàu</span>
             </button>
           )}
@@ -103,10 +103,10 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenLeaderboard();
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 hover:border-amber-300 rounded-2xl text-amber-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm"
+              className="btn-3d px-2.5 py-1.5 sm:px-3 sm:py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 border-b-3 border-b-amber-800 rounded-2xl text-amber-200 font-orbitron font-extrabold text-xs sm:text-sm transition shadow-sm hover:border-amber-300"
               title="Bảng Xếp Hạng Vũ Trụ (Thi đua học tập)"
             >
-              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-pulse" />
+              <Trophy className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-400 mr-0.5 sm:mr-1 animate-pulse" />
               <span className="hidden sm:inline">BXH</span>
             </button>
           )}
@@ -118,20 +118,20 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenAstronautCard();
               }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/40 hover:border-cyan-300 rounded-2xl text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm"
+              className="btn-3d px-2.5 py-1.5 sm:px-3 sm:py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 border-b-3 border-b-cyan-800 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm transition shadow-sm hover:border-cyan-300"
               title="Thẻ Căn Cước Phi Hành Gia & Chia Sẻ Chiến Tích"
             >
-              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+              <Shield className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-cyan-400 mr-0.5 sm:mr-1" />
               <span className="hidden sm:inline">Thẻ ID</span>
             </button>
           )}
 
           {/* Daily Streak */}
           <div
-            className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 border border-amber-400/30 rounded-2xl text-amber-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base"
+            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-2xl text-amber-300 font-orbitron font-extrabold text-xs sm:text-sm"
             title="Chuỗi ngày học liên tiếp"
           >
-            <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400" />
+            <Flame className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-orange-400 fill-orange-400" />
             <span>{progress.streakDays}</span>
           </div>
 
@@ -141,41 +141,45 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               soundFx.playClick();
               if (onOpenEnergyModal) onOpenEnergyModal();
             }}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer border ${
+            className={`btn-3d flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-2xl font-orbitron font-extrabold text-xs sm:text-sm transition border ${
               progress.energy <= 15
-                ? 'bg-rose-500/15 border-rose-400/50 text-rose-300 hover:bg-rose-500/25 animate-pulse'
-                : 'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-400/30 text-yellow-300 hover:border-yellow-400/50'
+                ? 'bg-rose-500/20 border-rose-400/60 border-b-3 border-b-rose-800 text-rose-300 hover:bg-rose-500/30 animate-pulse'
+                : 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-400/50 border-b-3 border-b-yellow-800 text-yellow-300'
             }`}
             title="Năng lượng học tập hôm nay (Bấm để xem/nạp)"
           >
-            <Zap className={`w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
+            <Zap className={`w-4 h-4 sm:w-4.5 sm:h-4.5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
             <span>{`${progress.energy}⚡`}</span>
           </button>
 
           {/* Gems */}
           <div
-            className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/10 border border-cyan-400/30 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm md:text-base"
+            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-cyan-500/10 border border-cyan-400/30 border-b-2 border-b-cyan-900/50 rounded-2xl text-cyan-200 font-orbitron font-extrabold text-xs sm:text-sm"
             title="Kim cương"
           >
-            <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400" />
+            <Gem className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-cyan-400 fill-cyan-400" />
             <span>{progress.gems}</span>
           </div>
 
           {/* Hearts */}
           <button
-            onClick={onOpenRefillModal}
-            className="flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-400/30 rounded-2xl text-rose-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer hover:border-rose-400/50"
+            onClick={() => {
+              soundFx.playClick();
+              if (onOpenRefillModal) onOpenRefillModal();
+            }}
+            className="btn-3d flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-3 border-b-rose-800 rounded-2xl text-rose-300 font-orbitron font-extrabold text-xs sm:text-sm transition"
             title="Mạng chơi (Bấm để nạp thêm)"
           >
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500" />
+            <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-rose-500 fill-rose-500" />
             <span>{progress.hearts}/{progress.maxHearts}</span>
           </button>
 
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
-            className="p-2 sm:p-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white transition active:scale-95 cursor-pointer"
+            className="btn-3d btn-3d-slate min-w-[40px] min-h-[40px] p-2 sm:p-2.5 rounded-2xl border-slate-700 hover:border-slate-500 text-slate-300 shadow-sm"
             title={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
+            aria-label={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
           >
             {progress.soundEnabled ? (
               <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
