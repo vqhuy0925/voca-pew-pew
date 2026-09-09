@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -13,6 +13,7 @@ interface TopNavBarProps {
   onOpenEnergyModal?: () => void;
   onOpenProfileModal?: () => void;
   onOpenArmory?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
@@ -21,7 +22,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenRefillModal,
   onOpenEnergyModal,
   onOpenProfileModal,
-  onOpenArmory
+  onOpenArmory,
+  onOpenLeaderboard
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
 
@@ -89,6 +91,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             >
               <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
               <span className="hidden sm:inline">Xưởng Tàu</span>
+            </button>
+          )}
+
+          {/* Leaderboard Button 🏆 */}
+          {onOpenLeaderboard && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenLeaderboard();
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 hover:border-amber-300 rounded-2xl text-amber-300 font-orbitron font-extrabold text-xs sm:text-sm md:text-base transition active:scale-95 cursor-pointer shadow-sm"
+              title="Bảng Xếp Hạng Vũ Trụ (Thi đua học tập)"
+            >
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-pulse" />
+              <span className="hidden sm:inline">BXH</span>
             </button>
           )}
 

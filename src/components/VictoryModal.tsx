@@ -3,7 +3,7 @@ import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId, UserProgress } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap, Trophy } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
@@ -25,6 +25,7 @@ interface VictoryModalProps {
   onRestart: () => void;
   onGoToMap: () => void;
   onOpenArmory?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
@@ -40,7 +41,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   mascotId = 'cosmo_dog',
   onNextLevel,
   onRestart,
-  onGoToMap
+  onGoToMap,
+  onOpenLeaderboard
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
@@ -193,6 +195,34 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             <span>Đã hoàn thành trước đó • Nhận <strong>+{xpAwarded} XP</strong> rèn luyện!</span>
           </div>
         )}
+
+        {/* Leaderboard Rank Boost Banner */}
+        <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-2.5 mb-4 flex items-center justify-between gap-2 text-left">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-300 flex-shrink-0">
+              <Trophy className="w-4 h-4 animate-pulse" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-amber-300 truncate">
+                +{xpAwarded} XP đã cộng vào Bảng Xếp Hạng!
+              </div>
+              <div className="text-[11px] text-slate-300">
+                Tuần này: <span className="font-orbitron font-bold text-amber-400">{(progress.weeklyXp || 0) + xpAwarded} XP</span>
+              </div>
+            </div>
+          </div>
+          {onOpenLeaderboard && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenLeaderboard();
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-xs font-bold transition active:scale-95 cursor-pointer whitespace-nowrap flex-shrink-0"
+            >
+              Xem BXH 🏆
+            </button>
+          )}
+        </div>
 
         {/* Word / Sentence Review Grid */}
         {level.words.length > 0 && (

@@ -26,6 +26,7 @@ interface LearningPathViewProps {
   onOpenEnergyModal?: () => void;
   onOpenProfileModal: () => void;
   onOpenArmory: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 // Zigzag offsets for winding saga path
@@ -38,7 +39,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenRefillModal,
   onOpenEnergyModal,
   onOpenProfileModal,
-  onOpenArmory
+  onOpenArmory,
+  onOpenLeaderboard
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
@@ -127,6 +129,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenEnergyModal={onOpenEnergyModal}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}
+        onOpenLeaderboard={onOpenLeaderboard}
       />
 
       {/* Main Centered Focused Roadmap */}

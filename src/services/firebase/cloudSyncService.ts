@@ -93,6 +93,7 @@ export const queueCloudSync = (progress: UserProgress) => {
         selectedRealmId: progress.selectedRealmId || 'realm-1',
         currentLevelId: progress.currentLevelId,
         totalXp: progress.totalXp || 0,
+        weeklyXp: progress.weeklyXp || 0,
         starsCount: totalStars,
         completedLevelsCount: completedCount,
         streakDays: progress.streakDays || 1,

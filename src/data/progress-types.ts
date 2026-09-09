@@ -90,5 +90,9 @@ export interface UserProgress {
   playerTag?: string;               // Unique friend code e.g. '#PEW-8492'
   cloudUid?: string;                // Firebase UID
   lastCloudSyncTimestamp?: number;  // Last time synced with Firestore
+
+  // Leaderboard & Weekly Competition (Phase 2) 🏆
+  weeklyXp?: number;                // XP earned in the current week
+  lastWeeklyReset?: string;         // Week identifier e.g. '2026-W37'
 }
 

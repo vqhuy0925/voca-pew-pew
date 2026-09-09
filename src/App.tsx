@@ -29,6 +29,7 @@ import { RefillHeartsModal } from './components/modals/RefillHeartsModal';
 import { EnergyModal } from './components/modals/EnergyModal';
 import { UserProfileModal } from './components/modals/UserProfileModal';
 import { ArmoryModal } from './components/modals/ArmoryModal';
+import { LeaderboardModal } from './components/modals/LeaderboardModal';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
   });
   const [showArmoryModal, setShowArmoryModal] = useState<boolean>(false);
   const [showEnergyModal, setShowEnergyModal] = useState<boolean>(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
     const saved = loadUserProgress();
     return ALL_LEVELS.find(l => l.id === saved.currentLevelId) || ALL_LEVELS[0];
@@ -324,6 +326,7 @@ export const App: React.FC = () => {
           onOpenEnergyModal={() => setShowEnergyModal(true)}
           onOpenProfileModal={() => setShowProfileModal(true)}
           onOpenArmory={() => setShowArmoryModal(true)}
+          onOpenLeaderboard={() => setShowLeaderboardModal(true)}
         />
       )}
 
@@ -430,6 +433,7 @@ export const App: React.FC = () => {
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
           onOpenArmory={() => setShowArmoryModal(true)}
+          onOpenLeaderboard={() => setShowLeaderboardModal(true)}
         />
       )}
 
@@ -491,6 +495,14 @@ export const App: React.FC = () => {
           progress={progress}
           onUpdateProgress={handleUpdateProgress}
           onClose={() => setShowArmoryModal(false)}
+        />
+      )}
+
+      {/* 12. Cosmic Leaderboard Modal */}
+      {showLeaderboardModal && (
+        <LeaderboardModal
+          progress={progress}
+          onClose={() => setShowLeaderboardModal(false)}
         />
       )}
     </div>

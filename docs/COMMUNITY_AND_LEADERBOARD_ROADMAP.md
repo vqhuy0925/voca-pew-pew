@@ -121,26 +121,26 @@ interface FirestoreGuild {
 
 ---
 
-### 🟡 GIAI ĐOẠN 2: Hệ Thống Bảng Xếp Hạng (Leaderboard)
+### 🟢 GIAI ĐOẠN 2: Hệ Thống Bảng Xếp Hạng (Leaderboard) — [HOÀN THÀNH ✅]
 > **Mục tiêu:** Tạo động lực thi đua học tập tích cực, hỗ trợ lọc theo độ tuổi/Realm và bảng thi đua hàng tuần.
 
-- [ ] **Task 2.1: Dịch vụ truy vấn Bảng Xếp Hạng (`LeaderboardService.ts`)**
+- [x] **Task 2.1: Dịch vụ truy vấn Bảng Xếp Hạng (`LeaderboardService.ts`)**
   - Tạo `src/services/firebase/leaderboardService.ts`.
   - Hàm `fetchGlobalLeaderboard(limit = 50)`: Lấy top điểm cao toàn vũ trụ.
   - Hàm `fetchRealmLeaderboard(realmId, limit = 50)`: Lấy top học sinh cùng độ tuổi/cấp độ.
   - Hàm `fetchWeeklyLeaderboard(limit = 50)`: Lấy top chiến thần chăm chỉ trong tuần hiện tại.
-  - Hàm `getUserRank(uid)`: Xác định thứ hạng hiện tại của chính người chơi.
+  - Tự động hợp nhất thứ hạng của bé và tích hợp danh sách phi hành gia dự phòng (fallback) sinh động khi ngoại tuyến.
 
-- [ ] **Task 2.2: Giao diện Modal Bảng Xếp Hạng (`LeaderboardModal.tsx`)**
+- [x] **Task 2.2: Giao diện Modal Bảng Xếp Hạng (`LeaderboardModal.tsx`)**
   - Tạo component `src/components/modals/LeaderboardModal.tsx` với giao diện 3D phong cách Sci-Fi rực rỡ:
-    - 3 Tab chuyển đổi: **Toàn Vũ Trụ (Global)** | **Cùng Cấp Độ (Realm)** | **Tuần Này (Weekly)**.
-    - Top 3 người dẫn đầu được làm nổi bật với bục vinh quang (Huy chương Vàng 🥇, Bạc 🥈, Đồng 🥉 kèm hào quang).
+    - 3 Tab chuyển đổi: **Chiến Thần Tuần (Weekly)** | **Toàn Vũ Trụ (Global)** | **Cùng Cấp Độ (Realm)**.
+    - Top 3 người dẫn đầu được làm nổi bật với bục vinh quang (Huy chương Vàng 🥇 Quán Quân, Bạc 🥈, Đồng 🥉 kèm hào quang & vương miện).
     - Hàng của người chơi hiện tại được ghim cố định ở thanh đáy với hiệu ứng phát sáng đặc biệt.
-  - Hiển thị đầy đủ: Thứ hạng, Avatar, Tên, Tàu vũ trụ đang lái, và Tổng XP / Sao.
+  - Hiển thị đầy đủ: Thứ hạng, Avatar, Tên, Friend Tag `#PEW-XXXX`, Tàu vũ trụ đang lái, và Tổng XP / Sao / Streak.
 
-- [ ] **Task 2.3: Tích hợp nút mở Bảng Xếp Hạng trên TopNavBar & Màn hình Kết Quả**
-  - Thêm biểu tượng Cúp Vàng 🏆 trên thanh `TopNavBar.tsx`.
-  - Sau khi chiến thắng màn chơi ở `VictoryModal.tsx`, hiển thị thông báo tiến độ thứ hạng (ví dụ: *"Bạn vừa thăng 2 hạng trên BXH Tuần!"*).
+- [x] **Task 2.3: Tích hợp nút mở Bảng Xếp Hạng trên TopNavBar & Màn hình Kết Quả**
+  - Thêm biểu tượng Cúp Vàng 🏆 trên thanh `TopNavBar.tsx` kèm hiệu ứng động.
+  - Sau khi chiến thắng màn chơi ở `VictoryModal.tsx`, hiển thị thẻ thành tích thứ hạng tuần (*"+{xpAwarded} XP đã cộng vào Bảng Xếp Hạng!"*) kèm nút mở nhanh BXH.
 
 ---
 

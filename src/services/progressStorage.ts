@@ -1,6 +1,6 @@
 import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
-import { queueCloudSync } from './firebase/cloudSyncService';
+import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
@@ -86,7 +86,11 @@ export const getInitialUserProgress = (): UserProgress => {
 
     // Cloud Identity
     playerTag: getOrInitPlayerTag(),
-    cloudUid: getCurrentUid()
+    cloudUid: getCurrentUid(),
+
+    // Leaderboard
+    weeklyXp: 0,
+    lastWeeklyReset: getWeekIdentifier()
   };
 };
 
@@ -297,6 +301,15 @@ export const loadUserProgress = (): UserProgress => {
     parsed.playerTag = parsed.playerTag || getOrInitPlayerTag();
     parsed.cloudUid = parsed.cloudUid || getCurrentUid();
 
+    // Ensure Weekly XP reset
+    const currentWeek = getWeekIdentifier();
+    if (!parsed.lastWeeklyReset || parsed.lastWeeklyReset !== currentWeek) {
+      parsed.weeklyXp = 0;
+      parsed.lastWeeklyReset = currentWeek;
+    } else {
+      parsed.weeklyXp = typeof parsed.weeklyXp === 'number' ? parsed.weeklyXp : 0;
+    }
+
     saveUserProgress(parsed);
     return parsed;
   } catch (err) {
@@ -358,6 +371,10 @@ export const completeLevelProgress = (
   const nextTargetId = nextLvl ? nextLvl.id : levelId;
   const targetRealm = getRealmByLevelId(nextTargetId);
 
+  const currentWeek = getWeekIdentifier();
+  const isSameWeek = prev.lastWeeklyReset === currentWeek;
+  const updatedWeeklyXp = (isSameWeek ? (prev.weeklyXp || 0) : 0) + xpEarned;
+
   const updatedUser: UserProgress = {
     ...prev,
     levelProgressMap: updatedMap,
@@ -365,6 +382,8 @@ export const completeLevelProgress = (
     currentLevelId: nextTargetId,
     selectedRealmId: targetRealm ? targetRealm.id : prev.selectedRealmId,
     totalXp: prev.totalXp + xpEarned,
+    weeklyXp: updatedWeeklyXp,
+    lastWeeklyReset: currentWeek,
     gems: prev.gems + gemsEarned,
     lastActiveDate: getTodayDateString()
   };
