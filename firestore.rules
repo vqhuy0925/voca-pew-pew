@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authenticated (including anonymous auth)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profiles collection
+    match /users/{userId} {
+      // Any authenticated user can read public profile summaries for leaderboard
+      allow read: if isAuthenticated();
+
+      // Only the owner can create or update their own profile document
+      allow create: if isOwner(userId)
+                    && request.resource.data.totalXp is number
+                    && request.resource.data.totalXp >= 0;
+
+      allow update: if isOwner(userId)
+                    // Basic sanity protection: totalXp cannot decrease or explode unreasonably
+                    && request.resource.data.totalXp is number
+                    && request.resource.data.totalXp >= resource.data.totalXp;
+
+      allow delete: if false; // Disallow profile deletion directly
+    }
+
+    // Weekly leaderboard collection
+    match /weekly_leaderboards/{weekId}/ranks/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+  }
+}

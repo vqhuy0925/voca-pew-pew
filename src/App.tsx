@@ -37,6 +37,7 @@ import { GameOverModal } from './components/GameOverModal';
 import { PauseModal } from './components/PauseModal';
 import { soundFx } from './game/engine/SoundController';
 import { speechHelper } from './game/engine/SpeechHelper';
+import { initAuthSession } from './services/firebase/authService';
 
 type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
@@ -102,6 +103,20 @@ export const App: React.FC = () => {
       }
       window.removeEventListener('resize', updateViewport);
     };
+  }, []);
+
+  // Initialize Silent Cloud Auth & Identity Session
+  useEffect(() => {
+    initAuthSession().then((uid) => {
+      setProgress((prev) => {
+        if (prev.cloudUid !== uid) {
+          const updated = { ...prev, cloudUid: uid };
+          saveUserProgress(updated);
+          return updated;
+        }
+        return prev;
+      });
+    });
   }, []);
 
   // Sync soundFx and speechHelper mute state with loaded progress
@@ -463,6 +478,7 @@ export const App: React.FC = () => {
           initialTheme={progress.themeStyle || 'galactic_starwars'}
           initialMascotId={progress.mascotId || 'cosmo_dog'}
           initialDailyEnergyMode={progress.dailyEnergyMode || 'balanced'}
+          initialPlayerTag={progress.playerTag}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
           onClose={progress.userName ? () => setShowProfileModal(false) : undefined}

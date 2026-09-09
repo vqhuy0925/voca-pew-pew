@@ -85,5 +85,10 @@ export interface UserProgress {
   equippedLaserId: string;
   unlockedUpgradeIds: string[];
   selectedDifficulty: DifficultyLevel;
+
+  // Cloud & Identity (Phase 1) ☁️
+  playerTag?: string;               // Unique friend code e.g. '#PEW-8492'
+  cloudUid?: string;                // Firebase UID
+  lastCloudSyncTimestamp?: number;  // Last time synced with Firestore
 }
 

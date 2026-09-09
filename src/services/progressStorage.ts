@@ -1,5 +1,7 @@
 import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
+import { queueCloudSync } from './firebase/cloudSyncService';
+import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -80,7 +82,11 @@ export const getInitialUserProgress = (): UserProgress => {
     equippedBlasterId: 'blaster-single',
     equippedLaserId: 'laser-cyan',
     unlockedUpgradeIds: ['ship-scout', 'blaster-single', 'laser-cyan'],
-    selectedDifficulty: 'NORMAL'
+    selectedDifficulty: 'NORMAL',
+
+    // Cloud Identity
+    playerTag: getOrInitPlayerTag(),
+    cloudUid: getCurrentUid()
   };
 };
 
@@ -287,6 +293,10 @@ export const loadUserProgress = (): UserProgress => {
     REALM_ENTRY_LEVEL_IDS.forEach(id => unlockedSet.add(id));
     parsed.unlockedLevelIds = Array.from(unlockedSet);
 
+    // Ensure Cloud Identity
+    parsed.playerTag = parsed.playerTag || getOrInitPlayerTag();
+    parsed.cloudUid = parsed.cloudUid || getCurrentUid();
+
     saveUserProgress(parsed);
     return parsed;
   } catch (err) {
@@ -298,6 +308,7 @@ export const loadUserProgress = (): UserProgress => {
 export const saveUserProgress = (progress: UserProgress): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    queueCloudSync(progress);
   } catch (err) {
     console.error('Failed to save user progress:', err);
   }

@@ -13,7 +13,8 @@ import {
   Palette,
   Edit3,
   Layers,
-  Smile
+  Smile,
+  Copy
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { MascotWidget } from '../mascot/MascotWidget';
@@ -41,6 +42,7 @@ interface UserProfileModalProps {
   initialTheme?: ThemeStyle;
   initialMascotId?: MascotId;
   initialDailyEnergyMode?: DailyEnergyMode;
+  initialPlayerTag?: string;
   isFirstTime?: boolean;
   onSave: (
     name: string,
@@ -81,10 +83,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   initialTheme = 'cosmic_cyan',
   initialMascotId = 'cosmo_dog',
   initialDailyEnergyMode = 'balanced',
+  initialPlayerTag = '#PEW',
   isFirstTime = false,
   onSave,
   onClose
 }) => {
+  const [copiedTag, setCopiedTag] = useState<boolean>(false);
   // Wizard steps for first-time user (1: Name & Gender, 2: Age, 3: Confirm)
   const [step, setStep] = useState<number>(1);
 
@@ -647,6 +651,30 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <span>{personaLabels.neutral}</span>
                   </button>
                 </div>
+              </div>
+
+              {/* Astronaut Tag Pill with Copy */}
+              <div className="flex items-center justify-between p-2.5 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs">
+                <div className="flex items-center gap-2 text-slate-300">
+                  <span className="text-slate-400 font-semibold">Mã Phi Hành Gia:</span>
+                  <span className="font-mono font-black text-cyan-400 tracking-wider text-sm">{initialPlayerTag || '#PEW'}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFx.playClick();
+                    if (initialPlayerTag) {
+                      navigator.clipboard?.writeText(initialPlayerTag);
+                      setCopiedTag(true);
+                      setTimeout(() => setCopiedTag(false), 2000);
+                    }
+                  }}
+                  className="px-2.5 py-1 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/30 text-cyan-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Sao chép mã để kết bạn hoặc khoe với bạn bè"
+                >
+                  {copiedTag ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedTag ? 'Đã chép!' : 'Sao chép'}</span>
+                </button>
               </div>
             </div>
 

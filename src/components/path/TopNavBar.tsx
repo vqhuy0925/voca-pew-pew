@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
+import { subscribeSyncStatus, SyncStatus } from '../../services/firebase/cloudSyncService';
 
 interface TopNavBarProps {
   progress: UserProgress;
@@ -22,6 +23,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenProfileModal,
   onOpenArmory
 }) => {
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
+
+  useEffect(() => {
+    return subscribeSyncStatus((status) => {
+      setSyncStatus(status);
+    });
+  }, []);
+
   const toggleSound = () => {
     const isMuted = soundFx.toggleMute();
     speechHelper.setEnabled(!isMuted);
@@ -53,10 +62,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <div className={`font-game font-extrabold text-sm sm:text-base text-white group-hover:${theme.textColor} transition truncate max-w-[130px]`}>
                 {displayName}
               </div>
-              <div className="text-xs text-slate-400 font-bold flex items-center gap-1">
+              <div className="text-xs text-slate-400 font-bold flex items-center gap-1.5">
                 <span>{mascot.icon} {mascot.name}</span>
                 <span>•</span>
-                <span>{progress.userAge ? `${progress.userAge} tuổi` : 'Học viên'}</span>
+                <span className="font-mono text-cyan-400 font-bold">{progress.playerTag || '#PEW'}</span>
+                {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 text-emerald-400" /></span>}
+                {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" /></span>}
+                {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-3.5 h-3.5 text-slate-500" /></span>}
+                {syncStatus === 'error' && <span title="Lỗi đồng bộ mây"><CloudOff className="w-3.5 h-3.5 text-rose-400" /></span>}
               </div>
             </div>
           </button>
