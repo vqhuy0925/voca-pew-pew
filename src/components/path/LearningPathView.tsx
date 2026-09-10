@@ -29,6 +29,8 @@ interface LearningPathViewProps {
   onOpenLeaderboard?: () => void;
   onOpenAstronautCard?: () => void;
   onOpenDiamondGuide?: () => void;
+  onOpenInstallModal?: () => void;
+  showInstallButton?: boolean;
 }
 
 // Zigzag offsets for winding saga path
@@ -44,7 +46,9 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenArmory,
   onOpenLeaderboard,
   onOpenAstronautCard,
-  onOpenDiamondGuide
+  onOpenDiamondGuide,
+  onOpenInstallModal,
+  showInstallButton
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
@@ -136,6 +140,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenLeaderboard={onOpenLeaderboard}
         onOpenAstronautCard={onOpenAstronautCard}
         onOpenDiamondGuide={onOpenDiamondGuide}
+        onOpenInstallModal={onOpenInstallModal}
+        showInstallButton={showInstallButton}
       />
 
       {/* Main Centered Focused Roadmap */}

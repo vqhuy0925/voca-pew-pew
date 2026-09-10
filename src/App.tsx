@@ -45,6 +45,8 @@ import { speechHelper } from './game/engine/SpeechHelper';
 import { initAuthSession, ensureCloudAuthSession, setIncognitoBlocked } from './services/firebase/authService';
 import { checkIsIncognito } from './services/incognitoDetector';
 import { IncognitoWarningModal } from './components/modals/IncognitoWarningModal';
+import { usePWAInstall } from './hooks/usePWAInstall';
+import { InstallGuideModal } from './components/modals/InstallGuideModal';
 
 type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
@@ -74,7 +76,9 @@ export const App: React.FC = () => {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
   const [showAstronautCardModal, setShowAstronautCardModal] = useState<boolean>(false);
   const [showDiamondGuideModal, setShowDiamondGuideModal] = useState<boolean>(false);
+  const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
+  const pwaState = usePWAInstall();
   const [detectedBrowser, setDetectedBrowser] = useState<string>('');
   const [lastRewardBreakdown, setLastRewardBreakdown] = useState<ClearRewardBreakdown | null>(null);
   const [selectedCardPlayer, setSelectedCardPlayer] = useState<LeaderboardEntry | null>(null);
@@ -372,6 +376,8 @@ export const App: React.FC = () => {
           onOpenLeaderboard={handleOpenLeaderboard}
           onOpenAstronautCard={() => handleOpenAstronautCard(null)}
           onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
+          onOpenInstallModal={() => setShowInstallModal(true)}
+          showInstallButton={pwaState.isInstallable}
         />
       )}
 
@@ -590,6 +596,15 @@ export const App: React.FC = () => {
         browserName={detectedBrowser}
         onContinueOffline={() => setShowIncognitoModal(false)}
       />
+
+      {/* 16. PWA Install & Shortcut Guide Modal 📲 */}
+      {showInstallModal && (
+        <InstallGuideModal
+          progress={progress}
+          pwaState={pwaState}
+          onClose={() => setShowInstallModal(false)}
+        />
+      )}
     </div>
   );
 };

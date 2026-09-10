@@ -21,3 +21,8 @@
 5. **Kid-Friendly UX & Accessibility**:
    - Maintain vibrant 3D/gamified UI elements with Tailwind CSS.
    - Support both keyboard input and virtual touch keyboard for iPad/tablet users.
+
+6. **Strict Public NPM Registry (`https://registry.npmjs.org`)**:
+   - Always ensure project `.npmrc` is set to `registry=https://registry.npmjs.org/`.
+   - Never allow private or enterprise registry URLs into `package-lock.json`.
+   - If adding or updating libraries, ensure `package-lock.json` only contains `https://registry.npmjs.org`.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -16,6 +16,8 @@ interface TopNavBarProps {
   onOpenLeaderboard?: () => void;
   onOpenAstronautCard?: () => void;
   onOpenDiamondGuide?: () => void;
+  onOpenInstallModal?: () => void;
+  showInstallButton?: boolean;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
@@ -27,7 +29,9 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenArmory,
   onOpenLeaderboard,
   onOpenAstronautCard,
-  onOpenDiamondGuide
+  onOpenDiamondGuide,
+  onOpenInstallModal,
+  showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
 
@@ -120,6 +124,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             >
               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 mr-1" />
               <span className="hidden sm:inline">Thẻ ID</span>
+            </button>
+          )}
+
+          {/* Install / Add Shortcut Button 📲 */}
+          {showInstallButton && onOpenInstallModal && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenInstallModal();
+              }}
+              className="btn-3d px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-3 border-b-emerald-800 rounded-2xl text-emerald-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition shadow-sm hover:border-emerald-300"
+              title="Đưa game ra màn hình chính để chơi toàn màn hình"
+            >
+              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 mr-1 animate-pulse" />
+              <span className="hidden sm:inline">Cài App</span>
             </button>
           )}
 
