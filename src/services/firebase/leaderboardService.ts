@@ -338,6 +338,41 @@ export const mergeCurrentUser = (
 };
 
 /**
+ * Helper to blend mock contenders when live players count is low (cold start),
+ * ensuring real players are always placed accurately at their earned scores.
+ */
+const blendMockContenders = (
+  liveEntries: LeaderboardEntry[],
+  sortKey: 'totalXp' | 'weeklyXp',
+  minCount = 10,
+  realmFilter?: string
+): LeaderboardEntry[] => {
+  if (liveEntries.length >= minCount) {
+    return liveEntries;
+  }
+
+  const existingUids = new Set(liveEntries.map(e => e.uid));
+  const existingTags = new Set(liveEntries.map(e => e.playerTag));
+
+  let pool = MOCK_COSMIC_CONTENDERS.filter(
+    m => !existingUids.has(m.uid) && !existingTags.has(m.playerTag)
+  );
+
+  if (realmFilter) {
+    pool = pool.map(m => ({
+      ...m,
+      selectedRealmId: realmFilter,
+      totalXp: Math.max(100, Math.round(m.totalXp * 0.85))
+    }));
+  }
+
+  const needed = minCount - liveEntries.length;
+  const fillers: LeaderboardEntry[] = pool.slice(0, needed).map(m => ({ ...m, rank: 0 }));
+
+  return [...liveEntries, ...fillers];
+};
+
+/**
  * Fetch Top Global Leaderboard (sorted by totalXp descending)
  */
 export const fetchGlobalLeaderboard = async (
@@ -378,7 +413,8 @@ export const fetchGlobalLeaderboard = async (
           };
         });
 
-        return mergeCurrentUser(liveEntries, currentProgress, 'totalXp');
+        const blended = blendMockContenders(liveEntries, 'totalXp', 12);
+        return mergeCurrentUser(blended, currentProgress, 'totalXp');
       }
     } catch (err) {
       console.warn('[Leaderboard] Global fetch failed, using cosmic contenders:', err);
@@ -392,6 +428,7 @@ export const fetchGlobalLeaderboard = async (
 
 /**
  * Fetch Realm Leaderboard (sorted by totalXp descending within the given Realm)
+ * Includes graceful index fallback to client-side sorting if composite indexes are still building.
  */
 export const fetchRealmLeaderboard = async (
   realmId: string,
@@ -400,14 +437,27 @@ export const fetchRealmLeaderboard = async (
 ): Promise<LeaderboardEntry[]> => {
   if (isFirebaseConfigured && db) {
     try {
-      const q = query(
-        collection(db, 'users'),
-        where('selectedRealmId', '==', realmId),
-        orderBy('totalXp', 'desc'),
-        limit(limitCount)
-      );
-      const snap = await getDocs(q);
-      if (!snap.empty) {
+      let snap;
+      try {
+        const q = query(
+          collection(db, 'users'),
+          where('selectedRealmId', '==', realmId),
+          orderBy('totalXp', 'desc'),
+          limit(limitCount)
+        );
+        snap = await getDocs(q);
+      } catch (indexErr) {
+        // Fallback: Query by realm filter only (no composite index required) & sort in memory
+        console.info('[Leaderboard] Realm composite index pending, utilizing memory sorting fallback:', indexErr);
+        const fallbackQ = query(
+          collection(db, 'users'),
+          where('selectedRealmId', '==', realmId),
+          limit(limitCount * 2)
+        );
+        snap = await getDocs(fallbackQ);
+      }
+
+      if (snap && !snap.empty) {
         const liveEntries: LeaderboardEntry[] = snap.docs.map(docSnap => {
           const data = docSnap.data();
           return {
@@ -433,9 +483,12 @@ export const fetchRealmLeaderboard = async (
           };
         });
 
-        // Filter current user to only show in this realm if their realm matches
+        // Ensure sorted by totalXp descending
+        liveEntries.sort((a, b) => b.totalXp - a.totalXp);
+
+        const blended = blendMockContenders(liveEntries, 'totalXp', 8, realmId);
         const matchesRealm = currentProgress && (currentProgress.selectedRealmId === realmId);
-        return mergeCurrentUser(liveEntries, matchesRealm ? currentProgress : undefined, 'totalXp');
+        return mergeCurrentUser(blended, matchesRealm ? currentProgress : undefined, 'totalXp');
       }
     } catch (err) {
       console.warn('[Leaderboard] Realm fetch failed, using fallback:', err);
@@ -444,12 +497,11 @@ export const fetchRealmLeaderboard = async (
 
   // Fallback mode: Filter mock contenders by realm or adapt them
   let realmContenders = MOCK_COSMIC_CONTENDERS.filter(c => c.selectedRealmId === realmId);
-  if (realmContenders.length < 5) {
-    // Borrow and adapt a few contenders so realm board looks vibrant
+  if (realmContenders.length < 6) {
     realmContenders = MOCK_COSMIC_CONTENDERS.slice(0, 8).map(c => ({
       ...c,
       selectedRealmId: realmId,
-      totalXp: Math.round(c.totalXp * 0.85)
+      totalXp: Math.max(100, Math.round(c.totalXp * 0.85))
     }));
   }
 
@@ -460,6 +512,7 @@ export const fetchRealmLeaderboard = async (
 
 /**
  * Fetch Weekly Leaderboard (sorted by weeklyXp descending)
+ * Includes graceful index fallback to client-side sorting if composite indexes are still building.
  */
 export const fetchWeeklyLeaderboard = async (
   limitCount = 50,
@@ -469,14 +522,27 @@ export const fetchWeeklyLeaderboard = async (
 
   if (isFirebaseConfigured && db) {
     try {
-      const q = query(
-        collection(db, 'users'),
-        where('lastWeeklyReset', '==', currentWeek),
-        orderBy('weeklyXp', 'desc'),
-        limit(limitCount)
-      );
-      const snap = await getDocs(q);
-      if (!snap.empty) {
+      let snap;
+      try {
+        const q = query(
+          collection(db, 'users'),
+          where('lastWeeklyReset', '==', currentWeek),
+          orderBy('weeklyXp', 'desc'),
+          limit(limitCount)
+        );
+        snap = await getDocs(q);
+      } catch (indexErr) {
+        // Fallback: Query by lastWeeklyReset only (no composite index required) & sort in memory
+        console.info('[Leaderboard] Weekly composite index pending, utilizing memory sorting fallback:', indexErr);
+        const fallbackQ = query(
+          collection(db, 'users'),
+          where('lastWeeklyReset', '==', currentWeek),
+          limit(limitCount * 2)
+        );
+        snap = await getDocs(fallbackQ);
+      }
+
+      if (snap && !snap.empty) {
         const liveEntries: LeaderboardEntry[] = snap.docs.map(docSnap => {
           const data = docSnap.data();
           return {
@@ -502,7 +568,11 @@ export const fetchWeeklyLeaderboard = async (
           };
         });
 
-        return mergeCurrentUser(liveEntries, currentProgress, 'weeklyXp');
+        // Ensure sorted by weeklyXp descending
+        liveEntries.sort((a, b) => b.weeklyXp - a.weeklyXp);
+
+        const blended = blendMockContenders(liveEntries, 'weeklyXp', 10);
+        return mergeCurrentUser(blended, currentProgress, 'weeklyXp');
       }
     } catch (err) {
       console.warn('[Leaderboard] Weekly fetch failed, using fallback:', err);

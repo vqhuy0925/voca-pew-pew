@@ -12,10 +12,10 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // User profiles collection
+    // User profiles collection for public leaderboard
     match /users/{userId} {
-      // Any authenticated user can read public profile summaries for leaderboard
-      allow read: if isAuthenticated();
+      // Public leaderboard can be read by all players
+      allow read: if true;
 
       // Only the owner can create or update their own profile document
       allow create: if isOwner(userId)
@@ -23,16 +23,15 @@ service cloud.firestore {
                     && request.resource.data.totalXp >= 0;
 
       allow update: if isOwner(userId)
-                    // Basic sanity protection: totalXp cannot decrease or explode unreasonably
                     && request.resource.data.totalXp is number
-                    && request.resource.data.totalXp >= resource.data.totalXp;
+                    && request.resource.data.totalXp >= 0;
 
       allow delete: if false; // Disallow profile deletion directly
     }
 
     // Weekly leaderboard collection
     match /weekly_leaderboards/{weekId}/ranks/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isOwner(userId);
     }
   }

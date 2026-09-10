@@ -119,12 +119,9 @@ export const App: React.FC = () => {
   useEffect(() => {
     initAuthSession().then((uid) => {
       setProgress((prev) => {
-        if (prev.cloudUid !== uid) {
-          const updated = { ...prev, cloudUid: uid };
-          saveUserProgress(updated);
-          return updated;
-        }
-        return prev;
+        const updated = { ...prev, cloudUid: uid };
+        saveUserProgress(updated);
+        return updated;
       });
     });
   }, []);
