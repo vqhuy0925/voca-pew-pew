@@ -55,33 +55,96 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   const genderBadge = progress.gender === 'girl' ? '💖' : progress.gender === 'boy' ? '⚡' : '🌟';
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3 shadow-md select-none">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
-        {/* Left: Brand Logo & Profile */}
-        <div className="flex items-center gap-3">
+    <header
+      className="sticky top-0 z-40 w-full bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 py-2 sm:py-3 shadow-md select-none transition-all"
+      style={{
+        paddingTop: 'max(0.65rem, env(safe-area-inset-top, 0px))',
+        paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))'
+      }}
+    >
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
+        {/* Row 1 on Mobile: Avatar/Profile (Left) & Core Status Pills (Right on mobile) */}
+        <div className="flex items-center justify-between w-full md:w-auto gap-2">
+          {/* Brand Logo & Profile */}
           <button
             onClick={onOpenProfileModal}
-            className={`flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:${theme.borderAccent} transition cursor-pointer active:scale-95 group shadow-sm`}
+            className={`flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:${theme.borderAccent} transition cursor-pointer active:scale-95 group shadow-sm shrink-0`}
             title="Đổi tên, phong cách, màu sắc & bạn đồng hành"
           >
             <div className="relative">
-              <span className="text-2xl sm:text-3xl drop-shadow">{progress.avatar || '🚀'}</span>
-              <span className="absolute -bottom-1 -right-1 text-xs">{genderBadge}</span>
+              <span className="text-xl sm:text-3xl drop-shadow">{progress.avatar || '🚀'}</span>
+              <span className="absolute -bottom-1 -right-1 text-[10px] sm:text-xs">{genderBadge}</span>
             </div>
-            <div className="text-left hidden sm:flex items-center gap-2">
-              <span className={`font-game font-black text-base sm:text-lg text-white group-hover:${theme.textColor} transition truncate max-w-[150px]`}>
+            <div className="text-left flex items-center gap-1.5">
+              <span className={`font-game font-black text-xs sm:text-base text-white group-hover:${theme.textColor} transition truncate max-w-[90px] sm:max-w-[150px]`}>
                 {displayName}
               </span>
-              {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-4 h-4 text-emerald-400" /></span>}
-              {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-4 h-4 text-amber-400 animate-spin" /></span>}
-              {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-4 h-4 text-slate-500" /></span>}
-              {syncStatus === 'error' && <span title="Lỗi đồng bộ mây"><CloudOff className="w-4 h-4 text-rose-400" /></span>}
+              {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /></span>}
+              {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 animate-spin" /></span>}
+              {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" /></span>}
+              {syncStatus === 'error' && <span title="Lỗi đồng bộ mây"><CloudOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" /></span>}
             </div>
           </button>
+
+          {/* Core Player Stats (Streak, Energy, Gems, Hearts) - visible in Row 1 on mobile */}
+          <div className="flex items-center gap-1 sm:gap-2 md:hidden">
+            {/* Daily Streak */}
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-xl text-amber-300 font-orbitron font-black text-xs shrink-0"
+              title="Chuỗi ngày học liên tiếp"
+            >
+              <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+              <span>{progress.streakDays}</span>
+            </div>
+
+            {/* Energy Reactor Pill ⚡ */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenEnergyModal) onOpenEnergyModal();
+              }}
+              className={`btn-3d flex items-center gap-1 px-2 py-1.5 rounded-xl font-orbitron font-black text-xs transition border shrink-0 ${
+                progress.energy <= 15
+                  ? 'bg-rose-500/20 border-rose-400/60 border-b-2 border-b-rose-800 text-rose-300 hover:bg-rose-500/30 animate-pulse'
+                  : 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-400/50 border-b-2 border-b-yellow-800 text-yellow-300'
+              }`}
+              title="Năng lượng (Bấm để xem/nạp)"
+            >
+              <Zap className={`w-3.5 h-3.5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
+              <span>{`${progress.energy}⚡`}</span>
+            </button>
+
+            {/* Gems */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenDiamondGuide) onOpenDiamondGuide();
+              }}
+              className="btn-3d flex items-center gap-1 px-2 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-2 border-b-cyan-800 rounded-xl text-cyan-200 font-orbitron font-black text-xs transition cursor-pointer shrink-0"
+              title="Kim cương (Bấm để xem bí kíp)"
+            >
+              <Gem className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400 animate-pulse" />
+              <span>{progress.gems}</span>
+            </button>
+
+            {/* Hearts */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenRefillModal) onOpenRefillModal();
+              }}
+              className="btn-3d flex items-center gap-1 px-2 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-2 border-b-rose-800 rounded-xl text-rose-300 font-orbitron font-black text-xs transition shrink-0"
+              title="Mạng chơi (Bấm để nạp thêm)"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+              <span>{progress.hearts}/{progress.maxHearts}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Center/Right: Resource Status Pills */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+        {/* Row 2 on Mobile / Right side on Desktop: Action Buttons & Desktop Stats */}
+        <div className="flex items-center justify-between md:justify-end gap-1.5 sm:gap-2.5 w-full md:w-auto">
           {/* Armory Shop Button */}
           {onOpenArmory && (
             <button
@@ -89,11 +152,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenArmory();
               }}
-              className="btn-3d px-3 py-2 sm:px-4 sm:py-2.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-400/50 border-b-3 border-b-purple-800 rounded-2xl text-purple-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition shadow-sm hover:border-purple-300"
+              className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-400/50 border-b-2 sm:border-b-3 border-b-purple-800 rounded-xl sm:rounded-2xl text-purple-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-purple-300"
               title="Xưởng Nâng Cấp Tàu & Vũ Khí"
             >
-              <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 mr-1 sm:mr-1.5" />
-              <span className="hidden sm:inline">Xưởng</span>
+              <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 mr-1 shrink-0" />
+              <span>Xưởng</span>
             </button>
           )}
 
@@ -104,11 +167,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenLeaderboard();
               }}
-              className="btn-3d px-3 py-2 sm:px-4 sm:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 border-b-3 border-b-amber-800 rounded-2xl text-amber-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition shadow-sm hover:border-amber-300"
+              className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 border-b-2 sm:border-b-3 border-b-amber-800 rounded-xl sm:rounded-2xl text-amber-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-amber-300"
               title="Bảng Xếp Hạng Vũ Trụ"
             >
-              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 mr-1 animate-pulse" />
-              <span className="hidden sm:inline">BXH</span>
+              <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 mr-1 shrink-0 animate-pulse" />
+              <span>BXH</span>
             </button>
           )}
 
@@ -119,11 +182,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenAstronautCard();
               }}
-              className="btn-3d px-3 py-2 sm:px-4 sm:py-2.5 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 border-b-3 border-b-cyan-800 rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition shadow-sm hover:border-cyan-300"
+              className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 border-b-2 sm:border-b-3 border-b-cyan-800 rounded-xl sm:rounded-2xl text-cyan-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-cyan-300"
               title="Thẻ Căn Cước Phi Hành Gia"
             >
-              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 mr-1" />
-              <span className="hidden sm:inline">Thẻ ID</span>
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 mr-1 shrink-0" />
+              <span>Thẻ ID</span>
             </button>
           )}
 
@@ -134,77 +197,80 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenInstallModal();
               }}
-              className="btn-3d px-2.5 py-2 sm:px-3.5 sm:py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-3 border-b-emerald-800 rounded-2xl text-emerald-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition shadow-sm hover:border-emerald-300"
+              className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-2 sm:border-b-3 border-b-emerald-800 rounded-xl sm:rounded-2xl text-emerald-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-emerald-300"
               title="Đưa game ra màn hình chính để chơi toàn màn hình"
             >
-              <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 mr-1 animate-pulse" />
-              <span className="hidden sm:inline">Cài App</span>
+              <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 mr-1 shrink-0 animate-pulse" />
+              <span>Cài App</span>
             </button>
           )}
 
-          {/* Daily Streak */}
-          <div
-            className="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-2xl text-amber-300 font-orbitron font-black text-xs sm:text-sm md:text-base"
-            title="Chuỗi ngày học liên tiếp"
-          >
-            <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 fill-orange-400" />
-            <span>{progress.streakDays}</span>
+          {/* Desktop Only Stats Pills (hidden on mobile, shown on md:) */}
+          <div className="hidden md:flex items-center gap-2.5">
+            {/* Daily Streak */}
+            <div
+              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-2xl text-amber-300 font-orbitron font-black text-sm md:text-base"
+              title="Chuỗi ngày học liên tiếp"
+            >
+              <Flame className="w-5 h-5 text-orange-400 fill-orange-400" />
+              <span>{progress.streakDays}</span>
+            </div>
+
+            {/* Energy Reactor Pill ⚡ */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenEnergyModal) onOpenEnergyModal();
+              }}
+              className={`btn-3d flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl font-orbitron font-black text-sm md:text-base transition border ${
+                progress.energy <= 15
+                  ? 'bg-rose-500/20 border-rose-400/60 border-b-3 border-b-rose-800 text-rose-300 hover:bg-rose-500/30 animate-pulse'
+                  : 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-400/50 border-b-3 border-b-yellow-800 text-yellow-300'
+              }`}
+              title="Năng lượng học tập hôm nay (Bấm để xem/nạp)"
+            >
+              <Zap className={`w-5 h-5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
+              <span>{`${progress.energy}⚡`}</span>
+            </button>
+
+            {/* Gems */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenDiamondGuide) onOpenDiamondGuide();
+              }}
+              className="btn-3d flex items-center gap-1.5 px-3.5 py-2.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-3 border-b-cyan-800 rounded-2xl text-cyan-200 font-orbitron font-black text-sm md:text-base transition cursor-pointer"
+              title="Kim cương (Bấm để xem bí kíp kiếm kim cương 💎)"
+            >
+              <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-pulse" />
+              <span>{progress.gems}</span>
+            </button>
+
+            {/* Hearts */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenRefillModal) onOpenRefillModal();
+              }}
+              className="btn-3d flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-3 border-b-rose-800 rounded-2xl text-rose-300 font-orbitron font-black text-sm md:text-base transition"
+              title="Mạng chơi (Bấm để nạp thêm)"
+            >
+              <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
+              <span>{progress.hearts}/{progress.maxHearts}</span>
+            </button>
           </div>
-
-          {/* Energy Reactor Pill ⚡ */}
-          <button
-            onClick={() => {
-              soundFx.playClick();
-              if (onOpenEnergyModal) onOpenEnergyModal();
-            }}
-            className={`btn-3d flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl font-orbitron font-black text-xs sm:text-sm md:text-base transition border ${
-              progress.energy <= 15
-                ? 'bg-rose-500/20 border-rose-400/60 border-b-3 border-b-rose-800 text-rose-300 hover:bg-rose-500/30 animate-pulse'
-                : 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-400/50 border-b-3 border-b-yellow-800 text-yellow-300'
-            }`}
-            title="Năng lượng học tập hôm nay (Bấm để xem/nạp)"
-          >
-            <Zap className={`w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400 ${progress.energy <= 15 ? 'animate-bounce' : ''}`} />
-            <span>{`${progress.energy}⚡`}</span>
-          </button>
-
-          {/* Gems */}
-          <button
-            onClick={() => {
-              soundFx.playClick();
-              if (onOpenDiamondGuide) onOpenDiamondGuide();
-            }}
-            className="btn-3d flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-3 border-b-cyan-800 rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm md:text-base transition cursor-pointer"
-            title="Kim cương (Bấm để xem bí kíp kiếm kim cương 💎)"
-          >
-            <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400 animate-pulse" />
-            <span>{progress.gems}</span>
-          </button>
-
-          {/* Hearts */}
-          <button
-            onClick={() => {
-              soundFx.playClick();
-              if (onOpenRefillModal) onOpenRefillModal();
-            }}
-            className="btn-3d flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-3 border-b-rose-800 rounded-2xl text-rose-300 font-orbitron font-black text-xs sm:text-sm md:text-base transition"
-            title="Mạng chơi (Bấm để nạp thêm)"
-          >
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500" />
-            <span>{progress.hearts}/{progress.maxHearts}</span>
-          </button>
 
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
-            className="btn-3d btn-3d-slate min-w-[48px] min-h-[48px] p-2.5 rounded-2xl border-slate-700 hover:border-slate-500 text-slate-300 shadow-sm"
+            className="btn-3d btn-3d-slate p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border-slate-700 hover:border-slate-500 text-slate-300 shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
             title={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
             aria-label={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
           >
             {progress.soundEnabled ? (
-              <Volume2 className="w-5 h-5 text-cyan-400" />
+              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             ) : (
-              <VolumeX className="w-5 h-5 text-rose-400" />
+              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
             )}
           </button>
         </div>

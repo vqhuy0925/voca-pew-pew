@@ -47,7 +47,14 @@ export const HUD: React.FC<HUDProps> = ({
     : 100;
 
   return (
-    <div className="absolute top-0 left-0 right-0 p-2.5 sm:p-4 pointer-events-none flex flex-col z-20 select-none">
+    <div
+      className="absolute top-0 left-0 right-0 p-2.5 sm:p-4 pointer-events-none flex flex-col z-20 select-none transition-all"
+      style={{
+        paddingTop: 'max(0.625rem, env(safe-area-inset-top, 0px))',
+        paddingLeft: 'max(0.625rem, env(safe-area-inset-left, 0px))',
+        paddingRight: 'max(0.625rem, env(safe-area-inset-right, 0px))'
+      }}
+    >
       <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Pause & Level Badge */}
         <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
