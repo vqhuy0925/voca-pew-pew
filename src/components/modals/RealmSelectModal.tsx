@@ -38,20 +38,20 @@ export const RealmSelectModal: React.FC<RealmSelectModalProps> = ({
 
         {/* Modal Header */}
         <div className="text-center mb-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs font-extrabold uppercase mb-2">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs sm:text-sm font-black uppercase mb-2">
             <Compass className="w-4 h-4 text-cyan-400" />
             <span>Chọn Cõi Thiên Hà Học Tập</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-white tracking-wider starwars-cyan-glow">
-            ĐỔI LỘ TRÌNH HỌC TẬP 🌌
+          <h2 className="text-2xl sm:text-3xl font-black font-orbitron text-white tracking-wider starwars-cyan-glow">
+            ĐỔI LỘ TRÌNH 🌌
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1">
-            Chọn cõi phù hợp với độ tuổi hoặc mục tiêu giao tiếp của bạn
+          <p className="text-sm sm:text-base text-slate-200 mt-1 font-game">
+            Chọn cõi phù hợp với bạn
           </p>
         </div>
 
         {/* Realms Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto pr-1 flex-1 py-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 overflow-y-auto pr-1 flex-1 py-1">
           {AGE_REALMS.map((realm) => {
             const isSelected = realm.id === currentRealmId;
             const rTotal = realm.units.reduce((acc, u) => acc + u.levels.length, 0);
@@ -73,44 +73,44 @@ export const RealmSelectModal: React.FC<RealmSelectModalProps> = ({
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3.5">
                       <span className="text-3xl sm:text-4xl drop-shadow">{realm.icon}</span>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">
+                          <span className="text-xs sm:text-sm font-black uppercase text-cyan-400 tracking-wider">
                             Cõi {realm.realmNumber}
                           </span>
-                          <span className="text-[11px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
+                          <span className="text-xs font-black text-slate-300 bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-700">
                             {realm.ageRange}
                           </span>
                         </div>
-                        <div className="font-game font-extrabold text-base sm:text-lg text-white mt-0.5">
+                        <div className="font-game font-black text-base sm:text-lg md:text-xl text-white mt-0.5">
                           {realm.nameVi}
                         </div>
                       </div>
                     </div>
 
                     {isSelected && (
-                      <span className="p-1 rounded-full bg-cyan-400 text-slate-950 flex-shrink-0">
+                      <span className="p-1.5 rounded-full bg-cyan-400 text-slate-950 flex-shrink-0">
                         <Check className="w-4 h-4 stroke-[3]" />
                       </span>
                     )}
                   </div>
 
-                  <div className="text-xs text-slate-300 mt-2 font-medium">
+                  <div className="text-xs sm:text-sm text-slate-200 mt-2 font-bold">
                     {realm.gradeLabel} • Chương {realm.startChapter}-{realm.endChapter}
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-3">
-                  <div className="flex-1 h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                  <div className="flex-1 h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                     <div
                       className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full transition-all duration-300"
                       style={{ width: `${rPct}%` }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-cyan-300">
+                  <span className="text-xs sm:text-sm font-black text-cyan-300">
                     {rDone}/{rTotal} ({rPct}%)
                   </span>
                 </div>

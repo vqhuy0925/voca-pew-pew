@@ -147,22 +147,19 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
             soundFx.playClick();
             setShowRealmModal(true);
           }}
-          className="group flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-400/60 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8"
+          className="group flex items-center gap-3.5 px-6 py-3 rounded-full bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-700/90 hover:border-cyan-400/80 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8"
           title="Bấm để chuyển đổi cõi thiên hà khác"
         >
-          <span className="text-2xl drop-shadow">{currentRealm.icon}</span>
+          <span className="text-3xl drop-shadow">{currentRealm.icon}</span>
           <div className="flex flex-col text-left">
-            <span className="text-[10px] uppercase font-black tracking-wider text-cyan-400">
+            <span className="text-xs sm:text-sm uppercase font-black tracking-wider text-cyan-400">
               Cõi {currentRealm.realmNumber} • {currentRealm.gradeLabel}
             </span>
-            <span className="text-xs sm:text-sm font-game font-black text-white group-hover:text-cyan-200 transition">
+            <span className="text-sm sm:text-base md:text-lg font-game font-black text-white group-hover:text-cyan-200 transition">
               {currentRealm.nameVi}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-slate-400 group-hover:text-cyan-300 pl-1">
-            <span className="text-[11px] font-bold hidden sm:inline">Đổi</span>
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
-          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition ml-1" />
         </button>
 
         {/* Road of Level Nodes by Chapter */}
@@ -171,6 +168,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
             const unitCompletedCount = unit.levels.filter(
               l => progress.levelProgressMap[l.id]?.isCompleted
             ).length;
+
+            const cleanTitle = unit.titleVi.replace(new RegExp(`^Chương\\s*${unit.unitNumber}\\s*[:\\-]?\\s*`, 'i'), '');
 
             return (
               <section
@@ -182,20 +181,17 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 className="relative scroll-mt-20 w-full"
               >
                 {/* Clean, Kid-Friendly Chapter Banner */}
-                <div className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 bg-slate-900/85 border border-slate-800/90 rounded-2xl backdrop-blur-md shadow-md mb-8">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-2xl sm:text-3xl flex-shrink-0 drop-shadow">{unit.icon}</span>
+                <div className="flex items-center justify-between gap-3.5 px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl backdrop-blur-md shadow-lg mb-8">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <span className="text-3xl sm:text-4xl flex-shrink-0 drop-shadow">{unit.icon}</span>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-black uppercase text-cyan-400 tracking-wider">
-                        Chương {unit.unitNumber}
-                      </div>
-                      <div className="font-game font-black text-sm sm:text-base text-white truncate">
-                        {unit.titleVi}
+                      <div className="font-game font-black text-base sm:text-lg md:text-xl text-white truncate">
+                        Chương {unit.unitNumber}: {cleanTitle}
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-xs font-game font-bold text-slate-300 px-2.5 py-1 rounded-xl bg-slate-800/90 border border-slate-700/60 flex-shrink-0">
+                  <span className="text-sm sm:text-base font-game font-black text-cyan-300 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/70 flex-shrink-0 shadow-inner">
                     {unitCompletedCount}/{unit.levels.length}
                   </span>
                 </div>
@@ -238,13 +234,13 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       {/* Floating "Tiếp tục bài học" Quick Button */}
       <button
         onClick={handleJumpToCurrent}
-        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 px-4 py-2.5 sm:px-5 sm:py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-xs sm:text-base rounded-2xl border border-white/60 flex items-center gap-2 cursor-pointer transition active:scale-95 hover:scale-105 shadow-xl`}
+        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 px-5 py-3 sm:px-6 sm:py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-lg rounded-2xl border border-white/60 flex items-center gap-2.5 cursor-pointer transition active:scale-95 hover:scale-105 shadow-xl`}
         style={{ boxShadow: `0 8px 25px ${theme.glowColor}` }}
         title="Nhảy tới bài học hiện tại"
       >
-        <Target className="w-4 h-4 stroke-[3]" />
-        <span>TIẾP TỤC HỌC</span>
-        <ArrowRight className="w-4 h-4 stroke-[3]" />
+        <Target className="w-5 h-5 stroke-[3]" />
+        <span>TIẾP TỤC</span>
+        <ArrowRight className="w-5 h-5 stroke-[3]" />
       </button>
 
       {/* Realm Switcher Modal */}

@@ -12,10 +12,10 @@ interface WordTargetBarProps {
 export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   if (!target) {
     return (
-      <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[92vw]">
-        <div className="bg-slate-950/90 backdrop-blur-md border-2 border-cyan-500/50 border-b-4 border-b-cyan-700 rounded-2xl px-4 py-2 text-cyan-200 text-xs sm:text-sm font-game font-extrabold flex items-center gap-2 shadow-[0_4px_20px_rgba(0,240,255,0.25)] whitespace-nowrap">
-          <span className="text-base">🎯</span>
-          <span>Gõ chữ cái đầu tiên để ngắm bắn mục tiêu!</span>
+      <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[95vw]">
+        <div className="bg-slate-950/95 backdrop-blur-md border-2 sm:border-3 border-cyan-400/70 border-b-4 border-b-cyan-600 rounded-2xl px-5 py-2.5 text-cyan-200 text-sm sm:text-base md:text-lg font-game font-black flex items-center gap-2.5 shadow-[0_4px_25px_rgba(0,240,255,0.35)] whitespace-nowrap">
+          <span className="text-xl sm:text-2xl">🎯</span>
+          <span>Gõ chữ đầu tiên để bắn!</span>
         </div>
       </div>
     );
@@ -31,10 +31,10 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
 
   return (
     <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[95vw] md:max-w-3xl w-full px-2 sm:px-0">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400/80 rounded-2xl sm:rounded-3xl p-3 sm:px-5 sm:py-3.5 shadow-[0_8px_35px_rgba(0,240,255,0.35)] flex items-center gap-3 sm:gap-4 transition-all">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400/80 rounded-2xl sm:rounded-3xl p-3 sm:px-5 sm:py-4 shadow-[0_8px_35px_rgba(0,240,255,0.35)] flex items-center gap-3 sm:gap-4 transition-all">
         {/* Animated Emoji Badge */}
-        <div className="relative flex-shrink-0 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 shadow-inner">
-          <span className="text-3xl sm:text-4xl drop-shadow-md transform hover:scale-110 transition-transform">
+        <div className="relative flex-shrink-0 flex items-center justify-center w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 shadow-inner">
+          <span className="text-3xl sm:text-5xl drop-shadow-md transform hover:scale-110 transition-transform">
             {target.emoji}
           </span>
         </div>
@@ -51,12 +51,12 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
                 return (
                   <span
                     key={index}
-                    className={`inline-flex items-center justify-center px-1.5 h-8 sm:h-10 rounded-lg transition-all ${
+                    className={`inline-flex items-center justify-center px-2 h-9 sm:h-12 rounded-xl transition-all ${
                       isCurrent
-                        ? 'bg-yellow-400/30 border-2 border-yellow-400 text-yellow-300 animate-pulse text-xs sm:text-sm'
+                        ? 'bg-yellow-400/30 border-2 border-yellow-400 text-yellow-300 animate-pulse text-sm sm:text-base font-black'
                         : isTyped
-                        ? 'text-emerald-400/40 w-2 sm:w-3'
-                        : 'w-2 sm:w-3'
+                        ? 'text-emerald-400/40 w-2.5 sm:w-3.5'
+                        : 'w-2.5 sm:w-3.5'
                     }`}
                   >
                     {isCurrent ? '␣' : ' '}
@@ -69,13 +69,13 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
                   key={index}
                   className={`inline-flex items-center justify-center font-orbitron uppercase rounded-xl transition-all duration-150 select-none ${
                     target.word.length > 20
-                      ? 'px-1.5 py-0.5 min-w-[1.5rem] h-8 text-base sm:text-xl font-bold'
-                      : 'px-2 py-1 min-w-[1.85rem] sm:min-w-[2.4rem] h-9 sm:h-11 text-xl sm:text-2xl md:text-3xl font-black'
+                      ? 'px-1.5 py-0.5 min-w-[1.65rem] sm:min-w-[2.2rem] h-9 sm:h-11 text-lg sm:text-2xl font-black'
+                      : 'px-2.5 py-1 min-w-[2.1rem] sm:min-w-[2.8rem] h-11 sm:h-14 text-2xl sm:text-3xl md:text-4xl font-black'
                   } ${
                     isTyped
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/60 border-b-3 border-b-emerald-600 shadow-[0_2px_8px_rgba(16,185,129,0.3)]'
                       : isCurrent
-                      ? 'bg-yellow-400/35 text-yellow-200 border-2 border-yellow-300 border-b-4 border-b-yellow-500 shadow-[0_0_18px_rgba(253,224,71,0.7)] scale-110 -translate-y-0.5 animate-pulse font-black'
+                      ? 'bg-yellow-400/35 text-yellow-200 border-2 border-yellow-300 border-b-4 border-b-yellow-500 shadow-[0_0_20px_rgba(253,224,71,0.75)] scale-110 -translate-y-0.5 animate-pulse font-black'
                       : 'bg-slate-900/80 text-slate-400 border border-slate-700/80 border-b-2 border-b-slate-800'
                   }`}
                 >
@@ -86,8 +86,8 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
           </div>
 
           {/* Vietnamese meaning & Finger Guide Badge Row */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
-            <div className="text-xs sm:text-sm md:text-base text-cyan-200 font-game font-extrabold drop-shadow tracking-wide truncate sm:whitespace-normal">
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-2.5">
+            <div className="text-sm sm:text-base md:text-lg text-cyan-200 font-game font-black drop-shadow tracking-wide truncate sm:whitespace-normal">
               {target.meaningVi}
             </div>
             {currentChar && (
@@ -99,11 +99,11 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
         {/* 3D Chunky Audio Pronunciation Button */}
         <button
           onClick={handleSpeak}
-          className="btn-3d btn-3d-cyan min-w-[48px] min-h-[48px] w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex-shrink-0 shadow-md"
+          className="btn-3d btn-3d-cyan min-w-[50px] min-h-[50px] w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex-shrink-0 shadow-md"
           title="Nghe phát âm từ này"
           aria-label="Nghe phát âm"
         >
-          <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-slate-950 stroke-[2.5]" />
+          <Volume2 className="w-6 h-6 sm:w-7 sm:h-7 text-slate-950 stroke-[2.5]" />
         </button>
       </div>
     </div>

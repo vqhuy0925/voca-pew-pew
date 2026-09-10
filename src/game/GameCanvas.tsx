@@ -491,8 +491,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.stroke();
 
     // Defense Line Label (Subtle & clean)
-    ctx.font = 'bold 12px Orbitron, Fredoka, sans-serif';
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.75)';
+    ctx.font = 'bold 14px Orbitron, Fredoka, sans-serif';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
     ctx.textAlign = 'right';
     ctx.fillText('🛡️ PHÒNG TUYẾN', w - 24, defenseY - 8);
     ctx.restore();
@@ -591,7 +591,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.fill();
 
       // Telemetry Text
-      ctx.font = 'bold 10px Orbitron, monospace, sans-serif';
+      ctx.font = 'bold 12px Orbitron, monospace, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('⚡ LOCK', x + width / 2, y - 22);
 
@@ -600,11 +600,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Draw Emoji
     const isSentence = enemy.word.length > 18;
-    const emojiSize = isSentence ? 28 : 32;
+    const emojiSize = isSentence ? 32 : 36;
     const paddingLeft = 14;
     const emojiSpace = emojiSize + 10;
     const letterStartX = x + paddingLeft + emojiSpace;
-    const maxTextWidth = Math.max(80, width - (paddingLeft + emojiSpace + 16));
+    const maxTextWidth = Math.max(90, width - (paddingLeft + emojiSpace + 16));
 
     ctx.font = `${emojiSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
     ctx.textAlign = 'left';
@@ -612,25 +612,25 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fillText(enemy.emoji, x + paddingLeft, y + height / 2 - 2);
 
     // Dynamic Font Auto-Fitting to guarantee text never overflows pill
-    let fontSize = isSentence ? (enemy.word.length > 35 ? 15 : 18) : (enemy.word.length > 10 ? 22 : 26);
+    let fontSize = isSentence ? (enemy.word.length > 35 ? 18 : 22) : (enemy.word.length > 10 ? 26 : 30);
     let letterSpacing = isSentence ? 1.0 : 2.0;
 
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     let totalTextWidth = 0;
     for (let i = 0; i < enemy.word.length; i++) {
       const c = enemy.word[i];
-      const cw = c === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(c).width;
+      const cw = c === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(c).width;
       totalTextWidth += cw + letterSpacing;
     }
 
-    while (totalTextWidth > maxTextWidth && fontSize > 10) {
+    while (totalTextWidth > maxTextWidth && fontSize > 13) {
       fontSize -= 0.5;
-      letterSpacing = fontSize < 13 ? 0.5 : 1.0;
+      letterSpacing = fontSize < 15 ? 0.5 : 1.0;
       ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
       totalTextWidth = 0;
       for (let i = 0; i < enemy.word.length; i++) {
         const c = enemy.word[i];
-        const cw = c === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(c).width;
+        const cw = c === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(c).width;
         totalTextWidth += cw + letterSpacing;
       }
     }
@@ -639,7 +639,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
 
-    const wordCenterY = y + (isSentence ? 24 : 26);
+    const wordCenterY = y + (isSentence ? 28 : 29);
     let currentX = letterStartX;
     for (let i = 0; i < enemy.word.length; i++) {
       const char = enemy.word[i];
@@ -660,7 +660,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
 
       const displayChar = char;
-      const charWidth = char === ' ' ? Math.max(4, fontSize * 0.35) : ctx.measureText(displayChar).width;
+      const charWidth = char === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(displayChar).width;
 
       if (char === ' ') {
         if (isCurrentChar) {
@@ -674,7 +674,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // Underline active char
       if (isCurrentChar) {
         ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
         ctx.moveTo(currentX - 1, wordCenterY + fontSize * 0.55 + 2);
         ctx.lineTo(currentX + charWidth + 1, wordCenterY + fontSize * 0.55 + 2);
@@ -684,10 +684,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       currentX += charWidth + letterSpacing;
     }
 
-    // Vietnamese Meaning Subtext (Auto-fitted)
-    let meaningFontSize = isSentence ? 12 : 14;
+    // Vietnamese Meaning Subtext (Auto-fitted, bold & clear)
+    let meaningFontSize = isSentence ? 14 : 16;
     ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
-    while (ctx.measureText(`(${enemy.meaningVi})`).width > maxTextWidth && meaningFontSize > 9) {
+    while (ctx.measureText(enemy.meaningVi).width > maxTextWidth && meaningFontSize > 11) {
       meaningFontSize -= 0.5;
       ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
     }
@@ -695,7 +695,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fillStyle = '#bae6fd';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(`(${enemy.meaningVi})`, letterStartX, y + (isSentence ? 54 : 52));
+    ctx.fillText(enemy.meaningVi, letterStartX, y + (isSentence ? 60 : 58));
 
     ctx.restore();
   };

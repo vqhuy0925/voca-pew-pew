@@ -52,18 +52,18 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           />
         </div>
 
-        <h2 className="text-3xl font-black font-orbitron text-rose-400 mb-1 tracking-wider">
+        <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-rose-400 mb-2 tracking-wider">
           {modalMessages.heading}
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base mb-4">
-          Hãy cùng {avatar} thử lại màn <span className={`${theme.textColor} font-extrabold`}>{level.titleVi}</span>, {modalMessages.bodySub}
+        <p className="text-slate-200 text-base sm:text-lg mb-4 font-game">
+          Thử lại màn <span className={`${theme.textColor} font-black`}>{level.titleVi}</span> nhé!
         </p>
 
-        {/* Zen tip */}
-        <div className="bg-sky-950/60 border border-sky-500/30 rounded-2xl p-3 mb-5 text-xs text-sky-200 text-left flex items-start gap-2">
-          <span className="text-base flex-shrink-0">💡</span>
+        {/* Zen tip - Concise & Punchy */}
+        <div className="bg-sky-950/60 border border-sky-500/40 rounded-2xl p-3 sm:p-3.5 mb-5 text-sm sm:text-base text-sky-200 text-left flex items-center gap-2.5 font-game font-bold">
+          <span className="text-xl flex-shrink-0">💡</span>
           <span>
-            <strong>Mẹo cho bé:</strong> Ba mẹ có thể chọn chế độ <strong>🧘 ZEN (Tập gõ)</strong> trước khi chơi để không bị hết giờ và thong thả tập đúng ngón tay!
+            Mẹo: Chọn chế độ <strong>🧘 ZEN</strong> để không bị tính giờ!
           </span>
         </div>
 
@@ -74,10 +74,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer tracking-wider`}
+            className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-xl sm:text-2xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider`}
           >
-            <RotateCcw className="w-5 h-5 stroke-[3]" />
-            <span>THỬ LẠI NGAY</span>
+            <RotateCcw className="w-6 h-6 stroke-[3]" />
+            <span>THỬ LẠI</span>
           </button>
 
           <button
@@ -85,10 +85,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onGoToMap();
             }}
-            className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-game font-bold text-sm sm:text-base rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-black text-base sm:text-lg rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
-            <Map className="w-4 h-4 text-cyan-400" />
-            <span>Quay Về Bản Đồ</span>
+            <Map className="w-5 h-5 text-cyan-400" />
+            <span>BẢN ĐỒ</span>
           </button>
         </div>
       </div>

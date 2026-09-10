@@ -53,7 +53,7 @@ export const FingerGuideBadge: React.FC<FingerGuideBadgeProps> = ({ currentChar,
               );
             })}
           </div>
-          <span className="text-[9px] font-bold text-slate-400 mt-0.5 leading-none">Trái</span>
+          <span className="text-[10px] font-black text-slate-300 mt-0.5 leading-none">Trái</span>
         </div>
 
         {/* Divider */}
@@ -87,21 +87,18 @@ export const FingerGuideBadge: React.FC<FingerGuideBadgeProps> = ({ currentChar,
               );
             })}
           </div>
-          <span className="text-[9px] font-bold text-slate-400 mt-0.5 leading-none">Phải</span>
+          <span className="text-[10px] font-black text-slate-300 mt-0.5 leading-none">Phải</span>
         </div>
       </div>
 
       {/* Text Label */}
-      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs md:text-sm font-game font-extrabold whitespace-nowrap">
-        <span className="text-white drop-shadow hidden sm:inline">
-          Dùng
-        </span>
+      <div className="flex items-center gap-1.5 text-xs sm:text-sm md:text-base font-game font-black whitespace-nowrap">
         <span className={`${fingerInfo.textClass} font-black`}>
           <span className="sm:hidden">{fingerInfo.hand === 'left' ? 'Trái' : fingerInfo.hand === 'right' ? 'Phải' : '2 Tay'} • {fingerInfo.shortFingerVi}</span>
           <span className="hidden sm:inline">{fingerInfo.handLabelVi} • {fingerInfo.fingerLabelVi}</span>
         </span>
         {fingerInfo.homeKeyBadge && (
-          <span className="hidden md:inline-block px-1.5 py-0.5 text-[10px] rounded bg-slate-900/90 text-slate-300 border border-slate-700 font-mono font-bold">
+          <span className="hidden md:inline-block px-2 py-0.5 text-xs rounded bg-slate-900/90 text-slate-200 border border-slate-700 font-mono font-black">
             {fingerInfo.homeKeyBadge}
           </span>
         )}

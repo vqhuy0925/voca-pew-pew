@@ -23,11 +23,11 @@ export const PauseModal: React.FC<PauseModalProps> = ({
           ⏸️
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-extrabold font-orbitron text-white mb-1.5 tracking-wider starwars-cyan-glow">
-          TẠM DỪNG 🚀
+        <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white mb-1.5 tracking-wider starwars-cyan-glow">
+          TẠM DỪNG
         </h2>
-        <p className="text-slate-200 text-sm sm:text-base mb-6 font-game">
-          Đang chơi: <span className="text-cyan-300 font-extrabold">{level.titleVi}</span>
+        <p className="text-cyan-300 text-base sm:text-lg mb-6 font-game font-black truncate">
+          {level.titleVi}
         </p>
 
         <div className="space-y-3.5">
@@ -36,10 +36,10 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onResume();
             }}
-            className="btn-3d btn-3d-emerald w-full py-4 text-slate-950 font-orbitron font-extrabold text-lg sm:text-xl rounded-2xl shadow-lg flex items-center justify-center gap-2.5 tracking-wider"
+            className="btn-3d btn-3d-emerald w-full py-4 text-slate-950 font-orbitron font-black text-xl sm:text-2xl rounded-2xl shadow-lg flex items-center justify-center gap-2.5 tracking-wider"
           >
             <Play className="w-6 h-6 fill-slate-950 stroke-[2.5]" />
-            TIẾP TỤC CHƠI
+            TIẾP TỤC
           </button>
 
           <button
@@ -47,10 +47,10 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onRestart();
             }}
-            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-white font-game font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-sm"
+            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-white font-orbitron font-black text-base sm:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-sm"
           >
             <RotateCcw className="w-5 h-5 text-amber-400" />
-            Chơi Lại Màn Này
+            CHƠI LẠI
           </button>
 
           <button
@@ -58,10 +58,10 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               soundFx.playClick();
               onGoToMap();
             }}
-            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white font-game font-bold text-base rounded-2xl flex items-center justify-center gap-2 shadow-sm"
+            className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white font-orbitron font-black text-base sm:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-sm"
           >
             <Map className="w-5 h-5 text-cyan-400" />
-            Về Bản Đồ Bài Học
+            BẢN ĐỒ
           </button>
         </div>
       </div>

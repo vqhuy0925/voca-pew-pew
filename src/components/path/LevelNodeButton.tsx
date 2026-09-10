@@ -68,12 +68,12 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
     >
       {/* Current Active Floating Tag */}
       {isCurrent && (
-        <div className="absolute -top-10 z-20 animate-bounce">
-          <div className="bg-cyan-400 text-slate-950 font-game font-black text-xs sm:text-sm uppercase px-3.5 py-1 rounded-xl shadow-[0_4px_15px_rgba(0,240,255,0.6)] flex items-center gap-1.5 border border-white/60">
-            <Sparkles className="w-4 h-4 text-slate-950 stroke-[2.5]" />
+        <div className="absolute -top-11 z-20 animate-bounce">
+          <div className="bg-cyan-400 text-slate-950 font-game font-black text-xs sm:text-base uppercase px-4 py-1.5 rounded-xl shadow-[0_4px_20px_rgba(0,240,255,0.7)] flex items-center gap-1.5 border border-white/60">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]" />
             <span>Bắt Đầu</span>
           </div>
-          <div className="w-2.5 h-2.5 bg-cyan-400 rotate-45 mx-auto -mt-1.5 border-r border-b border-white/60" />
+          <div className="w-3 h-3 bg-cyan-400 rotate-45 mx-auto -mt-1.5 border-r border-b border-white/60" />
         </div>
       )}
 
@@ -94,7 +94,7 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
           <div className="flex flex-col items-center justify-center">
             <span className="text-3xl sm:text-4xl leading-none drop-shadow-md">{level.icon}</span>
             {level.type !== 'CHEST_REWARD' && (
-              <span className="text-xs sm:text-sm font-black mt-0.5 tracking-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+              <span className="text-sm sm:text-base font-black mt-0.5 tracking-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
                 {level.levelNumber}
               </span>
             )}
@@ -103,8 +103,8 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
       </button>
 
       {/* Title Below Node */}
-      <div className="mt-2 text-center max-w-[170px] sm:max-w-[200px]">
-        <div className={`font-game font-extrabold text-sm sm:text-base leading-snug line-clamp-2 drop-shadow-sm ${
+      <div className="mt-2 text-center max-w-[180px] sm:max-w-[220px]">
+        <div className={`font-game font-black text-base sm:text-lg leading-snug line-clamp-2 drop-shadow-sm ${
           isUnlocked ? 'text-white' : 'text-slate-500'
         }`}>
           {level.titleVi}
@@ -112,13 +112,13 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
 
         {/* Stars Display for standard/boss levels */}
         {level.type !== 'CHEST_REWARD' && isUnlocked && (
-          <div className="flex justify-center items-center gap-1 mt-1">
+          <div className="flex justify-center items-center gap-1.5 mt-1.5">
             {[1, 2, 3].map(sIndex => (
               <Star
                 key={sIndex}
-                className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
                   sIndex <= stars
-                    ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_6px_rgba(250,204,21,0.6)] scale-105'
+                    ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.7)] scale-105'
                     : 'text-slate-700 fill-slate-800'
                 }`}
               />
