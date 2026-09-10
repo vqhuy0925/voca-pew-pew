@@ -55,7 +55,7 @@ export const calculateCompletedLevelsCount = (progress: UserProgress): number =>
  * Queue progress update to Firestore with debounce (1500ms) to conserve free quotas
  */
 export const queueCloudSync = (progress: UserProgress) => {
-  if (!isFirebaseConfigured || !db) {
+  if (!isFirebaseConfigured || !db || !isOnlineAuth()) {
     notifyStatus('offline');
     return;
   }
@@ -68,7 +68,7 @@ export const queueCloudSync = (progress: UserProgress) => {
 
   debounceTimer = setTimeout(async () => {
     const currentDb = db;
-    if (!isFirebaseConfigured || !currentDb) {
+    if (!isFirebaseConfigured || !currentDb || !isOnlineAuth()) {
       notifyStatus('offline');
       return;
     }

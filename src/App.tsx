@@ -42,7 +42,9 @@ import { GameOverModal } from './components/GameOverModal';
 import { PauseModal } from './components/PauseModal';
 import { soundFx } from './game/engine/SoundController';
 import { speechHelper } from './game/engine/SpeechHelper';
-import { initAuthSession } from './services/firebase/authService';
+import { initAuthSession, ensureCloudAuthSession, setIncognitoBlocked } from './services/firebase/authService';
+import { checkIsIncognito } from './services/incognitoDetector';
+import { IncognitoWarningModal } from './components/modals/IncognitoWarningModal';
 
 type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
@@ -72,6 +74,8 @@ export const App: React.FC = () => {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
   const [showAstronautCardModal, setShowAstronautCardModal] = useState<boolean>(false);
   const [showDiamondGuideModal, setShowDiamondGuideModal] = useState<boolean>(false);
+  const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
+  const [detectedBrowser, setDetectedBrowser] = useState<string>('');
   const [lastRewardBreakdown, setLastRewardBreakdown] = useState<ClearRewardBreakdown | null>(null);
   const [selectedCardPlayer, setSelectedCardPlayer] = useState<LeaderboardEntry | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
@@ -115,13 +119,20 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Initialize Silent Cloud Auth & Identity Session
+  // Initialize Cloud Auth & Identity Session with Incognito Detection
   useEffect(() => {
-    initAuthSession().then((uid) => {
-      setProgress((prev) => {
-        const updated = { ...prev, cloudUid: uid };
-        saveUserProgress(updated);
-        return updated;
+    checkIsIncognito().then((res) => {
+      if (res.isPrivate) {
+        setDetectedBrowser(res.browserName);
+        setShowIncognitoModal(true);
+        setIncognitoBlocked(true);
+      }
+      initAuthSession().then((uid) => {
+        setProgress((prev) => {
+          const updated = { ...prev, cloudUid: uid };
+          saveUserProgress(updated);
+          return updated;
+        });
       });
     });
   }, []);
@@ -140,6 +151,25 @@ export const App: React.FC = () => {
       return next;
     });
   }, []);
+
+  const handleOpenLeaderboard = useCallback(() => {
+    ensureCloudAuthSession().then(uid => {
+      if (uid && !uid.startsWith('local_')) {
+        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+      }
+    });
+    setShowLeaderboardModal(true);
+  }, [handleUpdateProgress]);
+
+  const handleOpenAstronautCard = useCallback((player: LeaderboardEntry | null = null) => {
+    ensureCloudAuthSession().then(uid => {
+      if (uid && !uid.startsWith('local_')) {
+        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+      }
+    });
+    setSelectedCardPlayer(player);
+    setShowAstronautCardModal(true);
+  }, [handleUpdateProgress]);
 
   const handleSaveProfile = (
     name: string,
@@ -272,6 +302,13 @@ export const App: React.FC = () => {
   }, []);
 
   const handleVictory = useCallback(() => {
+    // Lazy Auth: create/attach cloud account on successful level completion
+    ensureCloudAuthSession().then(uid => {
+      if (uid && !uid.startsWith('local_')) {
+        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+      }
+    });
+
     const diff = progress.selectedDifficulty || 'NORMAL';
     const reward = calculateLevelClearRewards(
       progress,
@@ -332,11 +369,8 @@ export const App: React.FC = () => {
           onOpenEnergyModal={() => setShowEnergyModal(true)}
           onOpenProfileModal={() => setShowProfileModal(true)}
           onOpenArmory={() => setShowArmoryModal(true)}
-          onOpenLeaderboard={() => setShowLeaderboardModal(true)}
-          onOpenAstronautCard={() => {
-            setSelectedCardPlayer(null);
-            setShowAstronautCardModal(true);
-          }}
+          onOpenLeaderboard={handleOpenLeaderboard}
+          onOpenAstronautCard={() => handleOpenAstronautCard(null)}
           onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
         />
       )}
@@ -445,11 +479,8 @@ export const App: React.FC = () => {
           onRestart={handleRestart}
           onGoToMap={handleGoToMap}
           onOpenArmory={() => setShowArmoryModal(true)}
-          onOpenLeaderboard={() => setShowLeaderboardModal(true)}
-          onOpenAstronautCard={() => {
-            setSelectedCardPlayer(null);
-            setShowAstronautCardModal(true);
-          }}
+          onOpenLeaderboard={handleOpenLeaderboard}
+          onOpenAstronautCard={() => handleOpenAstronautCard(null)}
           onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
         />
       )}
@@ -552,6 +583,13 @@ export const App: React.FC = () => {
           }}
         />
       )}
+
+      {/* 15. Incognito Warning Modal (Protect Server & Kid's Progress) */}
+      <IncognitoWarningModal
+        isOpen={showIncognitoModal}
+        browserName={detectedBrowser}
+        onContinueOffline={() => setShowIncognitoModal(false)}
+      />
     </div>
   );
 };

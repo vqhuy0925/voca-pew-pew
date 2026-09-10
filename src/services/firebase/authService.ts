@@ -1,8 +1,20 @@
 import { signInAnonymously, onAuthStateChanged, User } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from './firebaseConfig';
 
+import { isIncognitoSession } from '../incognitoDetector';
+
 const LOCAL_UID_KEY = 'vocab_pew_pew_local_uid_v1';
 const PLAYER_TAG_KEY = 'vocab_pew_pew_player_tag_v1';
+
+let incognitoBlocked = false;
+
+export const setIncognitoBlocked = (blocked: boolean): void => {
+  incognitoBlocked = blocked;
+};
+
+export const isIncognitoBlocked = (): boolean => {
+  return incognitoBlocked || isIncognitoSession();
+};
 
 /**
  * Generate a friendly, kid-safe astronaut tag: e.g. "#PEW-7429"
@@ -46,21 +58,35 @@ let authInitialized = false;
 
 /**
  * Initialize silent anonymous session.
- * Zero friction for kids (no passwords or emails required).
+ * - If incognito is detected: skips Firebase completely and returns local fallback UID.
+ * - If forceCreate is false: only attaches existing user session (free cache); delays creating new user until needed.
+ * - If forceCreate is true: signs in anonymously if not yet signed in.
  */
-export const initAuthSession = async (): Promise<string> => {
-  const activeAuth = auth;
-  if (!isFirebaseConfigured || !activeAuth) {
+export const initAuthSession = async (options: { forceCreate?: boolean } = {}): Promise<string> => {
+  if (isIncognitoBlocked()) {
+    console.info('[Auth] Incognito/Private mode detected. Offline local UID used to protect Firebase.');
+    authInitialized = true;
     return getOrInitLocalUid();
   }
 
+  const activeAuth = auth;
+  if (!isFirebaseConfigured || !activeAuth) {
+    authInitialized = true;
+    return getOrInitLocalUid();
+  }
+
+  if (currentUser) {
+    return currentUser.uid;
+  }
+
   return new Promise((resolve) => {
-    onAuthStateChanged(activeAuth, async (user) => {
+    const unsubscribe = onAuthStateChanged(activeAuth, async (user) => {
+      unsubscribe();
       if (user) {
         currentUser = user;
         authInitialized = true;
         resolve(user.uid);
-      } else {
+      } else if (options.forceCreate) {
         try {
           const cred = await signInAnonymously(activeAuth);
           currentUser = cred.user;
@@ -71,18 +97,36 @@ export const initAuthSession = async (): Promise<string> => {
           authInitialized = true;
           resolve(getOrInitLocalUid());
         }
+      } else {
+        // Lazy Auth: do not create ghost user for bounce visitors
+        authInitialized = true;
+        resolve(getOrInitLocalUid());
       }
     });
   });
 };
 
+/**
+ * Ensure active cloud auth session when player performs meaningful action (cleared level / opened leaderboard)
+ */
+export const ensureCloudAuthSession = async (): Promise<string> => {
+  if (isIncognitoBlocked()) {
+    return getOrInitLocalUid();
+  }
+  if (currentUser) {
+    return currentUser.uid;
+  }
+  return initAuthSession({ forceCreate: true });
+};
+
 export const getCurrentUser = (): User | null => currentUser;
 
 export const getCurrentUid = (): string => {
-  if (currentUser) return currentUser.uid;
+  if (currentUser && !isIncognitoBlocked()) return currentUser.uid;
   return getOrInitLocalUid();
 };
 
 export const isOnlineAuth = (): boolean => {
-  return Boolean(isFirebaseConfigured && currentUser);
+  return Boolean(isFirebaseConfigured && currentUser && !isIncognitoBlocked());
 };
+
