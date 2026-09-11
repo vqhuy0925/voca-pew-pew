@@ -1,44 +1,33 @@
-// Service Worker Registration for Vocab Pew Pew (PWA)
+// Service Worker Registration for Vocab Pew Pew (Workbox via vite-plugin-pwa)
+import { registerSW } from 'virtual:pwa-register';
 
 export function registerServiceWorker(): void {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
     return;
   }
 
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        // Registration successful
-        registration.onupdatefound = () => {
-          const installingWorker = registration.installing;
-          if (installingWorker == null) return;
-
-          installingWorker.onstatechange = () => {
-            if (installingWorker.state === 'installed') {
-              if (navigator.serviceWorker.controller) {
-                console.log('[PWA] Nội dung mới đã sẵn sàng. Sẽ cập nhật khi tải lại.');
-              } else {
-                console.log('[PWA] Nội dung đã được lưu cache để dùng offline!');
-              }
-            }
-          };
-        };
-      })
-      .catch((error) => {
-        console.warn('[PWA] Đăng ký Service Worker thất bại:', error);
-      });
+  const updateSW = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      console.log('[PWA] Nội dung mới đã sẵn sàng! Ứng dụng sẽ tự động cập nhật.');
+      updateSW(true);
+    },
+    onOfflineReady() {
+      console.log('[PWA] Nội dung đã được lưu cache bởi Workbox để chơi offline!');
+    },
+    onRegisterError(error) {
+      console.warn('[PWA] Đăng ký Service Worker thất bại:', error);
+    }
   });
 }
 
 export function unregisterServiceWorker(): void {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready
-      .then((registration) => {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
         registration.unregister();
-      })
-      .catch((error) => {
-        console.error(error.message);
-      });
+      }
+    });
   }
 }
+
