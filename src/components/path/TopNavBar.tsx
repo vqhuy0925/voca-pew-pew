@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -17,6 +17,7 @@ interface TopNavBarProps {
   onOpenAstronautCard?: () => void;
   onOpenDiamondGuide?: () => void;
   onOpenInstallModal?: () => void;
+  onOpenLanding?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -31,6 +32,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenAstronautCard,
   onOpenDiamondGuide,
   onOpenInstallModal,
+  onOpenLanding,
   showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
@@ -273,6 +275,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
             )}
           </button>
+
+          {/* Info / Landing Introduction Button */}
+          {onOpenLanding && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenLanding();
+              }}
+              className="btn-3d btn-3d-slate p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-300 shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
+              title="Giới thiệu về Vocab Pew Pew"
+              aria-label="Giới thiệu về Vocab Pew Pew"
+            >
+              <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+            </button>
+          )}
         </div>
       </div>
     </header>

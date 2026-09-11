@@ -72,6 +72,7 @@ export interface UserProgress {
   soundEnabled: boolean;
   speechEnabled: boolean;
   keyboardHintsEnabled: boolean;
+  hasSeenLanding?: boolean;
 
   // Energy & Daily Learning Limit System ⚡
   energy: number;

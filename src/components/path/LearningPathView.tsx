@@ -30,6 +30,7 @@ interface LearningPathViewProps {
   onOpenAstronautCard?: () => void;
   onOpenDiamondGuide?: () => void;
   onOpenInstallModal?: () => void;
+  onOpenLanding?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -48,6 +49,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenAstronautCard,
   onOpenDiamondGuide,
   onOpenInstallModal,
+  onOpenLanding,
   showInstallButton
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
@@ -141,6 +143,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenAstronautCard={onOpenAstronautCard}
         onOpenDiamondGuide={onOpenDiamondGuide}
         onOpenInstallModal={onOpenInstallModal}
+        onOpenLanding={onOpenLanding}
         showInstallButton={showInstallButton}
       />
 

@@ -47,8 +47,9 @@ import { checkIsIncognito } from './services/incognitoDetector';
 import { IncognitoWarningModal } from './components/modals/IncognitoWarningModal';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { InstallGuideModal } from './components/modals/InstallGuideModal';
+import { LandingPage } from './components/landing/LandingPage';
 
-type AppScreen = 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
+type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -65,12 +66,12 @@ const INITIAL_STATS: GameStats = {
 };
 
 export const App: React.FC = () => {
-  const [screen, setScreen] = useState<AppScreen>('MAP');
-  const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
-  const [showProfileModal, setShowProfileModal] = useState<boolean>(() => {
+  const [screen, setScreen] = useState<AppScreen>(() => {
     const saved = loadUserProgress();
-    return !saved.userName;
+    return !saved.hasSeenLanding ? 'LANDING' : 'MAP';
   });
+  const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showArmoryModal, setShowArmoryModal] = useState<boolean>(false);
   const [showEnergyModal, setShowEnergyModal] = useState<boolean>(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
@@ -154,6 +155,18 @@ export const App: React.FC = () => {
       saveUserProgress(next);
       return next;
     });
+  }, []);
+
+  const handleStartFromLanding = useCallback(() => {
+    handleUpdateProgress(prev => ({
+      ...prev,
+      hasSeenLanding: true
+    }));
+    setScreen('MAP');
+  }, [handleUpdateProgress]);
+
+  const handleOpenLanding = useCallback(() => {
+    setScreen('LANDING');
   }, []);
 
   const handleOpenLeaderboard = useCallback(() => {
@@ -363,6 +376,16 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-space-dark select-none font-game">
+      {/* 0. Minimalist Landing Page (App Introduction & First-time Welcome) */}
+      {screen === 'LANDING' && (
+        <LandingPage
+          progress={progress}
+          onStartJourney={handleStartFromLanding}
+          onOpenProfile={() => setShowProfileModal(true)}
+          isReturningUser={Boolean(progress.hasSeenLanding)}
+        />
+      )}
+
       {/* 1. Learning Saga Path View */}
       {screen === 'MAP' && (
         <LearningPathView
@@ -377,6 +400,7 @@ export const App: React.FC = () => {
           onOpenAstronautCard={() => handleOpenAstronautCard(null)}
           onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
           onOpenInstallModal={() => setShowInstallModal(true)}
+          onOpenLanding={handleOpenLanding}
           showInstallButton={pwaState.isInstallable}
         />
       )}
@@ -539,7 +563,7 @@ export const App: React.FC = () => {
           initialPlayerTag={progress.playerTag}
           isFirstTime={!progress.userName}
           onSave={handleSaveProfile}
-          onClose={progress.userName ? () => setShowProfileModal(false) : undefined}
+          onClose={() => setShowProfileModal(false)}
         />
       )}
 

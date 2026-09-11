@@ -72,6 +72,7 @@ export const getInitialUserProgress = (): UserProgress => {
     soundEnabled: true,
     speechEnabled: true,
     keyboardHintsEnabled: true,
+    hasSeenLanding: false,
 
     // Energy & Daily Limit System ⚡
     energy: 100,
@@ -242,6 +243,7 @@ export const loadUserProgress = (): UserProgress => {
     parsed.totalVisits = (parsed.totalVisits || 0) + 1;
     parsed.lastVisitTimestamp = Date.now();
     parsed.createdAt = parsed.createdAt || today;
+    parsed.hasSeenLanding = parsed.hasSeenLanding ?? Boolean(parsed.userName);
 
     // Ensure Energy & Daily Limits
     const validModes: DailyEnergyMode[] = ['relaxed', 'balanced', 'intense'];
@@ -538,3 +540,13 @@ export const updateDailyEnergyMode = (
   saveUserProgress(updated);
   return updated;
 };
+
+export const markLandingSeen = (prev: UserProgress): UserProgress => {
+  const updated: UserProgress = {
+    ...prev,
+    hasSeenLanding: true
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
