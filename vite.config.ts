@@ -66,11 +66,15 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/__/],
         runtimeCaching: [
           {
-            // Google Fonts stylesheets (CSS)
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
+            // Google Fonts stylesheets (CSS) - CacheFirst with short expiration & network timeout
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/css2/i,
+            handler: 'CacheFirst',
             options: {
               cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
               cacheableResponse: {
                 statuses: [0, 200]
               }
@@ -93,13 +97,37 @@ export default defineConfig({
           },
           {
             // Never cache Firebase & Google Auth API calls
-            urlPattern: /^https:\/\/(?:.*\.firebaseio\.com|.*\.googleapis\.com|identitytoolkit\.googleapis\.com)/i,
+            urlPattern: /^https:\/\/(?:.*\.firebaseio\.com|firestore\.googleapis\.com|identitytoolkit\.googleapis\.com|securetoken\.googleapis\.com)/i,
             handler: 'NetworkOnly'
           }
         ]
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            return 'vendor-core';
+          }
+          if (id.includes('src/data/chapters/')) {
+            return 'curriculum-chapters';
+          }
+        }
+      }
+    },
+    chunkSizeWarningLimit: 800
+  },
   server: {
     port: 3000,
     open: true,

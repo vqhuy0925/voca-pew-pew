@@ -80,27 +80,38 @@ export const initAuthSession = async (options: { forceCreate?: boolean } = {}): 
   }
 
   return new Promise((resolve) => {
+    let resolved = false;
+    const safeResolve = (uid: string) => {
+      if (!resolved) {
+        resolved = true;
+        authInitialized = true;
+        resolve(uid);
+      }
+    };
+
+    // Timeout fallback: resolve to local UID if network takes > 1500ms
+    const timer = setTimeout(() => {
+      safeResolve(getOrInitLocalUid());
+    }, 1500);
+
     const unsubscribe = onAuthStateChanged(activeAuth, async (user) => {
+      clearTimeout(timer);
       unsubscribe();
       if (user) {
         currentUser = user;
-        authInitialized = true;
-        resolve(user.uid);
+        safeResolve(user.uid);
       } else if (options.forceCreate) {
         try {
           const cred = await signInAnonymously(activeAuth);
           currentUser = cred.user;
-          authInitialized = true;
-          resolve(cred.user.uid);
+          safeResolve(cred.user.uid);
         } catch (err) {
           console.warn('[Auth] Anonymous sign-in failed, using local UID:', err);
-          authInitialized = true;
-          resolve(getOrInitLocalUid());
+          safeResolve(getOrInitLocalUid());
         }
       } else {
         // Lazy Auth: do not create ghost user for bounce visitors
-        authInitialized = true;
-        resolve(getOrInitLocalUid());
+        safeResolve(getOrInitLocalUid());
       }
     });
   });

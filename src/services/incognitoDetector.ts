@@ -41,7 +41,13 @@ export const checkIsIncognito = async (): Promise<IncognitoDetectionResult> => {
     return detectionPromise;
   }
 
-  detectionPromise = (async () => {
+  const timeoutPromise = new Promise<IncognitoDetectionResult>((resolve) => {
+    setTimeout(() => {
+      resolve({ isPrivate: false, browserName: 'Standard' });
+    }, 1200);
+  });
+
+  const coreDetectionPromise = (async (): Promise<IncognitoDetectionResult> => {
     try {
       const result = await detectIncognito();
       let isPrivate = result.isPrivate;
@@ -66,6 +72,11 @@ export const checkIsIncognito = async (): Promise<IncognitoDetectionResult> => {
       return cachedResult;
     }
   })();
+
+  detectionPromise = Promise.race([coreDetectionPromise, timeoutPromise]).then((res) => {
+    cachedResult = res;
+    return res;
+  });
 
   return detectionPromise;
 };
