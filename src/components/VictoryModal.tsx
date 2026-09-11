@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId, UserProgress } from '../data/progress-types';
-import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
+import { DifficultyLevel } from '../data/upgrade-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
-import { Star, RotateCcw, ArrowRight, Volume2, Gem, Sparkles, Map, Flame, CheckCircle2, Award, Zap, Trophy, Shield } from 'lucide-react';
+import { Star, RotateCcw, ArrowRight, Volume2, Gem, Map, Flame } from 'lucide-react';
 import { speechHelper } from '../game/engine/SpeechHelper';
 import { soundFx } from '../game/engine/SoundController';
 import { MascotWidget } from './mascot/MascotWidget';
@@ -38,7 +38,6 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   hasNextLevel,
   difficulty = 'NORMAL',
   userName,
-  avatar = '🚀',
   gender = 'neutral',
   themeStyle = 'cosmic_cyan',
   mascotId = 'cosmo_dog',
@@ -46,9 +45,6 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   onNextLevel,
   onRestart,
   onGoToMap,
-  onOpenLeaderboard,
-  onOpenAstronautCard,
-  onOpenDiamondGuide
 }) => {
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
@@ -73,12 +69,12 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
     for (let i = 1; i <= stars; i++) {
       setTimeout(() => {
         soundFx.playStarPop(i);
-      }, 400 + i * 300);
+      }, 350 + i * 250);
     }
     if (gemAwarded > 0) {
       setTimeout(() => {
         soundFx.playGemPickup();
-      }, 400 + stars * 300 + 200);
+      }, 350 + stars * 250 + 200);
     }
   }, [stars, level, gemAwarded]);
 
@@ -97,44 +93,34 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto select-none animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-lg bg-gradient-to-b ${theme.bgGradient} border-3 ${theme.borderAccent} rounded-3xl p-5 sm:p-7 text-center my-4 max-h-[92vh] overflow-y-auto`}
-        style={{ boxShadow: `0 0 40px ${theme.glowColor}` }}
+        className={`relative w-full max-w-md bg-gradient-to-b ${theme.bgGradient} border-2 sm:border-3 ${theme.borderAccent} rounded-3xl p-5 sm:p-6 text-center my-auto max-h-[92vh] overflow-y-auto shadow-2xl`}
+        style={{ boxShadow: `0 0 35px ${theme.glowColor}` }}
       >
         {/* 3 Stars Fanfare */}
-        <div className="flex justify-center items-center gap-3 my-2">
+        <div className="flex justify-center items-center gap-3 pt-1 pb-2">
           {[1, 2, 3].map((starIndex) => (
             <div
               key={starIndex}
               className={`transition-all duration-300 transform ${
                 starIndex <= stars
                   ? 'scale-110 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.9)]'
-                  : 'text-slate-800 scale-90'
+                  : 'text-slate-800 scale-90 opacity-40'
               }`}
             >
-              <Star className="w-12 h-12 fill-current stroke-[1.5]" />
+              <Star className="w-11 h-11 sm:w-12 sm:h-12 fill-current stroke-[1.5]" />
             </div>
           ))}
         </div>
 
-        {/* Title & Learner Badge */}
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <span className="text-2xl">{avatar}</span>
-          <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white tracking-widest starwars-gold-glow">
-            CHIẾN THẮNG!
-          </h2>
-          <span className="text-2xl">{gender === 'girl' ? '🌸' : gender === 'boy' ? '⚡' : '✨'}</span>
-        </div>
-        <div className="flex items-center justify-center gap-2 mt-1 flex-wrap">
-          <span className={`${theme.textColor} font-bold text-sm`}>
-            {level.titleVi} • Màn {level.levelNumber}
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 text-xs font-bold border border-yellow-400/30">
-            <Zap className="w-3 h-3 fill-yellow-400" />
-            <span>{progress.energy}⚡ còn lại</span>
-          </span>
-        </div>
+        {/* Victory Title & Level Name */}
+        <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white tracking-widest starwars-gold-glow">
+          CHIẾN THẮNG!
+        </h2>
+        <p className={`${theme.textColor} font-bold text-sm sm:text-base mt-0.5`}>
+          Màn {level.levelNumber}: {level.titleVi}
+        </p>
 
-        {/* Mascot Cheering Widget */}
+        {/* Mascot Cheering Widget (Concise & Punchy) */}
         <div className="flex justify-center my-3">
           <MascotWidget
             mascotId={mascotId}
@@ -145,146 +131,68 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           />
         </div>
 
-        {/* Score & Rewards Summary */}
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 my-4">
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-3.5">
-            <div className="text-slate-300 text-xs sm:text-sm font-black uppercase font-orbitron">Điểm số</div>
-            <div className={`text-2xl sm:text-3xl font-black font-orbitron ${theme.textColor} mt-1 tracking-wide`}>{stats.score}</div>
+        {/* Essential Stats Summary (Score, XP, Gems) */}
+        <div className="grid grid-cols-3 gap-2.5 my-3.5">
+          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
+            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Điểm số</span>
+            <span className={`text-xl sm:text-2xl font-black font-orbitron ${theme.textColor} mt-0.5 tracking-wide`}>
+              {stats.score.toLocaleString()}
+            </span>
           </div>
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-3.5">
-            <div className="text-slate-300 text-xs sm:text-sm font-black uppercase font-orbitron">Kinh nghiệm</div>
-            <div className="text-2xl sm:text-3xl font-black font-orbitron text-amber-400 mt-1 flex items-center justify-center gap-1 tracking-wide">
-              <Flame className="w-5 h-5 fill-current" />
+
+          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
+            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Kinh nghiệm</span>
+            <span className="text-xl sm:text-2xl font-black font-orbitron text-amber-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               <span>+{xpAwarded}</span>
-            </div>
+            </span>
           </div>
-          <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-3.5">
-            <div className="text-slate-300 text-xs sm:text-sm font-black uppercase font-orbitron">Kim cương</div>
-            <div className="text-2xl sm:text-3xl font-black font-orbitron text-sky-400 mt-1 flex items-center justify-center gap-1 tracking-wide">
-              <Gem className="w-5 h-5 fill-current" />
+
+          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
+            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Kim cương</span>
+            <span className="text-xl sm:text-2xl font-black font-orbitron text-sky-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
+              <Gem className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               <span>+{gemAwarded}</span>
-            </div>
+            </span>
           </div>
         </div>
 
-        {/* Diamond Reward Breakdown Box */}
-        <div className="bg-sky-950/40 border border-sky-500/40 rounded-2xl p-3 sm:p-4 mb-4 text-left">
-          <div className="text-xs sm:text-sm text-sky-300 font-black uppercase flex items-center justify-between gap-1.5 mb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Award className="w-4 h-4" /> Thưởng Kim Cương
-            </div>
-            {onOpenDiamondGuide && (
-              <button
-                onClick={() => {
-                  soundFx.playClick();
-                  onOpenDiamondGuide();
-                }}
-                className="text-xs text-cyan-300 hover:text-cyan-100 font-black flex items-center gap-1 cursor-pointer bg-cyan-500/20 px-2.5 py-1 rounded-xl border border-cyan-400/40"
-              >
-                <span>💡 Bí kíp 💎</span>
-              </button>
-            )}
-          </div>
-          <div className="space-y-2 text-xs sm:text-sm text-slate-100 font-bold">
-            {reward.starBonusGems > 0 && (
-              <div className="flex justify-between items-center bg-slate-900/70 px-3 py-2 rounded-xl">
-                <span className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span>Đạt {stars} Sao xuất sắc:</span>
-                </span>
-                <span className="font-orbitron font-black text-yellow-300">+{reward.starBonusGems} 💎</span>
-              </div>
-            )}
-            {reward.isFirstClear && (reward.firstClearBonusGems || reward.baseGems) > 0 && (
-              <div className="flex justify-between items-center bg-slate-900/70 px-3 py-2 rounded-xl">
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-sky-400" />
-                  <span>Mở khóa màn mới:</span>
-                </span>
-                <span className="font-orbitron font-black text-sky-300">+{reward.firstClearBonusGems || reward.baseGems} 💎</span>
-              </div>
-            )}
-            {reward.accuracyBonusGems > 0 && (
-              <div className="flex justify-between items-center bg-slate-900/70 px-3 py-2 rounded-xl">
-                <span className="flex items-center gap-2">
-                  <span>🎯</span>
-                  <span>Chuẩn xác ({stats.accuracy}%):</span>
-                </span>
-                <span className="font-orbitron font-black text-emerald-300">+{reward.accuracyBonusGems} 💎</span>
-              </div>
-            )}
-            {reward.heroicBonusGems > 0 && (
-              <div className="flex justify-between items-center bg-slate-900/70 px-3 py-2 rounded-xl">
-                <span className="flex items-center gap-2">
-                  <span>🔥</span>
-                  <span>Thử thách Heroic:</span>
-                </span>
-                <span className="font-orbitron font-black text-rose-300">+{reward.heroicBonusGems} 💎</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Leaderboard Rank Boost Banner - Concise */}
-        <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-3 mb-4 flex items-center justify-between gap-2.5 text-left">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 flex-shrink-0">
-              <Trophy className="w-5 h-5 animate-pulse" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-black text-amber-300 truncate">
-                +{xpAwarded} XP Bảng Xếp Hạng!
-              </div>
-              <div className="text-xs text-slate-300 font-bold">
-                Tuần này: <span className="font-orbitron font-black text-amber-400">{(progress.weeklyXp || 0) + xpAwarded} XP</span>
-              </div>
-            </div>
-          </div>
-          {onOpenLeaderboard && (
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                onOpenLeaderboard();
-              }}
-              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-xs sm:text-sm font-black transition active:scale-95 cursor-pointer whitespace-nowrap flex-shrink-0"
-            >
-              Xem BXH 🏆
-            </button>
-          )}
-        </div>
-
-        {/* Word / Sentence Review Grid */}
+        {/* Conquered Words Review (Sleek, Compact List) */}
         {level.words.length > 0 && (
-          <div className="text-left bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 mb-5">
-            <div className="text-xs sm:text-sm uppercase tracking-wider text-cyan-300 font-black mb-2.5">
-              Từ vựng đã chinh phục:
+          <div className="text-left bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3 mb-4">
+            <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-cyan-300 mb-2 px-0.5">
+              <span>Từ vựng đã chinh phục ({level.words.length})</span>
+              <span className="text-[11px] text-slate-400 font-semibold normal-case flex items-center gap-1">
+                <span>Chạm nghe</span>
+                <Volume2 className="w-3.5 h-3.5 text-cyan-400 inline" />
+              </span>
             </div>
 
-            <div className={`max-h-40 overflow-y-auto pr-1 ${
-              level.words.some(w => w.word.length > 20) ? 'grid grid-cols-1 gap-2.5' : 'grid grid-cols-2 gap-2.5'
-            }`}>
+            <div className="max-h-36 overflow-y-auto space-y-1.5 pr-0.5">
               {level.words.map((item) => {
                 const isPlaying = playingId === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={(e) => handleSpeak(item.id, item.word, e)}
-                    className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition text-left gap-2.5 ${
+                    className={`w-full flex items-center justify-between py-2 px-3 rounded-xl border cursor-pointer transition text-left gap-2 ${
                       isPlaying
                         ? `${theme.cardBg} ${theme.borderAccent} shadow-md`
-                        : 'bg-slate-900 border-slate-800 hover:border-slate-600'
+                        : 'bg-slate-900/80 border-slate-800/90 hover:border-slate-700 active:scale-[0.99]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
-                      <span className="text-2xl sm:text-3xl flex-shrink-0">{item.emoji}</span>
-                      <div className="truncate leading-tight flex-1 min-w-0">
-                        <div className={`font-black text-sm sm:text-base truncate ${isPlaying ? theme.textColor : 'text-white'}`}>
+                      <span className="text-xl flex-shrink-0">{item.emoji}</span>
+                      <div className="truncate leading-snug flex-1 min-w-0">
+                        <span className={`font-black text-xs sm:text-sm ${isPlaying ? theme.textColor : 'text-white'}`}>
                           {item.word}
-                        </div>
-                        <div className="text-xs sm:text-sm text-yellow-300 font-bold truncate mt-0.5">{item.meaningVi}</div>
+                        </span>
+                        <span className="text-[11px] sm:text-xs text-yellow-300/90 font-medium ml-2">
+                          — {item.meaningVi}
+                        </span>
                       </div>
                     </div>
-                    <Volume2 className={`w-5 h-5 flex-shrink-0 ml-1 ${isPlaying ? theme.textColor : 'text-slate-400'}`} />
+                    <Volume2 className={`w-4 h-4 flex-shrink-0 ${isPlaying ? theme.textColor : 'text-slate-500'}`} />
                   </button>
                 );
               })}
@@ -292,56 +200,55 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
         )}
 
-        {/* Main Action Buttons */}
-        <div className="flex flex-col gap-3">
-          {hasNextLevel && (
+        {/* Streamlined Action Buttons */}
+        <div className="flex flex-col gap-2.5 pt-0.5">
+          {hasNextLevel ? (
             <button
               onClick={() => {
                 soundFx.playClick();
                 onNextLevel();
               }}
-              className={`w-full py-4.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-xl sm:text-2xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider`}
+              className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider`}
             >
               <span>MÀN TIẾP THEO</span>
-              <ArrowRight className="w-6 h-6 stroke-[3]" />
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
             </button>
-          )}
-
-          {onOpenAstronautCard && (
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                onOpenAstronautCard();
-              }}
-              className="w-full py-3.5 px-4 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-400/50 hover:border-cyan-300 text-cyan-300 font-orbitron font-black text-sm sm:text-base rounded-2xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
-              title="Xem thẻ phi hành gia"
-            >
-              <Shield className="w-5 h-5 text-cyan-400" />
-              <span>THẺ PHI HÀNH GIA 🚀</span>
-            </button>
-          )}
-
-          <div className="flex gap-3">
+          ) : (
             <button
               onClick={() => {
                 soundFx.playClick();
                 onRestart();
               }}
-              className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-black text-base sm:text-lg rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider`}
             >
-              <RotateCcw className="w-5 h-5" />
-              CHƠI LẠI
+              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
+              <span>CHƠI LẠI</span>
             </button>
+          )}
+
+          <div className="flex gap-2.5">
+            {hasNextLevel && (
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  onRestart();
+                }}
+                className="flex-1 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>CHƠI LẠI</span>
+              </button>
+            )}
 
             <button
               onClick={() => {
                 soundFx.playClick();
                 onGoToMap();
               }}
-              className="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-black text-base sm:text-lg rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="flex-1 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
-              <Map className="w-5 h-5 text-cyan-400" />
-              BẢN ĐỒ
+              <Map className="w-4 h-4 text-cyan-400" />
+              <span>BẢN ĐỒ</span>
             </button>
           </div>
         </div>

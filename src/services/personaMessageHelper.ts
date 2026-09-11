@@ -134,32 +134,32 @@ export function getVictoryModalMessages(
 
   if (ageCat === 'kid') {
     if (gender === 'girl') {
-      return `Hoan hô công chúa nhỏ ${userName ? userName : ''}! ${mascotName} tự hào về bé lắm luôn! 🌸🎉`;
+      return `Hoan hô bé ${userName || ''}! Bé bắn đỉnh quá nè! 🌸🎉`;
     }
     if (gender === 'boy') {
-      return `Hoan hô siêu nhí ${userName ? userName : ''}! ${mascotName} tự hào về bé lắm luôn! 🚀🎉`;
+      return `Hoan hô siêu nhí ${userName || ''}! Bắn cừ khôi quá! 🚀🎉`;
     }
-    return `Hoan hô ${honorific}! ${mascotName} tự hào về bé lắm luôn! 🌟🎉`;
+    return `Hoan hô ${honorific}! Bé hoàn thành xuất sắc! 🌟🎉`;
   }
 
   if (ageCat === 'teen') {
     if (gender === 'girl') {
-      return `Đỉnh chóp bạn ${userName || 'ơi'}! Thần thái và phản xạ từ vựng xuất sắc tuyệt đỉnh! 🌸🏆`;
+      return `Đỉnh chóp ${userName || 'bạn ơi'}! Phản xạ siêu nhanh! 🌸⚡`;
     }
     if (gender === 'boy') {
-      return `Quá ngầu bạn ${userName || 'ơi'}! Tốc độ và độ chuẩn xác như một siêu sao! ⚡🏆`;
+      return `Quá ngầu ${userName || 'bạn ơi'}! Tốc độ như siêu sao! ⚡🏆`;
     }
-    return `Xuất sắc lắm bạn ${userName || 'ơi'}! ${mascotName} bái phục màn thể hiện hoàn hảo của bạn! 🚀✨`;
+    return `Xuất sắc lắm ${userName || 'bạn ơi'}! Phong độ đỉnh cao! 🚀✨`;
   }
 
   // Adult
   if (gender === 'girl') {
-    return `Chúc mừng bạn ${userName || ''}! Tốc độ phản xạ và xử lý từ vựng cực kỳ mượt mà! 💖✨`;
+    return `Tuyệt vời ${userName ? userName + ' ơi' : 'bạn ơi'}! Phản xạ rất mượt mà! 💖✨`;
   }
   if (gender === 'boy') {
-    return `Chúc mừng bạn ${userName || ''}! Phong độ đỉnh cao và khả năng ghi nhớ rất ấn tượng! 🚀🔥`;
+    return `Quá đỉnh ${userName ? userName + ' ơi' : 'bạn ơi'}! Phong độ cực kỳ xuất sắc! 🚀🔥`;
   }
-  return `Chúc mừng ${pronoun} ${userName || ''}! Level up kỹ năng từ vựng tiếng Anh vô cùng xuất sắc! 🌟🎯`;
+  return `Tuyệt vời ${userName ? userName + ' ơi' : 'bạn ơi'}! Hoàn thành xuất sắc màn chơi! 🌟🎯`;
 }
 
 /**
