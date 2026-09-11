@@ -70,18 +70,18 @@ export const HUD: React.FC<HUDProps> = ({
             <Pause className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-300 fill-cyan-300/30" />
           </button>
 
-          <div className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-slate-700/90 border-b-3 border-b-slate-950 rounded-2xl backdrop-blur-md shadow-md">
+          <div className="flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-slate-700/90 border-b-3 border-b-slate-950 rounded-2xl backdrop-blur-md shadow-md">
             <span className="text-xl sm:text-2xl drop-shadow">{level.icon}</span>
-            <span className="text-sm sm:text-base md:text-lg font-orbitron font-black text-white whitespace-nowrap tracking-wide">
+            <span className="text-base sm:text-lg md:text-xl font-orbitron font-black text-white whitespace-nowrap tracking-wide">
               Màn {level.levelNumber}
             </span>
           </div>
         </div>
 
         {/* Center: Sleek Dual Progress (Words & Timer) */}
-        <div className="flex-1 max-w-[180px] sm:max-w-md pointer-events-auto flex flex-col gap-1.5 px-1 sm:px-3">
+        <div className="flex-1 max-w-[190px] sm:max-w-md pointer-events-auto flex flex-col gap-1.5 px-1 sm:px-3">
           {/* Progress bar */}
-          <div className="w-full h-3 sm:h-4 bg-slate-950/95 rounded-full border border-slate-800 border-b-slate-900 overflow-hidden flex items-center p-0.5 shadow-inner">
+          <div className="w-full h-3.5 sm:h-4.5 bg-slate-950/95 rounded-full border border-slate-800 border-b-slate-900 overflow-hidden flex items-center p-0.5 shadow-inner">
             <div
               className="h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(0,240,255,0.7)]"
               style={{ width: `${Math.max(5, progressPercent)}%` }}
@@ -89,8 +89,8 @@ export const HUD: React.FC<HUDProps> = ({
           </div>
 
           {/* Words Count & Timer / Zen Badge */}
-          <div className="flex items-center justify-between text-xs sm:text-sm md:text-base font-black px-0.5">
-            <span className="text-slate-200 whitespace-nowrap font-orbitron text-xs sm:text-sm md:text-base font-black tracking-wide">
+          <div className="flex items-center justify-between text-sm sm:text-base md:text-lg font-black px-0.5">
+            <span className="text-slate-200 whitespace-nowrap font-orbitron text-sm sm:text-base md:text-lg font-black tracking-wide">
               {stats.wordsDefeated}/{totalWords}
             </span>
 
@@ -102,10 +102,10 @@ export const HUD: React.FC<HUDProps> = ({
             ) : timeRemaining !== undefined ? (
               <span
                 className={`flex items-center gap-1.5 font-orbitron whitespace-nowrap tracking-wide ${
-                  isUrgent ? 'text-rose-400 animate-pulse font-black text-sm sm:text-base md:text-lg drop-shadow-[0_0_10px_rgba(244,63,94,0.7)]' : 'text-cyan-300 font-black text-xs sm:text-sm md:text-base'
+                  isUrgent ? 'text-rose-400 animate-pulse font-black text-base sm:text-lg md:text-xl drop-shadow-[0_0_10px_rgba(244,63,94,0.7)]' : 'text-cyan-300 font-black text-sm sm:text-base md:text-lg'
                 }`}
               >
-                <Timer className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                <Timer className="w-4 h-4 sm:w-5 sm:h-5" />
                 {timeRemaining}s
               </span>
             ) : null}
@@ -115,17 +115,17 @@ export const HUD: React.FC<HUDProps> = ({
         {/* Right: Hearts, Score & Mute */}
         <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
           {/* Hearts */}
-          <div className="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-900/95 border border-rose-500/50 border-b-3 border-b-rose-900/70 rounded-2xl backdrop-blur-md shadow-md">
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500 animate-pulse" />
-            <span className="font-orbitron font-black text-sm sm:text-base text-rose-300 tracking-wide">
+          <div className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-rose-500/50 border-b-3 border-b-rose-900/70 rounded-2xl backdrop-blur-md shadow-md">
+            <Heart className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-rose-500 fill-rose-500 animate-pulse" />
+            <span className="font-orbitron font-black text-base sm:text-lg md:text-xl text-rose-300 tracking-wide">
               {hearts}/{maxHearts}
             </span>
           </div>
 
           {/* Score */}
-          <div className="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 bg-slate-900/95 border border-amber-400/50 border-b-3 border-b-amber-900/70 rounded-2xl backdrop-blur-md shadow-md">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
-            <span className="font-orbitron font-black text-sm sm:text-base text-yellow-300 tracking-wide">{stats.score}</span>
+          <div className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-amber-400/50 border-b-3 border-b-amber-900/70 rounded-2xl backdrop-blur-md shadow-md">
+            <Sparkles className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-yellow-400 fill-yellow-400" />
+            <span className="font-orbitron font-black text-base sm:text-lg md:text-xl text-yellow-300 tracking-wide">{stats.score}</span>
           </div>
 
           {/* Mute Button */}

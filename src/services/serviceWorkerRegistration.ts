@@ -15,7 +15,7 @@ export function registerServiceWorker(): void {
     onOfflineReady() {
       console.log('[PWA] Nội dung đã được lưu cache bởi Workbox để chơi offline!');
     },
-    onRegisterError(error) {
+    onRegisterError(error: unknown) {
       console.warn('[PWA] Đăng ký Service Worker thất bại:', error);
     }
   });

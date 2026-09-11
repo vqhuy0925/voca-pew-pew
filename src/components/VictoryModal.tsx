@@ -134,14 +134,14 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         {/* Essential Stats Summary (Score, XP, Gems) */}
         <div className="grid grid-cols-3 gap-2.5 my-3.5">
           <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Điểm số</span>
+            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Điểm số</span>
             <span className={`text-xl sm:text-2xl font-black font-orbitron ${theme.textColor} mt-0.5 tracking-wide`}>
               {stats.score.toLocaleString()}
             </span>
           </div>
 
           <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Kinh nghiệm</span>
+            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Kinh nghiệm</span>
             <span className="text-xl sm:text-2xl font-black font-orbitron text-amber-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
               <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               <span>+{xpAwarded}</span>
@@ -149,7 +149,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
 
           <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-[11px] sm:text-xs font-black uppercase font-orbitron">Kim cương</span>
+            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Kim cương</span>
             <span className="text-xl sm:text-2xl font-black font-orbitron text-sky-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
               <Gem className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               <span>+{gemAwarded}</span>
@@ -160,9 +160,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         {/* Conquered Words Review (Sleek, Compact List) */}
         {level.words.length > 0 && (
           <div className="text-left bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3 mb-4">
-            <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-cyan-300 mb-2 px-0.5">
+            <div className="flex items-center justify-between text-xs sm:text-sm font-black uppercase tracking-wider text-cyan-300 mb-2 px-0.5">
               <span>Từ vựng đã chinh phục ({level.words.length})</span>
-              <span className="text-[11px] text-slate-400 font-semibold normal-case flex items-center gap-1">
+              <span className="text-xs text-slate-400 font-semibold normal-case flex items-center gap-1">
                 <span>Chạm nghe</span>
                 <Volume2 className="w-3.5 h-3.5 text-cyan-400 inline" />
               </span>
@@ -182,12 +182,12 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-2.5 overflow-hidden flex-1 min-w-0">
-                      <span className="text-xl flex-shrink-0">{item.emoji}</span>
+                      <span className="text-2xl flex-shrink-0">{item.emoji}</span>
                       <div className="truncate leading-snug flex-1 min-w-0">
-                        <span className={`font-black text-xs sm:text-sm ${isPlaying ? theme.textColor : 'text-white'}`}>
+                        <span className={`font-black text-sm sm:text-base ${isPlaying ? theme.textColor : 'text-white'}`}>
                           {item.word}
                         </span>
-                        <span className="text-[11px] sm:text-xs text-yellow-300/90 font-medium ml-2">
+                        <span className="text-xs sm:text-sm text-yellow-300/90 font-medium ml-2">
                           — {item.meaningVi}
                         </span>
                       </div>

@@ -138,7 +138,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     // Star Wars Hyperspace Drop into Battle
     particleSys.setHyperspace(true);
     soundFx.playHyperdriveJump();
-    particleSys.addFloatingText('🚀 HYPERDRIVE // WARP SPEED!', canvas.width / 2, canvas.height * 0.35, '#00f0ff', 24);
+    particleSys.addFloatingText('🚀 HYPERDRIVE // WARP SPEED!', canvas.width / 2, canvas.height * 0.35, '#00f0ff', 28);
     const hyperspaceTimer = setTimeout(() => {
       particleSys.setHyperspace(false);
     }, 750);
@@ -214,7 +214,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         if (combo % 3 === 0) {
           soundFx.playCombo(Math.floor(combo / 3));
-          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 36);
+          particleSys.addFloatingText(`COMBO x${combo}! 🔥`, canvas.width / 2, canvas.height * 0.35, '#ff007f', 40);
         }
 
         // Custom Laser sound
@@ -246,7 +246,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             result.defeatedEnemy.x + result.defeatedEnemy.width / 2,
             result.defeatedEnemy.y,
             '#39ff14',
-            28
+            32
           );
 
           // Find full vocab item to add to review list
@@ -388,14 +388,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             }
             if (currentSec <= 5 && currentSec > 0) {
               soundFx.playTickTock(true);
-              particleSys.addFloatingText(`⏱️ ${currentSec}s!`, canvas.width / 2, canvas.height * 0.25, '#f43f5e', 32);
+              particleSys.addFloatingText(`⏱️ ${currentSec}s!`, canvas.width / 2, canvas.height * 0.25, '#f43f5e', 36);
             }
           }
 
           // Time Out Check
           if (timeRemainingRef.current <= 0) {
             soundFx.playGameOver();
-            particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 40);
+            particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
             onGameOver();
             return;
           }
@@ -421,7 +421,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             spawner.removeEnemy(breached.id);
             soundFx.playHeartLost();
             particleSys.addExplosion(breached.x + breached.width / 2, canvas.height - 100, '#ff0055', 24);
-            particleSys.addFloatingText('-1 ❤️', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 28);
+            particleSys.addFloatingText('-1 ❤️', breached.x + breached.width / 2, canvas.height - 120, '#ff0055', 32);
           }
 
           onStatsUpdate(prev => {
@@ -491,7 +491,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.stroke();
 
     // Defense Line Label (Subtle & clean)
-    ctx.font = 'bold 14px Orbitron, Fredoka, sans-serif';
+    ctx.font = 'bold 16px Orbitron, Fredoka, sans-serif';
     ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
     ctx.textAlign = 'right';
     ctx.fillText('🛡️ PHÒNG TUYẾN', w - 24, defenseY - 8);
@@ -591,7 +591,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.fill();
 
       // Telemetry Text
-      ctx.font = 'bold 12px Orbitron, monospace, sans-serif';
+      ctx.font = 'bold 14px Orbitron, monospace, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('⚡ LOCK', x + width / 2, y - 22);
 
@@ -600,11 +600,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
     // Draw Emoji
     const isSentence = enemy.word.length > 18;
-    const emojiSize = isSentence ? 32 : 36;
+    const emojiSize = isSentence ? 38 : 42;
     const paddingLeft = 14;
-    const emojiSpace = emojiSize + 10;
+    const emojiSpace = emojiSize + 12;
     const letterStartX = x + paddingLeft + emojiSpace;
-    const maxTextWidth = Math.max(90, width - (paddingLeft + emojiSpace + 16));
+    const maxTextWidth = Math.max(100, width - (paddingLeft + emojiSpace + 16));
 
     ctx.font = `${emojiSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
     ctx.textAlign = 'left';
@@ -612,25 +612,26 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fillText(enemy.emoji, x + paddingLeft, y + height / 2 - 2);
 
     // Dynamic Font Auto-Fitting to guarantee text never overflows pill
-    let fontSize = isSentence ? (enemy.word.length > 35 ? 18 : 22) : (enemy.word.length > 10 ? 26 : 30);
+    // Increased by 2 sizes for crisp, comfortable kid readability
+    let fontSize = isSentence ? (enemy.word.length > 35 ? 22 : 26) : (enemy.word.length > 10 ? 32 : 36);
     let letterSpacing = isSentence ? 1.0 : 2.0;
 
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     let totalTextWidth = 0;
     for (let i = 0; i < enemy.word.length; i++) {
       const c = enemy.word[i];
-      const cw = c === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(c).width;
+      const cw = c === ' ' ? Math.max(6, fontSize * 0.35) : ctx.measureText(c).width;
       totalTextWidth += cw + letterSpacing;
     }
 
-    while (totalTextWidth > maxTextWidth && fontSize > 13) {
+    while (totalTextWidth > maxTextWidth && fontSize > 16) {
       fontSize -= 0.5;
-      letterSpacing = fontSize < 15 ? 0.5 : 1.0;
+      letterSpacing = fontSize < 18 ? 0.5 : 1.0;
       ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
       totalTextWidth = 0;
       for (let i = 0; i < enemy.word.length; i++) {
         const c = enemy.word[i];
-        const cw = c === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(c).width;
+        const cw = c === ' ' ? Math.max(6, fontSize * 0.35) : ctx.measureText(c).width;
         totalTextWidth += cw + letterSpacing;
       }
     }
@@ -639,7 +640,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.font = `bold ${fontSize}px Fredoka, system-ui, sans-serif`;
     ctx.textBaseline = 'middle';
 
-    const wordCenterY = y + (isSentence ? 28 : 29);
+    const wordCenterY = y + (isSentence ? 33 : 35);
     let currentX = letterStartX;
     for (let i = 0; i < enemy.word.length; i++) {
       const char = enemy.word[i];
@@ -660,12 +661,12 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       }
 
       const displayChar = char;
-      const charWidth = char === ' ' ? Math.max(5, fontSize * 0.35) : ctx.measureText(displayChar).width;
+      const charWidth = char === ' ' ? Math.max(6, fontSize * 0.35) : ctx.measureText(displayChar).width;
 
       if (char === ' ') {
         if (isCurrentChar) {
           ctx.fillStyle = 'rgba(250, 204, 21, 0.5)';
-          ctx.fillRect(currentX, wordCenterY - 10, Math.max(6, charWidth + 2), 20);
+          ctx.fillRect(currentX, wordCenterY - 12, Math.max(8, charWidth + 2), 24);
         }
       } else {
         ctx.fillText(char, currentX, wordCenterY);
@@ -674,7 +675,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // Underline active char
       if (isCurrentChar) {
         ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(currentX - 1, wordCenterY + fontSize * 0.55 + 2);
         ctx.lineTo(currentX + charWidth + 1, wordCenterY + fontSize * 0.55 + 2);
@@ -685,9 +686,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Vietnamese Meaning Subtext (Auto-fitted, bold & clear)
-    let meaningFontSize = isSentence ? 14 : 16;
+    let meaningFontSize = isSentence ? 18 : 20;
     ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
-    while (ctx.measureText(enemy.meaningVi).width > maxTextWidth && meaningFontSize > 11) {
+    while (ctx.measureText(enemy.meaningVi).width > maxTextWidth && meaningFontSize > 13) {
       meaningFontSize -= 0.5;
       ctx.font = `bold ${meaningFontSize}px Fredoka, system-ui, sans-serif`;
     }
@@ -695,7 +696,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     ctx.fillStyle = '#bae6fd';
     ctx.shadowBlur = 0;
     ctx.textAlign = 'left';
-    ctx.fillText(enemy.meaningVi, letterStartX, y + (isSentence ? 60 : 58));
+    ctx.fillText(enemy.meaningVi, letterStartX, y + (isSentence ? 70 : 68));
 
     ctx.restore();
   };
@@ -753,7 +754,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             e.stopPropagation();
             focusInput();
           }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-cyan-500/90 hover:bg-cyan-400 text-slate-950 font-game font-extrabold text-xs sm:text-sm rounded-full shadow-[0_0_20px_rgba(0,240,255,0.6)] border-2 border-white flex items-center gap-2 animate-bounce cursor-pointer active:scale-95"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 px-5 py-2.5 bg-cyan-500/90 hover:bg-cyan-400 text-slate-950 font-game font-extrabold text-sm sm:text-base rounded-full shadow-[0_0_20px_rgba(0,240,255,0.6)] border-2 border-white flex items-center gap-2 animate-bounce cursor-pointer active:scale-95"
         >
           <span>⌨️ Chạm vào đây để mở bàn phím</span>
         </button>

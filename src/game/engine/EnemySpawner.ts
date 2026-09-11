@@ -88,12 +88,12 @@ export class EnemySpawner {
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
 
     const isLongSentence = vocab.word.length > 20;
-    const maxCardWidth = Math.max(160, this.canvasWidth - 24);
-    const minCardWidth = Math.min(maxCardWidth, 160);
+    const maxCardWidth = Math.max(180, this.canvasWidth - 24);
+    const minCardWidth = Math.min(maxCardWidth, 180);
 
     // Calculate realistic pill width based on text length and canvas width
-    const charWidthEst = vocab.word.length > 35 ? 12 : vocab.word.length > 20 ? 14 : vocab.word.length > 10 ? 18 : 22;
-    const rawWidth = vocab.word.length * charWidthEst + 95;
+    const charWidthEst = vocab.word.length > 35 ? 14 : vocab.word.length > 20 ? 17 : vocab.word.length > 10 ? 22 : 26;
+    const rawWidth = vocab.word.length * charWidthEst + 115;
     const estimatedWidth = Math.min(maxCardWidth, Math.max(minCardWidth, rawWidth));
 
     const minX = 12;
@@ -122,10 +122,10 @@ export class EnemySpawner {
       emoji: vocab.emoji,
       typedIndex: 0,
       x: Math.round(bestX),
-      y: -55,
+      y: -65,
       speed: (this.baseSpeed * sentenceSpeedAdj) + Math.random() * 0.1,
       width: Math.round(estimatedWidth),
-      height: isLongSentence ? 84 : 76,
+      height: isLongSentence ? 96 : 88,
       color: chosenColor,
       isTargeted: false,
       shakeTime: 0

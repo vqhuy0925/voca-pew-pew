@@ -194,7 +194,7 @@ interface FirestoreGuild {
 
 - [ ] **Task 4.4: Đường Link Thách Đấu Bất Đồng Bộ (Challenge Link)**
   - Sau khi bắn hoàn thành 1 màn chơi với số điểm cao: Có nút *"Thách đấu bạn bè"*.
-  - Sinh đường link rút gọn (ví dụ: `https://voca-pew-pew.vercel.app/?duel=lvl-1-3&score=1420&from=BéBắp`).
+  - Sinh đường link rút gọn (ví dụ: `https://vocab-pew-pew.vercel.app/?duel=lvl-1-3&score=1420&from=BéBắp`).
   - Bạn bè bấm vào link sẽ chơi đúng màn đó để xem ai đạt điểm cao hơn.
 
 ---
