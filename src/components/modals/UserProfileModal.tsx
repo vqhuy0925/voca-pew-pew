@@ -216,25 +216,25 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     : (gender === 'girl' ? 'Thu Trang, Thanh Hằng, Lan Anh...' : gender === 'boy' ? 'Huy Vũ, Minh Tuấn, Hoàng Nam...' : 'Huy Vũ, Alex, Chris...');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md select-none overflow-y-auto animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-xl bg-gradient-to-b ${currentTheme.bgGradient} border-2 sm:border-3 ${currentTheme.borderAccent} rounded-3xl p-5 sm:p-7 text-center my-4 max-h-[94vh] overflow-y-auto shadow-2xl`}
+        className={`relative w-full max-w-xl bg-gradient-to-b ${currentTheme.bgGradient} border-2 sm:border-3 ${currentTheme.borderAccent} rounded-3xl p-3.5 sm:p-5 text-center max-h-[92vh] flex flex-col overflow-hidden shadow-2xl`}
         style={{ boxShadow: `0 0 50px ${currentTheme.glowColor}` }}
       >
         {/* Close Button (Only for returning users) */}
         {!isFirstTime && onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer z-20 border border-slate-700 shadow-md"
+            className="absolute top-3.5 right-3.5 p-2 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer z-20 border border-slate-700 shadow-md"
             aria-label="Đóng"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         )}
 
         {/* ----------------- FIRST TIME ONBOARDING WIZARD ----------------- */}
         {isFirstTime ? (
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-4">
             {/* Step Indicators */}
             <div className="flex items-center justify-center gap-2 mb-2">
               <div className={`h-2 rounded-full transition-all duration-300 ${step === 1 ? 'w-10 bg-cyan-400' : 'w-3 bg-slate-700'}`} />
@@ -556,24 +556,26 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           </div>
         ) : (
           /* ================= RETURNING USER: CLEAN & MODERN PROFILE CARD ================= */
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {/* Top Modal Title */}
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5 mb-2.5 flex-shrink-0">
               <div className="flex items-center gap-2.5 text-left">
-                <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
-                  <User className="w-5 h-5" />
+                <div className="p-1.5 sm:p-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black font-game text-white tracking-wide">
+                  <h2 className="text-lg sm:text-xl font-black font-game text-white tracking-wide">
                     HỒ SƠ CỦA BẠN 🌟
                   </h2>
-                  <p className="text-xs text-slate-400 font-medium">Tùy chỉnh thông tin & giao diện học tập</p>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium">Tùy chỉnh thông tin & giao diện học tập</p>
                 </div>
               </div>
             </div>
 
-            {/* HERO PROFILE SUMMARY CARD */}
-            <div className="p-4 rounded-3xl bg-slate-950/80 border border-slate-800 text-left space-y-3.5 shadow-md">
+            {/* Middle Scrollable Section */}
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3">
+              {/* HERO PROFILE SUMMARY CARD */}
+              <div className="p-4 rounded-3xl bg-slate-950/80 border border-slate-800 text-left space-y-3.5 shadow-md">
               <div className="flex items-center gap-3 sm:gap-4">
                 {/* Big Avatar Button */}
                 <button
@@ -947,16 +949,19 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </div>
               </div>
             )}
+            </div>
 
-            {/* SAVE BUTTON */}
-            <button
-              type="button"
-              onClick={handleFinalSubmit}
-              className={`w-full py-3.5 sm:py-4 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-base sm:text-lg rounded-2xl border-b-6 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1.5 transition flex items-center justify-center gap-2 cursor-pointer shadow-lg mt-3`}
-            >
-              <Check className="w-5 h-5 stroke-[3]" />
-              <span>LƯU HỒ SƠ & BẮT ĐẦU</span>
-            </button>
+            {/* Sticky Save Button in Footer */}
+            <div className="mt-2 pt-2 border-t border-slate-800/80 flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleFinalSubmit}
+                className={`w-full py-2.5 sm:py-3 bg-gradient-to-r ${currentTheme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-base rounded-xl sm:rounded-2xl border-b-4 ${currentTheme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2 cursor-pointer shadow-lg`}
+              >
+                <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[3]" />
+                <span>LƯU HỒ SƠ & BẮT ĐẦU 🚀</span>
+              </button>
+            </div>
           </div>
         )}
 

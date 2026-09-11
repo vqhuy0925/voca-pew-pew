@@ -40,23 +40,23 @@ const ShipThumbnail: React.FC<{ ship: SpaceshipItem; isSelected: boolean }> = Re
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawSpaceship(ctx, canvas.width / 2, canvas.height / 2 + 6, ship, undefined, 0.85);
+    drawSpaceship(ctx, canvas.width / 2, canvas.height / 2 + 4, ship, undefined, 0.72);
   }, [ship]);
 
   const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
 
   return (
     <div
-      className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
+      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-cyan-950/90 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-105'
+          ? 'bg-cyan-950/90 border-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.4)] scale-105'
           : `${rarity.borderColor} bg-slate-900/90`
       }`}
       style={{
-        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+        boxShadow: isSelected ? `0 0 14px ${rarity.glowColor}` : undefined
       }}
     >
-      <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
+      <canvas ref={canvasRef} width={64} height={64} className="w-full h-full block" />
     </div>
   );
 });
@@ -79,16 +79,16 @@ const BlasterThumbnail: React.FC<{ blaster: BlasterItem; isSelected: boolean }> 
 
   return (
     <div
-      className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
+      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-pink-950/90 border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.4)] scale-105'
+          ? 'bg-pink-950/90 border-pink-400 shadow-[0_0_12px_rgba(244,114,182,0.4)] scale-105'
           : `${rarity.borderColor} bg-slate-900/90`
       }`}
       style={{
-        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+        boxShadow: isSelected ? `0 0 14px ${rarity.glowColor}` : undefined
       }}
     >
-      <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
+      <canvas ref={canvasRef} width={64} height={64} className="w-full h-full block" />
     </div>
   );
 });
@@ -111,16 +111,16 @@ const LaserThumbnail: React.FC<{ laser: LaserBeamItem; isSelected: boolean }> = 
 
   return (
     <div
-      className={`w-18 h-18 rounded-2xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
+      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center p-1 border-2 flex-shrink-0 transition ${
         isSelected
-          ? 'bg-amber-950/90 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] scale-105'
+          ? 'bg-amber-950/90 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)] scale-105'
           : `${rarity.borderColor} bg-slate-900/90`
       }`}
       style={{
-        boxShadow: isSelected ? `0 0 16px ${rarity.glowColor}` : undefined
+        boxShadow: isSelected ? `0 0 14px ${rarity.glowColor}` : undefined
       }}
     >
-      <canvas ref={canvasRef} width={72} height={72} className="w-full h-full block" />
+      <canvas ref={canvasRef} width={64} height={64} className="w-full h-full block" />
     </div>
   );
 });
@@ -179,13 +179,13 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
       for (let i = lasers.length - 1; i >= 0; i--) {
         const l = lasers[i];
         l.y += l.vy;
-        l.alpha -= 0.02;
+        l.alpha -= 0.025;
 
         ctx.save();
         ctx.globalAlpha = Math.max(0, l.alpha);
 
         if (l.particleType === 'rainbow' || l.particleType === 'supernova') {
-          const grad = ctx.createLinearGradient(l.x, l.y + 24, l.x, l.y);
+          const grad = ctx.createLinearGradient(l.x, l.y + 20, l.x, l.y);
           grad.addColorStop(0, '#f43f5e');
           grad.addColorStop(0.3, '#fbbf24');
           grad.addColorStop(0.7, '#38bdf8');
@@ -224,21 +224,21 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           ctx.shadowColor = l.color;
         }
 
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 14;
         ctx.lineWidth = l.width;
         ctx.beginPath();
-        ctx.moveTo(l.x, l.y + 24);
+        ctx.moveTo(l.x, l.y + 20);
         ctx.lineTo(l.x, l.y);
         ctx.stroke();
 
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
         // Tip Flare
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(l.x, l.y, l.width * 0.7 + 1.5, 0, Math.PI * 2);
+        ctx.arc(l.x, l.y, l.width * 0.7 + 1.2, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
@@ -250,8 +250,8 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
 
       // Draw Ship at Bottom Center using rich renderer
       const shipX = canvas.width / 2;
-      const shipY = canvas.height - 45;
-      drawSpaceship(ctx, shipX, shipY, activeShip, activeBlaster, 1.25);
+      const shipY = canvas.height - 34;
+      drawSpaceship(ctx, shipX, shipY, activeShip, activeBlaster, 1.15);
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -271,10 +271,10 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
     const canvas = previewCanvasRef.current;
     if (!canvas) return;
     const shipX = canvas.width / 2;
-    const shipY = canvas.height - 45;
+    const shipY = canvas.height - 34;
 
     // Spawn test projectiles for each barrel offset
-    const origins = getBlasterMuzzleOrigins(shipX, shipY, activeBlaster, 1.25);
+    const origins = getBlasterMuzzleOrigins(shipX, shipY, activeBlaster, 1.15);
     origins.forEach(origin => {
       testLasersRef.current.push({
         x: origin.x,
@@ -319,100 +319,102 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-3 border-cyan-400 rounded-3xl p-4 sm:p-7 shadow-[0_0_60px_rgba(0,240,255,0.35)] my-4 text-white max-h-[95vh] overflow-y-auto">
-        {/* Close Button */}
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            onClose();
-          }}
-          className="absolute top-4 right-4 p-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer border border-slate-700 z-10"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Header with Gems Counter & Unlocked Badges */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pr-12">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-xs sm:text-sm font-extrabold uppercase">
-              <Rocket className="w-4 h-4" /> Xưởng Chế Tạo Ngân Hà
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md select-none">
+      <div className="relative w-full max-w-3xl lg:max-w-4xl bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-2 sm:border-3 border-cyan-400 rounded-3xl p-3 sm:p-5 shadow-[0_0_50px_rgba(0,240,255,0.35)] text-white max-h-[95vh] flex flex-col overflow-hidden">
+        {/* Header: Title on Left, Diamond Counter & Close on Right */}
+        <div className="flex items-center justify-between gap-2.5 mb-2.5 flex-shrink-0">
+          <div className="min-w-0 flex-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-cyan-500/20 border border-cyan-400/50 rounded-full text-cyan-300 text-[11px] sm:text-xs font-extrabold uppercase">
+              <Rocket className="w-3.5 h-3.5" /> Xưởng Chế Tạo Ngân Hà
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold font-orbitron text-yellow-300 mt-1 tracking-wide starwars-gold-glow">
+            <h2 className="text-lg sm:text-2xl font-black font-orbitron text-yellow-300 mt-0.5 tracking-wide starwars-gold-glow truncate">
               BỘ SƯU TẬP TÀU & VŨ KHÍ 🛠️
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Compact Diamond Pill Button */}
             <button
               onClick={() => {
                 soundFx.playClick();
                 if (onOpenDiamondGuide) onOpenDiamondGuide();
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border-2 border-cyan-400 hover:border-cyan-300 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.3)] transition active:scale-95 cursor-pointer"
+              className="group flex items-center gap-2 px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 border-2 border-cyan-400/80 hover:border-cyan-300 rounded-xl sm:rounded-2xl shadow-[0_0_12px_rgba(0,240,255,0.25)] transition active:scale-95 cursor-pointer"
               title="Bấm để xem Bí kíp săn Kim Cương 💎"
             >
-              <Gem className="w-5 h-5 text-cyan-400 fill-cyan-400 animate-bounce" />
-              <div className="text-right">
-                <div className="text-[10px] text-cyan-300 font-bold uppercase font-orbitron flex items-center gap-1">
+              <Gem className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 fill-cyan-400 group-hover:scale-110 transition-transform" />
+              <div className="text-right leading-tight">
+                <div className="text-[9px] text-cyan-300 font-bold uppercase font-orbitron flex items-center gap-1">
                   <span>Kim Cương</span>
-                  <span className="text-[9px] bg-cyan-500/30 px-1 rounded">Bí kíp 💡</span>
+                  <span className="text-[8px] bg-cyan-500/30 text-cyan-200 px-1 py-0.2 rounded font-sans">Bí kíp 💡</span>
                 </div>
-                <div className="text-lg font-extrabold font-orbitron text-white tracking-wide">{progress.gems} 💎</div>
+                <div className="text-sm sm:text-base font-extrabold font-orbitron text-white tracking-wide">{progress.gems} 💎</div>
               </div>
+            </button>
+
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onClose();
+              }}
+              className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer border border-slate-700 flex-shrink-0"
+              title="Đóng"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
         {/* Live Interactive Preview Box */}
-        <div className="relative bg-slate-950/85 border-2 border-slate-800 rounded-3xl p-3.5 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden shadow-xl">
-          <div className="relative w-48 h-32 bg-slate-900/95 rounded-2xl border-2 border-cyan-400/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
-            <canvas ref={previewCanvasRef} width={192} height={128} className="w-full h-full block" />
-            <div className="absolute top-2 left-2 text-[10px] font-extrabold text-cyan-300 bg-slate-950/90 px-2 py-0.5 rounded-md border border-cyan-400/50">
+        <div className="relative bg-slate-950/85 border-2 border-slate-800 rounded-2xl p-2 sm:p-3 mb-2 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 overflow-hidden shadow-lg flex-shrink-0">
+          <div className="relative w-36 h-22 sm:w-44 sm:h-26 bg-slate-900/95 rounded-xl border-2 border-cyan-400/40 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-inner">
+            <canvas ref={previewCanvasRef} width={176} height={104} className="w-full h-full block" />
+            <div className="absolute top-1.5 left-1.5 text-[9px] font-extrabold text-cyan-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-cyan-400/50">
               MÔ HÌNH TRỰC QUAN
             </div>
           </div>
 
           <div className="flex-1 text-center sm:text-left min-w-0">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mb-1">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mb-0.5">
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${RARITY_CONFIGS[activeShip.rarity]?.borderColor} ${RARITY_CONFIGS[activeShip.rarity]?.textGradient} bg-slate-900/90`}>
                 {RARITY_CONFIGS[activeShip.rarity]?.badge}
               </span>
-              <span className="text-sm font-extrabold text-white truncate">{activeShip.nameVi}</span>
+              <span className="text-xs sm:text-sm font-extrabold text-white truncate">{activeShip.nameVi}</span>
             </div>
-            <div className="text-xs text-slate-300 leading-tight line-clamp-2">{activeShip.perkDescription}</div>
-            <div className="text-[11px] text-amber-300 mt-1.5 flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-              <span>Súng: <strong>{activeBlaster.nameVi}</strong></span>
+            <div className="text-[11px] sm:text-xs text-slate-300 leading-tight line-clamp-1 sm:line-clamp-2">{activeShip.perkDescription}</div>
+            <div className="text-[11px] text-amber-300 mt-1 flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
+              <span>Súng: <strong className="text-yellow-200">{activeBlaster.nameVi}</strong></span>
               <span>•</span>
-              <span>Laze: <strong>{activeLaser.nameVi}</strong></span>
+              <span>Laze: <strong className="text-yellow-200">{activeLaser.nameVi}</strong></span>
             </div>
           </div>
 
           <button
             onClick={handleTestFire}
-            className={`px-4 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold font-game text-sm rounded-2xl shadow-md border-b-4 border-rose-700 active:border-b-0 active:translate-y-1 transition flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+            className={`px-3.5 py-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold font-game text-xs sm:text-sm rounded-xl shadow-md border-b-4 border-rose-700 active:border-b-0 active:translate-y-1 transition flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
               isTestFiring ? 'scale-95 brightness-125' : ''
             }`}
           >
-            <Play className="w-4 h-4 fill-white" />
+            <Play className="w-3.5 h-3.5 fill-white" />
             BẮN THỬ!
           </button>
         </div>
 
         {/* 3 Categories Navigation Tabs with Counters */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2 flex-shrink-0">
           <button
             onClick={() => {
               soundFx.playClick();
               setActiveTab('SHIPS');
             }}
-            className={`py-2.5 px-2 rounded-2xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
+            className={`py-1.5 sm:py-2 px-2 rounded-xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
               activeTab === 'SHIPS'
-                ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-102'
+                ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.4)] scale-[1.01]'
                 : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:border-slate-500'
             }`}
           >
-            <Rocket className="w-4 h-4" />
+            <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>TÀU ({unlockedShipsCount}/{SPACESHIPS.length})</span>
           </button>
 
@@ -421,13 +423,13 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
               soundFx.playClick();
               setActiveTab('BLASTERS');
             }}
-            className={`py-2.5 px-2 rounded-2xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
+            className={`py-1.5 sm:py-2 px-2 rounded-xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
               activeTab === 'BLASTERS'
-                ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-102'
+                ? 'bg-pink-500 text-white border-pink-300 shadow-[0_0_12px_rgba(244,114,182,0.4)] scale-[1.01]'
                 : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:border-slate-500'
             }`}
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>SÚNG ({unlockedBlastersCount}/{BLASTERS.length})</span>
           </button>
 
@@ -436,28 +438,28 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
               soundFx.playClick();
               setActiveTab('LASERS');
             }}
-            className={`py-2.5 px-2 rounded-2xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
+            className={`py-1.5 sm:py-2 px-2 rounded-xl font-game font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 cursor-pointer border-2 ${
               activeTab === 'LASERS'
-                ? 'bg-cyan-500 text-slate-950 border-cyan-300 shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-102'
+                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.4)] scale-[1.01]'
                 : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:border-slate-500'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>LAZE ({unlockedLasersCount}/{LASER_BEAMS.length})</span>
           </button>
         </div>
 
         {/* Rarity Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none text-xs">
-          <span className="text-slate-400 flex items-center gap-1 font-bold pl-1">
-            <Filter className="w-3.5 h-3.5" /> Lọc:
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-1 mb-2 scrollbar-none text-[11px] sm:text-xs flex-shrink-0">
+          <span className="text-slate-400 flex items-center gap-1 font-bold pl-1 text-[11px]">
+            <Filter className="w-3 h-3" /> Lọc:
           </span>
           <button
             onClick={() => {
               soundFx.playClick();
               setRarityFilter('ALL');
             }}
-            className={`px-3 py-1 rounded-xl font-bold transition whitespace-nowrap cursor-pointer ${
+            className={`px-2.5 py-0.5 sm:py-1 rounded-lg font-bold transition whitespace-nowrap cursor-pointer ${
               rarityFilter === 'ALL'
                 ? 'bg-white text-slate-950 shadow-sm'
                 : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
@@ -475,7 +477,7 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
                   soundFx.playClick();
                   setRarityFilter(rKey);
                 }}
-                className={`px-3 py-1 rounded-xl font-bold transition whitespace-nowrap cursor-pointer border ${
+                className={`px-2.5 py-0.5 sm:py-1 rounded-lg font-bold transition whitespace-nowrap cursor-pointer border ${
                   isSelected
                     ? `${rCfg.borderColor} ${rCfg.bgGradient} text-white shadow-md`
                     : 'bg-slate-900/80 text-slate-400 hover:text-white border-slate-800'
@@ -487,290 +489,295 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
           })}
         </div>
 
-        {/* Tab 1: Spaceships */}
-        {activeTab === 'SHIPS' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {filteredShips.map((ship) => {
-              const isUnlocked = progress.unlockedUpgradeIds.includes(ship.id);
-              const isEquipped = progress.equippedShipId === ship.id;
-              const isPreviewing = previewShipId === ship.id;
-              const canAfford = progress.gems >= ship.priceGems;
-              const diffGems = ship.priceGems - progress.gems;
-              const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
+        {/* Scrollable Item Cards Area */}
+        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          {/* Tab 1: Spaceships */}
+          {activeTab === 'SHIPS' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+              {filteredShips.map((ship) => {
+                const isUnlocked = progress.unlockedUpgradeIds.includes(ship.id);
+                const isEquipped = progress.equippedShipId === ship.id;
+                const isPreviewing = previewShipId === ship.id;
+                const canAfford = progress.gems >= ship.priceGems;
+                const diffGems = ship.priceGems - progress.gems;
+                const rarity = RARITY_CONFIGS[ship.rarity] || RARITY_CONFIGS.COMMON;
 
-              return (
-                <div
-                  key={ship.id}
-                  onClick={() => setPreviewShipId(ship.id)}
-                  className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
-                    isEquipped
-                      ? 'bg-cyan-950/70 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                      : isPreviewing
-                      ? 'bg-slate-900 border-cyan-500/80 ring-2 ring-cyan-400/40'
-                      : isUnlocked
-                      ? 'bg-slate-900/80 border-slate-700 hover:border-cyan-500'
-                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <ShipThumbnail ship={ship} isSelected={isPreviewing || isEquipped} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
-                          {rarity.badge}
-                        </span>
-                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
-                          {ship.nameVi}
+                return (
+                  <div
+                    key={ship.id}
+                    onClick={() => setPreviewShipId(ship.id)}
+                    className={`p-2 sm:p-2.5 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
+                      isEquipped
+                        ? 'bg-cyan-950/70 border-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.3)]'
+                        : isPreviewing
+                        ? 'bg-slate-900 border-cyan-500/80 ring-2 ring-cyan-400/40'
+                        : isUnlocked
+                        ? 'bg-slate-900/80 border-slate-700 hover:border-cyan-500'
+                        : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <ShipThumbnail ship={ship} isSelected={isPreviewing || isEquipped} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                            {rarity.badge}
+                          </span>
+                          <div className="font-extrabold font-game text-xs sm:text-sm text-white truncate">
+                            {ship.nameVi}
+                          </div>
                         </div>
+                        <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-snug line-clamp-2">{ship.perkDescription}</div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{ship.perkDescription}</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold text-amber-300">
-                      {ship.priceGems === 0 ? (
-                        <span className="text-emerald-400">Miễn Phí</span>
-                      ) : (
-                        <span>{ship.priceGems} 💎</span>
-                      )}
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleUnlockOrEquip(ship.id, 'ship', ship.priceGems, ship.rarity);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                        isEquipped
-                          ? 'bg-emerald-500 text-slate-950 cursor-default'
-                          : isUnlocked
-                          ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 active:scale-95'
-                          : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
-                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
-                      }`}
-                    >
-                      {isEquipped ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
-                        </>
-                      ) : isUnlocked ? (
-                        'TRANG BỊ'
-                      ) : canAfford ? (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({ship.priceGems} 💎)
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
-                        </>
-                      )}
-                    </button>
+                    <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                      <div className="text-xs font-bold text-amber-300">
+                        {ship.priceGems === 0 ? (
+                          <span className="text-emerald-400">Miễn Phí</span>
+                        ) : (
+                          <span>{ship.priceGems} 💎</span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlockOrEquip(ship.id, 'ship', ship.priceGems, ship.rarity);
+                        }}
+                        className={`px-2.5 py-1 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                          isEquipped
+                            ? 'bg-emerald-500 text-slate-950 cursor-default'
+                            : isUnlocked
+                            ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 active:scale-95'
+                            : canAfford
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                            : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
+                        }`}
+                      >
+                        {isEquipped ? (
+                          <>
+                            <Check className="w-3 h-3 stroke-[3]" /> ĐANG DÙNG
+                          </>
+                        ) : isUnlocked ? (
+                          'TRANG BỊ'
+                        ) : canAfford ? (
+                          <>
+                            <Lock className="w-3 h-3" /> MỞ KHÓA ({ship.priceGems} 💎)
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3" /> Thiếu {diffGems} 💎
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
 
-        {/* Tab 2: Blasters */}
-        {activeTab === 'BLASTERS' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {filteredBlasters.map((blaster) => {
-              const isUnlocked = progress.unlockedUpgradeIds.includes(blaster.id);
-              const isEquipped = progress.equippedBlasterId === blaster.id;
-              const isPreviewing = previewBlasterId === blaster.id;
-              const canAfford = progress.gems >= blaster.priceGems;
-              const diffGems = blaster.priceGems - progress.gems;
-              const rarity = RARITY_CONFIGS[blaster.rarity] || RARITY_CONFIGS.COMMON;
+          {/* Tab 2: Blasters */}
+          {activeTab === 'BLASTERS' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+              {filteredBlasters.map((blaster) => {
+                const isUnlocked = progress.unlockedUpgradeIds.includes(blaster.id);
+                const isEquipped = progress.equippedBlasterId === blaster.id;
+                const isPreviewing = previewBlasterId === blaster.id;
+                const canAfford = progress.gems >= blaster.priceGems;
+                const diffGems = blaster.priceGems - progress.gems;
+                const rarity = RARITY_CONFIGS[blaster.rarity] || RARITY_CONFIGS.COMMON;
 
-              return (
-                <div
-                  key={blaster.id}
-                  onClick={() => setPreviewBlasterId(blaster.id)}
-                  className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
-                    isEquipped
-                      ? 'bg-pink-950/70 border-pink-400 shadow-[0_0_15px_rgba(244,114,182,0.3)]'
-                      : isPreviewing
-                      ? 'bg-slate-900 border-pink-500/80 ring-2 ring-pink-400/40'
-                      : isUnlocked
-                      ? 'bg-slate-900/80 border-slate-700 hover:border-pink-500'
-                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <BlasterThumbnail blaster={blaster} isSelected={isPreviewing || isEquipped} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
-                          {rarity.badge}
-                        </span>
-                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
-                          {blaster.nameVi}
+                return (
+                  <div
+                    key={blaster.id}
+                    onClick={() => setPreviewBlasterId(blaster.id)}
+                    className={`p-2 sm:p-2.5 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
+                      isEquipped
+                        ? 'bg-pink-950/70 border-pink-400 shadow-[0_0_12px_rgba(244,114,182,0.3)]'
+                        : isPreviewing
+                        ? 'bg-slate-900 border-pink-500/80 ring-2 ring-pink-400/40'
+                        : isUnlocked
+                        ? 'bg-slate-900/80 border-slate-700 hover:border-pink-500'
+                        : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <BlasterThumbnail blaster={blaster} isSelected={isPreviewing || isEquipped} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                            {rarity.badge}
+                          </span>
+                          <div className="font-extrabold font-game text-xs sm:text-sm text-white truncate">
+                            {blaster.nameVi}
+                          </div>
                         </div>
+                        <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-snug line-clamp-2">{blaster.description}</div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{blaster.description}</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold text-amber-300">
-                      {blaster.priceGems === 0 ? (
-                        <span className="text-emerald-400">Miễn Phí</span>
-                      ) : (
-                        <span>{blaster.priceGems} 💎</span>
-                      )}
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleUnlockOrEquip(blaster.id, 'blaster', blaster.priceGems, blaster.rarity);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                        isEquipped
-                          ? 'bg-emerald-500 text-slate-950 cursor-default'
-                          : isUnlocked
-                          ? 'bg-pink-500 hover:bg-pink-400 text-white active:scale-95'
-                          : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
-                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
-                      }`}
-                    >
-                      {isEquipped ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
-                        </>
-                      ) : isUnlocked ? (
-                        'TRANG BỊ'
-                      ) : canAfford ? (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({blaster.priceGems} 💎)
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
-                        </>
-                      )}
-                    </button>
+                    <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                      <div className="text-xs font-bold text-amber-300">
+                        {blaster.priceGems === 0 ? (
+                          <span className="text-emerald-400">Miễn Phí</span>
+                        ) : (
+                          <span>{blaster.priceGems} 💎</span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlockOrEquip(blaster.id, 'blaster', blaster.priceGems, blaster.rarity);
+                        }}
+                        className={`px-2.5 py-1 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                          isEquipped
+                            ? 'bg-emerald-500 text-slate-950 cursor-default'
+                            : isUnlocked
+                            ? 'bg-pink-500 hover:bg-pink-400 text-white active:scale-95'
+                            : canAfford
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                            : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
+                        }`}
+                      >
+                        {isEquipped ? (
+                          <>
+                            <Check className="w-3 h-3 stroke-[3]" /> ĐANG DÙNG
+                          </>
+                        ) : isUnlocked ? (
+                          'TRANG BỊ'
+                        ) : canAfford ? (
+                          <>
+                            <Lock className="w-3 h-3" /> MỞ KHÓA ({blaster.priceGems} 💎)
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3" /> Thiếu {diffGems} 💎
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
 
-        {/* Tab 3: Lasers */}
-        {activeTab === 'LASERS' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
-            {filteredLasers.map((laser) => {
-              const isUnlocked = progress.unlockedUpgradeIds.includes(laser.id);
-              const isEquipped = progress.equippedLaserId === laser.id;
-              const isPreviewing = previewLaserId === laser.id;
-              const canAfford = progress.gems >= laser.priceGems;
-              const diffGems = laser.priceGems - progress.gems;
-              const rarity = RARITY_CONFIGS[laser.rarity] || RARITY_CONFIGS.COMMON;
+          {/* Tab 3: Lasers */}
+          {activeTab === 'LASERS' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+              {filteredLasers.map((laser) => {
+                const isUnlocked = progress.unlockedUpgradeIds.includes(laser.id);
+                const isEquipped = progress.equippedLaserId === laser.id;
+                const isPreviewing = previewLaserId === laser.id;
+                const canAfford = progress.gems >= laser.priceGems;
+                const diffGems = laser.priceGems - progress.gems;
+                const rarity = RARITY_CONFIGS[laser.rarity] || RARITY_CONFIGS.COMMON;
 
-              return (
-                <div
-                  key={laser.id}
-                  onClick={() => setPreviewLaserId(laser.id)}
-                  className={`p-3 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
-                    isEquipped
-                      ? 'bg-amber-950/70 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-                      : isPreviewing
-                      ? 'bg-slate-900 border-amber-500/80 ring-2 ring-amber-400/40'
-                      : isUnlocked
-                      ? 'bg-slate-900/80 border-slate-700 hover:border-amber-500'
-                      : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <LaserThumbnail laser={laser} isSelected={isPreviewing || isEquipped} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
-                          {rarity.badge}
-                        </span>
-                        <div className="font-extrabold font-game text-sm sm:text-base text-white truncate">
-                          {laser.nameVi}
+                return (
+                  <div
+                    key={laser.id}
+                    onClick={() => setPreviewLaserId(laser.id)}
+                    className={`p-2 sm:p-2.5 rounded-2xl border-2 transition cursor-pointer flex flex-col justify-between ${
+                      isEquipped
+                        ? 'bg-amber-950/70 border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                        : isPreviewing
+                        ? 'bg-slate-900 border-amber-500/80 ring-2 ring-amber-400/40'
+                        : isUnlocked
+                        ? 'bg-slate-900/80 border-slate-700 hover:border-amber-500'
+                        : `bg-slate-950/80 ${rarity.borderColor} hover:border-slate-600`
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <LaserThumbnail laser={laser} isSelected={isPreviewing || isEquipped} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold border ${rarity.borderColor} ${rarity.textGradient} bg-slate-900/90`}>
+                            {rarity.badge}
+                          </span>
+                          <div className="font-extrabold font-game text-xs sm:text-sm text-white truncate">
+                            {laser.nameVi}
+                          </div>
                         </div>
+                        <div className="text-[11px] sm:text-xs text-slate-300 mt-0.5 leading-snug line-clamp-2">{laser.description}</div>
                       </div>
-                      <div className="text-xs text-slate-300 mt-1 leading-tight line-clamp-2">{laser.description}</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold text-amber-300">
-                      {laser.priceGems === 0 ? (
-                        <span className="text-emerald-400">Miễn Phí</span>
-                      ) : (
-                        <span>{laser.priceGems} 💎</span>
-                      )}
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleUnlockOrEquip(laser.id, 'laser', laser.priceGems, laser.rarity);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
-                        isEquipped
-                          ? 'bg-emerald-500 text-slate-950 cursor-default'
-                          : isUnlocked
-                          ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'
-                          : canAfford
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
-                          : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
-                      }`}
-                    >
-                      {isEquipped ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 stroke-[3]" /> ĐANG DÙNG
-                        </>
-                      ) : isUnlocked ? (
-                        'TRANG BỊ'
-                      ) : canAfford ? (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> MỞ KHÓA ({laser.priceGems} 💎)
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-3.5 h-3.5" /> Thiếu {diffGems} 💎
-                        </>
-                      )}
-                    </button>
+                    <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                      <div className="text-xs font-bold text-amber-300">
+                        {laser.priceGems === 0 ? (
+                          <span className="text-emerald-400">Miễn Phí</span>
+                        ) : (
+                          <span>{laser.priceGems} 💎</span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlockOrEquip(laser.id, 'laser', laser.priceGems, laser.rarity);
+                        }}
+                        className={`px-2.5 py-1 rounded-xl font-game font-bold text-xs transition flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                          isEquipped
+                            ? 'bg-emerald-500 text-slate-950 cursor-default'
+                            : isUnlocked
+                            ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'
+                            : canAfford
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 shadow-md active:scale-95 animate-pulse'
+                            : 'bg-slate-800 text-slate-400 opacity-70 cursor-not-allowed'
+                        }`}
+                      >
+                        {isEquipped ? (
+                          <>
+                            <Check className="w-3 h-3 stroke-[3]" /> ĐANG DÙNG
+                          </>
+                        ) : isUnlocked ? (
+                          'TRANG BỊ'
+                        ) : canAfford ? (
+                          <>
+                            <Lock className="w-3 h-3" /> MỞ KHÓA ({laser.priceGems} 💎)
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3" /> Thiếu {diffGems} 💎
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Mascot Tip & Done Button */}
+        <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-shrink-0">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <MascotWidget
+              mascotId={progress.mascotId}
+              mood="happy"
+              userAge={progress.userAge}
+              gender={progress.gender}
+              userName={progress.userName}
+              customMessage={
+                !progress.userAge || progress.userAge <= 11
+                  ? 'Chăm chỉ học và đạt 3 sao để tích lũy kim cương mở khóa thần hạm nhé! 🚀💎'
+                  : progress.userAge <= 17
+                  ? 'Luyện tập đạt 3 sao để tích lũy kim cương nâng cấp hạm đội siêu ngầu! ⚡💎'
+                  : 'Chinh phục 3 sao để tích lũy kim cương mở khóa các chiến hạm & trang bị! 🚀💎'
+              }
+            />
           </div>
-        )}
-
-        {/* Bottom Mascot Tip */}
-        <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
-          <MascotWidget
-            mascotId={progress.mascotId}
-            mood="happy"
-            userAge={progress.userAge}
-            gender={progress.gender}
-            userName={progress.userName}
-            customMessage={
-              !progress.userAge || progress.userAge <= 11
-                ? 'Chăm chỉ học và đạt 3 sao mỗi màn để tích lũy kim cương mở khóa thần hạm nhé! 🚀💎'
-                : progress.userAge <= 17
-                ? 'Luyện tập đạt 3 sao mỗi màn để tích lũy kim cương nâng cấp hạm đội siêu ngầu! ⚡💎'
-                : 'Chinh phục 3 sao để tích lũy kim cương mở khóa các chiến hạm & trang bị cao cấp! 🚀💎'
-            }
-          />
 
           <button
             onClick={() => {
               soundFx.playClick();
               onClose();
             }}
-            className="py-3 px-6 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-extrabold text-base rounded-2xl shadow-lg border-b-4 border-emerald-600 active:border-b-0 active:translate-y-1 transition cursor-pointer flex-shrink-0"
+            className="py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-game font-extrabold text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg border-b-4 border-emerald-600 active:border-b-0 active:translate-y-1 transition cursor-pointer flex-shrink-0"
           >
             XONG RỒI! 🎮
           </button>
