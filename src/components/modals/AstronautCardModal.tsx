@@ -32,7 +32,6 @@ import {
   Check,
   Zap,
   Shield,
-  HeartHandshake,
   CheckCircle2,
   ChevronRight
 } from 'lucide-react';
@@ -59,7 +58,6 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
 
   const [activeTab, setActiveTab] = useState<TabMode>('CARD');
   const [copiedToast, setCopiedToast] = useState<string | null>(null);
-  const [cheerNotice, setCheerNotice] = useState<string | null>(null);
   const [selectedBadges, setSelectedBadges] = useState<string[]>(() => {
     return currentProgress.selectedBadgeIds || [];
   });
@@ -126,24 +124,6 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
     await shareAstronautCard(isOwner ? currentProgress : targetEntry!);
   };
 
-  // Visitor Cheer Reactions
-  const handleSendCheer = (type: 'firework' | 'star' | 'clap' | 'flame') => {
-    if (type === 'firework') {
-      soundFx.playExplosion();
-      setCheerNotice('🚀 Bé vừa bắn một chùm pháo hoa chúc mừng bạn ấy!');
-    } else if (type === 'star') {
-      soundFx.playStarPop(3);
-      setCheerNotice('⭐ Đã gửi tặng 1 ngôi sao may mắn tới bạn ấy!');
-    } else if (type === 'clap') {
-      soundFx.playVictory();
-      setCheerNotice('👏 Bé vừa vỗ tay tán thưởng thành tích phi hành đoàn!');
-    } else {
-      soundFx.playPew();
-      setCheerNotice('🔥 Đã tiếp lửa quyết tâm cùng bạn ấy chinh phục vũ trụ!');
-    }
-    setTimeout(() => setCheerNotice(null), 3000);
-  };
-
   const unlockedBadgeIdSet = useMemo(() => {
     return new Set(currentProgress.unlockedBadgeIds || []);
   }, [currentProgress.unlockedBadgeIds]);
@@ -172,7 +152,7 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
                 </span>
               </h2>
               <p className="text-xs text-slate-400 font-medium">
-                {isOwner ? 'Khoe chiến cơ, danh hiệu & huy hiệu vinh quang với bạn bè' : 'Xem thông số chiến cơ & gửi lời chúc mừng'}
+                {isOwner ? 'Khoe chiến cơ, danh hiệu & huy hiệu vinh quang với bạn bè' : 'Thông số chiến cơ & thành tích xạ thủ'}
               </p>
             </div>
           </div>
@@ -248,13 +228,6 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
             </div>
           )}
 
-          {cheerNotice && (
-            <div className="p-3 bg-amber-500/20 border border-amber-400 text-amber-300 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-              <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
-              <span>{cheerNotice}</span>
-            </div>
-          )}
-
           {/* TAB 1: CARD PREVIEW & SHARING */}
           {activeTab === 'CARD' && (
             <div className="space-y-4">
@@ -265,16 +238,10 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
                   className="w-full h-auto block rounded-2xl"
                   style={{ aspectRatio: '1200 / 675' }}
                 />
-
-                {/* Holographic Watermark Badge */}
-                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-cyan-950/80 backdrop-blur-md border border-cyan-400/50 text-[10px] font-orbitron font-extrabold text-cyan-300 flex items-center gap-1 shadow-md">
-                  <Sparkles className="w-3 h-3 text-cyan-400" />
-                  <span>OFFICIAL CITIZEN ID</span>
-                </div>
               </div>
 
               {/* 1-Click Action Buttons for Owner */}
-              {isOwner ? (
+              {isOwner && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                   <button
                     onClick={handleDownload}
@@ -299,44 +266,6 @@ export const AstronautCardModal: React.FC<AstronautCardModalProps> = ({
                     <Share2 className="w-4 h-4" />
                     <span>CHIA SẺ (ZALO / FB)</span>
                   </button>
-                </div>
-              ) : (
-                /* Visitor Mode: Cheering Interactions */
-                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
-                  <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300">
-                    <HeartHandshake className="w-4 h-4 text-pink-400" />
-                    <span>Gửi Tương Tác Cổ Vũ Phi Hành Đoàn (An toàn cho trẻ em)</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button
-                      onClick={() => handleSendCheer('firework')}
-                      className="p-2.5 bg-cyan-950/60 hover:bg-cyan-900/70 border border-cyan-500/40 rounded-xl text-cyan-300 text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
-                    >
-                      <span>🚀 Bắn Pháo Hoa</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleSendCheer('star')}
-                      className="p-2.5 bg-amber-950/60 hover:bg-amber-900/70 border border-amber-500/40 rounded-xl text-amber-300 text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
-                    >
-                      <span>⭐ Tặng Ngôi Sao</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleSendCheer('clap')}
-                      className="p-2.5 bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
-                    >
-                      <span>👏 Vỗ Tay Cổ Vũ</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleSendCheer('flame')}
-                      className="p-2.5 bg-orange-950/60 hover:bg-orange-900/70 border border-orange-500/40 rounded-xl text-orange-300 text-xs font-bold transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
-                    >
-                      <span>🔥 Tiếp Thêm Lửa</span>
-                    </button>
-                  </div>
                 </div>
               )}
             </div>

@@ -171,24 +171,24 @@ export const renderAstronautCardToCanvas = (
   ctx.stroke();
 
   // 5. Header Bar
-  const headerY = margin + 24;
-  ctx.font = 'bold 15px "Orbitron", system-ui, sans-serif';
+  const headerY = margin + 20;
+  ctx.font = '900 18px "Orbitron", system-ui, sans-serif';
   ctx.fillStyle = '#38bdf8';
   ctx.textAlign = 'left';
-  ctx.fillText('LIÊN ĐOÀN THIÊN HÀ • INTERGALACTIC CITIZEN ID', margin + 36, headerY + 16);
+  ctx.fillText('⚡ THẺ CĂN CƯỚC PHI HÀNH GIA', margin + 32, headerY + 16);
 
-  ctx.font = '900 14px "Orbitron", monospace';
+  ctx.font = 'bold 16px "Orbitron", monospace';
   ctx.fillStyle = '#facc15';
   ctx.textAlign = 'right';
-  ctx.fillText(`AUTHENTICATED #${data.playerTag.replace('#', '')}`, width - margin - 36, headerY + 16);
+  ctx.fillText(data.playerTag, width - margin - 32, headerY + 16);
 
   // Horizontal separator line under header
-  const sepGrad = ctx.createLinearGradient(margin + 36, 0, width - margin - 36, 0);
+  const sepGrad = ctx.createLinearGradient(margin + 32, 0, width - margin - 32, 0);
   sepGrad.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
   sepGrad.addColorStop(0.5, 'rgba(250, 204, 21, 0.7)');
   sepGrad.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
   ctx.strokeStyle = sepGrad;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(margin + 32, headerY + 28);
   ctx.lineTo(width - margin - 32, headerY + 28);
@@ -198,7 +198,7 @@ export const renderAstronautCardToCanvas = (
   const hangarX = margin + 32;
   const hangarY = headerY + 44;
   const hangarW = 380;
-  const hangarH = 480;
+  const hangarH = 490;
 
   // Hangar Bay Box
   ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
@@ -245,23 +245,19 @@ export const renderAstronautCardToCanvas = (
 
   // Ship Title & Equipment Info
   ctx.textAlign = 'center';
-  ctx.font = '900 20px "Orbitron", system-ui, sans-serif';
+  ctx.font = '900 24px "Orbitron", system-ui, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(`${shipItem.icon} ${shipItem.nameVi.toUpperCase()}`, padCenterX, hangarY + 340);
+  ctx.fillText(`${shipItem.icon} ${shipItem.nameVi.toUpperCase()}`, padCenterX, hangarY + 345);
 
   // Ship Rarity Badge
-  ctx.font = 'bold 12px "Orbitron", sans-serif';
+  ctx.font = 'bold 15px "Orbitron", sans-serif';
   ctx.fillStyle = shipRarity.color;
-  ctx.fillText(shipRarity.badge, padCenterX, hangarY + 365);
+  ctx.fillText(shipRarity.badge, padCenterX, hangarY + 375);
 
   // Weapons display
-  ctx.font = '13px system-ui, sans-serif';
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillText(`Vũ Khí: ${blasterItem.nameVi} • ${laserItem.nameVi}`, padCenterX, hangarY + 410);
-
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillStyle = '#64748b';
-  ctx.fillText('ĐỘC QUYỀN TRANG BỊ PHI HÀNH ĐOÀN', padCenterX, hangarY + 438);
+  ctx.font = 'bold 16px system-ui, sans-serif';
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillText(`Vũ Khí: ${blasterItem.nameVi} • ${laserItem.nameVi}`, padCenterX, hangarY + 425);
 
   // 7. Right Column: Player Profile, Big Stats, and Badges
   const rightX = hangarX + hangarW + 28;
@@ -291,39 +287,29 @@ export const renderAstronautCardToCanvas = (
   ctx.textBaseline = 'middle';
   ctx.fillText(data.avatar || '🚀', avatarCenterX, avatarCenterY);
 
-  // Name & Tag
+  // Name
   ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
-  ctx.font = '900 30px "Orbitron", system-ui, sans-serif';
+  ctx.font = '900 34px "Orbitron", system-ui, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(data.userName, rightX + 125, rightY + 44);
+  ctx.fillText(data.userName, rightX + 125, rightY + 48);
 
-  // Friend Tag Pill
-  ctx.font = 'bold 14px "Orbitron", monospace';
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillText(data.playerTag, rightX + 125, rightY + 70);
-
-  // Active Title Pill (Holographic Golden)
-  const realmInfo = getRealmById(data.selectedRealmId || 'realm-1');
+  // Active Title (Bold & Clear)
   const titleText = `🎖️ ${data.activeTitle || DEFAULT_TITLE}`;
-  ctx.font = 'bold 13px system-ui, sans-serif';
+  ctx.font = 'bold 18px system-ui, sans-serif';
   ctx.fillStyle = '#fde047';
-  ctx.fillText(titleText, rightX + 125, rightY + 95);
-
-  ctx.font = '12px system-ui, sans-serif';
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillText(`• ${realmInfo.nameVi} (${realmInfo.gradeLabel})`, rightX + 130 + ctx.measureText(titleText).width + 8, rightY + 95);
+  ctx.fillText(titleText, rightX + 125, rightY + 84);
 
   // 8. Big 4 Stats Grid (2x2 Cards)
-  const statsY = rightY + 125;
+  const statsY = rightY + 118;
   const statBoxW = (rightW - 16) / 2;
-  const statBoxH = 75;
+  const statBoxH = 82;
 
   const statItems = [
     { label: 'TỪ VỰNG NẮM VỮNG', value: `${data.wordsMastered}`, icon: '📚', color: '#4ade80' },
-    { label: 'TỔNG SAO ĐẠT ĐƯỢC', value: `${data.starsCount} ⭐`, icon: '⭐', color: '#facc15' },
+    { label: 'TỔNG SAO CHIẾN CƠ', value: `${data.starsCount} ⭐`, icon: '⭐', color: '#facc15' },
     { label: 'CHUỖI HỌC LIÊN TỤC', value: `${data.streakDays} NGÀY`, icon: '🔥', color: '#fb923c' },
-    { label: 'ĐIỂM KINH NGHIỆM XP', value: `${data.totalXp.toLocaleString()} XP`, icon: '⚡', color: '#38bdf8' }
+    { label: 'KINH NGHIỆM TÍCH LUỸ', value: `${data.totalXp.toLocaleString()} XP`, icon: '⚡', color: '#38bdf8' }
   ];
 
   statItems.forEach((st, idx) => {
@@ -340,27 +326,27 @@ export const renderAstronautCardToCanvas = (
     ctx.fill();
     ctx.stroke();
 
-    // Stat Label
+    // Stat Label (Clean & readable)
     ctx.textAlign = 'left';
-    ctx.font = 'bold 11px "Orbitron", sans-serif';
+    ctx.font = 'bold 14px "Orbitron", sans-serif';
     ctx.fillStyle = '#94a3b8';
-    ctx.fillText(st.label, sx + 16, sy + 25);
+    ctx.fillText(st.label, sx + 18, sy + 28);
 
-    // Stat Value
-    ctx.font = '900 24px "Orbitron", system-ui, sans-serif';
+    // Stat Value (Big & Punchy)
+    ctx.font = '900 28px "Orbitron", system-ui, sans-serif';
     ctx.fillStyle = st.color;
-    ctx.fillText(st.value, sx + 16, sy + 56);
+    ctx.fillText(st.value, sx + 18, sy + 64);
   });
 
   // 9. Featured Showcase Badges Section (3 Badge Slots)
-  const badgesY = statsY + 180;
+  const badgesY = statsY + 188;
   ctx.textAlign = 'left';
-  ctx.font = 'bold 13px "Orbitron", sans-serif';
+  ctx.font = 'bold 16px "Orbitron", sans-serif';
   ctx.fillStyle = '#cbd5e1';
-  ctx.fillText('HUY HIỆU DANH DỰ ĐÃ ĐEO TRÊN NGỰC ÁO', rightX, badgesY + 16);
+  ctx.fillText('HUY HIỆU NỔI BẬT', rightX, badgesY + 16);
 
   const badgeSlotW = (rightW - 24) / 3;
-  const badgeSlotH = 120;
+  const badgeSlotH = 125;
   const badgeCardY = badgesY + 28;
 
   const selectedBadges = (data.selectedBadgeIds || []).slice(0, 3);
@@ -383,41 +369,36 @@ export const renderAstronautCardToCanvas = (
       ctx.save();
       ctx.shadowColor = badge.glowColor;
       ctx.shadowBlur = 12;
-      ctx.font = '34px system-ui, sans-serif';
+      ctx.font = '40px system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(badge.icon, bx + badgeSlotW / 2, badgeCardY + 45);
+      ctx.fillText(badge.icon, bx + badgeSlotW / 2, badgeCardY + 48);
       ctx.restore();
 
-      ctx.font = 'bold 13px system-ui, sans-serif';
+      ctx.font = 'bold 16px system-ui, sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
-      ctx.fillText(badge.nameVi, bx + badgeSlotW / 2, badgeCardY + 76);
+      ctx.fillText(badge.nameVi, bx + badgeSlotW / 2, badgeCardY + 80);
 
-      ctx.font = '10px "Orbitron", sans-serif';
+      ctx.font = 'bold 13px "Orbitron", sans-serif';
       ctx.fillStyle = badge.color;
-      ctx.fillText(badge.rarity, bx + badgeSlotW / 2, badgeCardY + 98);
+      ctx.fillText(badge.rarity, bx + badgeSlotW / 2, badgeCardY + 104);
     } else {
-      ctx.font = '28px system-ui, sans-serif';
+      ctx.font = '32px system-ui, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#475569';
-      ctx.fillText('🛡️', bx + badgeSlotW / 2, badgeCardY + 50);
+      ctx.fillText('🛡️', bx + badgeSlotW / 2, badgeCardY + 54);
 
-      ctx.font = 'italic 11px system-ui, sans-serif';
-      ctx.fillText('Trống', bx + badgeSlotW / 2, badgeCardY + 84);
+      ctx.font = 'italic 13px system-ui, sans-serif';
+      ctx.fillText('Trống', bx + badgeSlotW / 2, badgeCardY + 88);
     }
   }
 
   // 10. Card Footer
-  const footerY = height - margin - 22;
-  ctx.font = '900 12px "Orbitron", sans-serif';
+  const footerY = height - margin - 20;
+  ctx.font = '900 14px "Orbitron", sans-serif';
   ctx.fillStyle = '#38bdf8';
   ctx.textAlign = 'left';
-  ctx.fillText('⚡ VOCAB PEW PEW • CHIẾN CƠ HỌC TỪ VỰNG KHÔNG GIAN', margin + 36, footerY);
-
-  ctx.font = '11px monospace';
-  ctx.fillStyle = '#64748b';
-  ctx.textAlign = 'right';
-  ctx.fillText('POWERED BY WEB AUDIO & SPEECH SYNTHESIS • SPARK FREE CLOUD', width - margin - 36, footerY);
+  ctx.fillText('⚡ VOCAB PEW PEW • CHIẾN CƠ HỌC TỪ VỰNG KHÔNG GIAN', margin + 32, footerY);
 };
 
 /**
