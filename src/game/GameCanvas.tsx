@@ -82,6 +82,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
   // Helper to focus input for native mobile keyboard
   const focusInput = useCallback(() => {
+    if (gameState !== 'PLAYING') return;
     if (hiddenInputRef.current) {
       try {
         hiddenInputRef.current.focus({ preventScroll: true });
@@ -90,6 +91,21 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         // Ignore focus errors
       }
     }
+  }, [gameState]);
+
+  // Helper to hide/blur input for native mobile keyboard
+  const blurInput = useCallback(() => {
+    if (hiddenInputRef.current) {
+      try {
+        hiddenInputRef.current.blur();
+      } catch (err) {
+        // Ignore blur errors
+      }
+    }
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setIsInputFocused(false);
   }, []);
 
   // Initialize Game Systems
@@ -292,14 +308,16 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     processInput(char);
   };
 
-  // Focus hidden input whenever playing
+  // Focus hidden input whenever playing, blur when paused or finished
   useEffect(() => {
     if (gameState === 'PLAYING') {
       focusInput();
       const timer = setTimeout(focusInput, 80);
       return () => clearTimeout(timer);
+    } else {
+      blurInput();
     }
-  }, [gameState, focusInput]);
+  }, [gameState, focusInput, blurInput]);
 
   // Register input handler for virtual keyboard / external triggers
   useEffect(() => {
@@ -311,6 +329,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Physical & Native Mobile Keyboard listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (gameState !== 'PLAYING') return;
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       if (e.key === ' ' || e.code === 'Space' || (e.key.length === 1 && /^[a-zA-Z0-9 '\-.,?!]$/.test(e.key))) {
         e.preventDefault();
@@ -326,6 +345,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   }, [gameState, level, equippedBlaster, equippedLaser]);
 
   const handleHiddenInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (gameState !== 'PLAYING') return;
     const val = e.target.value;
     if (val) {
       for (let i = 0; i < val.length; i++) {
@@ -336,6 +356,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   };
 
   const handleHiddenInput = (e: React.FormEvent<HTMLInputElement>) => {
+    if (gameState !== 'PLAYING') return;
     const target = e.currentTarget;
     const val = target.value;
     if (val) {
@@ -348,13 +369,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
   const handleCanvasContainerClick = () => {
     if (gameState === 'PLAYING') {
-      hiddenInputRef.current?.focus();
+      focusInput();
     }
   };
 
   // Game Loop
   useEffect(() => {
     if (gameState !== 'PLAYING') {
+      blurInput();
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -394,6 +416,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
           // Time Out Check
           if (timeRemainingRef.current <= 0) {
+            blurInput();
             soundFx.playGameOver();
             particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
             onGameOver();
@@ -406,6 +429,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // 2. Check Victory condition (with Star Wars Hyperspace Jump effect)
         if (spawner.getRemainingWordsCount() === 0) {
+          blurInput();
           particleSys.setHyperspace(true);
           soundFx.playHyperdriveJump();
           setTimeout(() => {
@@ -427,6 +451,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           onStatsUpdate(prev => {
             const nextHealth = Math.max(0, prev.stationHealth - breach.damageTaken);
             if (nextHealth <= 0) {
+              blurInput();
               soundFx.playGameOver();
               onGameOver();
             }
@@ -455,7 +480,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [gameState, onGameOver, onVictory, totalSeconds]);
+  }, [gameState, onGameOver, onVictory, totalSeconds, blurInput]);
 
   // Main Drawing Function with Dynamic Ship Skins & Custom Visuals
   const renderGame = (
@@ -703,9 +728,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
   return (
     <div
-      onClick={focusInput}
-      onTouchStart={focusInput}
-      onTouchEnd={focusInput}
+      onClick={handleCanvasContainerClick}
+      onTouchStart={handleCanvasContainerClick}
+      onTouchEnd={handleCanvasContainerClick}
       className="relative w-full h-full overflow-hidden bg-space-dark select-none touch-none"
     >
       {/* Invisible input element to capture native mobile & iPad keyboard input */}
@@ -718,11 +743,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         spellCheck={false}
         inputMode="text"
         enterKeyHint="go"
-        tabIndex={0}
+        tabIndex={gameState === 'PLAYING' ? 0 : -1}
+        disabled={gameState !== 'PLAYING'}
+        readOnly={gameState !== 'PLAYING'}
         aria-label="Nhập từ vựng"
         onChange={handleHiddenInputChange}
         onInput={handleHiddenInput}
-        onFocus={() => setIsInputFocused(true)}
+        onFocus={() => {
+          if (gameState === 'PLAYING') {
+            setIsInputFocused(true);
+          } else {
+            blurInput();
+          }
+        }}
         onBlur={() => setIsInputFocused(false)}
         className="fixed opacity-0 pointer-events-auto"
         style={{

@@ -287,7 +287,22 @@ export const App: React.FC = () => {
     setScreen('PLAYING');
   };
 
+  // Dismiss any active mobile keyboard
+  const dismissMobileKeyboard = useCallback(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, []);
+
+  // Auto-dismiss mobile keyboard on screen transition away from gameplay
+  useEffect(() => {
+    if (screen !== 'PLAYING') {
+      dismissMobileKeyboard();
+    }
+  }, [screen, dismissMobileKeyboard]);
+
   const handlePause = () => {
+    dismissMobileKeyboard();
     setScreen('PAUSED');
   };
 
@@ -296,6 +311,7 @@ export const App: React.FC = () => {
   };
 
   const handleGoToMap = () => {
+    dismissMobileKeyboard();
     setActiveTarget(null);
     setSuggestedChar(undefined);
     setScreen('MAP');
@@ -309,9 +325,10 @@ export const App: React.FC = () => {
   };
 
   const handleGameOver = useCallback(() => {
+    dismissMobileKeyboard();
     handleUpdateProgress(p => deductHeart(p));
     setScreen('GAME_OVER');
-  }, [handleUpdateProgress]);
+  }, [handleUpdateProgress, dismissMobileKeyboard]);
 
   const handleTimerUpdate = useCallback((remaining: number, total: number) => {
     setTimeRemaining(remaining);
@@ -319,6 +336,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleVictory = useCallback(() => {
+    dismissMobileKeyboard();
     // Lazy Auth: create/attach cloud account on successful level completion
     ensureCloudAuthSession().then(uid => {
       if (uid && !uid.startsWith('local_')) {
@@ -348,7 +366,7 @@ export const App: React.FC = () => {
     );
 
     setScreen('VICTORY');
-  }, [stats, selectedLevel, progress, handleUpdateProgress]);
+  }, [stats, selectedLevel, progress, handleUpdateProgress, dismissMobileKeyboard]);
 
   const handleNextLevel = () => {
     const nextLvl = getNextLevel(selectedLevel.id);

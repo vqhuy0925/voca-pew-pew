@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LevelNode } from '../data/progress-types';
 import { Play, RotateCcw, Map } from 'lucide-react';
 import { soundFx } from '../game/engine/SoundController';
@@ -16,6 +16,12 @@ export const PauseModal: React.FC<PauseModalProps> = ({
   onRestart,
   onGoToMap
 }) => {
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md select-none">
       <div className="relative w-full max-w-sm bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-2 sm:border-3 border-cyan-400/80 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,240,255,0.35)] text-center animate-in zoom-in-95 duration-200">

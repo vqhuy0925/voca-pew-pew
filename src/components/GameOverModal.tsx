@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GameStats } from '../data/types';
 import { LevelNode, UserGender, ThemeStyle, MascotId } from '../data/progress-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../data/theme-types';
@@ -34,6 +34,12 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const theme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cosmo_dog;
   const modalMessages = getGameOverModalMessages(userAge, gender, userName, mascot.name);
+
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md select-none animate-in fade-in duration-200">

@@ -62,6 +62,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   const gemAwarded = reward.totalGemsEarned;
 
   useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     soundFx.playVictory();
     if (level.words.length > 0) {
       speechHelper.preloadWords(level.words.map(w => w.word));
