@@ -20,6 +20,7 @@ interface LandingPageProps {
   progress: UserProgress;
   onStartJourney: () => void;
   onOpenProfile?: () => void;
+  onOpenAdmin?: () => void;
   isReturningUser?: boolean;
 }
 
@@ -27,6 +28,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   progress,
   onStartJourney,
   onOpenProfile,
+  onOpenAdmin,
   isReturningUser = false
 }) => {
   const [isMuted, setIsMuted] = useState<boolean>(() => !progress.soundEnabled);
@@ -356,8 +358,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span className="font-orbitron font-bold text-slate-400">Vocab Pew Pew</span>
             <span>— Game Luyện Gõ Từ Vựng Tiếng Anh Trẻ Em</span>
           </div>
-          <div>
-            100% Miễn phí & An toàn • Chuẩn Khung Cambridge & SGK
+          <div className="flex items-center gap-4">
+            <span>100% Miễn phí & An toàn</span>
+            {onOpenAdmin && (
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  onOpenAdmin();
+                }}
+                className="text-slate-500 hover:text-cyan-400 flex items-center gap-1 transition-colors px-2 py-1 rounded bg-slate-900 border border-slate-800 hover:border-cyan-500/40"
+                title="Mission Control Admin"
+              >
+                <Shield className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Admin</span>
+              </button>
+            )}
           </div>
         </div>
       </footer>

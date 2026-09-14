@@ -48,6 +48,8 @@ import { IncognitoWarningModal } from './components/modals/IncognitoWarningModal
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { InstallGuideModal } from './components/modals/InstallGuideModal';
 import { LandingPage } from './components/landing/LandingPage';
+import { AdminPortal } from './components/admin/AdminPortal';
+import { checkAndUpdateVocabSnapshot } from './services/vocabLoader';
 
 type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
 
@@ -79,8 +81,26 @@ export const App: React.FC = () => {
   const [showDiamondGuideModal, setShowDiamondGuideModal] = useState<boolean>(false);
   const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
+  const [showAdminPortal, setShowAdminPortal] = useState<boolean>(false);
   const pwaState = usePWAInstall();
   const [detectedBrowser, setDetectedBrowser] = useState<string>('');
+
+  // Check latest published vocab snapshot in background on startup
+  useEffect(() => {
+    checkAndUpdateVocabSnapshot();
+  }, []);
+
+  // Listen for Admin shortcut (Ctrl+Shift+A or Cmd+Shift+A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setShowAdminPortal((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   const [lastRewardBreakdown, setLastRewardBreakdown] = useState<ClearRewardBreakdown | null>(null);
   const [selectedCardPlayer, setSelectedCardPlayer] = useState<LeaderboardEntry | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<LevelNode>(() => {
@@ -400,6 +420,7 @@ export const App: React.FC = () => {
           progress={progress}
           onStartJourney={handleStartFromLanding}
           onOpenProfile={() => setShowProfileModal(true)}
+          onOpenAdmin={() => setShowAdminPortal(true)}
           isReturningUser={Boolean(progress.hasSeenLanding)}
         />
       )}
@@ -647,6 +668,12 @@ export const App: React.FC = () => {
           onClose={() => setShowInstallModal(false)}
         />
       )}
+
+      {/* 17. Mission Control Admin Portal (Vocab CMS & Analytics) 🛡️ */}
+      <AdminPortal
+        isOpen={showAdminPortal}
+        onClose={() => setShowAdminPortal(false)}
+      />
     </div>
   );
 };
