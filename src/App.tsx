@@ -89,6 +89,7 @@ export const App: React.FC = () => {
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
   const pwaState = usePWAInstall();
   const [detectedBrowser, setDetectedBrowser] = useState<string>('');
+  const isBattleSettledRef = useRef<boolean>(false);
 
   // Active weak words pool for spaced repetition in regular levels
   const activeWeakWords = useMemo(() => {
@@ -127,6 +128,7 @@ export const App: React.FC = () => {
       spawnInterval: 1900
     };
 
+    isBattleSettledRef.current = false;
     setSelectedLevel(blitzLevel);
     setGameSessionId(prev => prev + 1);
     setStats(INITIAL_STATS);
@@ -322,6 +324,7 @@ export const App: React.FC = () => {
       setShowEnergyModal(true);
       return;
     }
+    isBattleSettledRef.current = false;
     console.info(`[Battle:Start] Level: ${selectedLevel.id} (${selectedLevel.titleVi}) | Energy: ${progress.energy} - ${energyCost} | Current Gems: ${progress.gems} 💎`);
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
@@ -349,6 +352,7 @@ export const App: React.FC = () => {
       setShowEnergyModal(true);
       return;
     }
+    isBattleSettledRef.current = false;
     console.info(`[Battle:Restart] Level: ${selectedLevel.id} | Current Gems: ${progress.gems} 💎`);
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
@@ -407,6 +411,8 @@ export const App: React.FC = () => {
   };
 
   const handleGameOver = useCallback(() => {
+    if (isBattleSettledRef.current) return;
+    isBattleSettledRef.current = true;
     dismissMobileKeyboard();
     console.info(`[Battle:GameOver] Level: ${selectedLevel.id} | Score: ${stats.score}`);
     handleUpdateProgress(p => deductHeart(p));
@@ -419,6 +425,8 @@ export const App: React.FC = () => {
   }, []);
 
   const handleVictory = useCallback(() => {
+    if (isBattleSettledRef.current) return;
+    isBattleSettledRef.current = true;
     dismissMobileKeyboard();
 
     const diff = progress.selectedDifficulty || 'NORMAL';

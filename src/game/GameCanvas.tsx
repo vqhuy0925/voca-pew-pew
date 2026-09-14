@@ -79,6 +79,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const totalSeconds = diffConfig.timeLimitSeconds;
   const timeRemainingRef = useRef<number>(totalSeconds);
   const lastTickSecondRef = useRef<number>(totalSeconds);
+  const isVictoryTriggeredRef = useRef<boolean>(false);
+  const isGameOverTriggeredRef = useRef<boolean>(false);
 
   // Detect touch device
   useEffect(() => {
@@ -143,6 +145,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     inputHandlerRef.current = inputHandler;
     collisionEngineRef.current = collisionEngine;
     sessionMistakesRef.current = {};
+    isVictoryTriggeredRef.current = false;
+    isGameOverTriggeredRef.current = false;
 
     // Reset Timer
     timeRemainingRef.current = totalSeconds;
@@ -468,6 +472,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
           // Time Out Check
           if (timeRemainingRef.current <= 0) {
+            if (isGameOverTriggeredRef.current) return;
+            isGameOverTriggeredRef.current = true;
             blurInput();
             soundFx.playGameOver();
             particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
@@ -484,6 +490,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // 2. Check Victory condition (with Star Wars Hyperspace Jump effect)
         if (spawner.getRemainingWordsCount() === 0) {
+          if (isVictoryTriggeredRef.current) return;
+          isVictoryTriggeredRef.current = true;
           blurInput();
           particleSys.setHyperspace(true);
           soundFx.playHyperdriveJump();
@@ -525,6 +533,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           onStatsUpdate(prev => {
             const nextHearts = Math.max(0, prev.heartsRemaining - breach.breachedEnemies.length);
             if (nextHearts <= 0) {
+              if (isGameOverTriggeredRef.current) return prev;
+              isGameOverTriggeredRef.current = true;
               blurInput();
               soundFx.playGameOver();
               particleSys.addFloatingText('HẾT TIM! 💔', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
