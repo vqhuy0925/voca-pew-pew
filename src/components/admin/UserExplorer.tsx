@@ -132,7 +132,7 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
                             {u.userName}
                           </div>
                           <div className="font-mono text-[10px] text-slate-500">
-                            #{u.playerTag}
+                            {u.playerTag.startsWith('#') ? u.playerTag : `#${u.playerTag}`}
                           </div>
                         </div>
                       </div>
@@ -202,7 +202,7 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
               <div className="text-5xl mb-2">{activeUserDetail.avatar}</div>
               <h3 className="text-xl font-black text-white">{activeUserDetail.userName}</h3>
               <div className="font-mono text-xs text-cyan-400">
-                Player Tag: #{activeUserDetail.playerTag}
+                Player Tag: {activeUserDetail.playerTag.startsWith('#') ? activeUserDetail.playerTag : `#${activeUserDetail.playerTag}`}
               </div>
             </div>
 

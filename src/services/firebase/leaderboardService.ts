@@ -338,6 +338,24 @@ export const mergeCurrentUser = (
 };
 
 /**
+ * Deduplicate live leaderboard entries by playerTag (or uid) keeping the highest score
+ */
+const deduplicateLeaderboardEntries = (
+  entries: LeaderboardEntry[],
+  sortKey: 'totalXp' | 'weeklyXp'
+): LeaderboardEntry[] => {
+  const map = new Map<string, LeaderboardEntry>();
+  for (const entry of entries) {
+    const key = entry.playerTag && entry.playerTag !== '#PEW-????' ? entry.playerTag.trim().toUpperCase() : entry.uid;
+    const existing = map.get(key);
+    if (!existing || entry[sortKey] > existing[sortKey]) {
+      map.set(key, entry);
+    }
+  }
+  return Array.from(map.values());
+};
+
+/**
  * Helper to blend mock contenders when live players count is low (cold start),
  * ensuring real players are always placed accurately at their earned scores.
  */
@@ -413,7 +431,8 @@ export const fetchGlobalLeaderboard = async (
           };
         });
 
-        const blended = blendMockContenders(liveEntries, 'totalXp', 12);
+        const deduplicated = deduplicateLeaderboardEntries(liveEntries, 'totalXp');
+        const blended = blendMockContenders(deduplicated, 'totalXp', 12);
         return mergeCurrentUser(blended, currentProgress, 'totalXp');
       }
     } catch (err) {
@@ -483,10 +502,11 @@ export const fetchRealmLeaderboard = async (
           };
         });
 
-        // Ensure sorted by totalXp descending
+        // Ensure sorted by totalXp descending and deduplicated
         liveEntries.sort((a, b) => b.totalXp - a.totalXp);
+        const deduplicated = deduplicateLeaderboardEntries(liveEntries, 'totalXp');
 
-        const blended = blendMockContenders(liveEntries, 'totalXp', 8, realmId);
+        const blended = blendMockContenders(deduplicated, 'totalXp', 8, realmId);
         const matchesRealm = currentProgress && (currentProgress.selectedRealmId === realmId);
         return mergeCurrentUser(blended, matchesRealm ? currentProgress : undefined, 'totalXp');
       }
@@ -568,10 +588,11 @@ export const fetchWeeklyLeaderboard = async (
           };
         });
 
-        // Ensure sorted by weeklyXp descending
+        // Ensure sorted by weeklyXp descending and deduplicated
         liveEntries.sort((a, b) => b.weeklyXp - a.weeklyXp);
+        const deduplicated = deduplicateLeaderboardEntries(liveEntries, 'weeklyXp');
 
-        const blended = blendMockContenders(liveEntries, 'weeklyXp', 10);
+        const blended = blendMockContenders(deduplicated, 'weeklyXp', 10);
         return mergeCurrentUser(blended, currentProgress, 'weeklyXp');
       }
     } catch (err) {

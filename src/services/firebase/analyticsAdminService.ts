@@ -47,10 +47,10 @@ export const fetchUserAnalyticsList = async (maxLimit = 100): Promise<UserAnalyt
     const q = query(usersRef, orderBy('updatedAt', 'desc'), limit(maxLimit));
     const snap = await getDocs(q);
 
-    const list: UserAnalyticsItem[] = [];
+    const rawList: UserAnalyticsItem[] = [];
     snap.forEach((docSnap) => {
       const data = docSnap.data();
-      list.push({
+      rawList.push({
         uid: docSnap.id,
         playerTag: data.playerTag || docSnap.id.substring(0, 6).toUpperCase(),
         userName: data.userName || 'Phi Hành Gia',
@@ -71,7 +71,26 @@ export const fetchUserAnalyticsList = async (maxLimit = 100): Promise<UserAnalyt
       });
     });
 
-    return list;
+    // Deduplicate users by playerTag (or uid) keeping the record with highest XP/stars
+    const userMap = new Map<string, UserAnalyticsItem>();
+    for (const item of rawList) {
+      const key = item.playerTag ? item.playerTag.trim().toUpperCase() : item.uid;
+      const existing = userMap.get(key);
+      if (!existing) {
+        userMap.set(key, item);
+      } else {
+        const isBetter =
+          item.totalXp > existing.totalXp ||
+          (item.totalXp === existing.totalXp && item.starsCount > existing.starsCount) ||
+          (item.totalXp === existing.totalXp && !item.uid.startsWith('local_') && existing.uid.startsWith('local_'));
+        if (isBetter) {
+          userMap.set(key, item);
+        }
+      }
+    }
+
+    // Sort by totalXp descending
+    return Array.from(userMap.values()).sort((a, b) => b.totalXp - a.totalXp);
   } catch (error) {
     console.warn('[AnalyticsAdmin] Failed to fetch users list:', error);
     return [];

@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebaseConfig';
 import { getCurrentUid, getOrInitPlayerTag, isOnlineAuth } from './authService';
 import { UserProgress } from '../../data/progress-types';
@@ -74,7 +74,8 @@ export const queueCloudSync = (progress: UserProgress) => {
     }
 
     try {
-      const uid = progress.cloudUid || getCurrentUid();
+      const activeUid = getCurrentUid();
+      const uid = (activeUid && !activeUid.startsWith('local_')) ? activeUid : (progress.cloudUid || activeUid);
       const playerTag = progress.playerTag || getOrInitPlayerTag();
       const weekId = getWeekIdentifier();
 
@@ -114,6 +115,17 @@ export const queueCloudSync = (progress: UserProgress) => {
       };
 
       await setDoc(userDocRef, payload, { merge: true });
+
+      // Clean up legacy orphan local doc from Firestore if player transitioned to Firebase auth
+      const prevLocalUid = progress.cloudUid && progress.cloudUid.startsWith('local_') && progress.cloudUid !== uid ? progress.cloudUid : null;
+      if (prevLocalUid) {
+        try {
+          await deleteDoc(doc(currentDb, 'users', prevLocalUid));
+        } catch {
+          // Non-blocking cleanup
+        }
+      }
+
       const now = Date.now();
       notifyStatus('synced', now);
     } catch (error) {
