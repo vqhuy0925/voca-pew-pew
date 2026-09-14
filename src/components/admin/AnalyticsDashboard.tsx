@@ -10,7 +10,10 @@ import {
   RefreshCw,
   BarChart3,
   Compass,
-  Palette
+  Palette,
+  GraduationCap,
+  Crown,
+  Target
 } from 'lucide-react';
 import { AnalyticsSummary, UserAnalyticsItem } from '../../services/firebase/analyticsAdminService';
 import { soundFx } from '../../game/engine/SoundController';
@@ -22,15 +25,15 @@ interface AnalyticsDashboardProps {
   onRefresh: () => void;
 }
 
-const REALM_LABELS: Record<string, { name: string; color: string }> = {
-  'realm-1': { name: 'R1: Mầm Non & Khởi Đầu (7-8 Tuổi)', color: '#00f0ff' },
-  'realm-2': { name: 'R2: Tiểu Học Lớp 3-4 (8-10 Tuổi)', color: '#39ff14' },
-  'realm-3': { name: 'R3: Chuyển Cấp Tiểu Học (10-11 Tuổi)', color: '#ff007f' },
-  'realm-4': { name: 'R4: THCS Cơ Bản (11-13 Tuổi)', color: '#bf00ff' },
-  'realm-5': { name: 'R5: THCS Nâng Cao (13-15 Tuổi)', color: '#ffaa00' },
-  'realm-6': { name: 'R6: THPT & Học Thuật (15-18 Tuổi)', color: '#00e5ff' },
-  'realm-7': { name: 'R7: Tech & PO Giao Tiếp', color: '#ff0055' },
-  'realm-8': { name: 'R8: Tiếng Anh Giao Tiếp Người Lớn', color: '#7000ff' }
+const REALM_LABELS: Record<string, { name: string; cefr: string; color: string; icon: string }> = {
+  'realm-1': { name: 'R1: Star Cadet • Tân Binh Sao', cefr: 'Pre-A1', color: '#00f0ff', icon: '🌱' },
+  'realm-2': { name: 'R2: Space Scout • Trinh Sát Thiên Hà', cefr: 'A1', color: '#39ff14', icon: '🚀' },
+  'realm-3': { name: 'R3: Astro Ranger • Chiến Binh Sao', cefr: 'A2', color: '#ff007f', icon: '🛸' },
+  'realm-4': { name: 'R4: Galactic Pioneer • Tiên Phong Vũ Trụ', cefr: 'B1', color: '#bf00ff', icon: '⚡' },
+  'realm-5': { name: 'R5: Cosmos Commander • Chỉ Huy Không Gian', cefr: 'B2', color: '#ffaa00', icon: '🔮' },
+  'realm-6': { name: 'R6: Academic Titan • Tinh Anh Học Thuật', cefr: 'C1', color: '#00e5ff', icon: '👑' },
+  'realm-7': { name: 'R7: Tech Lead & PO • Giao Tiếp Agile/Scrum', cefr: 'Tech', color: '#ff0055', icon: '💼' },
+  'realm-8': { name: 'R8: Deep Space Citizen • Tiếng Anh Đời Sống', cefr: 'Daily', color: '#7000ff', icon: '💬' }
 };
 
 const MASCOT_LABELS: Record<string, { name: string; icon: string }> = {
@@ -56,7 +59,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-cyan-400" />
           <h2 className="text-lg font-bold text-white">
-            Trung Tâm Thống Kê & Phân Tích Học Tập
+            Trung Tâm Thống Kê & Phân Tích Học Tập CEFR
           </h2>
         </div>
 
@@ -73,8 +76,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </button>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {/* KPI Cards Grid - 3x3 for rich insights */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4">
         {/* Total Users */}
         <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl -mr-6 -mt-6 pointer-events-none" />
@@ -85,7 +88,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="text-2xl sm:text-3xl font-black text-white font-mono">
             {summary.totalUsers}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Đã đồng bộ Cloud</div>
+          <div className="text-[11px] text-slate-500 mt-1">Đã đồng bộ Cloud Firestore</div>
         </div>
 
         {/* DAU */}
@@ -114,17 +117,62 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="text-[11px] text-slate-500 mt-1">Hoạt động trong 7 ngày</div>
         </div>
 
-        {/* Mastered Words */}
-        <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl relative overflow-hidden">
+        {/* Total Diplomas Graduated */}
+        <div className="p-4 bg-slate-900/80 border border-amber-500/30 rounded-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-xl -mr-6 -mt-6 pointer-events-none" />
+          <div className="flex items-center justify-between text-slate-400 mb-2">
+            <span className="text-xs font-semibold text-amber-300 flex items-center gap-1">
+              <span>Bằng Tốt Nghiệp</span>
+            </span>
+            <GraduationCap className="w-4 h-4 text-amber-400" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
+            {summary.totalGraduations} <span className="text-xs font-normal text-slate-400">bằng</span>
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Realm đã tốt nghiệp toàn hệ thống</div>
+        </div>
+
+        {/* Total Legendary Units */}
+        <div className="p-4 bg-slate-900/80 border border-purple-500/30 rounded-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-xl -mr-6 -mt-6 pointer-events-none" />
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold">Từ Đã Master</span>
-            <Award className="w-4 h-4 text-purple-400" />
+            <span className="text-xs font-semibold text-purple-300 flex items-center gap-1">
+              <span>Unit Legendary</span>
+            </span>
+            <Crown className="w-4 h-4 text-purple-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-black text-purple-300 font-mono">
+            {summary.totalLegendaryUnits} <span className="text-xs font-normal text-slate-400">units</span>
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Chinh phục Heroic 3⭐ tối thượng</div>
+        </div>
+
+        {/* Daily Quests Completed Today */}
+        <div className="p-4 bg-slate-900/80 border border-rose-500/30 rounded-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-xl -mr-6 -mt-6 pointer-events-none" />
+          <div className="flex items-center justify-between text-slate-400 mb-2">
+            <span className="text-xs font-semibold text-rose-300 flex items-center gap-1">
+              <span>Nhiệm Vụ Ngày Hôm Nay</span>
+            </span>
+            <Target className="w-4 h-4 text-rose-400" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-rose-300 font-mono">
+            {summary.dailyQuestsCompletedToday} <span className="text-xs font-normal text-slate-400">bạn</span>
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Đã hoàn thành 3/3 quest & nhận thưởng</div>
+        </div>
+
+        {/* Mastered Words */}
+        <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl -mr-6 -mt-6 pointer-events-none" />
+          <div className="flex items-center justify-between text-slate-400 mb-2">
+            <span className="text-xs font-semibold">Từ Đã Master</span>
+            <Award className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-cyan-300 font-mono">
             {summary.totalWordsMastered}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Toàn hệ thống</div>
+          <div className="text-[11px] text-slate-500 mt-1">Toàn bộ 8 Realms</div>
         </div>
 
         {/* Total Stars */}
@@ -150,7 +198,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="text-2xl sm:text-3xl font-black text-orange-300 font-mono">
             {summary.averageStreak} <span className="text-xs font-normal text-slate-400">ngày</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Chuỗi duy trì</div>
+          <div className="text-[11px] text-slate-500 mt-1">Chuỗi duy trì liên tục</div>
         </div>
       </div>
 
@@ -178,10 +226,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               return (
                 <div key={realmId} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300 font-medium truncate">
-                      {info.name}
-                    </span>
-                    <span className="text-slate-400 font-mono text-[11px]">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span>{info.icon}</span>
+                      <span className="text-slate-300 font-medium truncate">
+                        {info.name}
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                        {info.cefr}
+                      </span>
+                    </div>
+                    <span className="text-slate-400 font-mono text-[11px] shrink-0 ml-2">
                       <b className="text-white">{count}</b> ({percent}%)
                     </span>
                   </div>

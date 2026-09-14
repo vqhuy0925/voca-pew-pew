@@ -263,20 +263,36 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
                 setSelectedUnitId('');
                 setSelectedLevelId('');
               }}
-              className={`p-3 rounded-2xl border text-left transition-all ${
+              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                 isSelected
                   ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)] text-white'
                   : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:bg-slate-800/80 hover:text-slate-200'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xl">{realm.icon}</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
-                  R{realm.realmNumber}
-                </span>
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xl">{realm.icon}</span>
+                  <div className="flex items-center gap-1">
+                    {realm.cefrLevel && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                        {realm.cefrLevel}
+                      </span>
+                    )}
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                      R{realm.realmNumber}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-xs font-bold truncate text-white">{realm.nameVi || realm.name}</div>
+                {realm.rankCode && (
+                  <div className="text-[9px] font-mono text-indigo-300 font-semibold truncate mt-0.5">
+                    {realm.rankCode}
+                  </div>
+                )}
               </div>
-              <div className="text-xs font-bold truncate">{realm.nameVi || realm.name}</div>
-              <div className="text-[10px] text-slate-500 truncate">{realm.ageRange}</div>
+              <div className="text-[10px] text-slate-500 truncate mt-1">
+                {realm.recommendedAge || realm.ageRange}
+              </div>
             </button>
           );
         })}
@@ -302,7 +318,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Chọn Chủ Đề (Unit):
               </label>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                 {units.map((unit) => {
                   const isUnitSelected = unit.id === currentUnit?.id;
                   return (
@@ -321,9 +337,23 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
                     >
                       <div className="flex items-center gap-2 truncate">
                         <span>{unit.icon || '📖'}</span>
-                        <span className="text-xs truncate">{unit.titleVi || unit.title}</span>
+                        <div className="truncate">
+                          <div className="text-xs truncate flex items-center gap-1.5">
+                            <span>{unit.titleVi || unit.title}</span>
+                            {unit.isCheckpoint && (
+                              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold shrink-0">
+                                Review
+                              </span>
+                            )}
+                          </div>
+                          {unit.sectorName && (
+                            <div className="text-[9px] text-indigo-300 font-mono">
+                              {unit.sectorName}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/80 text-slate-400">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900/80 text-slate-400 shrink-0 ml-1">
                         {unit.levels?.length || 0} lvls
                       </span>
                     </button>
@@ -340,6 +370,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
               <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                 {levels.map((lvl) => {
                   const isLevelSelected = lvl.id === currentLevel?.id;
+                  const isSpecialType = lvl.type && lvl.type !== 'STANDARD';
                   return (
                     <button
                       key={lvl.id}
@@ -354,8 +385,17 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold mb-1">
-                        <span>{lvl.icon || '🎯'} L{lvl.levelNumber}</span>
-                        <span className="text-[10px] text-slate-400">{lvl.words?.length || 0} từ</span>
+                        <div className="flex items-center gap-1">
+                          <span>{lvl.icon || '🎯'}</span>
+                          <span>L{lvl.levelNumber}</span>
+                        </div>
+                        {isSpecialType ? (
+                          <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono">
+                            {lvl.type === 'BOSS_BATTLE' ? 'BOSS' : lvl.type === 'SPEED_RUSH' ? 'RUSH' : 'GIFT'}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400">{lvl.words?.length || 0} từ</span>
+                        )}
                       </div>
                       <div className="text-[11px] truncate text-slate-300">{lvl.titleVi || lvl.title}</div>
                     </button>

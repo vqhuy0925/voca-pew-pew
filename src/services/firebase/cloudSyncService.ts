@@ -109,6 +109,11 @@ export const queueCloudSync = (progress: UserProgress) => {
         unlockedBadgeIds: progress.unlockedBadgeIds || [],
         selectedBadgeIds: progress.selectedBadgeIds || [],
         wordsMastered: calculateWordsMastered(progress),
+        graduatedRealmIds: progress.graduatedRealmIds || [],
+        graduatedRealmsCount: (progress.graduatedRealmIds || []).length,
+        legendaryUnitsCount: Object.keys(progress.legendaryUnitsMap || {}).length,
+        legendaryUnitsMap: progress.legendaryUnitsMap || {},
+        dailyQuestProgress: progress.dailyQuestProgress || null,
         lastActiveDate: progress.lastActiveDate,
         lastWeeklyReset: weekId,
         updatedAt: serverTimestamp()

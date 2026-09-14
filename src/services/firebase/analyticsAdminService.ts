@@ -15,6 +15,16 @@ export interface UserAnalyticsItem {
   completedLevelsCount: number;
   streakDays: number;
   wordsMastered: number;
+  graduatedRealmIds?: string[];
+  graduatedRealmsCount?: number;
+  legendaryUnitsCount?: number;
+  dailyQuestProgress?: {
+    date: string;
+    mistakesReviewedCount: number;
+    threeStarEarnedCount: number;
+    levelsPlayedCount: number;
+    claimedReward: boolean;
+  } | null;
   mascotId?: string;
   themeStyle?: string;
   lastActiveDate?: string;
@@ -28,6 +38,9 @@ export interface AnalyticsSummary {
   totalStars: number;
   totalXp: number;
   totalWordsMastered: number;
+  totalGraduations: number;
+  totalLegendaryUnits: number;
+  dailyQuestsCompletedToday: number;
   averageStreak: number;
   realmDistribution: Record<string, number>;
   mascotDistribution: Record<string, number>;
@@ -64,6 +77,10 @@ export const fetchUserAnalyticsList = async (maxLimit = 100): Promise<UserAnalyt
         completedLevelsCount: data.completedLevelsCount || 0,
         streakDays: data.streakDays || 1,
         wordsMastered: data.wordsMastered || 0,
+        graduatedRealmIds: data.graduatedRealmIds || [],
+        graduatedRealmsCount: data.graduatedRealmsCount || (data.graduatedRealmIds || []).length,
+        legendaryUnitsCount: data.legendaryUnitsCount || (data.legendaryUnitsMap ? Object.keys(data.legendaryUnitsMap).length : 0),
+        dailyQuestProgress: data.dailyQuestProgress || null,
         mascotId: data.mascotId || 'cosmo_dog',
         themeStyle: data.themeStyle || 'cosmic_cyan',
         lastActiveDate: data.lastActiveDate,
@@ -109,6 +126,9 @@ export const computeAnalyticsKpis = (users: UserAnalyticsItem[]): AnalyticsSumma
   let totalStars = 0;
   let totalXp = 0;
   let totalWordsMastered = 0;
+  let totalGraduations = 0;
+  let totalLegendaryUnits = 0;
+  let dailyQuestsCompletedToday = 0;
   let totalStreak = 0;
 
   const realmDistribution: Record<string, number> = {};
@@ -119,7 +139,13 @@ export const computeAnalyticsKpis = (users: UserAnalyticsItem[]): AnalyticsSumma
     totalStars += u.starsCount;
     totalXp += u.totalXp;
     totalWordsMastered += u.wordsMastered;
+    totalGraduations += u.graduatedRealmsCount || (u.graduatedRealmIds || []).length;
+    totalLegendaryUnits += u.legendaryUnitsCount || 0;
     totalStreak += u.streakDays;
+
+    if (u.dailyQuestProgress?.date === today && u.dailyQuestProgress?.claimedReward) {
+      dailyQuestsCompletedToday++;
+    }
 
     if (u.lastActiveDate === today) {
       dau++;
@@ -148,6 +174,9 @@ export const computeAnalyticsKpis = (users: UserAnalyticsItem[]): AnalyticsSumma
     totalStars,
     totalXp,
     totalWordsMastered,
+    totalGraduations,
+    totalLegendaryUnits,
+    dailyQuestsCompletedToday,
     averageStreak: users.length > 0 ? Math.round((totalStreak / users.length) * 10) / 10 : 0,
     realmDistribution,
     mascotDistribution,

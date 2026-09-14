@@ -138,7 +138,26 @@ export const exportVocabToJson = (realms: AgeRealm[], filename = 'vocab_pew_pew_
  * Export vocabulary words across realms as CSV
  */
 export const exportVocabToCsv = (realms: AgeRealm[], filename = 'vocab_words_export.csv') => {
-  const headers = ['Realm ID', 'Realm Name', 'Unit ID', 'Unit Title', 'Level ID', 'Level Title', 'Word ID', 'Word', 'Meaning Vi', 'Category', 'Emoji', 'Pronunciation'];
+  const headers = [
+    'Realm ID',
+    'Realm Name',
+    'CEFR Level',
+    'Rank Code',
+    'Age Range',
+    'Unit ID',
+    'Unit Title',
+    'Sector Name',
+    'Is Checkpoint',
+    'Level ID',
+    'Level Title',
+    'Level Type',
+    'Word ID',
+    'Word',
+    'Meaning Vi',
+    'Category',
+    'Emoji',
+    'Pronunciation'
+  ];
   const rows: string[] = [headers.join(',')];
 
   realms.forEach(realm => {
@@ -148,10 +167,16 @@ export const exportVocabToCsv = (realms: AgeRealm[], filename = 'vocab_words_exp
           const row = [
             `"${realm.id}"`,
             `"${realm.nameVi || realm.name}"`,
+            `"${realm.cefrLevel || ''}"`,
+            `"${realm.rankCode || ''}"`,
+            `"${realm.ageRange || ''}"`,
             `"${unit.id}"`,
             `"${unit.titleVi || unit.title}"`,
+            `"${unit.sectorName || ''}"`,
+            `"${unit.isCheckpoint ? 'Yes' : 'No'}"`,
             `"${level.id}"`,
             `"${level.titleVi || level.title}"`,
+            `"${level.type || 'STANDARD'}"`,
             `"${w.id}"`,
             `"${w.word}"`,
             `"${(w.meaningVi || '').replace(/"/g, '""')}"`,
