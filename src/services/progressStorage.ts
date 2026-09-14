@@ -130,14 +130,16 @@ export interface ClearRewardBreakdown {
 export const calculateLevelClearRewards = (
   prev: UserProgress,
   level: { id: string; type?: string; xpReward: number; gemReward: number },
-  stationHealth: number,
+  heartsRemaining: number,
   accuracy: number,
-  difficulty: DifficultyLevel = 'NORMAL'
+  difficulty: DifficultyLevel = 'NORMAL',
+  maxHearts: number = 5
 ): ClearRewardBreakdown => {
   let starsEarned = 1;
-  if (stationHealth >= 80 && accuracy >= 80) {
+  const heartRatio = maxHearts > 0 ? heartsRemaining / maxHearts : 1;
+  if (heartRatio >= 0.8 && accuracy >= 80) {
     starsEarned = 3;
-  } else if (stationHealth >= 40) {
+  } else if (heartRatio >= 0.4) {
     starsEarned = 2;
   }
 

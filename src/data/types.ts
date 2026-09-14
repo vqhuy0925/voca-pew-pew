@@ -81,8 +81,8 @@ export interface GameStats {
   accuracy: number;
   totalKeystrokes: number;
   correctKeystrokes: number;
-  stationHealth: number; // 0 - 100
-  maxHealth: number;
+  heartsRemaining: number; // Current remaining hearts in battle (e.g. 5)
+  maxHearts: number;
   starsEarned: number;   // 1 to 3
   clearedWordsList: VocabWord[];
 }

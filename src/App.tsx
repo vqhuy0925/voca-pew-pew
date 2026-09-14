@@ -65,8 +65,8 @@ const INITIAL_STATS: GameStats = {
   accuracy: 100,
   totalKeystrokes: 0,
   correctKeystrokes: 0,
-  stationHealth: 100,
-  maxHealth: 100,
+  heartsRemaining: 5,
+  maxHearts: 5,
   starsEarned: 0,
   clearedWordsList: []
 };
@@ -324,7 +324,12 @@ export const App: React.FC = () => {
     }
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
-    setStats({ ...INITIAL_STATS, clearedWordsList: [] });
+    setStats({
+      ...INITIAL_STATS,
+      heartsRemaining: progress.maxHearts || 5,
+      maxHearts: progress.maxHearts || 5,
+      clearedWordsList: []
+    });
     setActiveTarget(null);
     setSuggestedChar(undefined);
     const diffConfig = DIFFICULTY_CONFIGS[progress.selectedDifficulty || 'NORMAL'];
@@ -345,7 +350,12 @@ export const App: React.FC = () => {
     }
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
-    setStats({ ...INITIAL_STATS, clearedWordsList: [] });
+    setStats({
+      ...INITIAL_STATS,
+      heartsRemaining: progress.maxHearts || 5,
+      maxHearts: progress.maxHearts || 5,
+      clearedWordsList: []
+    });
     setActiveTarget(null);
     setSuggestedChar(undefined);
     const diffConfig = DIFFICULTY_CONFIGS[progress.selectedDifficulty || 'NORMAL'];
@@ -416,12 +426,13 @@ export const App: React.FC = () => {
 
     const diff = progress.selectedDifficulty || 'NORMAL';
     const reward = calculateLevelClearRewards(
-      progress,
-      selectedLevel,
-      stats.stationHealth,
-      stats.accuracy,
-      diff
-    );
+       progress,
+       selectedLevel,
+       stats.heartsRemaining,
+       stats.accuracy,
+       diff,
+       stats.maxHearts
+     );
     setLastRewardBreakdown(reward);
 
     handleUpdateProgress(prev =>
@@ -527,8 +538,8 @@ export const App: React.FC = () => {
               <HUD
                 stats={stats}
                 level={selectedLevel}
-                hearts={progress.hearts}
-                maxHearts={progress.maxHearts}
+                hearts={stats.heartsRemaining}
+                maxHearts={stats.maxHearts}
                 totalWords={totalLevelWords}
                 timeRemaining={timeRemaining}
                 totalTime={totalLevelTime}

@@ -52,9 +52,10 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   const reward = rewardBreakdown || calculateLevelClearRewards(
     progress,
     level,
-    stats.stationHealth,
+    stats.heartsRemaining,
     stats.accuracy,
-    difficulty
+    difficulty,
+    stats.maxHearts
   );
 
   const stars = reward.starsEarned;

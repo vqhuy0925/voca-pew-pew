@@ -523,10 +523,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           }
 
           onStatsUpdate(prev => {
-            const nextHealth = Math.max(0, prev.stationHealth - breach.damageTaken);
-            if (nextHealth <= 0) {
+            const nextHearts = Math.max(0, prev.heartsRemaining - breach.breachedEnemies.length);
+            if (nextHearts <= 0) {
               blurInput();
               soundFx.playGameOver();
+              particleSys.addFloatingText('HẾT TIM! 💔', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
               if (onMistakeDeltasRecorded) {
                 onMistakeDeltasRecorded(Object.values(sessionMistakesRef.current));
               }
@@ -534,7 +535,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             }
             return {
               ...prev,
-              stationHealth: nextHealth,
+              heartsRemaining: nextHearts,
               combo: 0
             };
           });
