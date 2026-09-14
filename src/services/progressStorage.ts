@@ -1,6 +1,6 @@
-import { UserProgress, LevelProgress, DailyEnergyMode } from '../data/progress-types';
+import { UserProgress, LevelProgress, DailyEnergyMode, DailyQuestProgress } from '../data/progress-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
-import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../data/learning-path-data';
+import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId, getRealmById } from '../data/learning-path-data';
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
 import { checkAndUnlockBadges, DEFAULT_TITLE } from '../data/badge-data';
@@ -414,6 +414,22 @@ export const completeLevelProgress = (
   const isSameWeek = prev.lastWeeklyReset === currentWeek;
   const updatedWeeklyXp = (isSameWeek ? (prev.weeklyXp || 0) : 0) + xpEarned;
 
+  const todayStr = getTodayDateString();
+  const currentDailyQuest: DailyQuestProgress = prev.dailyQuestProgress?.date === todayStr
+    ? { ...prev.dailyQuestProgress }
+    : {
+        date: todayStr,
+        mistakesReviewedCount: 0,
+        threeStarEarnedCount: 0,
+        levelsPlayedCount: 0,
+        claimedReward: false
+      };
+
+  currentDailyQuest.levelsPlayedCount += 1;
+  if (starsEarned >= 3) {
+    currentDailyQuest.threeStarEarnedCount += 1;
+  }
+
   const updatedUser: UserProgress = {
     ...prev,
     levelProgressMap: updatedMap,
@@ -424,7 +440,8 @@ export const completeLevelProgress = (
     weeklyXp: updatedWeeklyXp,
     lastWeeklyReset: currentWeek,
     gems: prev.gems + gemsEarned,
-    lastActiveDate: getTodayDateString()
+    lastActiveDate: todayStr,
+    dailyQuestProgress: currentDailyQuest
   };
 
   const { updatedProgress: userWithBadges } = checkAndUnlockBadges(updatedUser);
@@ -648,9 +665,74 @@ export const recordSessionMistakes = (
     };
   }
 
+  const todayStr = getTodayDateString();
+  const currentDailyQuest: DailyQuestProgress = prev.dailyQuestProgress?.date === todayStr
+    ? { ...prev.dailyQuestProgress }
+    : {
+        date: todayStr,
+        mistakesReviewedCount: 0,
+        threeStarEarnedCount: 0,
+        levelsPlayedCount: 0,
+        claimedReward: false
+      };
+
+  const cleanClearsDelta = deltas.filter(d => d.cleared && d.typos === 0 && !d.breached).length;
+  if (cleanClearsDelta > 0) {
+    currentDailyQuest.mistakesReviewedCount += cleanClearsDelta;
+  }
+
   const updated: UserProgress = {
     ...prev,
-    mistakeMap
+    mistakeMap,
+    dailyQuestProgress: currentDailyQuest
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const claimDailyQuestReward = (prev: UserProgress): UserProgress => {
+  const todayStr = getTodayDateString();
+  const currentDailyQuest: DailyQuestProgress = prev.dailyQuestProgress?.date === todayStr
+    ? { ...prev.dailyQuestProgress }
+    : {
+        date: todayStr,
+        mistakesReviewedCount: 0,
+        threeStarEarnedCount: 0,
+        levelsPlayedCount: 0,
+        claimedReward: false
+      };
+
+  if (currentDailyQuest.claimedReward) {
+    return prev;
+  }
+
+  currentDailyQuest.claimedReward = true;
+
+  const updated: UserProgress = {
+    ...prev,
+    gems: prev.gems + 20,
+    totalXp: prev.totalXp + 50,
+    dailyQuestProgress: currentDailyQuest
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const graduateRealm = (prev: UserProgress, realmId: string): UserProgress => {
+  const graduated = new Set(prev.graduatedRealmIds || []);
+  graduated.add(realmId);
+
+  const targetRealm = getRealmById(realmId);
+  const nextRealm = AGE_REALMS.find(r => r.realmNumber === targetRealm.realmNumber + 1);
+
+  const updated: UserProgress = {
+    ...prev,
+    graduatedRealmIds: Array.from(graduated),
+    gems: prev.gems + 100,
+    totalXp: prev.totalXp + 200,
+    selectedRealmId: nextRealm ? nextRealm.id : prev.selectedRealmId
   };
 
   saveUserProgress(updated);

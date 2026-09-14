@@ -4,19 +4,25 @@ import {
   getRealmByAge,
   getRealmById,
   getRealmByLevelId,
-  getUnitByLevelId
+  getUnitByLevelId,
+  AGE_REALMS
 } from '../../data/learning-path-data';
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
 import { LevelNodeButton } from './LevelNodeButton';
 import { TopNavBar } from './TopNavBar';
 import { RealmSelectModal } from '../modals/RealmSelectModal';
+import { GraduationModal } from '../modals/GraduationModal';
+import { DailyQuestModal } from '../modals/DailyQuestModal';
 import {
   Target,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  Flame,
+  Award
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
+import { claimDailyQuestReward, graduateRealm } from '../../services/progressStorage';
 
 interface LearningPathViewProps {
   progress: UserProgress;
@@ -32,6 +38,7 @@ interface LearningPathViewProps {
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
   onOpenMistakeVault?: () => void;
+  onOpenDailyQuests?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -65,6 +72,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   // Derive active realm directly from user progress to always stay in sync
   const activeRealmId = progress.selectedRealmId || curLevelRealm.id || (progress.userAge ? getRealmByAge(progress.userAge).id : 'realm-1');
   const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
+  const [showGraduationModal, setShowGraduationModal] = useState<boolean>(false);
+  const [showDailyQuestModal, setShowDailyQuestModal] = useState<boolean>(false);
   const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
   const levelRefs = useRef<Record<string, HTMLElement | null>>({});
   const hasUserSwitchedRealmRef = useRef<boolean>(false);
@@ -72,6 +81,24 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   const currentRealm = useMemo(() => {
     return getRealmById(activeRealmId);
   }, [activeRealmId]);
+
+  const isRealmCompleted = useMemo(() => {
+    const allLevels = currentRealm.units.flatMap(u => u.levels);
+    return allLevels.length > 0 && allLevels.every(l => progress.levelProgressMap[l.id]?.isCompleted);
+  }, [currentRealm, progress.levelProgressMap]);
+
+  const nextRealm = useMemo(() => {
+    return AGE_REALMS.find(r => r.realmNumber === currentRealm.realmNumber + 1);
+  }, [currentRealm]);
+
+  const handleClaimDailyQuest = () => {
+    onUpdateProgress(prev => claimDailyQuestReward(prev));
+  };
+
+  const handleAdvanceToNextRealm = (nextRealmId: string) => {
+    onUpdateProgress(prev => graduateRealm(prev, currentRealm.id));
+    setShowGraduationModal(false);
+  };
 
   // Auto-scroll to current level
   const scrollToCurrentLevel = (behavior: ScrollBehavior = 'auto') => {
@@ -152,6 +179,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenInstallModal={onOpenInstallModal}
         onOpenLanding={onOpenLanding}
         onOpenMistakeVault={onOpenMistakeVault}
+        onOpenDailyQuests={() => setShowDailyQuestModal(true)}
         showInstallButton={showInstallButton}
       />
 
@@ -169,9 +197,16 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         >
           <span className="text-3xl drop-shadow">{currentRealm.icon}</span>
           <div className="flex flex-col text-left">
-            <span className="text-xs sm:text-sm uppercase font-black tracking-wider text-cyan-400">
-              Cõi {currentRealm.realmNumber} • {currentRealm.gradeLabel}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs sm:text-sm uppercase font-black tracking-wider text-cyan-400">
+                Cõi {currentRealm.realmNumber}
+              </span>
+              {currentRealm.cefrLevel && (
+                <span className="text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-400/40">
+                  {currentRealm.cefrLevel}
+                </span>
+              )}
+            </div>
             <span className="text-sm sm:text-base md:text-lg font-game font-black text-white group-hover:text-cyan-200 transition">
               {currentRealm.nameVi}
             </span>
@@ -245,6 +280,29 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
               </section>
             );
           })}
+
+          {/* Realm Completed / Graduation Celebration Card */}
+          {isRealmCompleted && (
+            <div className="w-full mt-8 p-5 sm:p-7 bg-gradient-to-b from-amber-500/20 via-slate-900/90 to-amber-950/30 border-3 border-amber-400/90 rounded-3xl text-center shadow-[0_0_50px_rgba(245,158,11,0.4)] animate-in fade-in">
+              <div className="text-5xl mb-2 drop-shadow">🎓</div>
+              <div className="font-orbitron font-black text-lg sm:text-2xl text-yellow-300 mb-1.5 starwars-gold-glow">
+                ĐÃ HOÀN THÀNH {currentRealm.nameVi.toUpperCase()}!
+              </div>
+              <p className="text-xs sm:text-sm text-slate-300 font-bold mb-4 max-w-md mx-auto">
+                Chúc mừng bạn đã chinh phục trọn vẹn toàn bộ các chương của cõi thiên hà này! Hãy nhận chứng chỉ tốt nghiệp và tiếp tục thăng cấp.
+              </p>
+              <button
+                onClick={() => {
+                  soundFx.playVictory();
+                  setShowGraduationModal(true);
+                }}
+                className="py-3 px-6 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-black text-sm sm:text-base rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.6)] active:scale-95 transition cursor-pointer flex items-center justify-center gap-2 mx-auto animate-pulse"
+              >
+                <Award className="w-5 h-5" />
+                <span>XEM BẰNG TỐT NGHIỆP & THĂNG CẤP 🚀</span>
+              </button>
+            </div>
+          )}
         </main>
       </div>
 
@@ -267,6 +325,27 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           progress={progress}
           onSelectRealm={handleSelectRealm}
           onClose={() => setShowRealmModal(false)}
+        />
+      )}
+
+      {/* Graduation Modal */}
+      {showGraduationModal && (
+        <GraduationModal
+          realm={currentRealm}
+          nextRealm={nextRealm}
+          progress={progress}
+          onAdvanceToNextRealm={handleAdvanceToNextRealm}
+          onClose={() => setShowGraduationModal(false)}
+        />
+      )}
+
+      {/* Daily Quest Modal */}
+      {showDailyQuestModal && (
+        <DailyQuestModal
+          progress={progress}
+          onClaimDailyReward={handleClaimDailyQuest}
+          onOpenMistakeVault={onOpenMistakeVault}
+          onClose={() => setShowDailyQuestModal(false)}
         />
       )}
     </div>

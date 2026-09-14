@@ -487,8 +487,11 @@ export const REALM8_UNITS: Unit[] = [
 export const REALM8_REALM: AgeRealm = {
   id: 'realm-8',
   realmNumber: 8,
+  rankCode: 'DEEP_SPACE_CITIZEN',
   name: 'Adult Everyday & Office Fluency',
   nameVi: 'Giao Tiếp Đời Sống & Công Sở Người Lớn',
+  cefrLevel: 'Daily English',
+  recommendedAge: 'Khuyên dùng: Người lớn & Giao tiếp công sở',
   ageRange: 'Người Lớn / Công Sở',
   gradeLabel: 'Adult Everyday & Workplace Fluency',
   description: 'Bộ câu thoại phản xạ tự nhiên khi giao lưu đồng nghiệp, trò chuyện cà phê, ăn uống, du lịch, hỏi đường và kết nối networking quốc tế.',

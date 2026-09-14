@@ -255,9 +255,15 @@ export const renderAstronautCardToCanvas = (
   ctx.fillText(shipRarity.badge, padCenterX, hangarY + 375);
 
   // Weapons display
-  ctx.font = 'bold 16px system-ui, sans-serif';
+  ctx.font = 'bold 15px system-ui, sans-serif';
   ctx.fillStyle = '#cbd5e1';
-  ctx.fillText(`Vũ Khí: ${blasterItem.nameVi} • ${laserItem.nameVi}`, padCenterX, hangarY + 425);
+  ctx.fillText(`Vũ Khí: ${blasterItem.nameVi} • ${laserItem.nameVi}`, padCenterX, hangarY + 420);
+
+  // Realm & CEFR Rank display
+  const currentRealm = getRealmById(data.selectedRealmId || 'realm-1');
+  ctx.font = 'bold 14px "Orbitron", sans-serif';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText(`Lộ Trình: ${currentRealm.nameVi} • ${currentRealm.cefrLevel || currentRealm.gradeLabel}`, padCenterX, hangarY + 452);
 
   // 7. Right Column: Player Profile, Big Stats, and Badges
   const rightX = hangarX + hangarW + 28;

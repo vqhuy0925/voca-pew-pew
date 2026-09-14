@@ -30,6 +30,8 @@ export interface Unit {
   icon: string;
   themeColor: string;
   bannerBg: string;
+  isCheckpoint?: boolean;   // Galactic Review node
+  sectorName?: string;     // e.g. 'Sector Alpha', 'Sector Beta'
   levels: LevelNode[];
 }
 
@@ -40,6 +42,15 @@ export interface LevelProgress {
   stars: number;            // 0 to 3 stars
   highScore: number;
   lastPlayedAt?: number;
+  isLegendary?: boolean;    // Mastered in legendary mode
+}
+
+export interface DailyQuestProgress {
+  date: string; // YYYY-MM-DD
+  mistakesReviewedCount: number; // Goal: 5
+  threeStarEarnedCount: number;  // Goal: 1
+  levelsPlayedCount: number;     // Goal: 2
+  claimedReward: boolean;
 }
 
 export type UserGender = 'boy' | 'girl' | 'neutral';
@@ -104,5 +115,11 @@ export interface UserProgress {
 
   // Adaptive Learning & Mistake Mastery Engine 🎯
   mistakeMap?: MistakeProgressMap;  // Weak words tracking
+
+  // CEFR Cosmic Ranks, Graduation & Retention Loop 🌌
+  graduatedRealmIds?: string[];     // Array of graduated realm IDs (e.g. ['realm-1'])
+  legendaryUnitsMap?: Record<string, boolean>; // Map of unitId -> isLegendary
+  dailyQuestProgress?: DailyQuestProgress; // Today's 3-step quest progress
 }
+
 

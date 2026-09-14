@@ -77,11 +77,16 @@ export const RealmSelectModal: React.FC<RealmSelectModalProps> = ({
                     <div className="flex items-center gap-3">
                       <span className="text-3xl drop-shadow">{realm.icon}</span>
                       <div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">
                             Cõi {realm.realmNumber}
                           </span>
-                          <span className="text-[11px] font-black text-slate-300 bg-slate-800 px-1.5 py-0.2 rounded-md border border-slate-700">
+                          {realm.cefrLevel && (
+                            <span className="text-[10px] font-black text-amber-300 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-400/40">
+                              {realm.cefrLevel}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-black text-slate-300 bg-slate-800 px-1.5 py-0.2 rounded-md border border-slate-700">
                             {realm.ageRange}
                           </span>
                         </div>
@@ -98,8 +103,11 @@ export const RealmSelectModal: React.FC<RealmSelectModalProps> = ({
                     )}
                   </div>
 
-                  <div className="text-[11px] sm:text-xs text-slate-300 mt-1.5 font-bold">
-                    {realm.gradeLabel} • Chương {realm.startChapter}-{realm.endChapter}
+                  <div className="text-[11px] text-slate-300 mt-1.5 font-bold">
+                    {realm.recommendedAge || realm.gradeLabel}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    Chương {realm.startChapter}-{realm.endChapter} • {realm.wordLengthHint}
                   </div>
                 </div>
 

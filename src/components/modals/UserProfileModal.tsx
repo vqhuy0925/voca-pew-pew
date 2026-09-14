@@ -21,6 +21,7 @@ import { MascotWidget } from '../mascot/MascotWidget';
 import { AGE_REALMS, getRealmByAge, getRealmById } from '../../data/learning-path-data';
 import { UserGender, ThemeStyle, MascotId, DailyEnergyMode } from '../../data/progress-types';
 import { DAILY_ENERGY_CAPS } from '../../services/progressStorage';
+import { PlacementTestModal } from './PlacementTestModal';
 import {
   THEME_CONFIGS,
   MASCOT_CONFIGS,
@@ -57,16 +58,18 @@ interface UserProfileModalProps {
   onClose?: () => void;
 }
 
-const AGE_OPTIONS = [
-  { age: 8, label: '7 - 8 Tuổi', sub: 'Lớp 2 - 3', icon: '🌱' },
-  { age: 10, label: '9 - 10 Tuổi', sub: 'Lớp 4 - 5', icon: '🚀' },
-  { age: 11, label: '11 Tuổi', sub: 'Lớp 5 • Chuyển Cấp', icon: '🛸' },
-  { age: 13, label: '12 - 13 Tuổi', sub: 'Lớp 6 - 7', icon: '⚡' },
-  { age: 15, label: '14 - 15 Tuổi', sub: 'Lớp 8 - 9', icon: '🔮' },
-  { age: 17, label: '16 - 18+ Tuổi', sub: 'Lớp 10 - 12 • IELTS', icon: '👑' },
-  { age: 19, label: 'Tech & PO Agile', sub: 'Tiếng Anh Công Nghệ', icon: '💼' },
-  { age: 20, label: 'Giao Tiếp & Đời Sống', sub: 'Tiếng Anh Đi Làm / Du Lịch', icon: '💬' }
+const COSMIC_RANK_OPTIONS = [
+  { age: 8, label: 'Tân Binh Sao (Star Cadet)', cefr: 'Pre-A1', sub: 'Pre-A1 • Gợi ý: 6 - 8 tuổi hoặc mới bắt đầu', icon: '🌱' },
+  { age: 10, label: 'Trinh Sát Thiên Hà (Space Scout)', cefr: 'A1', sub: 'CEFR A1 • Gợi ý: 8 - 10 tuổi (Lớp 3 - 4)', icon: '🚀' },
+  { age: 11, label: 'Chiến Binh Sao (Astro Ranger)', cefr: 'A2', sub: 'CEFR A2 • Gợi ý: 10 - 12 tuổi (Lớp 5)', icon: '🛸' },
+  { age: 13, label: 'Tiên Phong Vũ Trụ (Pioneer)', cefr: 'B1', sub: 'CEFR B1 • Gợi ý: 12 - 14 tuổi (Lớp 6 - 7)', icon: '⚡' },
+  { age: 15, label: 'Chỉ Huy Không Gian (Commander)', cefr: 'B2', sub: 'CEFR B2 • Gợi ý: 14 - 16 tuổi (Lớp 8 - 9)', icon: '🔮' },
+  { age: 17, label: 'Tinh Anh Học Thuật & IELTS', cefr: 'C1', sub: 'CEFR C1 / IELTS • Gợi ý: 16 - 18+ tuổi', icon: '👑' },
+  { age: 19, label: 'Tech Pro & PO Agile Speaking', cefr: 'Tech', sub: 'Tiếng Anh Công Nghệ, Scrum & Standup Dev', icon: '💼' },
+  { age: 20, label: 'Giao Tiếp Đời Sống & Công Sở', cefr: 'Daily', sub: 'Tiếng Anh Đi Làm, Du Lịch & Hội Thoại', icon: '💬' }
 ];
+
+const AGE_OPTIONS = COSMIC_RANK_OPTIONS;
 
 const QUICK_AVATARS_BY_GENDER: Record<UserGender, string[]> = {
   girl: ['🦄', '🌸', '🐱', '🧚‍♀️', '👑', '💖', '🎀'],
@@ -109,6 +112,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     return getRealmByAge(initialAge || 8).id;
   });
   const [isChangingRealm, setIsChangingRealm] = useState<boolean>(false);
+  const [showPlacementTest, setShowPlacementTest] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const currentTheme = THEME_CONFIGS[themeStyle] || THEME_CONFIGS.cosmic_cyan;
@@ -116,6 +120,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const currentRecommendedRealm = getRealmByAge(age);
   const activeChosenRealm = getRealmById(selectedRealmId) || currentRecommendedRealm;
   const quickAvatars = QUICK_AVATARS_BY_GENDER[gender] || QUICK_AVATARS_BY_GENDER.neutral;
+
+  const handleApplyPlacementTest = (recRealmId: string, suggestedAge: number) => {
+    setAge(suggestedAge);
+    setSelectedRealmId(recRealmId);
+    setShowPlacementTest(false);
+    if (isFirstTime) {
+      setStep(3);
+    }
+  };
 
   const personaLabels = getAgeAdaptivePersonaLabels(age);
   const suggestedNames = getAgeAdaptiveSuggestedNames(age, gender);
@@ -417,13 +430,26 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       Chào mừng, <span className={currentTheme.textColor}>{name.trim() || 'Bạn'}</span>! 🎉
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300">
-                      Chọn độ tuổi hoặc mục tiêu để nhận lộ trình chuẩn:
+                      Chọn cấp bậc năng lực tiếng Anh hoặc làm bài test chẩn đoán nhanh:
                     </p>
                   </div>
                 </div>
 
-                {/* Age Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[48vh] overflow-y-auto pr-1 text-left">
+                {/* Diagnostic Test Banner Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFx.playClick();
+                    setShowPlacementTest(true);
+                  }}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-500/20 via-blue-500/25 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/35 border-2 border-cyan-400/60 rounded-2xl text-cyan-300 text-xs sm:text-sm font-black flex items-center justify-center gap-2 cursor-pointer transition shadow-[0_0_15px_rgba(0,240,255,0.2)] active:scale-95"
+                >
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                  <span>LÀM BÀI TEST CHẨN ĐOÁN NHANH 2 PHÚT 🔍</span>
+                </button>
+
+                {/* Rank Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[44vh] overflow-y-auto pr-1 text-left">
                   {AGE_OPTIONS.map((item) => {
                     const isSelected = age === item.age;
                     return (
@@ -491,13 +517,13 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <span className="text-4xl sm:text-5xl drop-shadow">{activeChosenRealm.icon}</span>
                     <div>
                       <span className="px-2.5 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-300 text-xs font-black uppercase border border-cyan-400/40">
-                        Cõi {activeChosenRealm.realmNumber} • ĐỀ XUẤT
+                        Cõi {activeChosenRealm.realmNumber} • {activeChosenRealm.cefrLevel || 'Chuẩn CEFR'}
                       </span>
                       <h3 className="text-lg sm:text-xl font-game font-black text-white mt-1">
                         {activeChosenRealm.nameVi}
                       </h3>
                       <div className="text-xs sm:text-sm text-cyan-300 font-bold">
-                        {activeChosenRealm.gradeLabel} • {activeChosenRealm.ageRange}
+                        {activeChosenRealm.recommendedAge || activeChosenRealm.gradeLabel}
                       </div>
                     </div>
                   </div>
@@ -785,19 +811,32 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               </div>
             )}
 
-            {/* ================= TAB 1: LEARNING AGE & REALM ================= */}
+            {/* ================= TAB 1: LEARNING RANK & REALM ================= */}
             {activeTab === 'learning' && (
               <div className="space-y-3 text-left animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider">
-                    Chọn độ tuổi & lớp học:
+                    Chọn cấp bậc & mục tiêu CEFR:
                   </span>
                   <span className="text-xs text-slate-400">Tự động chọn Cõi tối ưu</span>
                 </div>
 
-                {/* Age Options Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[30vh] overflow-y-auto pr-1">
-                  {AGE_OPTIONS.map((item) => {
+                {/* Quick Diagnostic Test Button in Tab */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFx.playClick();
+                    setShowPlacementTest(true);
+                  }}
+                  className="w-full py-2 px-3.5 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 border border-cyan-400/50 rounded-xl text-cyan-300 text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition shadow-sm"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>LÀM BÀI TEST CHẨN ĐOÁN NHANH 2 PHÚT 🔍</span>
+                </button>
+
+                {/* Cosmic Rank Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[26vh] overflow-y-auto pr-1">
+                  {COSMIC_RANK_OPTIONS.map((item) => {
                     const isSelected = age === item.age;
                     return (
                       <button
@@ -832,7 +871,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     <div>
                       <div className="text-xs text-slate-400 font-bold">Cõi đang học:</div>
                       <div className="text-sm sm:text-base font-black text-cyan-300">
-                        {activeChosenRealm.nameVi} ({activeChosenRealm.ageRange})
+                        {activeChosenRealm.nameVi} • {activeChosenRealm.cefrLevel || activeChosenRealm.gradeLabel}
+                      </div>
+                      <div className="text-[11px] text-slate-400">
+                        {activeChosenRealm.recommendedAge || activeChosenRealm.ageRange}
                       </div>
                     </div>
                   </div>
@@ -1034,6 +1076,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               </button>
             </div>
           </div>
+        )}
+
+        {/* Placement Diagnostic Test Modal */}
+        {showPlacementTest && (
+          <PlacementTestModal
+            onApplyRecommendedRealm={handleApplyPlacementTest}
+            onClose={() => setShowPlacementTest(false)}
+          />
         )}
       </div>
     </div>

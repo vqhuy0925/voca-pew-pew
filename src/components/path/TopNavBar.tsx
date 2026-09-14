@@ -19,6 +19,7 @@ interface TopNavBarProps {
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
   onOpenMistakeVault?: () => void;
+  onOpenDailyQuests?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -35,6 +36,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenInstallModal,
   onOpenLanding,
   onOpenMistakeVault,
+  onOpenDailyQuests,
   showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
@@ -94,14 +96,18 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
           {/* Core Player Stats (Streak, Energy, Gems, Hearts) - visible in Row 1 on mobile */}
           <div className="flex items-center gap-1 sm:gap-2 md:hidden">
-            {/* Daily Streak */}
-            <div
-              className="flex items-center gap-1 px-2 py-1.5 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-xl text-amber-300 font-orbitron font-black text-xs shrink-0"
-              title="Chuỗi ngày học liên tiếp"
+            {/* Daily Streak & Daily Quests */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenDailyQuests) onOpenDailyQuests();
+              }}
+              className="btn-3d flex items-center gap-1 px-2 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 border-b-2 border-b-amber-800 rounded-xl text-amber-300 font-orbitron font-black text-xs shrink-0 cursor-pointer"
+              title="Chuỗi ngày & Nhiệm vụ hôm nay (Bấm để xem)"
             >
-              <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-              <span>{progress.streakDays}</span>
-            </div>
+              <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400 animate-bounce" />
+              <span>{progress.streakDays || 1}</span>
+            </button>
 
             {/* Energy Reactor Pill ⚡ */}
             <button
@@ -232,14 +238,18 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
           {/* Desktop Only Stats Pills (hidden on mobile, shown on md:) */}
           <div className="hidden md:flex items-center gap-2.5">
-            {/* Daily Streak */}
-            <div
-              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-500/10 border border-amber-400/30 border-b-2 border-b-amber-900/50 rounded-2xl text-amber-300 font-orbitron font-black text-sm md:text-base"
-              title="Chuỗi ngày học liên tiếp"
+            {/* Daily Streak & Quests */}
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (onOpenDailyQuests) onOpenDailyQuests();
+              }}
+              className="btn-3d flex items-center gap-1.5 px-3.5 py-2.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 border-b-3 border-b-amber-800 rounded-2xl text-amber-300 font-orbitron font-black text-sm md:text-base cursor-pointer"
+              title="Chuỗi ngày học liên tiếp & Nhiệm vụ hôm nay (Bấm để mở)"
             >
-              <Flame className="w-5 h-5 text-orange-400 fill-orange-400" />
-              <span>{progress.streakDays}</span>
-            </div>
+              <Flame className="w-5 h-5 text-orange-400 fill-orange-400 animate-bounce" />
+              <span>{progress.streakDays || 1} Ngày</span>
+            </button>
 
             {/* Energy Reactor Pill ⚡ */}
             <button

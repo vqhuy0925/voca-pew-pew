@@ -226,7 +226,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="mt-1 text-xs sm:text-sm text-cyan-400/90 hover:text-cyan-300 underline underline-offset-4 flex items-center gap-1.5 transition cursor-pointer"
             >
               <User className="w-3.5 h-3.5" />
-              <span>Tùy chỉnh tên nhân vật & độ tuổi học tập</span>
+              <span>Tùy chỉnh tên nhân vật & cấp bậc học tập</span>
             </button>
           )}
         </div>

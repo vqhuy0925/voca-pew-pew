@@ -1207,8 +1207,11 @@ export const REALM7_UNITS: Unit[] = [
 export const REALM7_REALM: AgeRealm = {
   id: 'realm-7',
   realmNumber: 7,
+  rankCode: 'TECH_LEAD_PO',
   name: 'Tech Pro & PO Agile Speaking',
   nameVi: 'Giao Tiếp PO, Standup & Sprint Dev',
+  cefrLevel: 'Tech / PO',
+  recommendedAge: 'Khuyên dùng: Lập trình viên, Tester, PO & Tech Lead',
   ageRange: 'Người Lớn / Đi Làm',
   gradeLabel: 'Tech Pro & Agile Communication',
   description: 'Bộ câu thoại chuẩn quốc tế giúp Lập trình viên, Tester, Tech Lead tự tin làm việc với Product Owner (PO), báo cáo Standup, làm rõ yêu cầu và thuyết trình Demo.',
