@@ -122,10 +122,14 @@ export const HUD: React.FC<HUDProps> = ({
             </span>
           </div>
 
-          {/* Score */}
-          <div className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-amber-400/50 border-b-3 border-b-amber-900/70 rounded-2xl backdrop-blur-md shadow-md">
-            <Sparkles className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-yellow-400 fill-yellow-400" />
-            <span className="font-orbitron font-black text-base sm:text-lg md:text-xl text-yellow-300 tracking-wide">{stats.score}</span>
+          {/* Score (Điểm số trận đấu) */}
+          <div
+            className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 border border-amber-400/50 border-b-3 border-b-amber-900/70 rounded-2xl backdrop-blur-md shadow-md"
+            title="Điểm số tích lũy trong trận đấu"
+          >
+            <Sparkles className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-yellow-400 fill-yellow-400 shrink-0" />
+            <span className="hidden sm:inline text-xs font-black text-amber-300/80 font-orbitron uppercase tracking-wider mr-0.5">Điểm:</span>
+            <span className="font-orbitron font-black text-base sm:text-lg md:text-xl text-yellow-300 tracking-wide">{stats.score.toLocaleString()}</span>
           </div>
 
           {/* Mute Button */}

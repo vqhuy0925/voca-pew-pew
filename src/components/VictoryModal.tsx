@@ -137,25 +137,25 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Essential Stats Summary (Score, XP, Gems) */}
         <div className="grid grid-cols-3 gap-2.5 my-3.5">
-          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Điểm số</span>
-            <span className={`text-xl sm:text-2xl font-black font-orbitron ${theme.textColor} mt-0.5 tracking-wide`}>
+          <div className="bg-slate-950/80 border border-amber-500/40 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center shadow-sm">
+            <span className="text-amber-400/90 text-xs sm:text-sm font-black uppercase font-orbitron tracking-wider">Điểm Trận</span>
+            <span className="text-xl sm:text-2xl font-black font-orbitron text-yellow-300 mt-0.5 tracking-wide">
               {stats.score.toLocaleString()}
             </span>
           </div>
 
-          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Kinh nghiệm</span>
-            <span className="text-xl sm:text-2xl font-black font-orbitron text-amber-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
-              <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+          <div className="bg-slate-950/80 border border-orange-500/40 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center shadow-sm">
+            <span className="text-orange-400/90 text-xs sm:text-sm font-black uppercase font-orbitron tracking-wider">Kinh Nghiệm</span>
+            <span className="text-xl sm:text-2xl font-black font-orbitron text-orange-300 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 fill-current text-orange-400" />
               <span>+{xpAwarded}</span>
             </span>
           </div>
 
-          <div className="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center">
-            <span className="text-slate-400 text-xs sm:text-sm font-black uppercase font-orbitron">Kim cương</span>
-            <span className="text-xl sm:text-2xl font-black font-orbitron text-sky-400 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
-              <Gem className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+          <div className="bg-slate-950/80 border border-cyan-400/40 rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center shadow-sm">
+            <span className="text-cyan-400/90 text-xs sm:text-sm font-black uppercase font-orbitron tracking-wider">Kim Cương</span>
+            <span className="text-xl sm:text-2xl font-black font-orbitron text-cyan-300 mt-0.5 flex items-center justify-center gap-1 tracking-wide">
+              <Gem className="w-4 h-4 sm:w-5 sm:h-5 fill-current text-cyan-400 animate-pulse" />
               <span>+{gemAwarded}</span>
             </span>
           </div>

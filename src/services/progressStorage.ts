@@ -209,6 +209,8 @@ export const calculateLevelClearRewards = (
 
   const totalGemsEarned = firstClearBonusGems + starBonusGems + accuracyBonusGems + heroicBonusGems;
 
+  console.info(`[DiamondEconomy:calculateRewards] Level: ${level.id} (${level.type || 'STANDARD'}) | Stars: ${starsEarned} (New: ${newStarsEarned}) | Acc: ${accuracy}% | Diff: ${difficulty} => Gems: +${totalGemsEarned} [FirstClear: +${firstClearBonusGems}, Stars: +${starBonusGems}, Acc: +${accuracyBonusGems}, Heroic: +${heroicBonusGems}] | XP: +${totalXpEarned}`);
+
   return {
     isFirstClear,
     baseGems: firstClearBonusGems,
@@ -359,6 +361,7 @@ export const loadUserProgress = (): UserProgress => {
 
 export const saveUserProgress = (progress: UserProgress): void => {
   try {
+    console.info(`[Storage:saveUserProgress] Saved state -> Gems: ${progress.gems} 💎 | XP: ${progress.totalXp} | Level: ${progress.currentLevelId} | Energy: ${progress.energy}⚡`);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     queueCloudSync(progress);
   } catch (err) {
@@ -412,7 +415,12 @@ export const completeLevelProgress = (
 
   const currentWeek = getWeekIdentifier();
   const isSameWeek = prev.lastWeeklyReset === currentWeek;
-  const updatedWeeklyXp = (isSameWeek ? (prev.weeklyXp || 0) : 0) + xpEarned;
+  
+  // Economy Guardrail: sanitize inputs to prevent corrupt negative or excessive inflation
+  const safeGemsEarned = Math.max(0, Math.min(Number(gemsEarned) || 0, 50));
+  const safeXpEarned = Math.max(0, Math.min(Number(xpEarned) || 0, 500));
+
+  const updatedWeeklyXp = (isSameWeek ? (Number(prev.weeklyXp) || 0) : 0) + safeXpEarned;
 
   const todayStr = getTodayDateString();
   const currentDailyQuest: DailyQuestProgress = prev.dailyQuestProgress?.date === todayStr
@@ -430,16 +438,21 @@ export const completeLevelProgress = (
     currentDailyQuest.threeStarEarnedCount += 1;
   }
 
+  const prevGems = Number(prev.gems) || 0;
+  const nextGems = prevGems + safeGemsEarned;
+
+  console.info(`[Storage:completeLevelProgress] Level: ${levelId} | Score: ${score} | Prev Gems: ${prevGems} ➔ Next Gems: ${nextGems} (+${safeGemsEarned} 💎) | Prev XP: ${prev.totalXp} ➔ Next XP: ${(Number(prev.totalXp) || 0) + safeXpEarned}`);
+
   const updatedUser: UserProgress = {
     ...prev,
     levelProgressMap: updatedMap,
     unlockedLevelIds: Array.from(updatedUnlocked),
     currentLevelId: nextTargetId,
     selectedRealmId: targetRealm ? targetRealm.id : prev.selectedRealmId,
-    totalXp: prev.totalXp + xpEarned,
+    totalXp: (Number(prev.totalXp) || 0) + safeXpEarned,
     weeklyXp: updatedWeeklyXp,
     lastWeeklyReset: currentWeek,
-    gems: prev.gems + gemsEarned,
+    gems: nextGems,
     lastActiveDate: todayStr,
     dailyQuestProgress: currentDailyQuest
   };

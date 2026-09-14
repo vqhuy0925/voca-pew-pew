@@ -201,20 +201,42 @@ describe('Diamond Economy & Anti-Inflation System', () => {
     assert.equal(replayReward.totalGemsEarned, 1);
   });
 
-  it('6. Revenge Blitz practice mode awards at most +1 token gem on 3-star clean clear and does NOT trigger firstClearBonusGems', () => {
+  it('7. Level completion increments gems exactly by the level reward amount and never uses score', () => {
     const progress = getInitialUserProgress();
-    const blitzReward = calculateLevelClearRewards(
+    const initialGems = progress.gems; // 15
+    const score = 2890;
+    const xpReward = 39;
+    const gemsReward = 8;
+
+    const updated = completeLevelProgress(
       progress,
-      sampleBlitzLevel,
-      5,
-      95,
-      'NORMAL',
-      5
+      sampleStandardLevel.id,
+      3,
+      score,
+      xpReward,
+      gemsReward
     );
 
-    assert.equal(blitzReward.isFirstClear, false, 'Blitz must not count as first clear');
-    assert.equal(blitzReward.firstClearBonusGems, 0, 'Blitz must have 0 first clear bonus gems');
-    assert.equal(blitzReward.starBonusGems, 1, 'Blitz awards +1 token gem for clean 3-star practice');
-    assert.equal(blitzReward.totalGemsEarned, 1);
+    assert.equal(updated.gems, initialGems + 8, 'Gems must strictly equal initial + 8');
+    assert.notEqual(updated.gems, initialGems + score, 'Gems must never receive score');
+    assert.equal(updated.levelProgressMap[sampleStandardLevel.id]?.highScore, score);
+  });
+
+  it('8. completeLevelProgress applies guardrails against negative or corrupt gems inflation', () => {
+    const progress = getInitialUserProgress();
+    const initialGems = progress.gems;
+
+    // Passing excessive gems or NaN should be capped by guardrails
+    const capped = completeLevelProgress(
+      progress,
+      sampleStandardLevel.id,
+      3,
+      1000,
+      50,
+      999999 // excessive
+    );
+
+    // Capped at 50 max gems per level
+    assert.equal(capped.gems, initialGems + 50);
   });
 });

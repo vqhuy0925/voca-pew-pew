@@ -298,9 +298,11 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
 
     if (isUnlocked) {
       soundFx.playClick();
+      console.info(`[Armory:Equip] Equipped ${itemType}: ${itemId}`);
       onUpdateProgress(prev => equipItem(prev, itemId, itemType));
     } else {
       if (progress.gems >= priceGems) {
+        console.info(`[Armory:Purchase] Unlocking ${itemType}: ${itemId} | Price: ${priceGems} 💎 | Prev Gems: ${progress.gems} ➔ Remaining: ${progress.gems - priceGems}`);
         if (rarity === 'MYTHIC' || rarity === 'LEGENDARY') {
           soundFx.playMythicUnlock();
         } else {

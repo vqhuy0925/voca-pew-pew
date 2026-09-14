@@ -322,6 +322,7 @@ export const App: React.FC = () => {
       setShowEnergyModal(true);
       return;
     }
+    console.info(`[Battle:Start] Level: ${selectedLevel.id} (${selectedLevel.titleVi}) | Energy: ${progress.energy} - ${energyCost} | Current Gems: ${progress.gems} 💎`);
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
     setStats({
@@ -348,6 +349,7 @@ export const App: React.FC = () => {
       setShowEnergyModal(true);
       return;
     }
+    console.info(`[Battle:Restart] Level: ${selectedLevel.id} | Current Gems: ${progress.gems} 💎`);
     handleUpdateProgress(p => deductEnergy(p, energyCost));
     setGameSessionId(id => id + 1);
     setStats({
@@ -406,9 +408,10 @@ export const App: React.FC = () => {
 
   const handleGameOver = useCallback(() => {
     dismissMobileKeyboard();
+    console.info(`[Battle:GameOver] Level: ${selectedLevel.id} | Score: ${stats.score}`);
     handleUpdateProgress(p => deductHeart(p));
     setScreen('GAME_OVER');
-  }, [handleUpdateProgress, dismissMobileKeyboard]);
+  }, [handleUpdateProgress, dismissMobileKeyboard, selectedLevel.id, stats.score]);
 
   const handleTimerUpdate = useCallback((remaining: number, total: number) => {
     setTimeRemaining(remaining);
@@ -417,12 +420,6 @@ export const App: React.FC = () => {
 
   const handleVictory = useCallback(() => {
     dismissMobileKeyboard();
-    // Lazy Auth: create/attach cloud account on successful level completion
-    ensureCloudAuthSession().then(uid => {
-      if (uid && !uid.startsWith('local_')) {
-        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
-      }
-    });
 
     const diff = progress.selectedDifficulty || 'NORMAL';
     const reward = calculateLevelClearRewards(
@@ -435,6 +432,8 @@ export const App: React.FC = () => {
      );
     setLastRewardBreakdown(reward);
 
+    console.info(`[Battle:Victory] Level: ${selectedLevel.id} | Score: ${stats.score} | Hearts: ${stats.heartsRemaining}/${stats.maxHearts} | Accuracy: ${stats.accuracy}% | Rewards => Gems: +${reward.totalGemsEarned} 💎, XP: +${reward.totalXpEarned}`);
+
     handleUpdateProgress(prev =>
       completeLevelProgress(
         prev,
@@ -445,6 +444,13 @@ export const App: React.FC = () => {
         reward.totalGemsEarned
       )
     );
+
+    // Lazy Auth: create/attach cloud account on successful level completion (non-blocking)
+    ensureCloudAuthSession().then(uid => {
+      if (uid && !uid.startsWith('local_')) {
+        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+      }
+    });
 
     setScreen('VICTORY');
   }, [stats, selectedLevel, progress, handleUpdateProgress, dismissMobileKeyboard]);
