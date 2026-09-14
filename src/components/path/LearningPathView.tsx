@@ -72,7 +72,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   }, [activeRealmId]);
 
   // Auto-scroll to current level
-  const scrollToCurrentLevel = (behavior: ScrollBehavior = 'smooth') => {
+  const scrollToCurrentLevel = (behavior: ScrollBehavior = 'auto') => {
     const curLevelId = progress.currentLevelId;
     if (!curLevelId) return;
 
@@ -100,9 +100,12 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       return;
     }
 
+    // Immediate attempt for already-mounted DOM
+    scrollToCurrentLevel('auto');
+
     const timer = setTimeout(() => {
-      scrollToCurrentLevel('smooth');
-    }, 150);
+      scrollToCurrentLevel('auto');
+    }, 50);
 
     return () => clearTimeout(timer);
   }, [progress.currentLevelId, activeRealmId]);
@@ -122,10 +125,12 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       if (targetRealm.id !== activeRealmId) {
         hasUserSwitchedRealmRef.current = false;
         onUpdateProgress(p => ({ ...p, selectedRealmId: targetRealm.id }));
-      }
-      setTimeout(() => {
+        setTimeout(() => {
+          scrollToCurrentLevel('auto');
+        }, 50);
+      } else {
         scrollToCurrentLevel('smooth');
-      }, 120);
+      }
     }
   };
 
