@@ -129,7 +129,7 @@ export interface ClearRewardBreakdown {
 
 export const calculateLevelClearRewards = (
   prev: UserProgress,
-  level: { id: string; type?: string; xpReward: number; gemReward: number },
+  level: { id: string; unitId?: string; type?: string; xpReward: number; gemReward: number },
   heartsRemaining: number,
   accuracy: number,
   difficulty: DifficultyLevel = 'NORMAL',
@@ -143,6 +143,8 @@ export const calculateLevelClearRewards = (
     starsEarned = 2;
   }
 
+  const isBlitzPractice = level.id.startsWith('blitz-') || level.id === 'lvl-mistake-blitz' || level.unitId === 'unit-blitz';
+
   const currentProgress = prev.levelProgressMap[level.id] || {
     levelId: level.id,
     isUnlocked: true,
@@ -151,20 +153,26 @@ export const calculateLevelClearRewards = (
     highScore: 0
   };
 
-  const isFirstClear = !currentProgress.isCompleted;
+  const isFirstClear = !currentProgress.isCompleted && !isBlitzPractice;
   const previousStars = currentProgress.stars || 0;
-  const newStarsEarned = Math.max(0, starsEarned - previousStars);
+  const newStarsEarned = isBlitzPractice ? 0 : Math.max(0, starsEarned - previousStars);
 
   const diffMultiplier = DIFFICULTY_CONFIGS[difficulty]?.xpMultiplier ?? 1.25;
   const totalXpEarned = Math.round(level.xpReward * diffMultiplier);
 
-  // 1. Star Reward: Every round awards 1 gem per star (1⭐ = +1💎, 2⭐ = +2💎, 3⭐ = +3💎)
-  // This guarantees learners always receive gems for their effort, even when practicing old lessons!
-  const starBonusGems = starsEarned;
-
-  // 2. First Clear Bonus: Big rewards for discovering new territory
   let firstClearBonusGems = 0;
-  if (isFirstClear) {
+  let starBonusGems = 0;
+  let accuracyBonusGems = 0;
+  let heroicBonusGems = 0;
+
+  if (isBlitzPractice) {
+    // 1. Revenge Blitz mode: Focuses on quick mistake drills & XP
+    // Awards +1 token gem only when achieving 3 stars with high accuracy (>= 90%)
+    if (starsEarned === 3 && accuracy >= 90) {
+      starBonusGems = 1;
+    }
+  } else if (isFirstClear) {
+    // 2. First Clear Bonus: Big exploration rewards for discovering new territory
     if (level.type === 'CHEST_REWARD') {
       firstClearBonusGems = 15;
     } else if (level.type === 'BOSS_BATTLE') {
@@ -174,21 +182,32 @@ export const calculateLevelClearRewards = (
     } else {
       firstClearBonusGems = 2;
     }
+
+    // 1 gem per newly unlocked star
+    starBonusGems = newStarsEarned;
+
+    // Accuracy Bonus: +1 gem for sniper-like precision (>= 90%)
+    if (accuracy >= 90) {
+      accuracyBonusGems = 1;
+    }
+
+    // Heroic Bonus: +1 gem for tackling hard mode
+    if (difficulty === 'HEROIC') {
+      heroicBonusGems = 1;
+    }
+  } else {
+    // 3. Replay Mode: Reward gems only for newly attained stars (e.g. going from 1⭐ to 3⭐)
+    if (newStarsEarned > 0) {
+      starBonusGems = newStarsEarned;
+    }
+
+    // Mastery Bonus: +1 token gem for flawless 100% accuracy on Heroic replay
+    if (difficulty === 'HEROIC' && accuracy >= 100) {
+      heroicBonusGems = 1;
+    }
   }
 
-  // 3. Accuracy Bonus: +1 gem for sniper-like precision (>= 90%)
-  let accuracyBonusGems = 0;
-  if (accuracy >= 90) {
-    accuracyBonusGems = 1;
-  }
-
-  // 4. Heroic Bonus: +1 gem for tackling hard mode
-  let heroicBonusGems = 0;
-  if (difficulty === 'HEROIC') {
-    heroicBonusGems = 1;
-  }
-
-  const totalGemsEarned = starBonusGems + firstClearBonusGems + accuracyBonusGems + heroicBonusGems;
+  const totalGemsEarned = firstClearBonusGems + starBonusGems + accuracyBonusGems + heroicBonusGems;
 
   return {
     isFirstClear,

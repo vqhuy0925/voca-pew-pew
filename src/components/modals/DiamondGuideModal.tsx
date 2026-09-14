@@ -83,11 +83,11 @@ export const DiamondGuideModal: React.FC<DiamondGuideModalProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs font-extrabold text-white flex items-center justify-between">
-                    <span>1. Đạt Sao Mỗi Màn</span>
+                    <span>1. Đạt Sao Mới Mỗi Màn</span>
                     <span className="text-yellow-300 font-orbitron font-black text-xs">+1 đến +3 💎</span>
                   </div>
                   <div className="text-[11px] text-slate-300 mt-0.5 leading-snug">
-                    Mỗi sao ⭐ đạt được đều thưởng 1 💎 (kể cả khi <strong>chơi lại</strong> để ôn từ!).
+                    Mỗi ngôi sao ⭐ mới mở khóa đều thưởng 1 💎 (chơi lại nâng sao nhận thêm 💎!).
                   </div>
                 </div>
               </div>
@@ -176,7 +176,7 @@ export const DiamondGuideModal: React.FC<DiamondGuideModalProps> = ({
               userAge={progress.userAge}
               gender={progress.gender}
               userName={progress.userName}
-              customMessage="Cứ mỗi màn ôn lại đạt 3 sao là có thêm 3 kim cương, tha hồ mở khoá tàu thần thoại nhé! 🚀💎"
+              customMessage="Chăm chỉ khám phá màn mới, nâng sao và duy trì chuỗi học tập để gom đủ kim cương mở khóa tàu thần thoại nhé! 🚀💎"
             />
           </div>
 

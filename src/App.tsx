@@ -111,7 +111,7 @@ export const App: React.FC = () => {
   const handleStartMistakeBlitz = useCallback((blitzWords: VocabWord[]) => {
     if (!blitzWords || blitzWords.length === 0) return;
     const blitzLevel: LevelNode = {
-      id: `blitz-${Date.now()}`,
+      id: 'lvl-mistake-blitz',
       unitId: 'unit-blitz',
       levelNumber: 99,
       title: 'Revenge Blitz',
@@ -122,7 +122,7 @@ export const App: React.FC = () => {
       bgColor: '#ea580c',
       targetScore: blitzWords.length * 120,
       xpReward: blitzWords.length * 25,
-      gemReward: 3,
+      gemReward: 1,
       speedMultiplier: 0.75,
       spawnInterval: 1900
     };
