@@ -20,9 +20,12 @@ export interface VocabTheme {
 
 export interface EnemyItem {
   id: string;
+  vocabId?: string;    // Original vocab word ID
   word: string;
   meaningVi: string;
   emoji: string;
+  category?: string;
+  pronunciation?: string;
   typedIndex: number;  // How many characters have been typed correctly
   x: number;           // Canvas X
   y: number;           // Canvas Y
@@ -32,6 +35,7 @@ export interface EnemyItem {
   color: string;
   isTargeted: boolean; // Currently active locked-on target
   shakeTime: number;   // Visual feedback when hit or wrong key
+  isRevengeTarget?: boolean; // Weak word spawned for spaced repetition
 }
 
 export interface LaserBolt {

@@ -3,9 +3,12 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
+// Safe environment variable resolution with fallback for Node test environments
+const env: Record<string, string | undefined> = (typeof import.meta !== 'undefined' && import.meta.env) ? (import.meta.env as any) : {};
+
 // Validate environment variables
-const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
-const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
+const apiKey = env.VITE_FIREBASE_API_KEY;
+const projectId = env.VITE_FIREBASE_PROJECT_ID;
 
 export const isFirebaseConfigured = Boolean(
   apiKey &&
@@ -15,13 +18,13 @@ export const isFirebaseConfigured = Boolean(
 );
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: env.VITE_FIREBASE_API_KEY,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: env.VITE_FIREBASE_APP_ID,
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 let app: FirebaseApp | null = null;

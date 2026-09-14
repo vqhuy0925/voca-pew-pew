@@ -18,6 +18,7 @@ interface TopNavBarProps {
   onOpenDiamondGuide?: () => void;
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
+  onOpenMistakeVault?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -33,6 +34,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenDiamondGuide,
   onOpenInstallModal,
   onOpenLanding,
+  onOpenMistakeVault,
   showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
@@ -55,6 +57,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   const displayName = progress.userName?.trim() || defaultFallbackName;
 
   const genderBadge = progress.gender === 'girl' ? '💖' : progress.gender === 'boy' ? '⚡' : '🌟';
+  const weakWordsCount = Object.values(progress.mistakeMap || {}).filter(w => w.masteryStatus !== 'mastered').length;
 
   return (
     <header
@@ -147,6 +150,26 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
         {/* Row 2 on Mobile / Right side on Desktop: Action Buttons & Desktop Stats */}
         <div className="flex items-center justify-between md:justify-end gap-1.5 sm:gap-2.5 w-full md:w-auto">
+          {/* Mistake Vault / Lò Rèn Từ Vựng 🔥 */}
+          {onOpenMistakeVault && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenMistakeVault();
+              }}
+              className="btn-3d relative flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-400/50 border-b-2 sm:border-b-3 border-b-orange-800 rounded-xl sm:rounded-2xl text-orange-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-orange-300 flex items-center justify-center gap-1 shrink-0"
+              title="Lò Rèn Từ Vựng & Phục Thù Từ Sai"
+            >
+              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
+              <span>Lò Rèn</span>
+              {weakWordsCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-orange-500 text-slate-950 font-black text-[10px] leading-tight ml-0.5">
+                  {weakWordsCount}
+                </span>
+              )}
+            </button>
+          )}
+
           {/* Armory Shop Button */}
           {onOpenArmory && (
             <button

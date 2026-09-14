@@ -4,6 +4,7 @@ import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId } from '../dat
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
 import { checkAndUnlockBadges, DEFAULT_TITLE } from '../data/badge-data';
+import { WordMistakeRecord, MistakeProgressMap, SessionMistakeDelta, MasteryStatus } from '../data/mistake-types';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -98,7 +99,10 @@ export const getInitialUserProgress = (): UserProgress => {
     // Showcase & Citizen ID
     unlockedBadgeIds: [],
     selectedBadgeIds: [],
-    activeTitle: DEFAULT_TITLE
+    activeTitle: DEFAULT_TITLE,
+
+    // Adaptive Learning Mistake Engine
+    mistakeMap: {}
   };
 };
 
@@ -315,7 +319,8 @@ export const loadUserProgress = (): UserProgress => {
     // Ensure Showcase & Citizen ID (Phase 3)
     parsed.unlockedBadgeIds = Array.isArray(parsed.unlockedBadgeIds) ? parsed.unlockedBadgeIds : [];
     parsed.selectedBadgeIds = Array.isArray(parsed.selectedBadgeIds) ? parsed.selectedBadgeIds : [];
-    parsed.activeTitle = parsed.activeTitle || DEFAULT_TITLE;
+    // Ensure Mistake Map (Adaptive Learning Engine)
+    parsed.mistakeMap = parsed.mistakeMap && typeof parsed.mistakeMap === 'object' ? parsed.mistakeMap : {};
 
     // Evaluate badges for past achievements
     const { updatedProgress } = checkAndUnlockBadges(parsed);
@@ -549,4 +554,156 @@ export const markLandingSeen = (prev: UserProgress): UserProgress => {
   saveUserProgress(updated);
   return updated;
 };
+
+// ==========================================
+// ADAPTIVE LEARNING & MISTAKE MASTERY SYSTEM
+// ==========================================
+
+export const recordSessionMistakes = (
+  prev: UserProgress,
+  deltas: SessionMistakeDelta[]
+): UserProgress => {
+  if (!deltas || deltas.length === 0) return prev;
+
+  const mistakeMap: MistakeProgressMap = { ...(prev.mistakeMap || {}) };
+  const now = Date.now();
+
+  for (const delta of deltas) {
+    if (!delta.word) continue;
+    const key = delta.word.toLowerCase().trim();
+    const existing = mistakeMap[key] || {
+      wordId: delta.wordId || key,
+      word: delta.word,
+      meaningVi: delta.meaningVi || '',
+      emoji: delta.emoji || '📝',
+      category: delta.category || '',
+      pronunciation: delta.pronunciation || '',
+      typoCount: 0,
+      breachCount: 0,
+      successCount: 0,
+      consecutiveCleanClears: 0,
+      masteryStatus: 'learning' as MasteryStatus,
+      lastMistakeTimestamp: now,
+      lastAttemptTimestamp: now
+    };
+
+    const hasNewMistake = delta.typos > 0 || delta.breached;
+    const isCleanClear = delta.cleared && delta.typos === 0 && !delta.breached;
+
+    const typoCount = existing.typoCount + delta.typos;
+    const breachCount = existing.breachCount + (delta.breached ? 1 : 0);
+    const successCount = existing.successCount + (delta.cleared ? 1 : 0);
+    
+    let consecutiveCleanClears = existing.consecutiveCleanClears;
+    if (isCleanClear) {
+      consecutiveCleanClears += 1;
+    } else if (hasNewMistake) {
+      consecutiveCleanClears = 0;
+    }
+
+    // Determine mastery status
+    let masteryStatus: MasteryStatus = 'learning';
+    if (consecutiveCleanClears >= 3) {
+      masteryStatus = 'mastered';
+    } else if (consecutiveCleanClears === 2) {
+      masteryStatus = 'reviewing';
+    } else {
+      masteryStatus = 'learning';
+    }
+
+    mistakeMap[key] = {
+      ...existing,
+      meaningVi: delta.meaningVi || existing.meaningVi,
+      emoji: delta.emoji || existing.emoji,
+      category: delta.category || existing.category,
+      pronunciation: delta.pronunciation || existing.pronunciation,
+      typoCount,
+      breachCount,
+      successCount,
+      consecutiveCleanClears,
+      masteryStatus,
+      lastMistakeTimestamp: hasNewMistake ? now : existing.lastMistakeTimestamp,
+      lastAttemptTimestamp: now
+    };
+  }
+
+  const updated: UserProgress = {
+    ...prev,
+    mistakeMap
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const getActiveWeakWords = (
+  progress: UserProgress,
+  limit: number = 6
+): WordMistakeRecord[] => {
+  const map = progress.mistakeMap || {};
+  const records = Object.values(map);
+
+  // Filter words that are learning or reviewing (prioritizing learning, then typo/breach count)
+  const weakWords = records
+    .filter(r => r.masteryStatus !== 'mastered' || (r.typoCount + r.breachCount > 0 && r.consecutiveCleanClears < 3))
+    .sort((a, b) => {
+      // Prioritize learning over reviewing
+      if (a.masteryStatus === 'learning' && b.masteryStatus !== 'learning') return -1;
+      if (b.masteryStatus === 'learning' && a.masteryStatus !== 'learning') return 1;
+
+      // Then by total mistakes (typos + breaches)
+      const aMistakes = a.typoCount + a.breachCount * 2;
+      const bMistakes = b.typoCount + b.breachCount * 2;
+      if (bMistakes !== aMistakes) return bMistakes - aMistakes;
+
+      // Then by recency
+      return b.lastMistakeTimestamp - a.lastMistakeTimestamp;
+    });
+
+  return weakWords.slice(0, limit);
+};
+
+export const getMistakeStats = (progress: UserProgress) => {
+  const map = progress.mistakeMap || {};
+  const records = Object.values(map);
+
+  let learning = 0;
+  let reviewing = 0;
+  let mastered = 0;
+
+  for (const r of records) {
+    if (r.masteryStatus === 'mastered') {
+      mastered++;
+    } else if (r.masteryStatus === 'reviewing') {
+      reviewing++;
+    } else {
+      learning++;
+    }
+  }
+
+  return {
+    learning,
+    reviewing,
+    mastered,
+    total: records.length
+  };
+};
+
+export const resetWordMastery = (
+  prev: UserProgress,
+  wordKey: string
+): UserProgress => {
+  const mistakeMap = { ...(prev.mistakeMap || {}) };
+  const key = wordKey.toLowerCase().trim();
+  if (mistakeMap[key]) {
+    delete mistakeMap[key];
+  }
+  const updated = {
+    ...prev,
+    mistakeMap
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
 

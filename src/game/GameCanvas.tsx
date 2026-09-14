@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { EnemyItem, GameStats, GameState } from '../data/types';
+import { EnemyItem, GameStats, GameState, VocabWord } from '../data/types';
 import { LevelNode } from '../data/progress-types';
+import { SessionMistakeDelta } from '../data/mistake-types';
 import {
   DifficultyLevel,
   SpaceshipItem,
@@ -35,6 +36,8 @@ interface GameCanvasProps {
   onSuggestCharChange?: (char?: string) => void;
   onRegisterInputHandler?: (handler: (char: string) => void) => void;
   onTimerUpdate?: (remainingSeconds: number, totalSeconds: number) => void;
+  weakWords?: VocabWord[];
+  onMistakeDeltasRecorded?: (deltas: SessionMistakeDelta[]) => void;
 }
 
 export const GameCanvas: React.FC<GameCanvasProps> = ({
@@ -45,6 +48,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   equippedShip = getSpaceshipById('ship-scout'),
   equippedBlaster = getBlasterById('blaster-single'),
   equippedLaser = getLaserById('laser-cyan'),
+  weakWords = [],
   onStatsUpdate,
   onGameOver,
   onVictory,
@@ -52,7 +56,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   onTotalWordsSet,
   onSuggestCharChange,
   onRegisterInputHandler,
-  onTimerUpdate
+  onTimerUpdate,
+  onMistakeDeltasRecorded
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
@@ -64,6 +69,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const lastTimeRef = useRef<number>(performance.now());
   const lastSpokenEnemyIdRef = useRef<string | null>(null);
   const lastInputTimeRef = useRef<{ char: string; time: number }>({ char: '', time: 0 });
+  const sessionMistakesRef = useRef<Record<string, SessionMistakeDelta>>({});
 
   const [isInputFocused, setIsInputFocused] = useState<boolean>(true);
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
@@ -136,6 +142,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     spawnerRef.current = spawner;
     inputHandlerRef.current = inputHandler;
     collisionEngineRef.current = collisionEngine;
+    sessionMistakesRef.current = {};
 
     // Reset Timer
     timeRemainingRef.current = totalSeconds;
@@ -144,8 +151,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       onTimerUpdate(totalSeconds, totalSeconds);
     }
 
-    // Load level data with difficulty speed multiplier
-    spawner.loadLevel(level, diffConfig.speedMultiplier);
+    // Load level data with difficulty speed multiplier and weak words injection
+    spawner.loadLevel(level, diffConfig.speedMultiplier, weakWords);
     speechHelper.preloadWords(level.words.map(w => w.word));
     if (onTotalWordsSet) {
       onTotalWordsSet(spawner.getTotalWordsCount());
@@ -248,35 +255,80 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // If whole word is defeated
         if (result.defeatedEnemy) {
+          const defeated = result.defeatedEnemy;
+          const isRevenge = !!defeated.isRevengeTarget;
+          const revengeBonus = isRevenge ? 50 : 0;
+
           wordsDefeated++;
-          score += 100;
+          score += 100 + revengeBonus;
           soundFx.playExplosion();
           particleSys.addExplosion(
-            result.defeatedEnemy.x + result.defeatedEnemy.width / 2,
-            result.defeatedEnemy.y + 25,
-            equippedLaser.beamColor || result.defeatedEnemy.color,
-            36
+            defeated.x + defeated.width / 2,
+            defeated.y + 25,
+            isRevenge ? '#f97316' : (equippedLaser.beamColor || defeated.color),
+            isRevenge ? 48 : 36
           );
           particleSys.addFloatingText(
-            `+${100 + comboBonus} ${result.defeatedEnemy.emoji}`,
-            result.defeatedEnemy.x + result.defeatedEnemy.width / 2,
-            result.defeatedEnemy.y,
-            '#39ff14',
-            32
+            isRevenge ? `+${100 + comboBonus + revengeBonus} 🎯 PHỤC THÙ!` : `+${100 + comboBonus} ${defeated.emoji}`,
+            defeated.x + defeated.width / 2,
+            defeated.y,
+            isRevenge ? '#f97316' : '#39ff14',
+            isRevenge ? 34 : 32
           );
 
+          // Record victory for this word in session mistakes
+          const defKey = defeated.word.toLowerCase();
+          const existingMistake = sessionMistakesRef.current[defKey] || {
+            wordId: defeated.vocabId || defeated.id,
+            word: defeated.word,
+            meaningVi: defeated.meaningVi,
+            emoji: defeated.emoji,
+            category: defeated.category,
+            pronunciation: defeated.pronunciation,
+            typos: 0,
+            breached: false,
+            cleared: false,
+            isRevengeTarget: isRevenge
+          };
+          existingMistake.cleared = true;
+          sessionMistakesRef.current[defKey] = existingMistake;
+
           // Find full vocab item to add to review list
-          const vocabMatch = level.words.find(w => w.word.toLowerCase() === result.defeatedEnemy?.word.toLowerCase());
-          if (vocabMatch && !clearedWordsList.some(w => w.id === vocabMatch.id)) {
+          const vocabMatch = level.words.find(w => w.word.toLowerCase() === defKey) || {
+            id: defeated.vocabId || defeated.id,
+            word: defeated.word,
+            meaningVi: defeated.meaningVi,
+            emoji: defeated.emoji,
+            category: defeated.category || 'Vocabulary',
+            pronunciation: defeated.pronunciation
+          };
+          if (!clearedWordsList.some(w => w.word.toLowerCase() === defKey)) {
             clearedWordsList.push(vocabMatch);
           }
 
-          spawner.removeEnemy(result.defeatedEnemy.id);
+          spawner.removeEnemy(defeated.id);
           onTargetChange(null);
           if (onSuggestCharChange) onSuggestCharChange(undefined);
         }
       } else if (result.isWrong) {
         combo = 0;
+        if (result.targetEnemy) {
+          const targetKey = result.targetEnemy.word.toLowerCase();
+          const existingMistake = sessionMistakesRef.current[targetKey] || {
+            wordId: result.targetEnemy.vocabId || result.targetEnemy.id,
+            word: result.targetEnemy.word,
+            meaningVi: result.targetEnemy.meaningVi,
+            emoji: result.targetEnemy.emoji,
+            category: result.targetEnemy.category,
+            pronunciation: result.targetEnemy.pronunciation,
+            typos: 0,
+            breached: false,
+            cleared: false,
+            isRevengeTarget: result.targetEnemy.isRevengeTarget
+          };
+          existingMistake.typos += 1;
+          sessionMistakesRef.current[targetKey] = existingMistake;
+        }
       }
 
       const accuracy = totalKeystrokes > 0 ? Math.round((correctKeystrokes / totalKeystrokes) * 100) : 100;
@@ -419,6 +471,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             blurInput();
             soundFx.playGameOver();
             particleSys.addFloatingText('HẾT GIỜ! ⏰', canvas.width / 2, canvas.height * 0.4, '#f43f5e', 44);
+            if (onMistakeDeltasRecorded) {
+              onMistakeDeltasRecorded(Object.values(sessionMistakesRef.current));
+            }
             onGameOver();
             return;
           }
@@ -432,6 +487,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           blurInput();
           particleSys.setHyperspace(true);
           soundFx.playHyperdriveJump();
+          if (onMistakeDeltasRecorded) {
+            onMistakeDeltasRecorded(Object.values(sessionMistakesRef.current));
+          }
           setTimeout(() => {
             onVictory();
           }, 450);
@@ -442,6 +500,22 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const breach = collisionEngine.checkDefenseBreach(enemies);
         if (breach.breachedEnemies.length > 0) {
           for (const breached of breach.breachedEnemies) {
+            const breachedKey = breached.word.toLowerCase();
+            const existingMistake = sessionMistakesRef.current[breachedKey] || {
+              wordId: breached.vocabId || breached.id,
+              word: breached.word,
+              meaningVi: breached.meaningVi,
+              emoji: breached.emoji,
+              category: breached.category,
+              pronunciation: breached.pronunciation,
+              typos: 0,
+              breached: false,
+              cleared: false,
+              isRevengeTarget: breached.isRevengeTarget
+            };
+            existingMistake.breached = true;
+            sessionMistakesRef.current[breachedKey] = existingMistake;
+
             spawner.removeEnemy(breached.id);
             soundFx.playHeartLost();
             particleSys.addExplosion(breached.x + breached.width / 2, canvas.height - 100, '#ff0055', 24);
@@ -453,6 +527,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             if (nextHealth <= 0) {
               blurInput();
               soundFx.playGameOver();
+              if (onMistakeDeltasRecorded) {
+                onMistakeDeltasRecorded(Object.values(sessionMistakesRef.current));
+              }
               onGameOver();
             }
             return {
@@ -552,6 +629,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.shadowBlur = 28;
       ctx.strokeStyle = equippedLaser.beamColor || '#00f0ff';
       ctx.lineWidth = 4.5;
+    } else if (enemy.isRevengeTarget) {
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 20;
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 3.5;
     } else {
       ctx.shadowColor = enemy.color;
       ctx.shadowBlur = 14;
@@ -560,11 +642,34 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     }
 
     // Badge Background Box (Dark high-contrast slate)
-    ctx.fillStyle = enemy.isTargeted ? 'rgba(15, 23, 62, 0.96)' : 'rgba(11, 15, 42, 0.90)';
+    ctx.fillStyle = enemy.isTargeted ? 'rgba(15, 23, 62, 0.96)' : enemy.isRevengeTarget ? 'rgba(28, 18, 12, 0.93)' : 'rgba(11, 15, 42, 0.90)';
     ctx.beginPath();
     ctx.roundRect(x, y, width, height, radius);
     ctx.fill();
     ctx.stroke();
+
+    // Revenge Badge on Top Right
+    if (enemy.isRevengeTarget) {
+      ctx.save();
+      const badgeW = 90;
+      const badgeH = 20;
+      const badgeX = x + width - badgeW - 10;
+      const badgeY = y - 8;
+
+      ctx.fillStyle = '#ea580c';
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 10);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px Fredoka, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🎯 PHỤC THÙ', badgeX + badgeW / 2, badgeY + badgeH / 2);
+      ctx.restore();
+    }
 
     // Star Wars Trench Run / Targeting Computer Reticle HUD when locked-on
     if (enemy.isTargeted) {

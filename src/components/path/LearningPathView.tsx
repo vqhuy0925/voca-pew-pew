@@ -31,6 +31,7 @@ interface LearningPathViewProps {
   onOpenDiamondGuide?: () => void;
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
+  onOpenMistakeVault?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -50,6 +51,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenDiamondGuide,
   onOpenInstallModal,
   onOpenLanding,
+  onOpenMistakeVault,
   showInstallButton
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
@@ -149,6 +151,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenDiamondGuide={onOpenDiamondGuide}
         onOpenInstallModal={onOpenInstallModal}
         onOpenLanding={onOpenLanding}
+        onOpenMistakeVault={onOpenMistakeVault}
         showInstallButton={showInstallButton}
       />
 

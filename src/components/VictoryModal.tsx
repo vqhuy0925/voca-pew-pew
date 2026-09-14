@@ -161,10 +161,10 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         </div>
 
         {/* Conquered Words Review (Sleek, Compact List) */}
-        {level.words.length > 0 && (
+        {((stats.clearedWordsList && stats.clearedWordsList.length > 0) ? stats.clearedWordsList : level.words).length > 0 && (
           <div className="text-left bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3 mb-4">
             <div className="flex items-center justify-between text-xs sm:text-sm font-black uppercase tracking-wider text-cyan-300 mb-2 px-0.5">
-              <span>Từ vựng đã chinh phục ({level.words.length})</span>
+              <span>Từ vựng đã chinh phục ({((stats.clearedWordsList && stats.clearedWordsList.length > 0) ? stats.clearedWordsList : level.words).length})</span>
               <span className="text-xs text-slate-400 font-semibold normal-case flex items-center gap-1">
                 <span>Chạm nghe</span>
                 <Volume2 className="w-3.5 h-3.5 text-cyan-400 inline" />
@@ -172,7 +172,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             </div>
 
             <div className="max-h-36 overflow-y-auto space-y-1.5 pr-0.5">
-              {level.words.map((item) => {
+              {((stats.clearedWordsList && stats.clearedWordsList.length > 0) ? stats.clearedWordsList : level.words).map((item) => {
                 const isPlaying = playingId === item.id;
                 return (
                   <button

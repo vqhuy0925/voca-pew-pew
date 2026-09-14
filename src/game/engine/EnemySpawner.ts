@@ -1,8 +1,12 @@
 import { VocabWord, EnemyItem } from '../../data/types';
 import { LevelNode } from '../../data/progress-types';
 
+export interface SpawnQueueItem extends VocabWord {
+  isRevengeTarget?: boolean;
+}
+
 export class EnemySpawner {
-  private wordsQueue: VocabWord[] = [];
+  private wordsQueue: SpawnQueueItem[] = [];
   private totalLevelWordsCount: number = 0;
   private enemies: EnemyItem[] = [];
   private spawnTimer: number = 0;
@@ -22,19 +26,36 @@ export class EnemySpawner {
     this.canvasHeight = h;
   }
 
-  public loadLevel(level: LevelNode, difficultyMultiplier: number = 1.0) {
+  public loadLevel(
+    level: LevelNode,
+    difficultyMultiplier: number = 1.0,
+    weakWords: VocabWord[] = []
+  ) {
     this.isBossLevel = level.type === 'BOSS_BATTLE';
     this.spawnInterval = Math.max(1400, (level.spawnInterval || 2200) / (difficultyMultiplier > 1 ? 1.15 : difficultyMultiplier < 1 ? 0.9 : 1.0));
     this.baseSpeed = (level.speedMultiplier || 0.6) * difficultyMultiplier;
 
-    // Duplicate words slightly if word list is short (to provide 6-8 enemies per standard level)
-    let words = [...level.words];
-    if (words.length > 0 && words.length < 6) {
-      words = [...words, ...words].slice(0, 7);
+    let baseWords: SpawnQueueItem[] = level.words.map(w => ({ ...w, isRevengeTarget: false }));
+    if (baseWords.length > 0 && baseWords.length < 6) {
+      baseWords = [...baseWords, ...baseWords].slice(0, 7);
+    }
+
+    // Adaptive Spaced Repetition: Inject 1-2 weak words from past lessons into standard levels
+    if (weakWords.length > 0 && !this.isBossLevel && level.type !== 'CHEST_REWARD') {
+      const candidates = weakWords
+        .filter(ww => !baseWords.some(bw => bw.word.toLowerCase() === ww.word.toLowerCase()))
+        .slice(0, 2);
+
+      const injectedWeak: SpawnQueueItem[] = candidates.map(w => ({
+        ...w,
+        isRevengeTarget: true
+      }));
+
+      baseWords = [...baseWords, ...injectedWeak];
     }
 
     // Shuffle words
-    this.wordsQueue = words.sort(() => Math.random() - 0.5);
+    this.wordsQueue = baseWords.sort(() => Math.random() - 0.5);
     this.totalLevelWordsCount = this.wordsQueue.length;
     this.enemies = [];
     this.spawnTimer = 600; // Spawn first enemy quickly
@@ -117,18 +138,22 @@ export class EnemySpawner {
 
     const enemy: EnemyItem = {
       id: `${vocab.id}-${Date.now()}-${Math.random()}`,
+      vocabId: vocab.id,
       word: vocab.word.toLowerCase(),
       meaningVi: vocab.meaningVi,
       emoji: vocab.emoji,
+      category: vocab.category,
+      pronunciation: vocab.pronunciation,
       typedIndex: 0,
       x: Math.round(bestX),
       y: -65,
       speed: (this.baseSpeed * sentenceSpeedAdj) + Math.random() * 0.1,
       width: Math.round(estimatedWidth),
       height: isLongSentence ? 96 : 88,
-      color: chosenColor,
+      color: vocab.isRevengeTarget ? '#f97316' : chosenColor, // Neon orange for revenge targets
       isTargeted: false,
-      shakeTime: 0
+      shakeTime: 0,
+      isRevengeTarget: vocab.isRevengeTarget || false
     };
 
     this.enemies.push(enemy);

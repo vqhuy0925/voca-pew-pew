@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { GameStats, EnemyItem } from './data/types';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { GameStats, EnemyItem, VocabWord } from './data/types';
 import { LevelNode, UserProgress, UserGender, ThemeStyle, MascotId, DailyEnergyMode } from './data/progress-types';
+import { SessionMistakeDelta } from './data/mistake-types';
 import {
   DifficultyLevel,
   DIFFICULTY_CONFIGS,
@@ -20,7 +21,9 @@ import {
   ClearRewardBreakdown,
   getEnergyCostForLevel,
   deductEnergy,
-  updateDailyEnergyMode
+  updateDailyEnergyMode,
+  getActiveWeakWords,
+  recordSessionMistakes
 } from './services/progressStorage';
 
 import { LearningPathView } from './components/path/LearningPathView';
@@ -33,6 +36,7 @@ import { ArmoryModal } from './components/modals/ArmoryModal';
 import { LeaderboardModal } from './components/modals/LeaderboardModal';
 import { AstronautCardModal } from './components/modals/AstronautCardModal';
 import { DiamondGuideModal } from './components/modals/DiamondGuideModal';
+import { MistakeVaultModal } from './components/modals/MistakeVaultModal';
 import { LeaderboardEntry } from './services/firebase/leaderboardService';
 import { GameCanvas } from './game/GameCanvas';
 import { HUD } from './components/HUD';
@@ -82,8 +86,54 @@ export const App: React.FC = () => {
   const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
   const [showAdminPortal, setShowAdminPortal] = useState<boolean>(false);
+  const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
   const pwaState = usePWAInstall();
   const [detectedBrowser, setDetectedBrowser] = useState<string>('');
+
+  // Active weak words pool for spaced repetition in regular levels
+  const activeWeakWords = useMemo(() => {
+    return getActiveWeakWords(progress, 4).map(w => ({
+      id: w.wordId,
+      word: w.word,
+      meaningVi: w.meaningVi,
+      emoji: w.emoji,
+      category: w.category || 'Phục Thù',
+      pronunciation: w.pronunciation
+    }));
+  }, [progress.mistakeMap]);
+
+  // Handle mistake tracking deltas at victory / game over
+  const handleMistakeDeltasRecorded = useCallback((deltas: SessionMistakeDelta[]) => {
+    setProgress(prev => recordSessionMistakes(prev, deltas));
+  }, []);
+
+  // Launch targeted Mistake Blitz practice mode
+  const handleStartMistakeBlitz = useCallback((blitzWords: VocabWord[]) => {
+    if (!blitzWords || blitzWords.length === 0) return;
+    const blitzLevel: LevelNode = {
+      id: `blitz-${Date.now()}`,
+      unitId: 'unit-blitz',
+      levelNumber: 99,
+      title: 'Revenge Blitz',
+      titleVi: 'Lò Rèn Phục Thù',
+      type: 'SPEED_RUSH',
+      words: blitzWords,
+      icon: '🔥',
+      bgColor: '#ea580c',
+      targetScore: blitzWords.length * 120,
+      xpReward: blitzWords.length * 25,
+      gemReward: 3,
+      speedMultiplier: 0.75,
+      spawnInterval: 1900
+    };
+
+    setSelectedLevel(blitzLevel);
+    setGameSessionId(prev => prev + 1);
+    setStats(INITIAL_STATS);
+    setActiveTarget(null);
+    setShowMistakeVaultModal(false);
+    setScreen('PLAYING');
+  }, []);
 
   // Check latest published vocab snapshot in background on startup
   useEffect(() => {
@@ -440,6 +490,7 @@ export const App: React.FC = () => {
           onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
           onOpenInstallModal={() => setShowInstallModal(true)}
           onOpenLanding={handleOpenLanding}
+          onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
           showInstallButton={pwaState.isInstallable}
         />
       )}
@@ -459,6 +510,7 @@ export const App: React.FC = () => {
             equippedShip={equippedShip}
             equippedBlaster={equippedBlaster}
             equippedLaser={equippedLaser}
+            weakWords={activeWeakWords}
             onStatsUpdate={setStats}
             onGameOver={handleGameOver}
             onVictory={handleVictory}
@@ -467,6 +519,7 @@ export const App: React.FC = () => {
             onSuggestCharChange={setSuggestedChar}
             onRegisterInputHandler={registerInputHandler}
             onTimerUpdate={handleTimerUpdate}
+            onMistakeDeltasRecorded={handleMistakeDeltasRecorded}
           />
 
           {screen === 'PLAYING' && (
@@ -669,7 +722,16 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 17. Mission Control Admin Portal (Vocab CMS & Analytics) 🛡️ */}
+      {/* 17. Mistake Vault / Lò Rèn Từ Vựng & Phục Thù Modal 🔥 */}
+      {showMistakeVaultModal && (
+        <MistakeVaultModal
+          progress={progress}
+          onStartBlitz={handleStartMistakeBlitz}
+          onClose={() => setShowMistakeVaultModal(false)}
+        />
+      )}
+
+      {/* 18. Mission Control Admin Portal (Vocab CMS & Analytics) 🛡️ */}
       <AdminPortal
         isOpen={showAdminPortal}
         onClose={() => setShowAdminPortal(false)}

@@ -1,5 +1,6 @@
 import { VocabWord } from './types';
 import { DifficultyLevel } from './upgrade-types';
+import { MistakeProgressMap } from './mistake-types';
 
 export type LevelType = 'STANDARD' | 'SPEED_RUSH' | 'BOSS_BATTLE' | 'CHEST_REWARD';
 
@@ -100,5 +101,8 @@ export interface UserProgress {
   unlockedBadgeIds?: string[];      // Array of earned badge IDs
   selectedBadgeIds?: string[];      // Up to 3 featured badge IDs for Citizen ID
   activeTitle?: string;             // Active astronaut title e.g. 'Xạ Thủ Tập Sự'
+
+  // Adaptive Learning & Mistake Mastery Engine 🎯
+  mistakeMap?: MistakeProgressMap;  // Weak words tracking
 }
 
