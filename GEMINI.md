@@ -26,3 +26,8 @@
    - Always ensure project `.npmrc` is set to `registry=https://registry.npmjs.org/`.
    - Never allow private or enterprise registry URLs into `package-lock.json`.
    - If adding or updating libraries, ensure `package-lock.json` only contains `https://registry.npmjs.org`.
+
+7. **Animation Loop Idempotency & Reward Safety (60 FPS Guarding)**:
+   - Any state transition, victory/game-over trigger, or reward payout initiated from inside a 60 FPS `requestAnimationFrame` loop MUST use synchronous immediate guards (`useRef` / boolean flags). Never rely on delayed callbacks (`setTimeout`) or asynchronous React state updates without a synchronous debounce lock.
+   - Domain reward handlers (`handleVictory`, `completeLevelProgress`) must maintain idempotent session locks to prevent multi-triggering.
+
