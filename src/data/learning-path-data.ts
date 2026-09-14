@@ -20,6 +20,8 @@ export const AGE_REALMS: AgeRealm[] = [
   REALM8_REALM
 ];
 
+export const ALL_REALMS = AGE_REALMS;
+
 export const LEARNING_UNITS: Unit[] = [
   ...REALM1_UNITS,
   ...REALM2_UNITS,
