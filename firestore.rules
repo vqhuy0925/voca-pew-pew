@@ -34,5 +34,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isOwner(userId);
     }
+
+    // Vocab Drafts: Only password-authenticated Admin can read and write
+    match /vocab_drafts/{document=**} {
+      allow read, write: if isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    // Vocab Snapshots: Public read for players, write restricted to Admin
+    match /vocab_snapshots/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
   }
 }
