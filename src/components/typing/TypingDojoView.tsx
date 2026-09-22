@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { TYPING_LESSONS, TypingLesson } from '../../data/typing-curriculum';
+import { TYPING_LESSONS, TYPING_UNITS, TypingLesson } from '../../data/typing-curriculum';
 import { TypingMetrics, TypingSessionResult } from '../../game/engine/TypingMetrics';
 import { recordTypingSessionResult } from '../../services/progressStorage';
 import { soundFx } from '../../game/engine/SoundController';
@@ -20,8 +20,11 @@ const ROW_TYPE_ICON: Record<TypingLesson['rowType'], string> = {
   top: '⬆️',
   bottom: '⬇️',
   numbers: '🔢',
-  short_words: '✍️',
-  paragraph: '📝'
+  symbols: '✨',
+  review: '🏆',
+  words: '✍️',
+  sentences: '📝',
+  paragraph: '📖'
 };
 
 const getIsLessonUnlocked = (progress: UserProgress, index: number): boolean => {
@@ -38,6 +41,22 @@ const getInitialLessonIndex = (progress: UserProgress): number => {
   return TYPING_LESSONS.length - 1;
 };
 
+const getIsUnitUnlocked = (progress: UserProgress, unitOrder: number): boolean => {
+  if (unitOrder === 0) return true;
+  const prevUnit = TYPING_UNITS[unitOrder - 1];
+  const lastLessonOfPrevUnit = TYPING_LESSONS[prevUnit.endOrder - 1];
+  return !!progress.typingProgress?.lessonProgressMap?.[lastLessonOfPrevUnit.id]?.isCompleted;
+};
+
+const getUnitCompletedCount = (progress: UserProgress, unitOrder: number): number => {
+  const unit = TYPING_UNITS[unitOrder];
+  let count = 0;
+  for (let i = unit.startOrder - 1; i < unit.endOrder; i++) {
+    if (progress.typingProgress?.lessonProgressMap?.[TYPING_LESSONS[i].id]?.isCompleted) count++;
+  }
+  return count;
+};
+
 export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
   progress,
   onUpdateProgress,
@@ -45,6 +64,7 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
   onStartParagraphMode
 }) => {
   const [lessonIndex, setLessonIndex] = useState<number>(() => getInitialLessonIndex(progress));
+  const [activeUnit, setActiveUnit] = useState<number>(() => TYPING_LESSONS[getInitialLessonIndex(progress)].unit);
   const [typedIndex, setTypedIndex] = useState(0);
   const [correctness, setCorrectness] = useState<boolean[]>([]);
   const [lastFlash, setLastFlash] = useState<TypingKeyFlash | null>(null);
@@ -69,6 +89,11 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
     const focusTimer = setTimeout(() => hiddenInputRef.current?.focus({ preventScroll: true }), 60);
     return () => clearTimeout(focusTimer);
   }, [lesson.id, lesson.practiceText]);
+
+  // Theo dõi bài học hiện tại -> tự chuyển Unit hiển thị nếu bài mới thuộc Unit khác
+  useEffect(() => {
+    setActiveUnit(lesson.unit);
+  }, [lesson.unit]);
 
   const finishLesson = useCallback(() => {
     if (hasFinishedRef.current) return;
@@ -217,9 +242,57 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
         </div>
       </div>
 
-      {/* Lesson Progress Dots */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-5">
-        {TYPING_LESSONS.map((l, idx) => {
+      {/* Overall Progress */}
+      <div className="max-w-3xl mx-auto mb-2 flex items-center justify-center">
+        <span className="text-[11px] sm:text-xs font-bold text-slate-500">
+          Bài {lesson.order}/{TYPING_LESSONS.length} · {TYPING_UNITS[activeUnit].icon} {TYPING_UNITS[activeUnit].titleVi}
+        </span>
+      </div>
+
+      {/* Unit Map — chuỗi Trạm luyện tập (17 Units, ~234 bài) */}
+      <div className="max-w-3xl mx-auto mb-3 flex items-center gap-2 overflow-x-auto pb-1.5">
+        {TYPING_UNITS.map((u) => {
+          const unlocked = getIsUnitUnlocked(progress, u.order);
+          const completedCount = unlocked ? getUnitCompletedCount(progress, u.order) : 0;
+          const isFull = completedCount === u.lessonCount;
+          const isActive = u.order === activeUnit;
+          return (
+            <button
+              key={u.id}
+              disabled={!unlocked}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!unlocked) return;
+                soundFx.playClick();
+                setActiveUnit(u.order);
+              }}
+              title={u.titleVi}
+              className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 transition ${
+                isActive
+                  ? 'bg-violet-500/25 border-violet-400 shadow-lg'
+                  : isFull
+                    ? 'bg-emerald-500/15 border-emerald-500/50'
+                    : unlocked
+                      ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
+                      : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
+              }`}
+            >
+              <span className="text-sm sm:text-base">{!unlocked ? <Lock className="w-3.5 h-3.5 text-slate-500" /> : u.icon}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-slate-300 whitespace-nowrap">{u.titleVi}</span>
+              {unlocked && (
+                <span className={`text-[10px] font-black ${isFull ? 'text-emerald-400' : 'text-slate-500'}`}>
+                  {completedCount}/{u.lessonCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Lesson Progress Dots — chỉ hiển thị các bài trong Unit đang chọn */}
+      <div className="max-w-3xl mx-auto mb-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-h-28 overflow-y-auto">
+        {TYPING_LESSONS.slice(TYPING_UNITS[activeUnit].startOrder - 1, TYPING_UNITS[activeUnit].endOrder).map((l) => {
+          const idx = l.order - 1;
           const unlocked = getIsLessonUnlocked(progress, idx);
           const isCompleted = !!progress.typingProgress?.lessonProgressMap?.[l.id]?.isCompleted;
           const isCurrent = idx === lessonIndex;
