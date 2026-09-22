@@ -6,7 +6,7 @@ import { recordTypingSessionResult } from '../../services/progressStorage';
 import { soundFx } from '../../game/engine/SoundController';
 import { VirtualKeyboardWithHands, TypingKeyFlash } from './VirtualKeyboardWithHands';
 import { TypingResultModal } from './TypingResultModal';
-import { ArrowLeft, Lock, Check } from 'lucide-react';
+import { ArrowLeft, Lock, Check, Map, X } from 'lucide-react';
 
 interface TypingDojoViewProps {
   progress: UserProgress;
@@ -65,6 +65,7 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
 }) => {
   const [lessonIndex, setLessonIndex] = useState<number>(() => getInitialLessonIndex(progress));
   const [activeUnit, setActiveUnit] = useState<number>(() => TYPING_LESSONS[getInitialLessonIndex(progress)].unit);
+  const [showPicker, setShowPicker] = useState(false);
   const [typedIndex, setTypedIndex] = useState(0);
   const [correctness, setCorrectness] = useState<boolean[]>([]);
   const [lastFlash, setLastFlash] = useState<TypingKeyFlash | null>(null);
@@ -242,94 +243,26 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
         </div>
       </div>
 
-      {/* Overall Progress */}
-      <div className="max-w-3xl mx-auto mb-2 flex items-center justify-center">
-        <span className="text-[11px] sm:text-xs font-bold text-slate-500">
-          Bài {lesson.order}/{TYPING_LESSONS.length} · {TYPING_UNITS[activeUnit].icon} {TYPING_UNITS[activeUnit].titleVi}
+      {/* Progress — 1 dòng gọn: bài hiện tại, thanh tiến độ, nút mở Lộ Trình */}
+      <div className="max-w-3xl mx-auto mb-5 flex items-center gap-2.5">
+        <button
+          onClick={(e) => { e.stopPropagation(); soundFx.playClick(); setShowPicker(true); }}
+          className="flex-shrink-0 flex items-center gap-1.5 pl-2.5 pr-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-300 hover:text-white hover:border-violet-400/60 transition active:scale-95 max-w-[55%] sm:max-w-xs"
+        >
+          <Map className="w-4 h-4 text-violet-400 flex-shrink-0" />
+          <span className="text-xs sm:text-sm font-bold truncate">{lesson.titleVi}</span>
+        </button>
+        <div className="flex-1 h-2 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-violet-500 to-cyan-400 transition-all duration-300"
+            style={{ width: `${(lesson.order / TYPING_LESSONS.length) * 100}%` }}
+          />
+        </div>
+        <span className="flex-shrink-0 text-[11px] sm:text-xs font-bold text-slate-500">
+          {lesson.order}/{TYPING_LESSONS.length}
         </span>
       </div>
 
-      {/* Unit Map — chuỗi Trạm luyện tập (17 Units, ~234 bài) */}
-      <div className="max-w-3xl mx-auto mb-3 flex items-center gap-2 overflow-x-auto pb-1.5">
-        {TYPING_UNITS.map((u) => {
-          const unlocked = getIsUnitUnlocked(progress, u.order);
-          const completedCount = unlocked ? getUnitCompletedCount(progress, u.order) : 0;
-          const isFull = completedCount === u.lessonCount;
-          const isActive = u.order === activeUnit;
-          return (
-            <button
-              key={u.id}
-              disabled={!unlocked}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!unlocked) return;
-                soundFx.playClick();
-                setActiveUnit(u.order);
-              }}
-              title={u.titleVi}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 transition ${
-                isActive
-                  ? 'bg-violet-500/25 border-violet-400 shadow-lg'
-                  : isFull
-                    ? 'bg-emerald-500/15 border-emerald-500/50'
-                    : unlocked
-                      ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
-                      : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-sm sm:text-base">{!unlocked ? <Lock className="w-3.5 h-3.5 text-slate-500" /> : u.icon}</span>
-              <span className="text-[10px] sm:text-xs font-bold text-slate-300 whitespace-nowrap">{u.titleVi}</span>
-              {unlocked && (
-                <span className={`text-[10px] font-black ${isFull ? 'text-emerald-400' : 'text-slate-500'}`}>
-                  {completedCount}/{u.lessonCount}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Lesson Progress Dots — chỉ hiển thị các bài trong Unit đang chọn */}
-      <div className="max-w-3xl mx-auto mb-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-h-28 overflow-y-auto">
-        {TYPING_LESSONS.slice(TYPING_UNITS[activeUnit].startOrder - 1, TYPING_UNITS[activeUnit].endOrder).map((l) => {
-          const idx = l.order - 1;
-          const unlocked = getIsLessonUnlocked(progress, idx);
-          const isCompleted = !!progress.typingProgress?.lessonProgressMap?.[l.id]?.isCompleted;
-          const isCurrent = idx === lessonIndex;
-          return (
-            <button
-              key={l.id}
-              disabled={!unlocked}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!unlocked) return;
-                soundFx.playClick();
-                setLessonIndex(idx);
-              }}
-              title={l.titleVi}
-              className={`flex flex-col items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl border-2 transition ${
-                isCurrent
-                  ? 'bg-violet-500/25 border-violet-400 scale-105 shadow-lg'
-                  : isCompleted
-                    ? 'bg-emerald-500/15 border-emerald-500/50'
-                    : unlocked
-                      ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
-                      : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-base sm:text-lg">
-                {!unlocked ? <Lock className="w-4 h-4 text-slate-500" /> : isCompleted ? <Check className="w-4 h-4 text-emerald-400" /> : ROW_TYPE_ICON[l.rowType]}
-              </span>
-              <span className="text-[10px] sm:text-xs font-bold text-slate-300 hidden sm:block">{l.titleVi}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Practice Text */}
-      <div className="max-w-3xl mx-auto mb-2 text-center">
-        <p className="text-sm sm:text-base text-slate-400 font-bold mb-2">{lesson.titleVi}</p>
-      </div>
       <div className="max-w-3xl mx-auto bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-6 mb-5">
         <p className="font-mono text-lg sm:text-2xl md:text-3xl tracking-wide leading-relaxed text-center break-all">
           {lesson.practiceText.split('').map((ch, i) => {
@@ -352,6 +285,100 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
       <div className="max-w-3xl mx-auto pb-6">
         <VirtualKeyboardWithHands nextChar={nextChar} lastFlash={lastFlash} />
       </div>
+
+      {showPicker && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150"
+          onClick={() => setShowPicker(false)}
+        >
+          <div
+            className="w-full max-w-lg bg-slate-950 border border-slate-800 rounded-2xl p-4 max-h-[85vh] flex flex-col shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3 flex-shrink-0">
+              <h2 className="text-sm sm:text-base font-black font-orbitron text-violet-300 tracking-wide">Lộ Trình Luyện Gõ</h2>
+              <button
+                onClick={() => { soundFx.playClick(); setShowPicker(false); }}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Units */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-2 flex-shrink-0">
+              {TYPING_UNITS.map((u) => {
+                const unlocked = getIsUnitUnlocked(progress, u.order);
+                const completedCount = unlocked ? getUnitCompletedCount(progress, u.order) : 0;
+                const isFull = completedCount === u.lessonCount;
+                const isActive = u.order === activeUnit;
+                return (
+                  <button
+                    key={u.id}
+                    disabled={!unlocked}
+                    onClick={() => { if (!unlocked) return; soundFx.playClick(); setActiveUnit(u.order); }}
+                    title={u.titleVi}
+                    className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 transition ${
+                      isActive
+                        ? 'bg-violet-500/25 border-violet-400 shadow-lg'
+                        : isFull
+                          ? 'bg-emerald-500/15 border-emerald-500/50'
+                          : unlocked
+                            ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
+                            : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className="text-sm sm:text-base">{!unlocked ? <Lock className="w-3.5 h-3.5 text-slate-500" /> : u.icon}</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-300 whitespace-nowrap">{u.titleVi}</span>
+                    {unlocked && (
+                      <span className={`text-[10px] font-black ${isFull ? 'text-emerald-400' : 'text-slate-500'}`}>
+                        {completedCount}/{u.lessonCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Lessons trong Unit đang chọn */}
+            <div className="flex flex-wrap content-start gap-2 overflow-y-auto">
+              {TYPING_LESSONS.slice(TYPING_UNITS[activeUnit].startOrder - 1, TYPING_UNITS[activeUnit].endOrder).map((l) => {
+                const idx = l.order - 1;
+                const unlocked = getIsLessonUnlocked(progress, idx);
+                const isCompleted = !!progress.typingProgress?.lessonProgressMap?.[l.id]?.isCompleted;
+                const isCurrent = idx === lessonIndex;
+                return (
+                  <button
+                    key={l.id}
+                    disabled={!unlocked}
+                    onClick={() => {
+                      if (!unlocked) return;
+                      soundFx.playClick();
+                      setLessonIndex(idx);
+                      setShowPicker(false);
+                    }}
+                    title={l.titleVi}
+                    className={`flex flex-col items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl border-2 transition ${
+                      isCurrent
+                        ? 'bg-violet-500/25 border-violet-400 scale-105 shadow-lg'
+                        : isCompleted
+                          ? 'bg-emerald-500/15 border-emerald-500/50'
+                          : unlocked
+                            ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
+                            : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg">
+                      {!unlocked ? <Lock className="w-4 h-4 text-slate-500" /> : isCompleted ? <Check className="w-4 h-4 text-emerald-400" /> : ROW_TYPE_ICON[l.rowType]}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-bold text-slate-300 hidden sm:block">{l.titleVi}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {result && (
         <TypingResultModal
