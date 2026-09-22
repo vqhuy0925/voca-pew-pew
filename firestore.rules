@@ -45,5 +45,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
     }
+
+    // Typing Dojo Paragraph Drafts: Only password-authenticated Admin can read and write
+    match /typing_paragraph_drafts/{document=**} {
+      allow read, write: if isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    // Typing Dojo Paragraph Snapshots: Public read for players, write restricted to Admin
+    match /typing_paragraph_snapshots/{document=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
   }
 }

@@ -5,7 +5,9 @@ import { getWeekIdentifier, calculateTotalStars } from './cloudSyncService';
 import { getCurrentUid, getOrInitPlayerTag } from './authService';
 import { calculateWordsMastered } from '../../data/badge-data';
 
-export type LeaderboardCategory = 'global' | 'realm' | 'weekly';
+export type LeaderboardCategory = 'global' | 'realm' | 'weekly' | 'typing_speed';
+
+export type LeaderboardSortKey = 'totalXp' | 'weeklyXp' | 'bestWpmOverall';
 
 export interface LeaderboardEntry {
   uid: string;
@@ -26,6 +28,8 @@ export interface LeaderboardEntry {
   weeklyXp: number;
   starsCount: number;
   streakDays: number;
+  bestWpmOverall: number;
+  bestAccuracyOverall: number;
   rank: number;
   isCurrentUser?: boolean;
 }
@@ -53,7 +57,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 1850,
     weeklyXp: 420,
     starsCount: 42,
-    streakDays: 8
+    streakDays: 8,
+    bestWpmOverall: 58,
+    bestAccuracyOverall: 96
   },
   {
     uid: 'bot_bapp_02',
@@ -73,7 +79,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 1620,
     weeklyXp: 380,
     starsCount: 38,
-    streakDays: 6
+    streakDays: 6,
+    bestWpmOverall: 50,
+    bestAccuracyOverall: 94
   },
   {
     uid: 'bot_soc_03',
@@ -93,7 +101,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 1450,
     weeklyXp: 350,
     starsCount: 34,
-    streakDays: 7
+    streakDays: 7,
+    bestWpmOverall: 46,
+    bestAccuracyOverall: 93
   },
   {
     uid: 'bot_long_04',
@@ -113,7 +123,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 1290,
     weeklyXp: 310,
     starsCount: 30,
-    streakDays: 5
+    streakDays: 5,
+    bestWpmOverall: 42,
+    bestAccuracyOverall: 92
   },
   {
     uid: 'bot_meow_05',
@@ -133,7 +145,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 1120,
     weeklyXp: 270,
     starsCount: 26,
-    streakDays: 4
+    streakDays: 4,
+    bestWpmOverall: 38,
+    bestAccuracyOverall: 91
   },
   {
     uid: 'bot_metr_06',
@@ -153,7 +167,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 980,
     weeklyXp: 240,
     starsCount: 24,
-    streakDays: 5
+    streakDays: 5,
+    bestWpmOverall: 36,
+    bestAccuracyOverall: 90
   },
   {
     uid: 'bot_avoc_07',
@@ -173,7 +189,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 860,
     weeklyXp: 210,
     starsCount: 20,
-    streakDays: 3
+    streakDays: 3,
+    bestWpmOverall: 32,
+    bestAccuracyOverall: 89
   },
   {
     uid: 'bot_robo_08',
@@ -193,7 +211,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 750,
     weeklyXp: 180,
     starsCount: 18,
-    streakDays: 4
+    streakDays: 4,
+    bestWpmOverall: 30,
+    bestAccuracyOverall: 88
   },
   {
     uid: 'bot_prnc_09',
@@ -213,7 +233,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 640,
     weeklyXp: 150,
     starsCount: 16,
-    streakDays: 3
+    streakDays: 3,
+    bestWpmOverall: 28,
+    bestAccuracyOverall: 87
   },
   {
     uid: 'bot_knig_10',
@@ -233,7 +255,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 530,
     weeklyXp: 130,
     starsCount: 14,
-    streakDays: 2
+    streakDays: 2,
+    bestWpmOverall: 25,
+    bestAccuracyOverall: 86
   },
   {
     uid: 'bot_bear_11',
@@ -253,7 +277,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 420,
     weeklyXp: 100,
     starsCount: 11,
-    streakDays: 2
+    streakDays: 2,
+    bestWpmOverall: 22,
+    bestAccuracyOverall: 85
   },
   {
     uid: 'bot_fire_12',
@@ -273,7 +299,9 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
     totalXp: 350,
     weeklyXp: 90,
     starsCount: 9,
-    streakDays: 1
+    streakDays: 1,
+    bestWpmOverall: 20,
+    bestAccuracyOverall: 84
   }
 ];
 
@@ -283,7 +311,7 @@ const MOCK_COSMIC_CONTENDERS: Omit<LeaderboardEntry, 'rank'>[] = [
 export const mergeCurrentUser = (
   entries: LeaderboardEntry[],
   currentProgress?: UserProgress,
-  sortKey: 'totalXp' | 'weeklyXp' = 'totalXp'
+  sortKey: LeaderboardSortKey = 'totalXp'
 ): LeaderboardEntry[] => {
   if (!currentProgress) {
     return entries
@@ -322,6 +350,8 @@ export const mergeCurrentUser = (
     weeklyXp: currentProgress.weeklyXp || 0,
     starsCount: currentStars,
     streakDays: currentProgress.streakDays || 1,
+    bestWpmOverall: currentProgress.typingProgress?.bestWpmOverall || 0,
+    bestAccuracyOverall: currentProgress.typingProgress?.bestAccuracyOverall || 0,
     rank: 0,
     isCurrentUser: true
   };
@@ -342,7 +372,7 @@ export const mergeCurrentUser = (
  */
 const deduplicateLeaderboardEntries = (
   entries: LeaderboardEntry[],
-  sortKey: 'totalXp' | 'weeklyXp'
+  sortKey: LeaderboardSortKey
 ): LeaderboardEntry[] => {
   const map = new Map<string, LeaderboardEntry>();
   for (const entry of entries) {
@@ -361,7 +391,7 @@ const deduplicateLeaderboardEntries = (
  */
 const blendMockContenders = (
   liveEntries: LeaderboardEntry[],
-  sortKey: 'totalXp' | 'weeklyXp',
+  sortKey: LeaderboardSortKey,
   minCount = 10,
   realmFilter?: string
 ): LeaderboardEntry[] => {
@@ -427,6 +457,8 @@ export const fetchGlobalLeaderboard = async (
             weeklyXp: Number(data.weeklyXp) || 0,
             starsCount: Number(data.starsCount) || 0,
             streakDays: Number(data.streakDays) || 1,
+            bestWpmOverall: Number(data.bestWpmOverall) || 0,
+            bestAccuracyOverall: Number(data.bestAccuracyOverall) || 0,
             rank: 0
           };
         });
@@ -498,6 +530,8 @@ export const fetchRealmLeaderboard = async (
             weeklyXp: Number(data.weeklyXp) || 0,
             starsCount: Number(data.starsCount) || 0,
             streakDays: Number(data.streakDays) || 1,
+            bestWpmOverall: Number(data.bestWpmOverall) || 0,
+            bestAccuracyOverall: Number(data.bestAccuracyOverall) || 0,
             rank: 0
           };
         });
@@ -584,6 +618,8 @@ export const fetchWeeklyLeaderboard = async (
             weeklyXp: Number(data.weeklyXp) || 0,
             starsCount: Number(data.starsCount) || 0,
             streakDays: Number(data.streakDays) || 1,
+            bestWpmOverall: Number(data.bestWpmOverall) || 0,
+            bestAccuracyOverall: Number(data.bestAccuracyOverall) || 0,
             rank: 0
           };
         });
@@ -603,6 +639,66 @@ export const fetchWeeklyLeaderboard = async (
   // Fallback mode
   const baseEntries = MOCK_COSMIC_CONTENDERS.map(c => ({ ...c, rank: 0 }));
   return mergeCurrentUser(baseEntries, currentProgress, 'weeklyXp');
+};
+
+/**
+ * Fetch Typing Speed Leaderboard (sorted by bestWpmOverall descending)
+ */
+export const fetchTypingSpeedLeaderboard = async (
+  limitCount = 50,
+  currentProgress?: UserProgress
+): Promise<LeaderboardEntry[]> => {
+  if (isFirebaseConfigured && db) {
+    try {
+      const q = query(
+        collection(db, 'users'),
+        orderBy('bestWpmOverall', 'desc'),
+        limit(limitCount)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const liveEntries: LeaderboardEntry[] = snap.docs.map(docSnap => {
+          const data = docSnap.data();
+          return {
+            uid: docSnap.id,
+            playerTag: data.playerTag || '#PEW-????',
+            userName: data.userName || 'Nhà Thám Hiểm',
+            avatar: data.avatar || '🚀',
+            gender: data.gender || 'neutral',
+            userAge: data.userAge,
+            selectedRealmId: data.selectedRealmId,
+            equippedShipId: data.equippedShipId || 'ship-scout',
+            equippedBlasterId: data.equippedBlasterId || 'blaster-single',
+            equippedLaserId: data.equippedLaserId || 'laser-cyan',
+            activeTitle: data.activeTitle || 'Phi Hành Gia Tập Sự',
+            unlockedBadgeIds: data.unlockedBadgeIds || [],
+            selectedBadgeIds: data.selectedBadgeIds || [],
+            wordsMastered: Number(data.wordsMastered) || 0,
+            totalXp: Number(data.totalXp) || 0,
+            weeklyXp: Number(data.weeklyXp) || 0,
+            starsCount: Number(data.starsCount) || 0,
+            streakDays: Number(data.streakDays) || 1,
+            bestWpmOverall: Number(data.bestWpmOverall) || 0,
+            bestAccuracyOverall: Number(data.bestAccuracyOverall) || 0,
+            rank: 0
+          };
+        });
+
+        // Ensure sorted by bestWpmOverall descending and deduplicated
+        liveEntries.sort((a, b) => b.bestWpmOverall - a.bestWpmOverall);
+        const deduplicated = deduplicateLeaderboardEntries(liveEntries, 'bestWpmOverall');
+
+        const blended = blendMockContenders(deduplicated, 'bestWpmOverall', 10);
+        return mergeCurrentUser(blended, currentProgress, 'bestWpmOverall');
+      }
+    } catch (err) {
+      console.warn('[Leaderboard] Typing speed fetch failed, using fallback:', err);
+    }
+  }
+
+  // Fallback mode
+  const baseEntries = MOCK_COSMIC_CONTENDERS.map(c => ({ ...c, rank: 0 }));
+  return mergeCurrentUser(baseEntries, currentProgress, 'bestWpmOverall');
 };
 
 /**

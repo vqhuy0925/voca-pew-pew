@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { Award, Sparkles, Rocket, Trophy, ArrowRight, CheckCircle } from 'lucide-react';
+import { Award, Sparkles, Rocket, Trophy, ArrowRight, CheckCircle, Keyboard } from 'lucide-react';
 import { AgeRealm } from '../../data/chapters/types';
 import { UserProgress } from '../../data/progress-types';
 import { soundFx } from '../../game/engine/SoundController';
+import { isTypingDiplomaEligible, getTypingDiplomaAccuracyThreshold } from '../../data/typing-curriculum';
+import { parseTargetWpmFloor } from '../../game/engine/TypingMetrics';
 
 interface GraduationModalProps {
   realm: AgeRealm;
@@ -37,6 +39,11 @@ export const GraduationModal: React.FC<GraduationModalProps> = ({
     month: '2-digit',
     year: 'numeric'
   });
+
+  const typingDiplomaEarned = !!progress.typingProgress?.earnedTypingDiplomaRealmIds?.includes(realm.id);
+  const typingDiplomaEligibleNow = isTypingDiplomaEligible(realm, progress.typingProgress);
+  const typingWpmFloor = parseTargetWpmFloor(realm.targetWpm);
+  const typingAccuracyThreshold = getTypingDiplomaAccuracyThreshold(realm.id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/90 backdrop-blur-xl select-none animate-in fade-in zoom-in-95 duration-300">
@@ -94,6 +101,31 @@ export const GraduationModal: React.FC<GraduationModalProps> = ({
 
           <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-300 font-black">
             <CheckCircle className="w-4 h-4 text-emerald-400" /> Đã mở khóa Danh hiệu & Cánh cổng Thiên hà mới!
+          </div>
+        </div>
+
+        {/* Typing Dojo Diploma Section (Chứng Chỉ Gõ 10 Ngón ⌨️) */}
+        <div className={`w-full rounded-2xl p-3.5 sm:p-4 mb-5 border-2 flex items-center gap-3 text-left ${
+          typingDiplomaEarned
+            ? 'bg-violet-500/10 border-violet-400/60'
+            : 'bg-slate-950/60 border-slate-700/80'
+        }`}>
+          <div className={`p-2.5 rounded-xl border flex-shrink-0 ${
+            typingDiplomaEarned
+              ? 'bg-violet-500/20 border-violet-400/60 text-violet-300'
+              : 'bg-slate-900 border-slate-700 text-slate-500'
+          }`}>
+            <Keyboard className="w-5 h-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className={`font-game font-black text-sm sm:text-base ${typingDiplomaEarned ? 'text-violet-300' : 'text-slate-300'}`}>
+              {typingDiplomaEarned ? 'Đã Đạt Chứng Chỉ Gõ 10 Ngón! ⌨️' : 'Chứng Chỉ Gõ 10 Ngón (Chưa Đạt)'}
+            </div>
+            <div className="text-xs text-slate-400 font-medium mt-0.5">
+              {typingDiplomaEarned
+                ? `Tốc độ gõ tốt nhất: ${Math.round(progress.typingProgress?.bestWpmOverall || 0)} WPM • Chính xác: ${Math.round(progress.typingProgress?.bestAccuracyOverall || 0)}%`
+                : `Cần đạt tối thiểu ${typingWpmFloor} WPM và ${typingAccuracyThreshold}% chính xác ở Typing Dojo${typingDiplomaEligibleNow ? ' — Sắp đạt rồi!' : ''}`}
+            </div>
           </div>
         </div>
 

@@ -1,135 +1,138 @@
-# Intent: Xây dựng Trang Admin Quản trị Từ Vựng & Analytics Người Dùng qua Firebase
+# Intent: Typing Dojo — Module Luyện Gõ 10 Ngón Độc Lập
 
-> **Giai đoạn**: Stage 1 - Plan (Intent Capture)  
-> **Dự án**: Vocab Pew Pew (`vocab-pew-pew`)  
-> **Người đề xuất**: Product Owner / Tech Lead  
+> **Giai đoạn**: Stage 1 - Plan (Intent Capture)
+> **Dự án**: Vocab Pew Pew (`vocab-pew-pew`)
+> **Người đề xuất**: Product Owner
 > **Trạng thái**: Chờ duyệt (Pending PO Review)
+> **Cảm hứng**: Các tính năng luyện gõ 10 ngón kiểu littlecat.vn/typing (bài học theo hàng phím, bàn phím ảo có ngón tay, gõ theo đoạn văn, đo tốc độ WPM)
 
 ---
 
 ## 1. Bối cảnh & Vấn đề (Problem Statement)
 
-1. **Dữ liệu từ vựng bị tĩnh (Hardcoded in Client Codebase)**:
-   - Toàn bộ từ vựng, phiên âm IPA, dịch nghĩa tiếng Việt, emoji, danh mục chủ đề và 8 Realm hiện đang được khai báo tĩnh trong các file TypeScript (`src/data/chapters/`, `src/data/vocab-levels.ts`).
-   - Mỗi lần muốn bổ sung từ mới, sửa lỗi chính tả/nghĩa tiếng Việt, tinh chỉnh độ khó hoặc tạo màn chơi mới đều yêu cầu kỹ sư can thiệp vào code và deploy lại toàn bộ ứng dụng web.
-   - Chưa có giao diện trực quan dành cho người quản trị nội dung / giáo viên để thêm, sửa, xóa, tìm kiếm và kiểm tra phát âm của từ vựng.
+1. **Gõ phím hiện tại chỉ phục vụ mục tiêu ghi nhớ từ vựng, không rèn kỹ năng gõ 10 ngón**:
+   - Cơ chế gõ trong `InputHandler.ts` + `EnemySpawner.ts` là "gõ để bắn từ rơi" — tối ưu cho việc học từ mới, không rèn tư thế đặt ngón tay hay phản xạ gõ theo hàng phím (home row → top row → bottom row).
+   - `finger-guide.ts` đã có sẵn bảng map phím → tay/ngón/màu, nhưng mới dùng làm badge gợi ý nhỏ (`FingerGuideBadge.tsx`) trong lúc chơi, chưa có bàn phím ảo full-size trực quan hoá 2 bàn tay.
 
-2. **Thiếu cái nhìn trực quan về hành vi và tiến độ học tập của người dùng (Lack of Analytics Dashboard)**:
-   - Mặc dù hệ thống đã có tính năng Cloud Sync đẩy dữ liệu tiến độ người chơi lên Firestore collection `users` (`src/services/firebase/cloudSyncService.ts`), dữ liệu này chỉ mới phục vụ việc đồng bộ cá nhân và bảng xếp hạng tuần (Leaderboard).
-   - Chưa có trung tâm theo dõi (Dashboard) để quan sát:
-     - Số lượng người học tích cực (DAU / WAU).
-     - Tỷ lệ vượt qua các Realm & Chapter (Drop-off Rate / Phễu học tập).
-     - Thống kê phân bố độ tuổi, cấp độ, số từ đã thành thạo (Words Mastered), chuỗi ngày học (Streak).
-     - Danh sách học viên và hoạt động gần nhất để hỗ trợ học viên khi gặp sự cố đồng bộ.
+2. **Chưa có thước đo tốc độ gõ chuẩn (WPM/Accuracy)**:
+   - `mistake-types.ts` (MistakeVault) chỉ đếm `typoCount`, `breachCount`, `consecutiveCleanClears` theo từng từ vựng — không có khái niệm WPM/CPM hay % chính xác theo phiên gõ liên tục.
+
+3. **Chưa có chế độ gõ theo đoạn văn/câu dài liền mạch**:
+   - Toàn bộ trải nghiệm hiện tại xoay quanh từ đơn rơi từ trên xuống. Không có chế độ hiển thị một đoạn văn cố định để gõ theo, với con trỏ nhảy theo ký tự đúng/sai — kiểu bài luyện gõ đoạn văn kinh điển.
+
+4. **Chưa hỗ trợ luyện gõ tiếng Việt có dấu**:
+   - Bàn phím vật lý không có phím dấu; cần một bộ gõ (đã chốt: **Telex**) để học sinh luyện gõ tiếng Việt có dấu (phục vụ Realm 8 — hội thoại đời sống, và nhu cầu gõ tiếng Việt nói chung).
 
 ---
 
 ## 2. Mục tiêu & Kết quả mong đợi (Desired Outcomes)
 
-### A. Phân hệ Quản trị Từ vựng (Vocabulary CMS Portal)
-- **Quản lý phân cấp học tập**: Duyệt và chỉnh sửa danh mục theo cây cấu trúc `Realm` $\rightarrow$ `Unit` $\rightarrow$ `Chapter` $\rightarrow$ `Level` $\rightarrow$ `Word`.
-- **Thao tác Từ vựng (CRUD & Phonics)**:
-  - Thêm, sửa, xóa từ vựng (Word, Meaning Vi, Category, Phonics/Word Family, Emoji, Audio Pronunciation preview).
-  - Tích hợp tính năng thử nghe phát âm trực tiếp ngay trên trang Admin bằng Web Speech API (`SpeechHelper.ts`).
-- **Import / Export linh hoạt**:
-  - Hỗ trợ xuất dữ liệu ra file JSON / CSV để sao lưu hoặc biên tập hàng loạt.
-  - Hỗ trợ nhập (Import/Batch Upload) từ vựng từ file CSV/Excel/JSON để tiết kiệm thời gian nhập liệu.
-- **Cơ chế Hybrid Cloud & Offline Resilience**:
-  - Khi online: Ưu tiên tải dữ liệu từ vựng cập nhật mới nhất từ Firestore (kèm caching thông minh vào LocalStorage/IndexedDB).
-  - Khi offline hoặc Firebase bị ngắt kết nối: Ứng dụng tự động fallback về ngân hàng từ vựng tĩnh có sẵn trong mã nguồn, đảm bảo trò chơi không bao giờ bị gián đoạn.
+### A. Vị trí sản phẩm (đã chốt cùng PO)
+- **Tách thành mode độc lập "⌨️ Typing Dojo"**, không nhúng vào Saga Map hiện tại — vì kỹ năng gõ 10 ngón không phụ thuộc độ tuổi/Realm (Realm 1 và Realm 8 học cùng bộ bài home-row/top-row/bottom-row).
+- Truy cập qua nút riêng ở `LandingPage.tsx` / `TopNavBar.tsx`, ngang hàng với nút vào Saga Map.
+- Tiến trình Typing Dojo lưu riêng (không trộn với `progress-types.ts` hiện tại của Saga Map), theo đúng invariant "Progress & Storage Resilience" (luôn có fallback mặc định khi field mới chưa tồn tại trong `localStorage` cũ).
+- Nội dung đoạn văn ở chế độ Paragraph Mode **vẫn lấy ngữ liệu theo Realm hiện tại của người chơi** (bé nhỏ → câu chuyện ngắn; Realm 7/8 → hội thoại PO/công sở) để không tách rời hoàn toàn khỏi hành trình học từ vựng.
 
-### B. Phân hệ Thống kê & Phân tích Học tập (User & Learning Analytics)
-- **Tổng quan chỉ số chính (Executive KPIs)**:
-  - Tổng số học viên đã đăng ký / tham gia hệ thống.
-  - Active Users (DAU theo ngày, WAU theo tuần).
-  - Tổng số từ vựng toàn hệ thống đã được ghi nhớ thành công.
-  - Phân bổ người học theo Realm (Realm 1 đến Realm 8).
-- **Phân tích hành vi & Hiệu quả học tập**:
-  - Biểu đồ phân bổ sao, XP, streak học tập trung bình.
-  - Theo dõi tỷ lệ hoàn thành theo từng Realm để phát hiện các bài học quá khó hoặc gây nản lòng (Choke points).
-- **Danh sách & Chi tiết Người học (User Explorer)**:
-  - Bảng danh sách học viên (Player Tag, Tên, Tuổi, Realm đang học, Tổng XP, Sao, Ngày hoạt động cuối).
-  - Khả năng lọc, tìm kiếm theo `playerTag` hoặc `userName`.
-  - Xem chi tiết tiến độ từng level của học viên để hỗ trợ giải đáp phụ huynh/học sinh.
+### B. Giáo trình gõ 10 ngón (Structured Typing Curriculum)
+- Chuỗi bài học tuần tự: **Home Row → Top Row → Bottom Row → Số/Ký tự đặc biệt → Cụm từ ngắn → Đoạn văn dài**.
+- Mỗi bài học hiển thị bàn phím ảo có 2 bàn tay, sáng ngón cần dùng dựa trên `finger-guide.ts` (mở rộng thêm, không viết lại từ đầu).
 
-### C. Phân quyền & Bảo mật (Access Control & Security)
-- Phân định rõ ràng giữa người học (Player) và người quản trị (Admin).
-- Cổng đăng nhập Admin an toàn (Firebase Auth Email/Password hoặc Whitelist Admin UID) với màn hình đăng nhập chuyên biệt, không ảnh hưởng đến giao diện Arcade của học sinh.
+### C. Đo lường tốc độ & độ chính xác (Typing Metrics)
+- Công thức WPM chuẩn ngành (đã chốt): `WPM = (số ký tự gõ đúng / 5) / số phút`.
+- Theo dõi: WPM hiện tại, WPM tốt nhất, Accuracy %, lỗi hay gặp theo phím (không chỉ theo từ như MistakeVault hiện tại).
+
+### D. Chế độ gõ theo đoạn văn (Paragraph Mode)
+- Hiển thị đoạn văn cố định, highlight ký tự hiện tại, tô đỏ ký tự gõ sai, cho phép backspace sửa.
+- "Speed Rush gõ câu": biến thể tính giờ, đo WPM thay vì combo điểm.
+
+### E. Chế độ gõ tiếng Việt (Vietnamese Telex Mode)
+- Bộ gõ **Telex** (đã chốt): `as → á`, `w → ư/ơ`, `dd → đ`, v.v.
+- Cần lớp compose-buffer riêng xử lý chuỗi phím liên tiếp thành ký tự có dấu, tách biệt hoàn toàn khỏi luồng gõ tiếng Anh của game bắn từ (không ảnh hưởng `InputHandler.ts` hiện tại).
+- Mở rộng `finger-guide.ts` để gợi ý ngón tay cho các tổ hợp phím tạo dấu Telex.
+
+### F. Gắn vào vòng lặp thưởng đã có (Reuse, không xây mới)
+- Daily Quest kiểu "Gõ đạt X WPM hôm nay" trong `DailyQuestModal`.
+- Leaderboard riêng "Tốc độ gõ" cạnh leaderboard điểm hiện tại (`leaderboardService.ts`).
+- Diploma mới trong `GraduationModal`: "Chứng chỉ gõ 10 ngón" khi đạt ngưỡng WPM + accuracy ổn định.
+- MistakeVault hiển thị thêm "phím hay gõ sai" bên cạnh "từ hay sai".
 
 ---
 
 ## 3. Phạm vi hệ thống & Kiến trúc bị ảnh hưởng (Affected Systems)
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          Vocab Pew Pew Web App                         │
-├───────────────────────────────────┬────────────────────────────────────┤
-│         🎮 Player Arcade App       │        🛡️ Admin & Analytics Portal  │
-│  - Learning Path & Game Canvas    │  - Vocab CMS (CRUD / Import/Export)│
-│  - Offline Fallback Vocab Data    │  - Realtime & Batch Analytics      │
-│  - Cloud Sync (User Progress)     │  - User Explorer & Health Monitor  │
-└─────────────────┬─────────────────┴──────────────────┬─────────────────┘
-                  │                                    │
-                  ▼                                    ▼
-       ┌─────────────────────────────────────────────────────┐
-       │                 Firebase Cloud Engine               │
-       ├──────────────────┬────────────────┬─────────────────┤
-       │  Firebase Auth   │ Firestore DB   │ Firebase        │
-       │  (Player & Admin)│ - users        │ Analytics       │
-       │                  │ - vocab_realms │ (Custom Events) │
-       │                  │ - vocab_words  │                 │
-       │                  │ - system_meta  │                 │
-       └──────────────────┴────────────────┴─────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          Vocab Pew Pew Web App                           │
+├────────────────────────────┬──────────────────────┬──────────────────────┤
+│   🎮 Saga Map (hiện có)     │  ⌨️ Typing Dojo (MỚI)  │  🛡️ Admin Portal      │
+│  - Gõ để bắn từ vựng rơi   │  - Giáo trình hàng phím│  (không đổi)         │
+│  - MistakeVault theo từ    │  - Paragraph Mode      │                      │
+│  - Leaderboard điểm số     │  - Vietnamese Telex    │                      │
+│                            │  - WPM/Accuracy Metrics│                      │
+└─────────────┬──────────────┴───────────┬────────────┴──────────────────────┘
+              │                          │
+              ▼                          ▼
+   progress-types.ts /          typingProgress (MỚI, tách riêng)
+   progressStorage.ts           trong progressStorage.ts
 ```
 
-1. **Client Frontend**:
-   - Thêm module giao diện Admin (có thể tải lười - Lazy Loading để giữ bundle ban đầu của game siêu nhẹ).
-   - Component Admin Dashboard, Vocab Manager, Analytics Charts, User Explorer.
-   - Thêm bộ điều hướng bảo vệ (Route/State guard) cho Admin.
-2. **Data & Services Layer**:
-   - `src/services/firebase/adminAuthService.ts`: Xử lý xác thực Admin.
-   - `src/services/firebase/vocabAdminService.ts`: Đọc/Ghi dữ liệu từ vựng lên Firestore.
-   - `src/services/firebase/analyticsService.ts`: Truy vấn và tổng hợp số liệu người dùng từ Firestore `users` collection và Firebase Analytics.
-   - `src/services/vocabLoader.ts`: Cung cấp cơ chế tải từ vựng linh hoạt (Cloud First $\rightarrow$ Cache $\rightarrow$ Fallback Static).
+**Module mới dự kiến** (đặt tên sơ bộ, chốt chi tiết ở `spec.md`):
+- `src/game/engine/TypingMetrics.ts`: tính WPM/CPM/Accuracy, dùng chung cho mọi chế độ.
+- `src/game/engine/TelexComposer.ts`: xử lý compose-buffer bộ gõ Telex.
+- `src/data/typing-curriculum.ts`: định nghĩa các bài học theo hàng phím.
+- `src/components/typing/VirtualKeyboardWithHands.tsx`: bàn phím ảo 2 bàn tay, tô sáng ngón theo `finger-guide.ts`.
+- `src/components/typing/TypingDojoView.tsx`, `ParagraphTypingView.tsx`: màn hình luyện tập.
+- Mở rộng `progress-types.ts`, `progressStorage.ts`: thêm `TypingProgress` (WPM history, accuracy, unlocked lessons).
+
+**Module tái sử dụng, chỉ mở rộng**:
+- `finger-guide.ts` (thêm tổ hợp Telex).
+- `DailyQuestModal`, `GraduationModal`, `LeaderboardModal`, `leaderboardService.ts`, `MistakeVaultModal`.
 
 ---
 
-## 4. Ràng buộc & Bất biến (Constraints & Invariants)
+## 4. Ràng buộc & Bất biến (Constraints & Invariants — tuân thủ `GEMINI.md`)
 
-1. **Tuân thủ quy chuẩn dự án (`GEMINI.md`)**:
-   - **Zero External Audio Assets**: Tiếp tục sử dụng Web Speech API (`SpeechHelper.ts`) cho tính năng preview phát âm của Admin, không tải các file mp3 ngoài.
-   - **Strict TypeScript & Type Integrity**: Khai báo type an toàn, không sử dụng `any`, đảm bảo `npm run build` không lỗi.
-   - **Kid-Friendly & Responsive Ergonomics**: Giao diện Admin chuyên nghiệp nhưng nhất quán về phong cách thiết kế không gian vũ trụ, hỗ trợ tốt cả iPad/Tablet lẫn Desktop/Laptop.
-2. **Tối ưu chi phí & Quota Firestore**:
-   - Truy vấn Firestore có giới hạn (`limit`, `pagination`), tránh `getDocs` quét toàn bộ cơ sở dữ liệu không cần thiết.
-   - Sử dụng Cache thông minh cho dữ liệu từ vựng (chỉ tải lại khi có phiên bản `vocab_version` mới).
-3. **An toàn tiến độ người chơi (Progress Resilience)**:
-   - Các thay đổi về cấu trúc từ vựng không được làm hỏng tiến độ đã lưu trong LocalStorage hay Firestore của các học sinh hiện tại.
+1. **Zero External Audio Assets**: mọi âm thanh gõ phím (tick, lỗi, hoàn thành bài) tổng hợp qua `SoundController.ts` hiện có, không thêm file mp3/wav.
+2. **Strict TypeScript & Type Integrity**: không dùng `any`, `npm run build` phải 0 lỗi.
+3. **Separation of Concerns**: logic đo lường/compose (`TypingMetrics.ts`, `TelexComposer.ts`) tách khỏi component React; không đụng vào `GameCanvas.tsx`/`InputHandler.ts` của Saga Map trừ khi thật cần thiết (mục tiêu: Typing Dojo là module song song, không phải refactor game bắn từ).
+4. **Progress & Storage Resilience**: `TypingProgress` mới phải có fallback mặc định an toàn khi field chưa tồn tại ở người dùng cũ.
+5. **Kid-Friendly UX & Accessibility**: bàn phím ảo 2 bàn tay phải responsive tốt trên iPad/tablet, giữ phong cách không gian vũ trụ nhất quán với toàn app.
+6. **Animation Loop Idempotency**: nếu Speed Rush gõ câu dùng `requestAnimationFrame` để đếm giờ, phải dùng guard đồng bộ (`useRef`) khi trigger kết thúc phiên/thưởng, không dùng `setTimeout` đơn thuần.
 
 ---
 
-## 5. Câu hỏi mở & Lựa chọn kiến trúc cần thống nhất (Open Questions & Trade-offs)
+## 5. Quyết định đã chốt cùng PO
 
-> [!IMPORTANT]
-> **Câu hỏi 1: Cơ chế xác thực Admin (Admin Authentication Strategy)**
-> - **Lựa chọn A (Khuyến nghị)**: Đăng nhập Firebase Auth (Email/Password) kết hợp danh sách Whitelist Admin Emails/UIDs trong Firestore hoặc biến môi trường `VITE_ADMIN_EMAILS`.
-> - **Lựa chọn B**: Sử dụng mã PIN/Secret Key nội bộ lưu trong Environment Variables (Đơn giản, nhanh, nhưng ít bảo mật hơn nếu lộ key trên client).
-> - **Lựa chọn C**: Tích hợp Firebase Custom Claims (Cần Cloud Functions hoặc backend riêng).
+| # | Câu hỏi | Quyết định |
+|---|---|---|
+| 1 | Vị trí đặt tính năng | Mode độc lập "Typing Dojo", không nhúng vào Saga Map; nội dung đoạn văn vẫn theo Realm hiện tại của người chơi |
+| 2 | Công thức WPM | Chuẩn ngành: `(ký tự đúng / 5) / phút` |
+| 3 | Có cần gõ tiếng Việt? | Có |
+| 4 | Bộ gõ tiếng Việt | Telex |
+| 5 | Unlock progression | Mở khoá Typing Dojo ngay từ đầu, độc lập hoàn toàn với tiến độ Saga Map |
+| 6 | Nguồn đoạn văn luyện tập | Tự động sinh từ từ vựng đã học trong `chapters/`, đồng thời cho phép Admin **sửa/xoá/thêm thủ công** qua Admin Portal (giống pattern draft/publish của `vocabAdminService.ts`) |
+| 7 | Ngưỡng diploma "Gõ 10 ngón" | Xem bảng chuẩn quốc tế theo Realm ở mục 6 bên dưới (điều chỉnh được sau khi có dữ liệu thật từ Analytics Dashboard) |
 
-> [!TIP]
-> **Câu hỏi 2: Mô hình phát hành từ vựng lên ứng dụng học sinh (Vocab Deployment Workflow)**
-> - **Lựa chọn A (Live Sync)**: Thay đổi trên Admin được ghi trực tiếp vào Firestore `vocab_words`, client học sinh tự động nhận từ mới khi mở app.
-> - **Lựa chọn B (Staging & Publish Snapshot - Khuyến nghị)**: Admin biên tập nháp trên Firestore, sau đó bấm nút "Publish Version" tạo snapshot mới. Client chỉ tải snapshot mới khi có phiên bản cập nhật.
-> - **Lựa chọn C (CMS Export to Code)**: Admin chỉnh sửa và kiểm tra trực quan, sau đó xuất ra file `.ts` / `.json` để commit vào repository (đảm bảo 100% offline và 0 quota read Firestore).
+## 6. Ngưỡng Diploma "Chứng Chỉ Gõ 10 Ngón" theo Realm
 
-> [!NOTE]
-> **Câu hỏi 3: Phương thức thu thập Analytics**
-> - **Lựa chọn A (Khuyến nghị)**: Tổng hợp trực tiếp từ collection `users` hiện tại (đã có sẵn XP, level, sao, streak, realm, wordsMastered, lastActiveDate) để cung cấp dashboard thống kê tức thì không cần thêm cấu hình phức tạp.
-> - **Lựa chọn B (Mở rộng thêm)**: Gắn thêm các custom events qua `getAnalytics()` (`level_failed`, `word_typed_incorrect`) để xem report chuyên sâu trên Google Analytics Console.
+**Phát hiện quan trọng khi rà soát code**: `AgeRealm` (`src/data/chapters/types.ts`) **đã có sẵn field `targetWpm`** được điền giá trị thực tế ở cả 8 realm (ví dụ Realm 1: `'15 - 25 WPM'`, Realm 6: `'65 - 85+ WPM'`) nhưng chưa được dùng ở đâu trong code — rõ ràng tính năng đo WPM đã được tính trước trong data model. Do đó ngưỡng diploma dưới đây **lấy trực tiếp cận dưới của `targetWpm` có sẵn**, không tự đặt số mới, để tránh 2 nguồn số liệu khác nhau. Accuracy tham khảo thang chuẩn quốc tế (typing.com/TypingClub), tăng dần theo độ khó nội dung của Realm.
+
+| Realm | `targetWpm` có sẵn trong code | Ngưỡng diploma (WPM tối thiểu) | Ngưỡng Accuracy |
+|---|---|---|---|
+| 1 | 15 - 25 WPM | 15 | 85% |
+| 2 | 25 - 35 WPM | 25 | 88% |
+| 3 | 30 - 45 WPM | 30 | 90% |
+| 4 | 40 - 55 WPM | 40 | 90% |
+| 5 | 50 - 65 WPM | 50 | 92% |
+| 6 | 65 - 85+ WPM | 65 | 93% |
+| 7 | 35 - 55+ WPM | 35 | 95% |
+| 8 | 35 - 55+ WPM | 35 | 95% |
+
+**Hệ quả kỹ thuật bổ sung**: `TypingMetrics.ts`/`typing-curriculum.ts` nên đọc `targetWpm` trực tiếp từ `AgeRealm` (parse cận dưới của chuỗi, vd `'15 - 25 WPM'` → `15`) thay vì hard-code lại bảng riêng, để một nguồn dữ liệu duy nhất luôn nhất quán giữa Saga Map và Typing Dojo. Admin Portal cần thêm 1 tab "Đoạn Văn Luyện Gõ" (`TypingParagraphManager.tsx` + `typingParagraphAdminService.ts`), theo đúng luồng Staging & Publish Snapshot đã dùng cho Vocab — đoạn văn tự sinh lưu draft trên Firestore, Admin chỉnh sửa rồi publish snapshot xuống client.
 
 ---
 
-## 6. Tiêu chí nghiệm thu (Acceptance Criteria)
+## 7. Tiêu chí nghiệm thu (Acceptance Criteria)
 
-- [ ] Bản `intent.md` được thống nhất về phương hướng triển khai.
-- [ ] Chuyển tiếp sang **Stage 2 (Design - `spec.md`)** để đặc tả chi tiết giao diện wireframe, Data Schema Firestore, API Contracts và Security Rules.
+- [x] Bản `intent.md` được thống nhất về phương hướng triển khai (tất cả câu hỏi mở đã chốt).
+- [ ] Chuyển tiếp sang **Stage 2 (Design - `spec.md`)** để đặc tả chi tiết: wireframe Typing Dojo UI, cấu trúc dữ liệu `TypingProgress`/`typing-curriculum.ts`, luật compose Telex đầy đủ, schema Firestore cho đoạn văn luyện gõ, và API `typingParagraphAdminService.ts`.

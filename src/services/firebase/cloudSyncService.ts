@@ -114,6 +114,8 @@ export const queueCloudSync = (progress: UserProgress) => {
         legendaryUnitsCount: Object.keys(progress.legendaryUnitsMap || {}).length,
         legendaryUnitsMap: progress.legendaryUnitsMap || {},
         dailyQuestProgress: progress.dailyQuestProgress || null,
+        bestWpmOverall: progress.typingProgress?.bestWpmOverall || 0,
+        bestAccuracyOverall: progress.typingProgress?.bestAccuracyOverall || 0,
         lastActiveDate: progress.lastActiveDate,
         lastWeeklyReset: weekId,
         updatedAt: serverTimestamp()

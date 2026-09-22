@@ -5,6 +5,9 @@ import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
 import { checkAndUnlockBadges, DEFAULT_TITLE } from '../data/badge-data';
 import { WordMistakeRecord, MistakeProgressMap, SessionMistakeDelta, MasteryStatus } from '../data/mistake-types';
+import { DEFAULT_TYPING_PROGRESS, TypingProgress, TypingLessonProgress, TYPING_WPM_HISTORY_CAP } from '../data/typing-progress-types';
+import { MistakeKeyCount } from '../game/engine/TypingMetrics';
+import { isTypingDiplomaEligible } from '../data/typing-curriculum';
 
 const STORAGE_KEY = 'vocab_pew_pew_user_progress_v2';
 
@@ -102,7 +105,10 @@ export const getInitialUserProgress = (): UserProgress => {
     activeTitle: DEFAULT_TITLE,
 
     // Adaptive Learning Mistake Engine
-    mistakeMap: {}
+    mistakeMap: {},
+
+    // Typing Dojo — module luyện gõ 10 ngón độc lập ⌨️
+    typingProgress: { ...DEFAULT_TYPING_PROGRESS }
   };
 };
 
@@ -344,6 +350,11 @@ export const loadUserProgress = (): UserProgress => {
     parsed.selectedBadgeIds = Array.isArray(parsed.selectedBadgeIds) ? parsed.selectedBadgeIds : [];
     // Ensure Mistake Map (Adaptive Learning Engine)
     parsed.mistakeMap = parsed.mistakeMap && typeof parsed.mistakeMap === 'object' ? parsed.mistakeMap : {};
+
+    // Ensure Typing Dojo progress (Progress & Storage Resilience — safe fallback for old localStorage data)
+    parsed.typingProgress = parsed.typingProgress && typeof parsed.typingProgress === 'object'
+      ? { ...DEFAULT_TYPING_PROGRESS, ...parsed.typingProgress }
+      : { ...DEFAULT_TYPING_PROGRESS };
 
     // Evaluate badges for past achievements
     const { updatedProgress } = checkAndUnlockBadges(parsed);
@@ -818,6 +829,156 @@ export const resetWordMastery = (
     ...prev,
     mistakeMap
   };
+  saveUserProgress(updated);
+  return updated;
+};
+
+// ==========================================
+// TYPING DOJO — MODULE LUYỆN GÕ 10 NGÓN ⌨️
+// ==========================================
+
+export interface TypingSessionResultInput {
+  lessonId?: string;               // set khi phiên gõ thuộc 1 bài trong TYPING_LESSONS
+  wpm: number;
+  accuracy: number;
+  mistakeKeys: MistakeKeyCount[];
+  minAccuracyToPass?: number;      // ngưỡng qua bài, dùng khi lessonId có giá trị (mặc định 80)
+}
+
+const getSafeTypingProgress = (prev: UserProgress): TypingProgress => {
+  return prev.typingProgress && typeof prev.typingProgress === 'object'
+    ? { ...DEFAULT_TYPING_PROGRESS, ...prev.typingProgress }
+    : { ...DEFAULT_TYPING_PROGRESS };
+};
+
+const getOrCreateTodayDailyQuest = (prev: UserProgress): DailyQuestProgress => {
+  const todayStr = getTodayDateString();
+  return prev.dailyQuestProgress?.date === todayStr
+    ? { ...prev.dailyQuestProgress }
+    : {
+        date: todayStr,
+        mistakesReviewedCount: 0,
+        threeStarEarnedCount: 0,
+        levelsPlayedCount: 0,
+        claimedReward: false
+      };
+};
+
+/**
+ * Ghi nhận kết quả 1 phiên gõ (Curriculum Lesson hoặc Paragraph/Speed Rush) vào TypingProgress:
+ * cập nhật bestWpm/bestAccuracy, wpmHistory, keyMistakeMap, lessonProgressMap (nếu có lessonId)
+ * và đánh dấu Daily Quest "Hoàn thành 1 phiên Typing Dojo hôm nay".
+ */
+export const recordTypingSessionResult = (
+  prev: UserProgress,
+  input: TypingSessionResultInput
+): UserProgress => {
+  const current = getSafeTypingProgress(prev);
+
+  const safeWpm = Math.max(0, Math.round(input.wpm) || 0);
+  const safeAccuracy = Math.max(0, Math.min(100, Math.round(input.accuracy) || 0));
+
+  const keyMistakeMap = { ...current.keyMistakeMap };
+  (input.mistakeKeys || []).forEach(({ key, count }) => {
+    if (!key) return;
+    keyMistakeMap[key] = (keyMistakeMap[key] || 0) + count;
+  });
+
+  const today = getTodayDateString();
+  const wpmHistory = [
+    ...current.wpmHistory,
+    { date: today, wpm: safeWpm, accuracy: safeAccuracy }
+  ].slice(-TYPING_WPM_HISTORY_CAP);
+
+  let lessonProgressMap = current.lessonProgressMap;
+  if (input.lessonId) {
+    const existing: TypingLessonProgress = lessonProgressMap[input.lessonId] || {
+      lessonId: input.lessonId,
+      isCompleted: false,
+      bestWpm: 0,
+      bestAccuracy: 0,
+      attempts: 0
+    };
+    const passed = safeAccuracy >= (input.minAccuracyToPass ?? 80);
+    lessonProgressMap = {
+      ...lessonProgressMap,
+      [input.lessonId]: {
+        ...existing,
+        isCompleted: existing.isCompleted || passed,
+        bestWpm: Math.max(existing.bestWpm, safeWpm),
+        bestAccuracy: Math.max(existing.bestAccuracy, safeAccuracy),
+        attempts: existing.attempts + 1,
+        lastPlayedAt: Date.now()
+      }
+    };
+  }
+
+  const currentDailyQuest = getOrCreateTodayDailyQuest(prev);
+  currentDailyQuest.typingSessionCompleted = true;
+
+  const updatedTyping: TypingProgress = {
+    ...current,
+    lastActiveMode: 'dojo',
+    lessonProgressMap,
+    bestWpmOverall: Math.max(current.bestWpmOverall, safeWpm),
+    bestAccuracyOverall: Math.max(current.bestAccuracyOverall, safeAccuracy),
+    wpmHistory,
+    keyMistakeMap
+  };
+
+  console.info(`[TypingDojo:recordSession] Lesson: ${input.lessonId || 'paragraph'} | WPM: ${safeWpm} | Accuracy: ${safeAccuracy}% | Best WPM: ${updatedTyping.bestWpmOverall}`);
+
+  const updated: UserProgress = {
+    ...prev,
+    typingProgress: updatedTyping,
+    dailyQuestProgress: currentDailyQuest
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+/**
+ * Ghi nhớ tab cuối cùng người dùng chọn (Saga Map / Typing Dojo) để mở lại đúng chỗ lần sau.
+ */
+export const updateTypingLastActiveMode = (
+  prev: UserProgress,
+  mode: 'saga' | 'dojo'
+): UserProgress => {
+  const current = getSafeTypingProgress(prev);
+  const updated: UserProgress = {
+    ...prev,
+    typingProgress: { ...current, lastActiveMode: mode }
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
+/**
+ * Cấp "Chứng Chỉ Gõ 10 Ngón" cho 1 Realm nếu đủ điều kiện (bestWpmOverall/bestAccuracyOverall
+ * đạt ngưỡng ở `typing-curriculum.ts`) và chưa từng được cấp trước đó. Không làm gì nếu chưa
+ * đủ điều kiện hoặc đã cấp rồi (tránh ghi thừa vào localStorage/Firestore).
+ */
+export const awardTypingDiplomaIfEligible = (
+  prev: UserProgress,
+  realmId: string
+): UserProgress => {
+  const current = getSafeTypingProgress(prev);
+  if (current.earnedTypingDiplomaRealmIds.includes(realmId)) return prev;
+
+  const realm = getRealmById(realmId);
+  if (!isTypingDiplomaEligible(realm, current)) return prev;
+
+  const updated: UserProgress = {
+    ...prev,
+    typingProgress: {
+      ...current,
+      earnedTypingDiplomaRealmIds: [...current.earnedTypingDiplomaRealmIds, realmId]
+    }
+  };
+
+  console.info(`[TypingDojo:awardDiploma] Realm: ${realmId} | Best WPM: ${current.bestWpmOverall} | Best Accuracy: ${current.bestAccuracyOverall}%`);
+
   saveUserProgress(updated);
   return updated;
 };

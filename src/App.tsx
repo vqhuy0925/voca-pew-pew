@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo, Suspense, lazy } from 'react';
 import { GameStats, EnemyItem, VocabWord } from './data/types';
 import { LevelNode, UserProgress, UserGender, ThemeStyle, MascotId, DailyEnergyMode } from './data/progress-types';
 import { SessionMistakeDelta } from './data/mistake-types';
@@ -23,7 +23,8 @@ import {
   deductEnergy,
   updateDailyEnergyMode,
   getActiveWeakWords,
-  recordSessionMistakes
+  recordSessionMistakes,
+  updateTypingLastActiveMode
 } from './services/progressStorage';
 
 import { LearningPathView } from './components/path/LearningPathView';
@@ -55,7 +56,21 @@ import { LandingPage } from './components/landing/LandingPage';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { checkAndUpdateVocabSnapshot } from './services/vocabLoader';
 
-type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL';
+// Lazy-loaded Typing Dojo module — keeps the Saga Map's initial bundle lean (Application Integration §6)
+const TypingDojoView = lazy(() =>
+  import('./components/typing/TypingDojoView').then(m => ({ default: m.TypingDojoView }))
+);
+const ParagraphTypingView = lazy(() =>
+  import('./components/typing/ParagraphTypingView').then(m => ({ default: m.ParagraphTypingView }))
+);
+
+const TypingDojoLoadingFallback: React.FC = () => (
+  <div className="w-full h-full flex items-center justify-center bg-space-dark text-violet-300 font-game">
+    <span className="text-lg font-black animate-pulse">⌨️ Đang tải Typing Dojo...</span>
+  </div>
+);
+
+type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL' | 'DOJO' | 'DOJO_PARAGRAPH';
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -239,6 +254,23 @@ export const App: React.FC = () => {
 
   const handleOpenLanding = useCallback(() => {
     setScreen('LANDING');
+  }, []);
+
+  const handleOpenTypingDojo = useCallback(() => {
+    handleUpdateProgress(prev => {
+      const withLanding = prev.hasSeenLanding ? prev : { ...prev, hasSeenLanding: true };
+      return updateTypingLastActiveMode(withLanding, 'dojo');
+    });
+    setScreen('DOJO');
+  }, [handleUpdateProgress]);
+
+  const handleExitTypingDojo = useCallback(() => {
+    handleUpdateProgress(prev => updateTypingLastActiveMode(prev, 'saga'));
+    setScreen('MAP');
+  }, [handleUpdateProgress]);
+
+  const handleStartParagraphMode = useCallback(() => {
+    setScreen('DOJO_PARAGRAPH');
   }, []);
 
   const handleOpenLeaderboard = useCallback(() => {
@@ -496,8 +528,29 @@ export const App: React.FC = () => {
           onStartJourney={handleStartFromLanding}
           onOpenProfile={() => setShowProfileModal(true)}
           onOpenAdmin={() => setShowAdminPortal(true)}
+          onOpenTypingDojo={handleOpenTypingDojo}
           isReturningUser={Boolean(progress.hasSeenLanding)}
         />
+      )}
+
+      {/* 1b. Typing Dojo — module luyện gõ 10 ngón độc lập ⌨️ */}
+      {(screen === 'DOJO' || screen === 'DOJO_PARAGRAPH') && (
+        <Suspense fallback={<TypingDojoLoadingFallback />}>
+          {screen === 'DOJO' ? (
+            <TypingDojoView
+              progress={progress}
+              onUpdateProgress={handleUpdateProgress}
+              onExit={handleExitTypingDojo}
+              onStartParagraphMode={handleStartParagraphMode}
+            />
+          ) : (
+            <ParagraphTypingView
+              progress={progress}
+              onUpdateProgress={handleUpdateProgress}
+              onExit={handleExitTypingDojo}
+            />
+          )}
+        </Suspense>
       )}
 
       {/* 1. Learning Saga Path View */}
@@ -516,6 +569,7 @@ export const App: React.FC = () => {
           onOpenInstallModal={() => setShowInstallModal(true)}
           onOpenLanding={handleOpenLanding}
           onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
+          onOpenTypingDojo={handleOpenTypingDojo}
           showInstallButton={pwaState.isInstallable}
         />
       )}
@@ -752,6 +806,10 @@ export const App: React.FC = () => {
         <MistakeVaultModal
           progress={progress}
           onStartBlitz={handleStartMistakeBlitz}
+          onOpenTypingDojo={() => {
+            setShowMistakeVaultModal(false);
+            handleOpenTypingDojo();
+          }}
           onClose={() => setShowMistakeVaultModal(false)}
         />
       )}

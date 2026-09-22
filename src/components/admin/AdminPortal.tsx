@@ -10,12 +10,14 @@ import {
   RefreshCw,
   CheckCircle2,
   AlertCircle,
-  Home
+  Home,
+  FileText
 } from 'lucide-react';
 import { AdminLoginModal } from './AdminLoginModal';
 import { VocabManager } from './VocabManager';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { UserExplorer } from './UserExplorer';
+import { TypingParagraphManager } from './TypingParagraphManager';
 import {
   subscribeAdminAuth,
   adminSignOut,
@@ -35,7 +37,7 @@ import { getCurrentSnapshotVersion } from '../../services/vocabLoader';
 import { AgeRealm } from '../../data/chapters/types';
 import { soundFx } from '../../game/engine/SoundController';
 
-type AdminTab = 'VOCAB' | 'ANALYTICS' | 'USERS';
+type AdminTab = 'VOCAB' | 'TYPING_PARAGRAPH' | 'ANALYTICS' | 'USERS';
 
 interface AdminPortalProps {
   isOpen: boolean;
@@ -221,6 +223,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
           <button
             onClick={() => {
               soundFx.playClick();
+              setActiveTab('TYPING_PARAGRAPH');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              activeTab === 'TYPING_PARAGRAPH'
+                ? 'bg-violet-500 text-slate-950 shadow-[0_0_12px_rgba(139,92,246,0.4)]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>📝 Đoạn Văn Luyện Gõ</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundFx.playClick();
               setActiveTab('ANALYTICS');
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
@@ -285,6 +302,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
           Từ Vựng
         </button>
         <button
+          onClick={() => setActiveTab('TYPING_PARAGRAPH')}
+          className={`flex-1 py-1.5 text-center text-xs font-bold rounded-lg ${
+            activeTab === 'TYPING_PARAGRAPH' ? 'bg-violet-500 text-slate-950' : 'text-slate-400'
+          }`}
+        >
+          Đoạn Văn
+        </button>
+        <button
           onClick={() => setActiveTab('ANALYTICS')}
           className={`flex-1 py-1.5 text-center text-xs font-bold rounded-lg ${
             activeTab === 'ANALYTICS' ? 'bg-cyan-500 text-slate-950' : 'text-slate-400'
@@ -326,6 +351,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
                 adminEmail={authState.email || 'admin'}
                 onPublishClick={handlePublishSnapshot}
               />
+            )}
+
+            {activeTab === 'TYPING_PARAGRAPH' && (
+              <TypingParagraphManager adminEmail={authState.email || 'admin'} />
             )}
 
             {activeTab === 'ANALYTICS' && (

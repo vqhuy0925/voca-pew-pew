@@ -1,20 +1,40 @@
-# Nhiệm vụ Triển Khai (Tasks)
+# Nhiệm vụ Triển Khai (Tasks) — Typing Dojo
 
-- [x] **1. Firebase Services & Data Layer**
-  - [x] Tạo `src/services/firebase/adminAuthService.ts` (Login Email/Password, Sign Out, Auth State)
-  - [x] Tạo `src/services/firebase/vocabAdminService.ts` (Drafts CRUD, Publish Snapshot, Import/Export)
-  - [x] Tạo `src/services/firebase/analyticsAdminService.ts` (Fetch Users, Aggregate KPIs, Realm Stats)
-  - [x] Tạo `src/services/vocabLoader.ts` (Snapshot check, local caching, fallback loader)
-- [x] **2. Admin UI Components**
-  - [x] Tạo `src/components/admin/AdminLoginModal.tsx`
-  - [x] Tạo `src/components/admin/WordEditorModal.tsx` (kèm Web Speech audio test)
-  - [x] Tạo `src/components/admin/VocabManager.tsx` (Tree navigation, Level/Word CRUD, Batch Import/Export)
-  - [x] Tạo `src/components/admin/AnalyticsDashboard.tsx` (KPIs, Charts, Distribution)
-  - [x] Tạo `src/components/admin/UserExplorer.tsx` (User list, Search, Detail Modal)
-  - [x] Tạo `src/components/admin/AdminPortal.tsx` (Container & Navigation)
-- [x] **3. Application Integration**
-  - [x] Tích hợp phím tắt mở Admin Portal (`Ctrl+Shift+A` / `Cmd+Shift+A`) trong `App.tsx`
-  - [x] Thêm nút truy cập Admin trong `LandingPage.tsx`
-  - [x] Cập nhật `App.tsx` sử dụng `vocabLoader` và kiểm tra snapshot background
-- [x] **4. Verification & Testing**
-  - [x] Chạy `npm run build` kiểm tra TypeScript & Vite compilation (0 errors)
+- [x] **1. Data & Types Layer**
+  - [x] Tạo `src/data/typing-progress-types.ts` (`TypingProgress`, `DEFAULT_TYPING_PROGRESS`)
+  - [x] Tạo `src/data/typing-curriculum.ts` (`TYPING_LESSONS` — 6 bài Home→Paragraph)
+  - [x] Tạo `src/data/typing-paragraph-types.ts` (`TypingParagraph` + doc schemas)
+  - [x] Mở rộng `src/data/progress-types.ts` (`typingProgress?`, `typingSessionCompleted?`)
+- [x] **2. Game Engine Layer**
+  - [x] Tạo `src/game/engine/TypingMetrics.ts` (WPM/Accuracy/mistake keys/`parseTargetWpmFloor`)
+  - [x] Tạo `src/game/engine/TelexComposer.ts` (compose-buffer theo bảng luật Telex)
+- [x] **3. Services Layer**
+  - [x] Tạo `src/services/firebase/typingParagraphAdminService.ts` (Draft/Publish Snapshot)
+  - [x] Tạo `src/services/typingParagraphLoader.ts` (Snapshot check, cache, auto-gen fallback)
+  - [x] Mở rộng `src/services/progressStorage.ts` (đọc/ghi `typingProgress` an toàn)
+  - [x] Mở rộng `src/services/firebase/leaderboardService.ts` (`fetchTypingSpeedLeaderboard`)
+  - [x] Mở rộng `src/services/firebase/cloudSyncService.ts` (sync `bestWpmOverall`/`bestAccuracyOverall`)
+- [x] **4. Typing Dojo UI Components**
+  - [x] Tạo `src/components/typing/VirtualKeyboardWithHands.tsx`
+  - [x] Tạo `src/components/typing/TypingDojoView.tsx`
+  - [x] Tạo `src/components/typing/ParagraphTypingView.tsx` (kèm biến thể Speed Rush)
+  - [x] Tạo `src/components/typing/TypingResultModal.tsx`
+- [x] **5. Admin Portal Extension**
+  - [x] Tạo `src/components/admin/TypingParagraphManager.tsx`
+  - [x] Mở rộng `src/components/admin/AdminPortal.tsx` (tab "Đoạn Văn Luyện Gõ")
+- [x] **6. Application Integration**
+  - [x] Mở rộng `src/components/landing/LandingPage.tsx` (nút vào Typing Dojo)
+  - [x] Mở rộng `src/components/path/TopNavBar.tsx` (chuyển nhanh Saga ↔ Dojo)
+  - [x] Mở rộng `src/App.tsx` (screen `DOJO`/`DOJO_PARAGRAPH`, lazy-load Typing Dojo)
+  - [x] Mở rộng `src/components/modals/DailyQuestModal.tsx` (quest phiên gõ hằng ngày)
+  - [x] Mở rộng `src/components/modals/GraduationModal.tsx` (diploma gõ 10 ngón)
+  - [x] Mở rộng `src/components/modals/LeaderboardModal.tsx` (tab Tốc Độ Gõ)
+  - [x] Mở rộng `src/components/modals/MistakeVaultModal.tsx` (tab Phím Hay Gõ Sai)
+  - [x] Cập nhật `firestore.rules` (rule cho `typing_paragraph_drafts`/`typing_paragraph_snapshots`)
+- [ ] **7. Tests**
+  - [ ] Tạo `src/tests/telexComposer.test.ts`
+  - [ ] Tạo `src/tests/typingMetrics.test.ts`
+- [ ] **8. Verification & Testing**
+  - [ ] Chạy `npm run build` kiểm tra TypeScript & Vite compilation (0 errors)
+  - [ ] Chạy test suite đầy đủ (Telex, Metrics, + 2 suite cũ không bị ảnh hưởng)
+  - [ ] Kiểm thử thủ công đầy đủ theo mục "Manual Verification" trong `plan.md`

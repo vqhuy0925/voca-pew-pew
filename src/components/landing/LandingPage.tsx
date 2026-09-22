@@ -21,6 +21,7 @@ interface LandingPageProps {
   onStartJourney: () => void;
   onOpenProfile?: () => void;
   onOpenAdmin?: () => void;
+  onOpenTypingDojo?: () => void;
   isReturningUser?: boolean;
 }
 
@@ -29,6 +30,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onStartJourney,
   onOpenProfile,
   onOpenAdmin,
+  onOpenTypingDojo,
   isReturningUser = false
 }) => {
   const [isMuted, setIsMuted] = useState<boolean>(() => !progress.soundEnabled);
@@ -67,6 +69,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     } else {
       soundFx.playWrong();
     }
+  };
+
+  const handleOpenTypingDojo = () => {
+    soundFx.playClick();
+    if (onOpenTypingDojo) onOpenTypingDojo();
   };
 
   const handleDemoSpeak = (e: React.MouseEvent) => {
@@ -110,6 +117,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             >
               {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
             </button>
+
+            {onOpenTypingDojo && (
+              <button
+                onClick={handleOpenTypingDojo}
+                className="btn-3d btn-3d-purple px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-md"
+                title="Luyện Gõ 10 Ngón"
+              >
+                <Keyboard className="w-4 h-4" />
+                <span className="hidden sm:inline">Typing Dojo</span>
+              </button>
+            )}
 
             <button
               onClick={handleStart}
@@ -212,6 +230,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span>{isReturningUser ? 'TIẾP TỤC HỌC TẬP' : 'BẮT ĐẦU KHÁM PHÁ NGAY'}</span>
             <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
           </button>
+
+          {onOpenTypingDojo && (
+            <button
+              onClick={handleOpenTypingDojo}
+              className="btn-3d btn-3d-purple w-full py-3 sm:py-3.5 px-8 rounded-2xl text-sm sm:text-base font-black tracking-wider flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(147,51,234,0.3)]"
+            >
+              <Keyboard className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+              <span>LUYỆN GÕ 10 NGÓN (TYPING DOJO)</span>
+            </button>
+          )}
 
           <p className="text-xs sm:text-sm text-slate-400">
             ⚡ 100% Miễn phí • Không cần đăng ký • Chơi được trên Máy tính & iPad

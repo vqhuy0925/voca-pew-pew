@@ -22,7 +22,7 @@ import {
   Award
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
-import { claimDailyQuestReward, graduateRealm } from '../../services/progressStorage';
+import { claimDailyQuestReward, graduateRealm, awardTypingDiplomaIfEligible } from '../../services/progressStorage';
 
 interface LearningPathViewProps {
   progress: UserProgress;
@@ -39,6 +39,7 @@ interface LearningPathViewProps {
   onOpenLanding?: () => void;
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
+  onOpenTypingDojo?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -59,6 +60,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenInstallModal,
   onOpenLanding,
   onOpenMistakeVault,
+  onOpenTypingDojo,
   showInstallButton
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
@@ -180,6 +182,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenLanding={onOpenLanding}
         onOpenMistakeVault={onOpenMistakeVault}
         onOpenDailyQuests={() => setShowDailyQuestModal(true)}
+        onOpenTypingDojo={onOpenTypingDojo}
         showInstallButton={showInstallButton}
       />
 
@@ -294,6 +297,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
               <button
                 onClick={() => {
                   soundFx.playVictory();
+                  onUpdateProgress(prev => awardTypingDiplomaIfEligible(prev, currentRealm.id));
                   setShowGraduationModal(true);
                 }}
                 className="py-3 px-6 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-game font-black text-sm sm:text-base rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.6)] active:scale-95 transition cursor-pointer flex items-center justify-center gap-2 mx-auto animate-pulse"
@@ -345,6 +349,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           progress={progress}
           onClaimDailyReward={handleClaimDailyQuest}
           onOpenMistakeVault={onOpenMistakeVault}
+          onOpenTypingDojo={onOpenTypingDojo}
           onClose={() => setShowDailyQuestModal(false)}
         />
       )}

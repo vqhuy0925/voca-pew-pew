@@ -1,6 +1,7 @@
 import { VocabWord } from './types';
 import { DifficultyLevel } from './upgrade-types';
 import { MistakeProgressMap } from './mistake-types';
+import { TypingProgress } from './typing-progress-types';
 
 export type LevelType = 'STANDARD' | 'SPEED_RUSH' | 'BOSS_BATTLE' | 'CHEST_REWARD';
 
@@ -51,6 +52,7 @@ export interface DailyQuestProgress {
   threeStarEarnedCount: number;  // Goal: 1
   levelsPlayedCount: number;     // Goal: 2
   claimedReward: boolean;
+  typingSessionCompleted?: boolean; // Goal: hoàn thành 1 phiên Typing Dojo hôm nay
 }
 
 export type UserGender = 'boy' | 'girl' | 'neutral';
@@ -120,6 +122,9 @@ export interface UserProgress {
   graduatedRealmIds?: string[];     // Array of graduated realm IDs (e.g. ['realm-1'])
   legendaryUnitsMap?: Record<string, boolean>; // Map of unitId -> isLegendary
   dailyQuestProgress?: DailyQuestProgress; // Today's 3-step quest progress
+
+  // Typing Dojo — module luyện gõ 10 ngón độc lập ⌨️
+  typingProgress?: TypingProgress;
 }
 
 

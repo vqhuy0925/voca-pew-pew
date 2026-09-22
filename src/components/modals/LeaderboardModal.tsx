@@ -6,6 +6,7 @@ import {
   fetchGlobalLeaderboard,
   fetchRealmLeaderboard,
   fetchWeeklyLeaderboard,
+  fetchTypingSpeedLeaderboard,
   LeaderboardEntry,
   LeaderboardCategory
 } from '../../services/firebase/leaderboardService';
@@ -18,7 +19,8 @@ import {
   Crown,
   Medal,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Keyboard
 } from 'lucide-react';
 
 interface LeaderboardModalProps {
@@ -50,6 +52,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
         data = await fetchGlobalLeaderboard(50, progress);
       } else if (activeTab === 'realm') {
         data = await fetchRealmLeaderboard(selectedRealmId, 50, progress);
+      } else if (activeTab === 'typing_speed') {
+        data = await fetchTypingSpeedLeaderboard(50, progress);
       } else {
         data = await fetchWeeklyLeaderboard(50, progress);
       }
@@ -74,6 +78,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
 
   const currentRealm = useMemo(() => getRealmById(selectedRealmId), [selectedRealmId]);
   const userEntry = useMemo(() => entries.find(e => e.isCurrentUser), [entries]);
+
+  const getScoreLabel = (entry: LeaderboardEntry): string => {
+    if (activeTab === 'typing_speed') return `${Math.round(entry.bestWpmOverall).toLocaleString()} WPM`;
+    if (activeTab === 'weekly') return `${entry.weeklyXp.toLocaleString()} XP`;
+    return `${entry.totalXp.toLocaleString()} XP`;
+  };
 
   // Strict Top 8 Capping: Top 3 on Podium, Ranks 4 to 8 in List
   const top8Entries = useMemo(() => entries.slice(0, 8), [entries]);
@@ -154,6 +164,18 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
             <span className="text-xs">🪐</span>
             <span>Cùng Cấp Độ</span>
           </button>
+
+          <button
+            onClick={() => handleTabChange('typing_speed')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-orbitron font-extrabold text-xs sm:text-sm transition cursor-pointer border ${
+              activeTab === 'typing_speed'
+                ? 'bg-violet-500/25 border-violet-400 text-violet-300 shadow-md shadow-violet-500/20'
+                : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+            }`}
+          >
+            <Keyboard className="w-3.5 h-3.5 text-violet-400" />
+            <span>Tốc Độ Gõ</span>
+          </button>
         </div>
 
         {/* Realm Selector Chips (Only visible in Realm tab) */}
@@ -221,7 +243,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                           <span>#2</span>
                         </div>
                         <div className="font-orbitron font-extrabold text-amber-300 text-xs sm:text-sm">
-                          {activeTab === 'weekly' ? `${top2.weeklyXp.toLocaleString()} XP` : `${top2.totalXp.toLocaleString()} XP`}
+                          {getScoreLabel(top2)}
                         </div>
                       </div>
                     </div>
@@ -253,7 +275,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                         <span>#1 QUÁN QUÂN</span>
                       </div>
                       <div className="font-orbitron font-black text-yellow-400 text-sm sm:text-base">
-                        {activeTab === 'weekly' ? `${top1.weeklyXp.toLocaleString()} XP` : `${top1.totalXp.toLocaleString()} XP`}
+                        {getScoreLabel(top1)}
                       </div>
                     </div>
                   </div>
@@ -282,7 +304,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                           <span>#3</span>
                         </div>
                         <div className="font-orbitron font-extrabold text-amber-300 text-xs sm:text-sm">
-                          {activeTab === 'weekly' ? `${top3.weeklyXp.toLocaleString()} XP` : `${top3.totalXp.toLocaleString()} XP`}
+                          {getScoreLabel(top3)}
                         </div>
                       </div>
                     </div>
@@ -294,7 +316,6 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
               <div className="space-y-1.5 pt-1">
                 {restEntries.map((entry) => {
                   const isUser = entry.isCurrentUser;
-                  const xpValue = activeTab === 'weekly' ? entry.weeklyXp : entry.totalXp;
 
                   return (
                     <div
@@ -340,15 +361,19 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
                         </div>
                       </div>
 
-                      {/* Right: XP Score */}
+                      {/* Right: Score */}
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <Zap className={`w-3.5 h-3.5 ${activeTab === 'weekly' ? 'text-amber-400 fill-amber-400' : 'text-cyan-400 fill-cyan-400'}`} />
+                        {activeTab === 'typing_speed' ? (
+                          <Keyboard className="w-3.5 h-3.5 text-violet-400" />
+                        ) : (
+                          <Zap className={`w-3.5 h-3.5 ${activeTab === 'weekly' ? 'text-amber-400 fill-amber-400' : 'text-cyan-400 fill-cyan-400'}`} />
+                        )}
                         <span
                           className={`font-orbitron font-black text-xs sm:text-sm ${
-                            activeTab === 'weekly' ? 'text-amber-400' : 'text-cyan-400'
+                            activeTab === 'typing_speed' ? 'text-violet-400' : activeTab === 'weekly' ? 'text-amber-400' : 'text-cyan-400'
                           }`}
                         >
-                          {xpValue.toLocaleString()} XP
+                          {getScoreLabel(entry)}
                         </span>
                       </div>
                     </div>
@@ -384,10 +409,12 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1 text-right">
               <div className="text-[10px] text-slate-400 font-black uppercase font-orbitron">
-                {activeTab === 'weekly' ? 'XP Tuần' : 'Tổng XP'}
+                {activeTab === 'typing_speed' ? 'WPM Tốt Nhất' : activeTab === 'weekly' ? 'XP Tuần' : 'Tổng XP'}
               </div>
-              <div className="font-orbitron font-black text-xs sm:text-sm text-amber-400">
-                {activeTab === 'weekly'
+              <div className={`font-orbitron font-black text-xs sm:text-sm ${activeTab === 'typing_speed' ? 'text-violet-400' : 'text-amber-400'}`}>
+                {activeTab === 'typing_speed'
+                  ? `${Math.round(progress.typingProgress?.bestWpmOverall || 0).toLocaleString()} WPM`
+                  : activeTab === 'weekly'
                   ? `${(progress.weeklyXp || 0).toLocaleString()} XP`
                   : `${(progress.totalXp || 0).toLocaleString()} XP`}
               </div>

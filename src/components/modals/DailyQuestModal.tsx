@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Flame, Target, Star, Rocket, CheckCircle2, Gift, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Flame, Target, Star, Rocket, CheckCircle2, Gift, Sparkles, ArrowRight, Keyboard } from 'lucide-react';
 import { UserProgress, DailyQuestProgress } from '../../data/progress-types';
 import { soundFx } from '../../game/engine/SoundController';
 
@@ -7,6 +7,7 @@ interface DailyQuestModalProps {
   progress: UserProgress;
   onClaimDailyReward: () => void;
   onOpenMistakeVault?: () => void;
+  onOpenTypingDojo?: () => void;
   onClose: () => void;
 }
 
@@ -14,6 +15,7 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
   progress,
   onClaimDailyReward,
   onOpenMistakeVault,
+  onOpenTypingDojo,
   onClose
 }) => {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -30,9 +32,11 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
   const isMistakeDone = questData.mistakesReviewedCount >= 5;
   const isThreeStarDone = questData.threeStarEarnedCount >= 1;
   const isPlayDone = questData.levelsPlayedCount >= 2;
+  const isTypingDone = !!questData.typingSessionCompleted;
 
-  const completedCount = (isMistakeDone ? 1 : 0) + (isThreeStarDone ? 1 : 0) + (isPlayDone ? 1 : 0);
-  const isAllCompleted = completedCount === 3;
+  const totalQuestCount = 4;
+  const completedCount = (isMistakeDone ? 1 : 0) + (isThreeStarDone ? 1 : 0) + (isPlayDone ? 1 : 0) + (isTypingDone ? 1 : 0);
+  const isAllCompleted = completedCount === totalQuestCount;
   const canClaim = isAllCompleted && !questData.claimedReward;
 
   const handleClaim = () => {
@@ -70,12 +74,12 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
           <div className="flex-1">
             <div className="flex justify-between text-xs font-black mb-1.5">
               <span className="text-slate-300">Tiến Độ Hôm Nay</span>
-              <span className="text-amber-300">{completedCount}/3 Nhiệm Vụ</span>
+              <span className="text-amber-300">{completedCount}/{totalQuestCount} Nhiệm Vụ</span>
             </div>
             <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
               <div
                 className="h-full bg-gradient-to-r from-amber-400 to-yellow-300 transition-all duration-300 rounded-full"
-                style={{ width: `${(completedCount / 3) * 100}%` }}
+                style={{ width: `${(completedCount / totalQuestCount) * 100}%` }}
               />
             </div>
           </div>
@@ -173,6 +177,46 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
             <span className="text-xs font-black text-amber-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 shrink-0">
               {Math.min(questData.levelsPlayedCount, 2)}/2
             </span>
+          </div>
+
+          {/* Quest 4: Typing Dojo Session */}
+          <div className={`p-3.5 rounded-2xl border transition ${
+            isTypingDone
+              ? 'bg-emerald-950/30 border-emerald-500/50'
+              : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+          } flex items-center justify-between gap-3`}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/40 flex-shrink-0">
+                <Keyboard className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-game font-black text-sm text-white flex items-center gap-1.5">
+                  Phi Công Bàn Phím
+                  {isTypingDone && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                </div>
+                <div className="text-xs text-slate-300 truncate">
+                  Hoàn thành 1 phiên Typing Dojo hôm nay
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-black text-amber-300 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+                {isTypingDone ? 1 : 0}/1
+              </span>
+              {!isTypingDone && onOpenTypingDojo && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenTypingDojo();
+                  }}
+                  className="p-1.5 rounded-lg bg-violet-500 hover:bg-violet-400 text-slate-950 font-black text-xs transition cursor-pointer"
+                  title="Đi đến Typing Dojo"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

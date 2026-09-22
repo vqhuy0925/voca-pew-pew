@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle, Keyboard } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -20,6 +20,7 @@ interface TopNavBarProps {
   onOpenLanding?: () => void;
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
+  onOpenTypingDojo?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -37,6 +38,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenLanding,
   onOpenMistakeVault,
   onOpenDailyQuests,
+  onOpenTypingDojo,
   showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
@@ -173,6 +175,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                   {weakWordsCount}
                 </span>
               )}
+            </button>
+          )}
+
+          {/* Typing Dojo Quick Switch ⌨️ */}
+          {onOpenTypingDojo && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenTypingDojo();
+              }}
+              className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-400/50 border-b-2 sm:border-b-3 border-b-violet-800 rounded-xl sm:rounded-2xl text-violet-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-violet-300 flex items-center justify-center gap-1 shrink-0"
+              title="Luyện Gõ 10 Ngón (Typing Dojo)"
+            >
+              <Keyboard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-300 shrink-0" />
+              <span>Dojo</span>
             </button>
           )}
 
