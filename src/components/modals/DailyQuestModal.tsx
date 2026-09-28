@@ -169,7 +169,7 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
                   {isPlayDone && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
                 </div>
                 <div className="text-xs text-slate-300 truncate">
-                  Hoàn thành 2 màn chơi bất kỳ
+                  Hoàn thành 2 bài học bất kỳ
                 </div>
               </div>
             </div>

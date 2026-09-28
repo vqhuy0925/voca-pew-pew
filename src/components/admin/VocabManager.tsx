@@ -101,7 +101,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
   };
 
   const handleDeleteWord = (wordId: string) => {
-    if (!window.confirm('Bạn có chắc muốn xóa từ vựng này khỏi màn chơi?')) return;
+    if (!window.confirm('Bạn có chắc muốn xóa từ vựng này khỏi bài học?')) return;
     soundFx.playClick();
 
     const updatedRealms = realms.map((realm) => {
@@ -306,7 +306,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
             <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-bold text-white">Chương & Màn Chơi</span>
+                <span className="text-sm font-bold text-white">Chương & Bài Học</span>
               </div>
               <span className="text-xs text-slate-400">
                 {units.length} Units • {units.reduce((acc, u) => acc + (u.levels || []).length, 0)} Levels
@@ -365,7 +365,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
             {/* Levels Selector */}
             <div className="space-y-2 pt-2 border-t border-slate-800">
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Chọn Màn Chơi (Level):
+                Chọn Bài Học (Level):
               </label>
               <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                 {levels.map((lvl) => {
@@ -413,8 +413,8 @@ export const VocabManager: React.FC<VocabManagerProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <span>{currentLevel?.icon || '🎮'}</span>
-                  <span>{currentLevel?.titleVi || currentLevel?.title || 'Chưa chọn màn chơi'}</span>
+                  <span>{currentLevel?.icon || '🎯'}</span>
+                  <span>{currentLevel?.titleVi || currentLevel?.title || 'Chưa chọn bài học'}</span>
                   <span className="text-xs font-normal text-slate-400">({words.length} từ vựng)</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">

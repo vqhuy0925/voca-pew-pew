@@ -226,7 +226,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               className={`w-full py-4 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-orbitron font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 ${theme.buttonBorder} active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider`}
             >
               <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
-              <span>CHƠI LẠI</span>
+              <span>LUYỆN LẠI</span>
             </button>
           )}
 
@@ -240,7 +240,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 className="flex-1 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>CHƠI LẠI</span>
+                <span>LUYỆN LẠI</span>
               </button>
             )}
 

@@ -375,7 +375,7 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
                       <div className="font-mono font-bold text-amber-300 mt-0.5">{dq.threeStarEarnedCount}/1</div>
                     </div>
                     <div className="p-2 bg-slate-900/60 rounded-xl border border-slate-800">
-                      <div className="text-slate-400 text-[10px]">Chơi 2 Màn</div>
+                      <div className="text-slate-400 text-[10px]">Hoàn thành 2 Bài</div>
                       <div className="font-mono font-bold text-emerald-300 mt-0.5">{dq.levelsPlayedCount}/2</div>
                     </div>
                   </div>

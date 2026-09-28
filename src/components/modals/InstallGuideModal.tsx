@@ -68,7 +68,7 @@ export const InstallGuideModal: React.FC<InstallGuideModalProps> = ({
           Đưa App Ra Màn Hình Chính
         </h2>
         <p className="text-xs sm:text-sm text-slate-300 mt-1 mb-4">
-          Tạo phím tắt ra màn hình chính — chơi mượt toàn màn hình không có thanh URL!
+          Tạo phím tắt ra màn hình chính — học mượt mà toàn màn hình không có thanh URL!
         </p>
 
         {/* Native 1-Click Install Button if supported by browser */}
@@ -146,7 +146,7 @@ export const InstallGuideModal: React.FC<InstallGuideModalProps> = ({
                   1
                 </div>
                 <div className="text-xs sm:text-sm text-slate-200">
-                  Mở game bằng trình duyệt <strong className="text-cyan-300">Safari</strong> trên iPhone hoặc iPad.
+                  Mở ứng dụng bằng trình duyệt <strong className="text-cyan-300">Safari</strong> trên iPhone hoặc iPad.
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ export const InstallGuideModal: React.FC<InstallGuideModalProps> = ({
                   1
                 </div>
                 <div className="text-xs sm:text-sm text-slate-200">
-                  Mở game bằng trình duyệt <strong className="text-cyan-300">Chrome</strong> hoặc Cốc Cốc trên điện thoại/máy tính bảng.
+                  Mở ứng dụng bằng trình duyệt <strong className="text-cyan-300">Chrome</strong> hoặc Cốc Cốc trên điện thoại/máy tính bảng.
                 </div>
               </div>
 
@@ -246,7 +246,7 @@ export const InstallGuideModal: React.FC<InstallGuideModalProps> = ({
                   3
                 </div>
                 <div className="text-xs sm:text-sm text-slate-200">
-                  Bấm vào đó và chọn <strong className="text-emerald-400">Cài đặt (Install)</strong>. Game sẽ xuất hiện trên màn hình Desktop và thanh Taskbar của bạn!
+                  Bấm vào đó và chọn <strong className="text-emerald-400">Cài đặt (Install)</strong>. Ứng dụng sẽ xuất hiện trên màn hình Desktop và thanh Taskbar của bạn!
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export const InstallGuideModal: React.FC<InstallGuideModalProps> = ({
           <ul className="text-xs text-slate-300 space-y-1">
             <li className="flex items-center gap-1.5">
               <Star className="w-3 h-3 text-cyan-400 shrink-0" />
-              <span>Chơi toàn màn hình không có thanh URL như ứng dụng gốc</span>
+              <span>Trải nghiệm toàn màn hình không có thanh URL như ứng dụng gốc</span>
             </li>
             <li className="flex items-center gap-1.5">
               <Star className="w-3 h-3 text-cyan-400 shrink-0" />

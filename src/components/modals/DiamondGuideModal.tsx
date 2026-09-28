@@ -87,7 +87,7 @@ export const DiamondGuideModal: React.FC<DiamondGuideModalProps> = ({
                     <span className="text-yellow-300 font-orbitron font-black text-xs">+1 đến +3 💎</span>
                   </div>
                   <div className="text-[11px] text-slate-300 mt-0.5 leading-snug">
-                    Mỗi ngôi sao ⭐ mới mở khóa đều thưởng 1 💎 (chơi lại nâng sao nhận thêm 💎!).
+                    Mỗi ngôi sao ⭐ mới mở khóa đều thưởng 1 💎 (ôn tập lại nâng sao nhận thêm 💎!).
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export const DiamondGuideModal: React.FC<DiamondGuideModalProps> = ({
               <div className="p-2 bg-slate-900/80 rounded-xl border border-purple-500/30">
                 <div className="text-lg mb-0.5">❤️</div>
                 <div className="font-bold text-white text-xs">Nạp Trái Tim</div>
-                <div className="text-[10px] text-slate-400">Tiếp tục cuộc chơi</div>
+                <div className="text-[10px] text-slate-400">Tiếp tục bài học</div>
               </div>
             </div>
           </div>

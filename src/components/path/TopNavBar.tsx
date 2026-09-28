@@ -148,7 +148,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 if (onOpenRefillModal) onOpenRefillModal();
               }}
               className="btn-3d flex items-center gap-1 px-2 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-2 border-b-rose-800 rounded-xl text-rose-300 font-orbitron font-black text-xs transition shrink-0"
-              title="Mạng chơi (Bấm để nạp thêm)"
+              title="Trái tim thử thách (Bấm để nạp thêm)"
             >
               <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
               <span>{progress.hearts}/{progress.maxHearts}</span>
@@ -246,7 +246,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 onOpenInstallModal();
               }}
               className="btn-3d flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-2 sm:border-b-3 border-b-emerald-800 rounded-xl sm:rounded-2xl text-emerald-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-emerald-300"
-              title="Đưa game ra màn hình chính để chơi toàn màn hình"
+              title="Đưa ứng dụng ra màn hình chính để học toàn màn hình"
             >
               <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 mr-1 shrink-0 animate-pulse" />
               <span>Cài App</span>
@@ -305,7 +305,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 if (onOpenRefillModal) onOpenRefillModal();
               }}
               className="btn-3d flex items-center gap-1.5 px-3.5 py-2.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-3 border-b-rose-800 rounded-2xl text-rose-300 font-orbitron font-black text-sm md:text-base transition"
-              title="Mạng chơi (Bấm để nạp thêm)"
+              title="Trái tim thử thách (Bấm để nạp thêm)"
             >
               <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
               <span>{progress.hearts}/{progress.maxHearts}</span>

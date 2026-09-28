@@ -72,7 +72,7 @@ export const LevelSelectModal: React.FC<LevelSelectModalProps> = ({
             className="w-full sm:w-auto px-10 py-4.5 bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-orbitron font-black text-xl sm:text-2xl rounded-2xl shadow-[0_0_30px_rgba(0,240,255,0.5)] transition transform active:scale-95 flex items-center justify-center gap-3 cursor-pointer tracking-wider"
           >
             <Rocket className="w-7 h-7 animate-bounce" />
-            BẮT ĐẦU CHƠI NGAY
+            BẮT ĐẦU BÀI HỌC
           </button>
           <span className="text-sm text-slate-300 font-medium">
             Mẹo: Nhấn phím bất kỳ trên bàn phím để bắn hạ mục tiêu

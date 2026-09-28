@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EyeOff, AlertTriangle, Copy, Check, Gamepad2, ShieldAlert } from 'lucide-react';
+import { EyeOff, AlertTriangle, Copy, Check, Play, ShieldAlert } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 
 interface IncognitoWarningModalProps {
@@ -61,7 +61,7 @@ export const IncognitoWarningModal: React.FC<IncognitoWarningModalProps> = ({
           Phi Hành Gia Ơi! 🕵️‍♂️🚀
         </h2>
         <p className="text-amber-200/90 text-sm sm:text-base font-semibold mb-5 leading-relaxed">
-          Bạn đang mở game trong <span className="text-amber-400 font-bold">trình duyệt ẩn danh</span> {browserName ? `(${browserName})` : ''}.
+          Bạn đang mở ứng dụng trong <span className="text-amber-400 font-bold">trình duyệt ẩn danh</span> {browserName ? `(${browserName})` : ''}.
         </p>
 
         {/* Warning Explanations */}
@@ -81,7 +81,7 @@ export const IncognitoWarningModal: React.FC<IncognitoWarningModalProps> = ({
           <div className="flex items-start gap-3 border-t border-slate-800 pt-2.5">
             <span className="text-base leading-none shrink-0">💡</span>
             <p className="text-xs sm:text-sm text-cyan-200 leading-snug font-medium">
-              <strong>Khuyên dùng:</strong> Hãy mở game trên <span className="text-cyan-400 font-bold">tab trình duyệt thường</span> để tiến trình học được lưu mãi mãi!
+              <strong>Khuyên dùng:</strong> Hãy mở ứng dụng trên <span className="text-cyan-400 font-bold">tab trình duyệt thường</span> để tiến trình học được lưu mãi mãi!
             </p>
           </div>
         </div>
@@ -109,8 +109,8 @@ export const IncognitoWarningModal: React.FC<IncognitoWarningModalProps> = ({
             onClick={handleOfflinePlay}
             className="w-full py-3 px-6 rounded-2xl bg-slate-800/80 hover:bg-slate-700/80 active:scale-[0.98] text-slate-300 hover:text-white font-bold text-sm border border-slate-700 transition flex items-center justify-center gap-2"
           >
-            <Gamepad2 className="w-4 h-4 text-slate-400" />
-            <span>Vẫn Chơi Thử (Chế Độ Offline - Không Lưu)</span>
+            <Play className="w-4 h-4 text-slate-400" />
+            <span>Vẫn Trải Nghiệm Thử (Chế Độ Offline - Không Lưu)</span>
           </button>
         </div>
 

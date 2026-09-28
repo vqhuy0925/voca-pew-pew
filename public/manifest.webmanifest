@@ -1,15 +1,15 @@
 {
   "id": "/",
-  "name": "Vocab Pew Pew - Game Luyện Gõ Tiếng Anh",
+  "name": "Vocab Pew Pew - Luyện Gõ Tiếng Anh",
   "short_name": "Vocab Pew Pew",
-  "description": "Game bắn tàu vũ trụ luyện gõ từ vựng tiếng Anh vui nhộn dành cho phi hành gia nhí",
+  "description": "Ứng dụng bắn tàu vũ trụ luyện gõ từ vựng tiếng Anh vui nhộn dành cho học sinh",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#030712",
   "theme_color": "#06b6d4",
-  "categories": ["games", "education"],
+  "categories": ["education"],
   "icons": [
     {
       "src": "/favicon.svg",
@@ -35,8 +35,8 @@
   ],
   "shortcuts": [
     {
-      "name": "Chơi ngay",
-      "short_name": "Chơi",
+      "name": "Học ngay",
+      "short_name": "Học",
       "description": "Bắt đầu bài học vũ trụ tiếp theo",
       "url": "/",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]

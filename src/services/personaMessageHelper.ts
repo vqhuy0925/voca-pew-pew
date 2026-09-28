@@ -159,7 +159,7 @@ export function getVictoryModalMessages(
   if (gender === 'boy') {
     return `Quá đỉnh ${userName ? userName + ' ơi' : 'bạn ơi'}! Phong độ cực kỳ xuất sắc! 🚀🔥`;
   }
-  return `Tuyệt vời ${userName ? userName + ' ơi' : 'bạn ơi'}! Hoàn thành xuất sắc màn chơi! 🌟🎯`;
+  return `Tuyệt vời ${userName ? userName + ' ơi' : 'bạn ơi'}! Hoàn thành xuất sắc bài học! 🌟🎯`;
 }
 
 /**

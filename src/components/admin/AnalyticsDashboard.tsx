@@ -301,7 +301,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             </h4>
             <p className="text-xs text-slate-300 leading-relaxed">
               Dữ liệu được tự động tổng hợp từ Firestore collection <code className="text-cyan-300 font-mono">users</code>.
-              Học sinh chơi game sẽ tự động đẩy tiến độ mới nhất với cơ chế chống spam debounce 1.5 giây.
+              Học sinh học tập sẽ tự động đẩy tiến độ mới nhất với cơ chế chống spam debounce 1.5 giây.
             </p>
           </div>
         </div>

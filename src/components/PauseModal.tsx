@@ -56,7 +56,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             className="btn-3d btn-3d-slate w-full py-3.5 border-slate-700/80 hover:border-cyan-400 text-white font-orbitron font-black text-base sm:text-lg rounded-2xl flex items-center justify-center gap-2 shadow-sm"
           >
             <RotateCcw className="w-5 h-5 text-amber-400" />
-            CHƠI LẠI
+            LUYỆN LẠI
           </button>
 
           <button

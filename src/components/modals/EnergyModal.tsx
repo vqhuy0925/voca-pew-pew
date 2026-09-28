@@ -295,7 +295,7 @@ export const EnergyModal: React.FC<EnergyModalProps> = ({
                 >
                   <div className="text-left">
                     <div className="font-game font-bold text-sm text-yellow-300">+35 Năng Lượng ⚡</div>
-                    <div className="text-[11px] text-slate-400">Thêm ~3-4 màn chơi</div>
+                    <div className="text-[11px] text-slate-400">Thêm ~3-4 bài học</div>
                   </div>
                   <div className="px-2.5 py-1.5 bg-cyan-500 text-slate-950 font-game font-extrabold rounded-xl text-xs flex items-center gap-1">
                     <Gem className="w-3.5 h-3.5 fill-slate-950" /> 10
@@ -465,7 +465,7 @@ export const EnergyModal: React.FC<EnergyModalProps> = ({
               userAge={progress.userAge}
               gender={progress.gender}
               userName={progress.userName}
-              customMessage="Mỗi ngày hoàn thành 1 màn chơi là vừa đủ năng lượng và giữ chuỗi ngày học thật tốt nhé! ⚡🚀"
+              customMessage="Mỗi ngày hoàn thành 1 bài học là vừa đủ năng lượng và giữ chuỗi ngày học thật tốt nhé! ⚡🚀"
             />
           </div>
 
