@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle, Keyboard } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle, Keyboard, Sun, Moon } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -56,6 +56,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   };
 
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
+
   const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
   const defaultFallbackName = progress.gender === 'girl' ? 'Công Chúa Nhỏ' : progress.gender === 'boy' ? 'Phi Hành Gia' : 'Nhà Thám Hiểm';
   const displayName = progress.userName?.trim() || defaultFallbackName;
@@ -65,7 +66,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
   return (
     <header
-      className="sticky top-0 z-40 w-full bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 py-2 sm:py-3 shadow-md select-none transition-all"
+      className="sticky top-0 z-40 w-full backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 py-2 sm:py-3 select-none bg-slate-950/90 shadow-md text-white transition-all"
       style={{
         paddingTop: 'max(0.65rem, env(safe-area-inset-top, 0px))',
         paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
@@ -78,7 +79,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           {/* Brand Logo & Profile */}
           <button
             onClick={onOpenProfileModal}
-            className={`flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:${theme.borderAccent} transition cursor-pointer active:scale-95 group shadow-sm shrink-0`}
+            className={`flex items-center gap-2 sm:gap-3 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border transition cursor-pointer active:scale-95 group shadow-sm shrink-0 bg-slate-900/90 hover:bg-slate-800 border-slate-700/80 hover:${theme.borderAccent}`}
             title="Đổi tên, phong cách, màu sắc & bạn đồng hành"
           >
             <div className="relative">
@@ -86,7 +87,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <span className="absolute -bottom-1 -right-1 text-[10px] sm:text-xs">{genderBadge}</span>
             </div>
             <div className="text-left flex items-center gap-1.5">
-              <span className={`font-game font-black text-xs sm:text-base text-white group-hover:${theme.textColor} transition truncate max-w-[90px] sm:max-w-[150px]`}>
+              <span className={`font-game font-black text-xs sm:text-base transition truncate max-w-[90px] sm:max-w-[150px] text-white group-hover:${theme.textColor}`}>
                 {displayName}
               </span>
               {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /></span>}
@@ -168,10 +169,10 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               className="btn-3d relative flex-1 md:flex-initial px-2 py-1.5 sm:px-3.5 sm:py-2 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-400/50 border-b-2 sm:border-b-3 border-b-orange-800 rounded-xl sm:rounded-2xl text-orange-200 font-orbitron font-black text-[11px] sm:text-sm md:text-base transition shadow-sm hover:border-orange-300 flex items-center justify-center gap-1 shrink-0"
               title="Lò Rèn Từ Vựng & Phục Thù Từ Sai"
             >
-              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
+              <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0" />
               <span>Lò Rèn</span>
               {weakWordsCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-orange-500 text-slate-950 font-black text-[10px] leading-tight ml-0.5">
+                <span className="px-1.5 py-0.2 rounded-full font-black text-[10px] leading-tight ml-0.5 bg-orange-500 text-slate-950">
                   {weakWordsCount}
                 </span>
               )}
@@ -315,14 +316,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
-            className="btn-3d btn-3d-slate p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border-slate-700 hover:border-slate-500 text-slate-300 shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
+            className="btn-3d btn-3d-slate border-slate-700 hover:border-slate-500 text-slate-300 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
             title={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
             aria-label={progress.soundEnabled ? 'Tắt âm thanh' : 'Bật âm thanh'}
           >
             {progress.soundEnabled ? (
               <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             ) : (
-              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
+              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" />
             )}
           </button>
 
@@ -333,7 +334,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenLanding();
               }}
-              className="btn-3d btn-3d-slate p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-300 shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
+              className="btn-3d btn-3d-slate border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-300 shadow-sm shrink-0 min-w-[36px] sm:min-w-[44px]"
               title="Giới thiệu về Vocab Pew Pew"
               aria-label="Giới thiệu về Vocab Pew Pew"
             >

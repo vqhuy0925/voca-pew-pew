@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { EnemyItem, GameStats, GameState, VocabWord } from '../data/types';
-import { LevelNode } from '../data/progress-types';
+import { LevelNode, ThemeStyle } from '../data/progress-types';
+import { THEME_CONFIGS } from '../data/theme-types';
 import { SessionMistakeDelta } from '../data/mistake-types';
 import {
   DifficultyLevel,
@@ -25,6 +26,7 @@ interface GameCanvasProps {
   level: LevelNode;
   stats: GameStats;
   difficulty?: DifficultyLevel;
+  themeStyle?: ThemeStyle;
   equippedShip?: SpaceshipItem;
   equippedBlaster?: BlasterItem;
   equippedLaser?: LaserBeamItem;
@@ -45,6 +47,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   level,
   stats,
   difficulty = 'NORMAL',
+  themeStyle = 'cosmic_cyan',
   equippedShip = getSpaceshipById('ship-scout'),
   equippedBlaster = getBlasterById('blaster-single'),
   equippedLaser = getLaserById('laser-cyan'),
@@ -578,7 +581,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     enemies: EnemyItem[],
     particleSys: ParticleSystem
   ) => {
-    // Rich warm galaxy gradient
+    // Rich deep galaxy gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
     bgGrad.addColorStop(0, '#0a0d2a');
     bgGrad.addColorStop(0.5, '#12173f');
@@ -847,7 +850,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       onClick={handleCanvasContainerClick}
       onTouchStart={handleCanvasContainerClick}
       onTouchEnd={handleCanvasContainerClick}
-      className="relative w-full h-full overflow-hidden bg-space-dark select-none touch-none"
+      className="relative w-full h-full overflow-hidden select-none touch-none bg-space-dark"
     >
       {/* Invisible input element to capture native mobile & iPad keyboard input */}
       <input

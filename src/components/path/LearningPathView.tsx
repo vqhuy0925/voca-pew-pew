@@ -204,7 +204,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
             soundFx.playClick();
             setShowRealmModal(true);
           }}
-          className="group flex items-center gap-3.5 px-6 py-3 rounded-full bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-700/90 hover:border-cyan-400/80 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8"
+          className="group flex items-center gap-3.5 px-6 py-3 rounded-full border-2 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8 bg-slate-900/95 hover:bg-slate-800 border-slate-700/90 hover:border-cyan-400/80"
           title="Bấm để chuyển đổi cõi thiên hà khác"
         >
           <span className="text-3xl drop-shadow">{currentRealm.icon}</span>
@@ -219,11 +219,11 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 </span>
               )}
             </div>
-            <span className="text-sm sm:text-base md:text-lg font-game font-black text-white group-hover:text-cyan-200 transition">
+            <span className="text-sm sm:text-base md:text-lg font-game font-black transition text-white group-hover:text-cyan-200">
               {currentRealm.nameVi}
             </span>
           </div>
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition ml-1" />
+          <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition ml-1 text-slate-400 group-hover:text-cyan-300" />
         </button>
 
         {/* Road of Level Nodes by Chapter */}
@@ -245,17 +245,17 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 className="relative scroll-mt-20 w-full"
               >
                 {/* Clean, Kid-Friendly Chapter Banner */}
-                <div className="flex items-center justify-between gap-3.5 px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl backdrop-blur-md shadow-lg mb-8">
+                <div className="flex items-center justify-between gap-3.5 px-4 sm:px-6 py-3.5 sm:py-4 rounded-2xl backdrop-blur-md shadow-lg mb-8 border bg-slate-900/90 border-slate-700/80">
                   <div className="flex items-center gap-3.5 min-w-0">
                     <span className="text-3xl sm:text-4xl flex-shrink-0 drop-shadow">{unit.icon}</span>
                     <div className="min-w-0">
-                      <div className="font-game font-black text-base sm:text-lg md:text-xl text-white truncate">
+                      <div className="font-game font-black text-base sm:text-lg md:text-xl truncate text-white">
                         Chương {unit.unitNumber}: {cleanTitle}
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-sm sm:text-base font-game font-black text-cyan-300 px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/70 flex-shrink-0 shadow-inner">
+                  <span className="text-sm sm:text-base font-game font-black px-3 py-1.5 rounded-xl border flex-shrink-0 shadow-inner text-cyan-300 bg-slate-800/90 border-slate-700/70">
                     {unitCompletedCount}/{unit.levels.length}
                   </span>
                 </div>

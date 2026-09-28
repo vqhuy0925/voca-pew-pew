@@ -13,7 +13,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
   if (!target) {
     return (
       <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none max-w-[95vw]">
-        <div className="bg-slate-950/95 backdrop-blur-md border-2 sm:border-3 border-cyan-400/70 border-b-4 border-b-cyan-600 rounded-2xl px-6 py-3 text-cyan-200 text-base sm:text-lg md:text-xl font-game font-black flex items-center gap-3 shadow-[0_4px_25px_rgba(0,240,255,0.35)] whitespace-nowrap">
+        <div className="bg-slate-950/95 backdrop-blur-md border-2 sm:border-3 border-cyan-400/70 border-b-4 border-b-cyan-600 rounded-2xl px-6 py-3 text-base sm:text-lg md:text-xl font-game font-black text-cyan-200 flex items-center gap-3 whitespace-nowrap shadow-[0_4px_25px_rgba(0,240,255,0.35)]">
           <span className="text-2xl sm:text-3xl">🎯</span>
           <span>Gõ chữ đầu tiên để bắn!</span>
         </div>
@@ -31,7 +31,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
 
   return (
     <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-auto select-none max-w-[95vw] md:max-w-3xl w-full px-2 sm:px-0">
-      <div className="bg-slate-950/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400/80 rounded-2xl sm:rounded-3xl p-3.5 sm:px-6 sm:py-4.5 shadow-[0_8px_35px_rgba(0,240,255,0.35)] flex items-center gap-3.5 sm:gap-5 transition-all">
+      <div className="bg-slate-950/95 backdrop-blur-xl border-2 sm:border-3 border-cyan-400/80 rounded-2xl sm:rounded-3xl p-3.5 sm:px-6 sm:py-4.5 flex items-center gap-3.5 sm:gap-5 text-white transition-all shadow-[0_8px_35px_rgba(0,240,255,0.35)]">
         {/* Animated Emoji Badge */}
         <div className="relative flex-shrink-0 flex items-center justify-center w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 shadow-inner">
           <span className="text-4xl sm:text-5xl drop-shadow-md transform hover:scale-110 transition-transform">
@@ -89,7 +89,7 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
 
           {/* Vietnamese meaning & Finger Guide Badge Row */}
           <div className="flex flex-wrap items-center justify-between gap-2 mt-2.5">
-            <div className="text-base sm:text-lg md:text-xl text-cyan-200 font-game font-black drop-shadow tracking-wide truncate sm:whitespace-normal">
+            <div className="text-base sm:text-lg md:text-xl font-game font-black text-cyan-200 drop-shadow tracking-wide truncate sm:whitespace-normal">
               {target.meaningVi}
             </div>
             {currentChar && (

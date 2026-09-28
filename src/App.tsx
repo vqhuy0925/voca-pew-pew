@@ -522,7 +522,7 @@ export const App: React.FC = () => {
   const equippedLaser = getLaserById(progress.equippedLaserId);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-space-dark select-none font-game">
+    <div className="relative w-screen h-screen overflow-hidden select-none font-game bg-space-dark text-white">
       {/* 0. Minimalist Landing Page (App Introduction & First-time Welcome) */}
       {screen === 'LANDING' && (
         <LandingPage
@@ -579,7 +579,7 @@ export const App: React.FC = () => {
       {/* 2. In-Game Battle Arena (Game Canvas + HUD) */}
       {(screen === 'PLAYING' || screen === 'PAUSED' || screen === 'VICTORY' || screen === 'GAME_OVER') && (
         <div
-          className="relative w-full overflow-hidden bg-space-dark select-none font-game"
+          className="relative w-full overflow-hidden select-none font-game bg-space-dark"
           style={{ height: viewportHeight }}
         >
           <GameCanvas
@@ -588,6 +588,7 @@ export const App: React.FC = () => {
             level={selectedLevel}
             stats={stats}
             difficulty={progress.selectedDifficulty || 'NORMAL'}
+            themeStyle={progress.themeStyle}
             equippedShip={equippedShip}
             equippedBlaster={equippedBlaster}
             equippedLaser={equippedLaser}
@@ -620,7 +621,9 @@ export const App: React.FC = () => {
                 onPause={handlePause}
               />
 
-              <WordTargetBar target={activeTarget} />
+              <WordTargetBar
+                target={activeTarget}
+              />
             </>
           )}
         </div>
