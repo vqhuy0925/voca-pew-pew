@@ -6,7 +6,7 @@ import { recordTypingSessionResult } from '../../services/progressStorage';
 import { soundFx } from '../../game/engine/SoundController';
 import { VirtualKeyboardWithHands, TypingKeyFlash } from './VirtualKeyboardWithHands';
 import { TypingResultModal } from './TypingResultModal';
-import { ArrowLeft, Lock, Check, Map, X } from 'lucide-react';
+import { ArrowLeft, Lock, Check, Map, X, Sun, Moon } from 'lucide-react';
 
 interface TypingDojoViewProps {
   progress: UserProgress;
@@ -197,15 +197,44 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
     metricsRef.current.startSession();
   };
 
+  const handleDismissResult = () => {
+    setResult(null);
+    setTypedIndex(0);
+    setCorrectness(new Array(lesson.practiceText.length).fill(false));
+    hasFinishedRef.current = false;
+    metricsRef.current.reset();
+    metricsRef.current.startSession();
+    setShowPicker(true);
+  };
+
   const nextChar = lesson.practiceText[typedIndex];
 
   const primaryLabel = isFinalLesson
     ? (passed ? 'VÀO ĐOẠN VĂN 📝' : 'THỬ LẠI')
     : (passed ? 'BÀI TIẾP THEO' : 'THỬ LẠI');
 
+  const [isLight, setIsLight] = useState<boolean>(() => {
+    const saved = localStorage.getItem('vocab_dojo_theme_mode');
+    return saved !== null ? saved === 'light' : true;
+  });
+
+  const toggleTheme = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundFx.playClick();
+    setIsLight((prev) => {
+      const next = !prev;
+      localStorage.setItem('vocab_dojo_theme_mode', next ? 'light' : 'dark');
+      return next;
+    });
+  };
+
   return (
     <div
-      className="relative w-full h-full overflow-y-auto bg-space-dark select-none font-game text-white px-3 sm:px-6 py-4 sm:py-6"
+      className={`relative w-full h-full overflow-y-auto select-none font-game px-3 sm:px-8 py-4 sm:py-6 transition-colors duration-300 ${
+        isLight
+          ? 'bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 text-slate-800'
+          : 'bg-space-dark text-white'
+      }`}
       onClick={() => hiddenInputRef.current?.focus({ preventScroll: true })}
     >
       <input
@@ -222,55 +251,108 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
       />
 
       {/* Top Bar */}
-      <div className="flex items-center justify-between max-w-3xl mx-auto mb-4">
-        <button
-          onClick={(e) => { e.stopPropagation(); soundFx.playClick(); onExit(); }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500 transition active:scale-95"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-bold">Thoát</span>
-        </button>
-        <h1 className="text-lg sm:text-2xl font-black font-orbitron tracking-wide text-violet-300">
+      <div className="flex items-center justify-between max-w-5xl mx-auto mb-4 gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); soundFx.playClick(); onExit(); }}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border transition active:scale-95 shadow-sm ${
+              isLight
+                ? 'bg-white border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
+                : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500'
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-bold">Thoát</span>
+          </button>
+
+          {/* Quick Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            title={isLight ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition active:scale-95 shadow-sm ${
+              isLight
+                ? 'bg-amber-100/80 border-amber-300 text-amber-900 hover:bg-amber-200/80'
+                : 'bg-slate-900/80 border-slate-700/80 text-yellow-300 hover:text-yellow-200 hover:border-yellow-400/50'
+            }`}
+          >
+            {isLight ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            <span className="text-xs sm:text-sm font-bold hidden xs:inline">{isLight ? 'Chế độ Tối' : 'Chế độ Sáng'}</span>
+          </button>
+        </div>
+
+        <h1 className={`text-lg sm:text-2xl font-black font-orbitron tracking-wide ${
+          isLight ? 'text-sky-800' : 'text-violet-300'
+        }`}>
           ⌨️ Typing Dojo
         </h1>
+
         <div className="flex items-center gap-2 text-xs sm:text-sm font-black">
-          <span className="px-2.5 py-1.5 rounded-lg bg-violet-500/15 border border-violet-400/40 text-violet-300">
+          <span className={`px-2.5 sm:px-3 py-1.5 rounded-lg border shadow-sm ${
+            isLight
+              ? 'bg-violet-50 border-violet-200 text-violet-700'
+              : 'bg-violet-500/15 border-violet-400/40 text-violet-300'
+          }`}>
             {Math.round(liveStats.wpm)} WPM
           </span>
-          <span className="px-2.5 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-400/40 text-cyan-300">
+          <span className={`px-2.5 sm:px-3 py-1.5 rounded-lg border shadow-sm ${
+            isLight
+              ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
+              : 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300'
+          }`}>
             {Math.round(liveStats.accuracy)}%
           </span>
         </div>
       </div>
 
       {/* Progress — 1 dòng gọn: bài hiện tại, thanh tiến độ, nút mở Lộ Trình */}
-      <div className="max-w-3xl mx-auto mb-5 flex items-center gap-2.5">
+      <div className="max-w-5xl mx-auto mb-5 flex items-center gap-2.5">
         <button
           onClick={(e) => { e.stopPropagation(); soundFx.playClick(); setShowPicker(true); }}
-          className="flex-shrink-0 flex items-center gap-1.5 pl-2.5 pr-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-300 hover:text-white hover:border-violet-400/60 transition active:scale-95 max-w-[55%] sm:max-w-xs"
+          className={`flex-shrink-0 flex items-center gap-1.5 pl-2.5 pr-3 py-2 rounded-xl border transition active:scale-95 max-w-[55%] sm:max-w-xs shadow-sm ${
+            isLight
+              ? 'bg-white border-slate-300 text-slate-700 hover:text-sky-800 hover:border-sky-400'
+              : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:border-violet-400/60'
+          }`}
         >
-          <Map className="w-4 h-4 text-violet-400 flex-shrink-0" />
+          <Map className={`w-4 h-4 flex-shrink-0 ${isLight ? 'text-sky-600' : 'text-violet-400'}`} />
           <span className="text-xs sm:text-sm font-bold truncate">{lesson.titleVi}</span>
         </button>
-        <div className="flex-1 h-2 rounded-full bg-slate-900 border border-slate-800 overflow-hidden">
+        <div className={`flex-1 h-2.5 rounded-full border overflow-hidden ${
+          isLight ? 'bg-slate-200 border-slate-300' : 'bg-slate-900 border-slate-800'
+        }`}>
           <div
-            className="h-full bg-gradient-to-r from-violet-500 to-cyan-400 transition-all duration-300"
+            className={`h-full transition-all duration-300 ${
+              isLight
+                ? 'bg-gradient-to-r from-sky-500 to-emerald-500'
+                : 'bg-gradient-to-r from-violet-500 to-cyan-400'
+            }`}
             style={{ width: `${(lesson.order / TYPING_LESSONS.length) * 100}%` }}
           />
         </div>
-        <span className="flex-shrink-0 text-[11px] sm:text-xs font-bold text-slate-500">
+        <span className={`flex-shrink-0 text-[11px] sm:text-xs font-bold ${
+          isLight ? 'text-slate-600' : 'text-slate-500'
+        }`}>
           {lesson.order}/{TYPING_LESSONS.length}
         </span>
       </div>
 
-      <div className="max-w-3xl mx-auto bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-6 mb-5">
-        <p className="font-mono text-lg sm:text-2xl md:text-3xl tracking-wide leading-relaxed text-center break-all">
+      {/* Practice Text Box */}
+      <div className={`max-w-5xl mx-auto rounded-3xl p-5 sm:p-8 mb-5 transition-colors ${
+        isLight
+          ? 'bg-white border-2 border-slate-200/90 shadow-xl'
+          : 'bg-slate-950/70 border border-slate-800/80 shadow-inner'
+      }`}>
+        <p className="font-mono text-xl sm:text-3xl md:text-4xl tracking-wide leading-relaxed text-center break-all select-none">
           {lesson.practiceText.split('').map((ch, i) => {
-            let cls = 'text-slate-500';
+            let cls = isLight ? 'text-slate-400' : 'text-slate-500';
             if (i < typedIndex) {
-              cls = correctness[i] ? 'text-emerald-400' : 'text-rose-400 underline decoration-wavy decoration-rose-500';
+              cls = correctness[i]
+                ? (isLight ? 'text-emerald-600 font-bold' : 'text-emerald-400')
+                : (isLight ? 'text-rose-600 font-bold underline decoration-wavy decoration-rose-500' : 'text-rose-400 underline decoration-wavy decoration-rose-500');
             } else if (i === typedIndex) {
-              cls = 'text-white bg-cyan-500/30 rounded animate-pulse';
+              cls = isLight
+                ? 'text-sky-950 bg-sky-200/90 rounded px-1 ring-2 ring-sky-400/60 font-black animate-pulse'
+                : 'text-white bg-cyan-500/30 rounded px-1 ring-1 ring-cyan-300 animate-pulse';
             }
             return (
               <span key={i} className={cls}>
@@ -282,24 +364,34 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
       </div>
 
       {/* Virtual Keyboard With Hands */}
-      <div className="max-w-3xl mx-auto pb-6">
-        <VirtualKeyboardWithHands nextChar={nextChar} lastFlash={lastFlash} />
+      <div className="max-w-5xl mx-auto pb-6">
+        <VirtualKeyboardWithHands nextChar={nextChar} lastFlash={lastFlash} isLight={isLight} />
       </div>
 
       {showPicker && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150"
+          className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-150 ${
+            isLight ? 'bg-slate-900/50' : 'bg-black/80'
+          }`}
           onClick={() => setShowPicker(false)}
         >
           <div
-            className="w-full max-w-lg bg-slate-950 border border-slate-800 rounded-2xl p-4 max-h-[85vh] flex flex-col shadow-2xl"
+            className={`w-full max-w-lg rounded-2xl p-4 max-h-[85vh] flex flex-col shadow-2xl transition-colors ${
+              isLight ? 'bg-white border-2 border-slate-200 text-slate-800' : 'bg-slate-950 border border-slate-800 text-white'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3 flex-shrink-0">
-              <h2 className="text-sm sm:text-base font-black font-orbitron text-violet-300 tracking-wide">Lộ Trình Luyện Gõ</h2>
+              <h2 className={`text-sm sm:text-base font-black font-orbitron tracking-wide ${
+                isLight ? 'text-slate-900' : 'text-violet-300'
+              }`}>
+                Lộ Trình Luyện Gõ
+              </h2>
               <button
                 onClick={() => { soundFx.playClick(); setShowPicker(false); }}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className={`p-1.5 rounded-lg transition ${
+                  isLight ? 'text-slate-500 hover:text-slate-900 hover:bg-slate-100' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -319,19 +411,43 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
                     onClick={() => { if (!unlocked) return; soundFx.playClick(); setActiveUnit(u.order); }}
                     title={u.titleVi}
                     className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 transition ${
-                      isActive
-                        ? 'bg-violet-500/25 border-violet-400 shadow-lg'
-                        : isFull
-                          ? 'bg-emerald-500/15 border-emerald-500/50'
-                          : unlocked
-                            ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
-                            : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
+                      isLight
+                        ? (isActive
+                            ? 'bg-violet-100 border-violet-500 shadow-sm'
+                            : isFull
+                              ? 'bg-emerald-50 border-emerald-400 hover:bg-emerald-100'
+                              : unlocked
+                                ? 'bg-slate-100 border-slate-300 hover:bg-slate-200 hover:border-slate-400'
+                                : 'bg-slate-100/70 border-slate-200 opacity-50 cursor-not-allowed')
+                        : (isActive
+                            ? 'bg-violet-500/25 border-violet-400 shadow-lg'
+                            : isFull
+                              ? 'bg-emerald-500/15 border-emerald-500/50'
+                              : unlocked
+                                ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
+                                : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed')
                     }`}
                   >
-                    <span className="text-sm sm:text-base">{!unlocked ? <Lock className="w-3.5 h-3.5 text-slate-500" /> : u.icon}</span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-300 whitespace-nowrap">{u.titleVi}</span>
+                    <span className="text-sm sm:text-base">
+                      {!unlocked ? (
+                        <Lock className={`w-3.5 h-3.5 ${isLight ? 'text-slate-400' : 'text-slate-500'}`} />
+                      ) : (
+                        u.icon
+                      )}
+                    </span>
+                    <span className={`text-[10px] sm:text-xs font-bold whitespace-nowrap ${
+                      isLight
+                        ? (isActive ? 'text-violet-950 font-black' : isFull ? 'text-emerald-950' : unlocked ? 'text-slate-800' : 'text-slate-400')
+                        : (isActive ? 'text-violet-200 font-black' : isFull ? 'text-emerald-200' : unlocked ? 'text-slate-300' : 'text-slate-500')
+                    }`}>
+                      {u.titleVi}
+                    </span>
                     {unlocked && (
-                      <span className={`text-[10px] font-black ${isFull ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      <span className={`text-[10px] font-black ${
+                        isFull
+                          ? (isLight ? 'text-emerald-700' : 'text-emerald-400')
+                          : (isLight ? 'text-slate-500' : 'text-slate-400')
+                      }`}>
                         {completedCount}/{u.lessonCount}
                       </span>
                     )}
@@ -359,19 +475,51 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
                     }}
                     title={l.titleVi}
                     className={`flex flex-col items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl border-2 transition ${
-                      isCurrent
-                        ? 'bg-violet-500/25 border-violet-400 scale-105 shadow-lg'
-                        : isCompleted
-                          ? 'bg-emerald-500/15 border-emerald-500/50'
-                          : unlocked
-                            ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
-                            : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed'
+                      isLight
+                        ? (isCurrent
+                            ? 'bg-violet-100 border-violet-500 shadow-md ring-2 ring-violet-300/60 scale-105'
+                            : isCompleted
+                              ? 'bg-emerald-50/90 border-emerald-400 hover:bg-emerald-100/90 hover:border-emerald-500 shadow-sm'
+                              : unlocked
+                                ? 'bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 shadow-sm'
+                                : 'bg-slate-100/70 border-slate-200 opacity-50 cursor-not-allowed')
+                        : (isCurrent
+                            ? 'bg-violet-500/25 border-violet-400 scale-105 shadow-lg'
+                            : isCompleted
+                              ? 'bg-emerald-500/15 border-emerald-500/50'
+                              : unlocked
+                                ? 'bg-slate-900/70 border-slate-700 hover:border-slate-500'
+                                : 'bg-slate-950/60 border-slate-800 opacity-50 cursor-not-allowed')
                     }`}
                   >
                     <span className="text-base sm:text-lg">
-                      {!unlocked ? <Lock className="w-4 h-4 text-slate-500" /> : isCompleted ? <Check className="w-4 h-4 text-emerald-400" /> : ROW_TYPE_ICON[l.rowType]}
+                      {!unlocked ? (
+                        <Lock className={`w-4 h-4 ${isLight ? 'text-slate-400' : 'text-slate-500'}`} />
+                      ) : isCompleted ? (
+                        <Check className={`w-4 h-4 ${isLight ? 'text-emerald-700 stroke-[3]' : 'text-emerald-400 stroke-[2.5]'}`} />
+                      ) : (
+                        ROW_TYPE_ICON[l.rowType]
+                      )}
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-300 hidden sm:block">{l.titleVi}</span>
+                    <span className={`text-[10px] sm:text-xs font-bold hidden sm:block ${
+                      isLight
+                        ? (isCurrent
+                            ? 'text-violet-950 font-black'
+                            : isCompleted
+                              ? 'text-emerald-950 font-extrabold'
+                              : unlocked
+                                ? 'text-slate-800'
+                                : 'text-slate-400')
+                        : (isCurrent
+                            ? 'text-violet-200'
+                            : isCompleted
+                              ? 'text-emerald-200'
+                              : unlocked
+                                ? 'text-slate-200'
+                                : 'text-slate-500')
+                    }`}>
+                      {l.titleVi}
+                    </span>
                   </button>
                 );
               })}
@@ -391,11 +539,14 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
           primaryActionLabel={primaryLabel}
           onPrimaryAction={handlePrimaryAction}
           onRetry={handleRetry}
-          onExit={onExit}
+          onExit={handleDismissResult}
+          exitLabel="DANH SÁCH BÀI"
+          exitIcon={<Map className="w-4 h-4 text-violet-400" />}
           userName={progress.userName}
           gender={progress.gender}
           themeStyle={progress.themeStyle}
           mascotId={progress.mascotId}
+          isLight={isLight}
         />
       )}
     </div>
