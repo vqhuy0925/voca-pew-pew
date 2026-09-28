@@ -55,6 +55,7 @@ import { InstallGuideModal } from './components/modals/InstallGuideModal';
 import { LandingPage } from './components/landing/LandingPage';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { checkAndUpdateVocabSnapshot } from './services/vocabLoader';
+import { syncRemoteBrandingConfig } from './services/brandingService';
 
 // Lazy-loaded Typing Dojo module — keeps the Saga Map's initial bundle lean (Application Integration §6)
 const TypingDojoView = lazy(() =>
@@ -152,9 +153,10 @@ export const App: React.FC = () => {
     setScreen('PLAYING');
   }, []);
 
-  // Check latest published vocab snapshot in background on startup
+  // Check latest published vocab snapshot & branding config in background on startup
   useEffect(() => {
     checkAndUpdateVocabSnapshot();
+    syncRemoteBrandingConfig();
   }, []);
 
   // Listen for Admin shortcut (Ctrl+Shift+A or Cmd+Shift+A)

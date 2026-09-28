@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { claimDailyQuestReward, graduateRealm, awardTypingDiplomaIfEligible } from '../../services/progressStorage';
+import { getBrandingConfig, subscribeBrandingConfig, BrandingConfig } from '../../services/brandingService';
 
 interface LearningPathViewProps {
   progress: UserProgress;
@@ -65,6 +66,14 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
   const mascot = MASCOT_CONFIGS[progress.mascotId || 'cosmo_dog'] || MASCOT_CONFIGS.cosmo_dog;
+  const [branding, setBranding] = useState<BrandingConfig>(() => getBrandingConfig());
+
+  useEffect(() => {
+    const unsubscribe = subscribeBrandingConfig((cfg) => {
+      setBranding(cfg);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Determine realm for current level
   const curLevelRealm = useMemo(() => {
@@ -305,6 +314,19 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
                 <Award className="w-5 h-5" />
                 <span>XEM BẰNG TỐT NGHIỆP & THĂNG CẤP 🚀</span>
               </button>
+            </div>
+          )}
+
+          {/* Partner Credit Footer in Map */}
+          {branding.showPartnerBanner && branding.partnerMessage && (
+            <div className="mt-10 mb-20 text-center text-xs text-slate-500 flex flex-col items-center gap-1.5 px-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-cyan-300 font-semibold shadow-sm">
+                <span className="text-sm">🏛️</span>
+                <span className="text-xs sm:text-sm">{branding.partnerMessage}</span>
+              </div>
+              {branding.partnerSubtext && (
+                <span className="text-[11px] text-slate-400 max-w-md">{branding.partnerSubtext}</span>
+              )}
             </div>
           )}
         </main>

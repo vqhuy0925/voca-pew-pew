@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Rocket,
   Volume2,
@@ -15,6 +15,11 @@ import {
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { UserProgress } from '../../data/progress-types';
+import {
+  getBrandingConfig,
+  subscribeBrandingConfig,
+  BrandingConfig
+} from '../../services/brandingService';
 
 interface LandingPageProps {
   progress: UserProgress;
@@ -33,9 +38,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenTypingDojo,
   isReturningUser = false
 }) => {
+  const [branding, setBranding] = useState<BrandingConfig>(() => getBrandingConfig());
   const [isMuted, setIsMuted] = useState<boolean>(() => !progress.soundEnabled);
   const [demoLetterIdx, setDemoLetterIdx] = useState<number>(0);
   const [demoBlasted, setDemoBlasted] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeBrandingConfig((newConfig) => {
+      setBranding(newConfig);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const demoWord = 'SPACE';
   const demoVi = 'Vũ Trụ • Không Gian';
@@ -133,7 +146,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               onClick={handleStart}
               className="btn-3d btn-3d-cyan px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-md"
             >
-              <span>{isReturningUser ? 'Vào Bản Đồ' : 'Chơi Ngay'}</span>
+              <span>{isReturningUser ? 'Vào Bản Đồ' : 'Bắt Đầu Học'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -142,10 +155,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* 2. Hero Section */}
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-14 pb-16 flex flex-col items-center text-center">
+        {/* Partner Trust Banner */}
+        {branding.showPartnerBanner && branding.partnerMessage && (
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/50 text-blue-200 text-xs sm:text-sm font-semibold mb-3 shadow-[0_0_25px_rgba(59,130,246,0.35)] animate-pulse">
+            <span className="text-base leading-none">🏛️</span>
+            <span className="font-bold tracking-wide">{branding.partnerMessage}</span>
+          </div>
+        )}
+
         {/* Top Trust Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs sm:text-sm font-semibold mb-5 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
           <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
-          <span>Game Luyện Gõ Tiếng Anh Miễn Phí Chuẩn Cambridge & SGK</span>
+          <span>Ứng Dụng Luyện Gõ Tiếng Anh Miễn Phí Chuẩn Cambridge & SGK</span>
         </div>
 
         {/* Big Catchy Title */}
@@ -167,7 +188,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="w-full max-w-lg mb-8 p-4 sm:p-5 rounded-3xl bg-slate-900/90 border-2 border-cyan-500/40 shadow-[0_10px_35px_rgba(0,240,255,0.15)] backdrop-blur-md flex flex-col items-center">
           <div className="flex items-center justify-between w-full mb-3 text-xs sm:text-sm text-slate-400 font-medium">
             <span className="flex items-center gap-1.5 text-cyan-400">
-              <Play className="w-3.5 h-3.5 fill-cyan-400" /> Chơi thử 3 giây: Bấm lần lượt từng chữ!
+              <Play className="w-3.5 h-3.5 fill-cyan-400" /> Trải nghiệm thử 3 giây: Bấm lần lượt từng chữ!
             </span>
             <button
               onClick={handleDemoSpeak}
@@ -242,7 +263,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           )}
 
           <p className="text-xs sm:text-sm text-slate-400">
-            ⚡ 100% Miễn phí • Không cần đăng ký • Chơi được trên Máy tính & iPad
+            ⚡ 100% Miễn phí • Không cần đăng ký • Tương thích mượt mà trên Máy tính & iPad
           </p>
 
           {onOpenProfile && (
@@ -266,7 +287,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               TẠI SAO BÉ YÊU THÍCH VOCAB PEW PEW?
             </h2>
             <p className="text-slate-400 text-xs sm:text-base mt-2">
-              Thiết kế khoa học, kết hợp giữa trò chơi điện tử và phương pháp phản xạ ngôn ngữ
+              Thiết kế khoa học, kết hợp phương pháp tương tác phản xạ và ngôn ngữ trực quan
             </p>
           </div>
 
@@ -277,7 +298,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <Keyboard className="w-6 h-6" />
               </div>
               <h3 className="font-orbitron font-bold text-base sm:text-lg text-white mb-2">
-                Vừa Chơi Vừa Luyện Gõ 10 Ngón
+                Vừa Học Vừa Luyện Gõ 10 Ngón
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Mỗi ký tự gõ chuẩn là một phát bắn tiêu diệt thiên thạch. Bé vừa nhớ mặt chữ,
@@ -323,7 +344,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Không quảng cáo gây xao nhãng, không thu thập dữ liệu cá nhân. Tích hợp
-                chế độ giới hạn năng lượng hàng ngày để bảo vệ mắt và cân bằng thời gian chơi.
+                chế độ giới hạn năng lượng hàng ngày để bảo vệ mắt và cân bằng thời gian học tập.
               </p>
             </div>
           </div>
@@ -380,11 +401,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       {/* 5. Minimal Clean Footer */}
       <footer className="relative z-10 w-full border-t border-slate-900 bg-slate-950/90 py-6 px-4 text-center text-xs text-slate-500">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-base">🚀</span>
-            <span className="font-orbitron font-bold text-slate-400">Vocab Pew Pew</span>
-            <span>— Game Luyện Gõ Từ Vựng Tiếng Anh Trẻ Em</span>
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-2 text-center sm:text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🚀</span>
+              <span className="font-orbitron font-bold text-slate-400">Vocab Pew Pew</span>
+              <span>— Ứng Dụng Luyện Gõ Từ Vựng Tiếng Anh</span>
+            </div>
+            {branding.partnerMessage && (
+              <span className="text-cyan-400 font-semibold text-[11px] sm:text-xs">
+                • {branding.partnerMessage}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <span>100% Miễn phí & An toàn</span>

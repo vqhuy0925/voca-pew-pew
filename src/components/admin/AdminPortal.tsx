@@ -11,13 +11,15 @@ import {
   CheckCircle2,
   AlertCircle,
   Home,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react';
 import { AdminLoginModal } from './AdminLoginModal';
 import { VocabManager } from './VocabManager';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { UserExplorer } from './UserExplorer';
 import { TypingParagraphManager } from './TypingParagraphManager';
+import { BrandingManager } from './BrandingManager';
 import {
   subscribeAdminAuth,
   adminSignOut,
@@ -37,7 +39,7 @@ import { getCurrentSnapshotVersion } from '../../services/vocabLoader';
 import { AgeRealm } from '../../data/chapters/types';
 import { soundFx } from '../../game/engine/SoundController';
 
-type AdminTab = 'VOCAB' | 'TYPING_PARAGRAPH' | 'ANALYTICS' | 'USERS';
+type AdminTab = 'VOCAB' | 'TYPING_PARAGRAPH' | 'ANALYTICS' | 'USERS' | 'BRANDING';
 
 interface AdminPortalProps {
   isOpen: boolean;
@@ -264,6 +266,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
             <Users className="w-4 h-4" />
             <span>Danh Sách Học Viên</span>
           </button>
+
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setActiveTab('BRANDING');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              activeTab === 'BRANDING'
+                ? 'bg-blue-500 text-slate-950 shadow-[0_0_12px_rgba(59,130,246,0.4)]'
+                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>🏛️ Đơn Vị / Đối Tác</span>
+          </button>
         </div>
 
         {/* Right: Actions */}
@@ -286,7 +303,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition-colors"
           >
             <Home className="w-4 h-4" />
-            <span>Vào Game</span>
+            <span>Vào Học</span>
           </button>
         </div>
       </header>
@@ -324,6 +341,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
           }`}
         >
           Học Viên
+        </button>
+        <button
+          onClick={() => setActiveTab('BRANDING')}
+          className={`flex-1 py-1.5 text-center text-xs font-bold rounded-lg ${
+            activeTab === 'BRANDING' ? 'bg-blue-500 text-slate-950' : 'text-slate-400'
+          }`}
+        >
+          Đối Tác
         </button>
       </div>
 
@@ -368,6 +393,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ isOpen, onClose }) => 
 
             {activeTab === 'USERS' && (
               <UserExplorer users={usersList} loading={loadingAnalytics} />
+            )}
+
+            {activeTab === 'BRANDING' && (
+              <BrandingManager adminEmail={authState.email || 'admin'} />
             )}
           </>
         )}
