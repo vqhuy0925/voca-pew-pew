@@ -26,6 +26,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
   const [config, setConfig] = useState<BrandingConfig>(() => getBrandingConfig());
   const [partnerMessage, setPartnerMessage] = useState(config.partnerMessage);
   const [partnerSubtext, setPartnerSubtext] = useState(config.partnerSubtext);
+  const [partnerLogoUrl, setPartnerLogoUrl] = useState(config.partnerLogoUrl || '');
   const [showPartnerBanner, setShowPartnerBanner] = useState(config.showPartnerBanner);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -36,6 +37,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
     setConfig(initial);
     setPartnerMessage(initial.partnerMessage);
     setPartnerSubtext(initial.partnerSubtext);
+    setPartnerLogoUrl(initial.partnerLogoUrl || '');
     setShowPartnerBanner(initial.showPartnerBanner);
   }, []);
 
@@ -49,6 +51,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
         {
           partnerMessage: partnerMessage.trim() || DEFAULT_BRANDING_CONFIG.partnerMessage,
           partnerSubtext: partnerSubtext.trim(),
+          partnerLogoUrl: partnerLogoUrl.trim(),
           showPartnerBanner,
         },
         adminEmail || 'admin'
@@ -57,6 +60,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
       setConfig(updated);
       setPartnerMessage(updated.partnerMessage);
       setPartnerSubtext(updated.partnerSubtext);
+      setPartnerLogoUrl(updated.partnerLogoUrl || '');
       soundFx.playVictory();
       setSaveSuccessMsg('Đã lưu cấu hình đơn vị đồng hành thành công! 🚀');
       setTimeout(() => setSaveSuccessMsg(null), 4000);
@@ -84,6 +88,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
       setConfig(def);
       setPartnerMessage(def.partnerMessage);
       setPartnerSubtext(def.partnerSubtext);
+      setPartnerLogoUrl(def.partnerLogoUrl || '');
       setShowPartnerBanner(def.showPartnerBanner);
       soundFx.playVictory();
       setSaveSuccessMsg('Đã khôi phục về cấu hình Đoàn phường Phước Thới!');
@@ -165,7 +170,40 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
               />
             </div>
 
-            {/* Field 3: Show Banner Toggle */}
+            {/* Field 3: Partner Logo URL */}
+            <div>
+              <label className="block text-xs sm:text-sm font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                <span>Đường Dẫn Logo Đơn Vị (Partner Logo URL)</span>
+                <span className="text-[11px] text-cyan-400 font-normal">Ảnh PNG/JPEG/SVG</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={partnerLogoUrl}
+                  onChange={(e) => setPartnerLogoUrl(e.target.value)}
+                  placeholder="/logo_doan_phuong_phuoc_thoi.jpeg"
+                  className="flex-1 px-3.5 py-2.5 bg-slate-950/80 border border-slate-700/80 focus:border-cyan-400 rounded-xl text-sm text-white placeholder-slate-500 outline-none transition shadow-inner font-mono text-xs"
+                />
+                {partnerLogoUrl && (
+                  <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700 p-1 flex items-center justify-center shrink-0">
+                    <img
+                      src={partnerLogoUrl}
+                      alt="Logo preview"
+                      className="w-full h-full object-contain rounded-lg"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
+                <Info className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>Mặc định: /logo_doan_phuong_phuoc_thoi.jpeg (ảnh nằm trong thư mục public)</span>
+              </p>
+            </div>
+
+            {/* Field 4: Show Banner Toggle */}
             <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
               <div>
                 <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
@@ -227,7 +265,18 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
               <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-center">
                 {showPartnerBanner && partnerMessage ? (
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/50 text-blue-200 text-xs font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse">
-                    <span className="text-base leading-none">🏛️</span>
+                    {partnerLogoUrl ? (
+                      <img
+                        src={partnerLogoUrl}
+                        alt="Logo đối tác"
+                        className="w-5 h-5 object-contain rounded-full shadow-sm"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span className="text-base leading-none">🏛️</span>
+                    )}
                     <span className="truncate max-w-[240px] sm:max-w-xs">{partnerMessage}</span>
                   </div>
                 ) : (
@@ -246,8 +295,19 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
                   <span>🚀 Vocab Pew Pew — Ứng Dụng Luyện Gõ Từ Vựng</span>
                 </div>
                 {partnerMessage && (
-                  <div className="text-cyan-400 font-medium">
-                    • {partnerMessage}
+                  <div className="text-cyan-400 font-medium flex items-center gap-1.5">
+                    <span>•</span>
+                    {partnerLogoUrl && (
+                      <img
+                        src={partnerLogoUrl}
+                        alt="Logo đối tác"
+                        className="w-3.5 h-3.5 object-contain rounded-full inline-block"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <span>{partnerMessage}</span>
                   </div>
                 )}
                 {partnerSubtext && (

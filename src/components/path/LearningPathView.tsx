@@ -321,7 +321,15 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           {branding.showPartnerBanner && branding.partnerMessage && (
             <div className="mt-10 mb-20 text-center text-xs text-slate-500 flex flex-col items-center gap-1.5 px-4">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-cyan-300 font-semibold shadow-sm">
-                <span className="text-sm">🏛️</span>
+                {branding.partnerLogoUrl ? (
+                  <img
+                    src={branding.partnerLogoUrl}
+                    alt="Logo đối tác"
+                    className="w-5 h-5 object-contain rounded-full shadow-sm"
+                  />
+                ) : (
+                  <span className="text-sm">🏛️</span>
+                )}
                 <span className="text-xs sm:text-sm">{branding.partnerMessage}</span>
               </div>
               {branding.partnerSubtext && (
