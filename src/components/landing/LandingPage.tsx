@@ -158,7 +158,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* Partner Trust Banner */}
         {branding.showPartnerBanner && branding.partnerMessage && (
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/50 text-blue-200 text-xs sm:text-sm font-semibold mb-3 shadow-[0_0_25px_rgba(59,130,246,0.35)] animate-pulse">
-            <span className="text-base leading-none">🏛️</span>
+            {branding.partnerLogoUrl ? (
+              <img
+                src={branding.partnerLogoUrl}
+                alt="Logo đối tác"
+                className="w-5 h-5 sm:w-6 sm:h-6 object-contain rounded-full shadow-sm"
+              />
+            ) : (
+              <span className="text-base leading-none">🏛️</span>
+            )}
             <span className="font-bold tracking-wide">{branding.partnerMessage}</span>
           </div>
         )}
@@ -409,8 +417,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span>— Ứng Dụng Luyện Gõ Từ Vựng Tiếng Anh</span>
             </div>
             {branding.partnerMessage && (
-              <span className="text-cyan-400 font-semibold text-[11px] sm:text-xs">
-                • {branding.partnerMessage}
+              <span className="text-cyan-400 font-semibold text-[11px] sm:text-xs flex items-center gap-1.5">
+                <span className="text-slate-600">•</span>
+                {branding.partnerLogoUrl && (
+                  <img
+                    src={branding.partnerLogoUrl}
+                    alt="Logo đối tác"
+                    className="w-4 h-4 object-contain rounded-full inline-block"
+                  />
+                )}
+                <span>{branding.partnerMessage}</span>
               </span>
             )}
           </div>

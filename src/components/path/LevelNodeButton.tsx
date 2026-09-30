@@ -69,7 +69,7 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
       {/* Current Active Floating Tag */}
       {isCurrent && (
         <div className="absolute -top-11 z-20 animate-bounce">
-          <div className="bg-cyan-400 text-slate-950 font-game font-black text-xs sm:text-base uppercase px-4 py-1.5 rounded-xl shadow-[0_4px_20px_rgba(0,240,255,0.7)] flex items-center gap-1.5 border border-white/60">
+          <div className="bg-gradient-to-r from-sky-400 via-cyan-400 to-teal-400 text-slate-950 font-game font-black text-xs sm:text-base uppercase px-4 py-1.5 rounded-xl shadow-[0_4px_20px_rgba(0,240,255,0.7)] flex items-center gap-1.5 border border-white/60">
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 stroke-[2.5]" />
             <span>Bắt Đầu</span>
           </div>
@@ -85,11 +85,15 @@ export const LevelNodeButton: React.FC<LevelNodeButtonProps> = ({
           isUnlocked
             ? 'cursor-pointer hover:scale-108 active:translate-y-1 active:border-b-0 hover:brightness-110 shadow-lg'
             : 'cursor-not-allowed opacity-45'
-        } ${getNodeColorClass()} ${isCurrent ? 'ring-4 ring-cyan-400 ring-offset-4 ring-offset-slate-900 shadow-[0_0_30px_rgba(34,211,238,0.7)] animate-pulse' : ''}`}
+        } ${getNodeColorClass()} ${
+          isCurrent
+            ? 'ring-4 ring-cyan-400 ring-offset-4 ring-offset-slate-900 shadow-[0_0_30px_rgba(34,211,238,0.7)] animate-pulse'
+            : ''
+        }`}
       >
         {/* Node Icon / State */}
         {!isUnlocked ? (
-          <Lock className="w-8 h-8 text-slate-400" />
+          <Lock className="w-8 h-8 text-slate-500" />
         ) : (
           <div className="flex flex-col items-center justify-center">
             <span className="text-3xl sm:text-4xl leading-none drop-shadow-md">{level.icon}</span>

@@ -928,7 +928,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider block mb-2">
                     Tông màu giao diện:
                   </span>
-                  <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
                     {(Object.keys(THEME_CONFIGS) as ThemeStyle[]).map((tKey) => {
                       const t = THEME_CONFIGS[tKey];
                       const isSelected = themeStyle === tKey;

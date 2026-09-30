@@ -4,6 +4,7 @@ import { db, isFirebaseConfigured } from './firebase/firebaseConfig';
 export interface BrandingConfig {
   partnerMessage: string;
   partnerSubtext: string;
+  partnerLogoUrl?: string;
   showPartnerBanner: boolean;
   updatedAt?: any;
   updatedBy?: string;
@@ -12,6 +13,7 @@ export interface BrandingConfig {
 export const DEFAULT_BRANDING_CONFIG: BrandingConfig = {
   partnerMessage: 'Được đồng phát triển bởi Đoàn phường Phước Thới',
   partnerSubtext: 'Đồng hành cùng học sinh nâng cao năng lực ngoại ngữ và tin học ứng dụng',
+  partnerLogoUrl: '/logo_doan_phuong_phuoc_thoi.jpeg',
   showPartnerBanner: true,
 };
 
@@ -26,6 +28,7 @@ let cachedConfig: BrandingConfig = (() => {
       return {
         ...DEFAULT_BRANDING_CONFIG,
         ...parsed,
+        partnerLogoUrl: parsed.partnerLogoUrl ?? DEFAULT_BRANDING_CONFIG.partnerLogoUrl,
       };
     }
   } catch (err) {
@@ -83,6 +86,7 @@ export async function syncRemoteBrandingConfig(): Promise<BrandingConfig> {
         cachedConfig = {
           ...DEFAULT_BRANDING_CONFIG,
           ...remoteData,
+          partnerLogoUrl: remoteData.partnerLogoUrl ?? DEFAULT_BRANDING_CONFIG.partnerLogoUrl,
         };
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedConfig));
@@ -128,6 +132,7 @@ export async function saveBrandingConfig(
       await setDoc(docRef, {
         partnerMessage: updated.partnerMessage,
         partnerSubtext: updated.partnerSubtext,
+        partnerLogoUrl: updated.partnerLogoUrl ?? '',
         showPartnerBanner: updated.showPartnerBanner,
         updatedBy: authorEmail,
         updatedAt: serverTimestamp(),
