@@ -1,0 +1,5 @@
+# Robots.txt for Vocab Pew Pew - Educational Learning App
+User-agent: *
+Allow: /
+
+Sitemap: https://vocabpewpew.com/sitemap.xml

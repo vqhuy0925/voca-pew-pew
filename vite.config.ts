@@ -17,16 +17,16 @@ export default defineConfig({
       ],
       manifest: {
         id: '/',
-        name: 'Vocab Pew Pew - Game Luyện Gõ Tiếng Anh',
+        name: 'Vocab Pew Pew - Ứng Dụng Học Từ Vựng Tiếng Anh',
         short_name: 'Vocab Pew Pew',
-        description: 'Game bắn tàu vũ trụ luyện gõ từ vựng tiếng Anh vui nhộn dành cho phi hành gia nhí',
+        description: 'Ứng dụng học từ vựng, phát âm và luyện gõ tiếng Anh tương tác dành cho học sinh',
         start_url: '/',
         scope: '/',
         display: 'standalone',
         orientation: 'any',
         background_color: '#030712',
         theme_color: '#06b6d4',
-        categories: ['games', 'education'],
+        categories: ['education'],
         icons: [
           {
             src: '/favicon.svg',
