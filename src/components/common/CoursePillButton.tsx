@@ -35,7 +35,7 @@ export const CoursePillButton: React.FC<CoursePillButtonProps> = ({
       type="button"
       title="Bấm để đổi môn học hoặc cõi thiên hà (Chuẩn Duolingo)"
       aria-label="Đổi môn học"
-      className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl border transition-all duration-200 cursor-pointer active:scale-95 shadow-sm shrink-0 whitespace-nowrap ${
+      className={`group h-9 sm:h-10 flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl border transition-all duration-200 cursor-pointer active:scale-95 shadow-sm shrink-0 whitespace-nowrap ${
         isLight
           ? isDojo
             ? 'bg-violet-50 hover:bg-violet-100 border-violet-300 text-violet-950 shadow-violet-200/50'
@@ -46,14 +46,14 @@ export const CoursePillButton: React.FC<CoursePillButtonProps> = ({
       } ${className}`}
     >
       {/* Course Icon */}
-      <span className="text-base sm:text-xl drop-shadow leading-none">
+      <span className="text-base sm:text-xl drop-shadow leading-none shrink-0">
         {isDojo ? '⌨️' : (currentRealm.icon || '🚀')}
       </span>
 
       {/* Course Text */}
-      <div className="flex flex-col text-left">
-        <div className="flex items-center gap-1">
-          <span className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${
+      <div className="flex flex-col text-left justify-center min-w-0">
+        <div className="flex items-center gap-1 leading-tight">
+          <span className={`text-[10px] sm:text-[11px] font-black uppercase tracking-wider ${
             isLight
               ? isDojo ? 'text-violet-700' : 'text-cyan-700'
               : isDojo ? 'text-purple-300' : 'text-cyan-400'
@@ -61,14 +61,14 @@ export const CoursePillButton: React.FC<CoursePillButtonProps> = ({
             {isDojo ? 'Bộ Môn' : `Cõi ${currentRealm.realmNumber}`}
           </span>
           {!isDojo && currentRealm.cefrLevel && (
-            <span className={`hidden md:inline text-[9px] font-black px-1 rounded ${
+            <span className={`hidden md:inline text-[9px] font-black px-1 rounded leading-none ${
               isLight ? 'bg-amber-200 text-amber-900' : 'bg-amber-500/25 text-amber-300 border border-amber-400/40'
             }`}>
               {currentRealm.cefrLevel}
             </span>
           )}
         </div>
-        <span className={`font-game font-black text-xs sm:text-sm truncate max-w-[110px] sm:max-w-[160px] md:max-w-[200px] ${
+        <span className={`font-game font-black text-xs sm:text-sm leading-tight truncate max-w-[100px] sm:max-w-[140px] xl:max-w-[180px] ${
           isLight ? 'text-slate-900' : 'text-white group-hover:text-cyan-200'
         }`}>
           {isDojo ? 'Typing Dojo' : `Tiếng Anh (${currentRealm.ageRange})`}
@@ -76,7 +76,7 @@ export const CoursePillButton: React.FC<CoursePillButtonProps> = ({
       </div>
 
       {/* Down Chevron */}
-      <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-y-0.5 ml-0.5 ${
+      <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-transform group-hover:translate-y-0.5 ml-0.5 ${
         isLight
           ? isDojo ? 'text-violet-600' : 'text-cyan-700'
           : isDojo ? 'text-purple-400' : 'text-cyan-400'

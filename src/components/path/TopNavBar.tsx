@@ -82,9 +82,9 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))'
       }}
     >
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
-        {/* Row 1 on Mobile: Avatar/Profile + Course Switcher (Left) & Core Status Pills (Right on mobile) */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-1.5 sm:gap-2">
+      <div className="w-full max-w-[1600px] mx-auto flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2 xl:gap-3">
+        {/* Row 1 on Mobile/Tablet: Avatar/Profile + Course Switcher (Left) & Core Status Pills (Right on mobile/tablet) */}
+        <div className="flex items-center justify-between w-full xl:w-auto gap-1.5 sm:gap-2 shrink-0">
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Brand Logo & Profile */}
             <button
@@ -98,11 +98,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               </div>
               <div className="text-left flex items-center gap-1.5">
                 <div className="flex flex-col">
-                  <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[130px] md:max-w-[150px] text-white group-hover:${theme.textColor}`}>
+                  <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[120px] 2xl:max-w-[150px] text-white group-hover:${theme.textColor}`}>
                     {displayName}
                   </span>
                   {progress.accountUsername && (
-                    <span className="text-[10px] text-cyan-400/80 font-mono -mt-0.5 truncate max-w-[85px] sm:max-w-[130px]">
+                    <span className="text-[10px] text-cyan-400/80 font-mono -mt-0.5 truncate max-w-[85px] sm:max-w-[120px]">
                       @{progress.accountUsername}
                     </span>
                   )}
@@ -131,7 +131,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenMigration();
               }}
-              className="btn-3d btn-3d-amber h-9 px-2.5 flex items-center justify-center gap-1 rounded-xl shadow-md shrink-0 text-xs font-black text-slate-950 md:hidden animate-pulse"
+              className="btn-3d btn-3d-amber h-9 px-2.5 flex items-center justify-center gap-1 rounded-xl shadow-md shrink-0 text-xs font-black text-slate-950 xl:hidden animate-pulse"
               title="Lưu tài khoản để không mất dữ liệu"
             >
               <Shield className="w-3.5 h-3.5 text-slate-950 shrink-0 stroke-[2.5]" />
@@ -139,8 +139,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             </button>
           )}
 
-          {/* Core Player Stats (Streak, Energy, Gems, Hearts) - visible in Row 1 on mobile */}
-          <div className="flex items-center gap-1 sm:gap-1.5 md:hidden">
+          {/* Core Player Stats (Streak, Energy, Gems, Hearts) - visible in Row 1 on mobile/tablet */}
+          <div className="flex items-center gap-1 sm:gap-1.5 xl:hidden shrink-0">
             {/* Daily Streak & Daily Quests */}
             <button
               onClick={() => {
@@ -200,7 +200,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         </div>
 
         {/* Row 2 on Mobile / Right side on Desktop: Action Buttons & Desktop Stats */}
-        <div className="flex items-center justify-between md:justify-end gap-1 sm:gap-1.5 md:gap-2 w-full md:w-auto overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center justify-start xl:justify-end gap-1 sm:gap-1.5 xl:gap-2 w-full xl:w-auto min-w-0 xl:ml-auto overflow-x-auto no-scrollbar py-0.5">
           {/* Mistake Vault / Lò Rèn Từ Vựng 🔥 */}
           {onOpenMistakeVault && (
             <button
@@ -208,7 +208,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenMistakeVault();
               }}
-              className="btn-3d h-9 sm:h-10 relative flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-400/50 border-b-2 sm:border-b-3 border-b-orange-800 rounded-xl sm:rounded-2xl text-orange-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-orange-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 relative flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-400/50 border-b-2 sm:border-b-3 border-b-orange-800 rounded-xl sm:rounded-2xl text-orange-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-orange-300 shrink-0 whitespace-nowrap"
               title="Lò Rèn Từ Vựng & Phục Thù Từ Sai"
             >
               <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-500 shrink-0" />
@@ -228,7 +228,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenTypingDojo();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-400/50 border-b-2 sm:border-b-3 border-b-violet-800 rounded-xl sm:rounded-2xl text-violet-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-violet-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-400/50 border-b-2 sm:border-b-3 border-b-violet-800 rounded-xl sm:rounded-2xl text-violet-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-violet-300 shrink-0 whitespace-nowrap"
               title="Luyện Gõ 10 Ngón (Typing Dojo)"
             >
               <Keyboard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-300 shrink-0" />
@@ -243,7 +243,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenArmory();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-400/50 border-b-2 sm:border-b-3 border-b-purple-800 rounded-xl sm:rounded-2xl text-purple-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-purple-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-400/50 border-b-2 sm:border-b-3 border-b-purple-800 rounded-xl sm:rounded-2xl text-purple-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-purple-300 shrink-0 whitespace-nowrap"
               title="Xưởng Nâng Cấp Tàu & Vũ Khí"
             >
               <Rocket className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400 shrink-0" />
@@ -258,7 +258,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenLeaderboard();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 border-b-2 sm:border-b-3 border-b-amber-800 rounded-xl sm:rounded-2xl text-amber-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-amber-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 border-b-2 sm:border-b-3 border-b-amber-800 rounded-xl sm:rounded-2xl text-amber-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-amber-300 shrink-0 whitespace-nowrap"
               title="Bảng Xếp Hạng Vũ Trụ"
             >
               <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0 animate-pulse" />
@@ -273,7 +273,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenAstronautCard();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 border-b-2 sm:border-b-3 border-b-cyan-800 rounded-xl sm:rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-cyan-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 border-b-2 sm:border-b-3 border-b-cyan-800 rounded-xl sm:rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-cyan-300 shrink-0 whitespace-nowrap"
               title="Thẻ Căn Cước Phi Hành Gia"
             >
               <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
@@ -288,7 +288,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenInstallModal();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-2 sm:border-b-3 border-b-emerald-800 rounded-xl sm:rounded-2xl text-emerald-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-emerald-300 shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 xl:px-3 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 border-b-2 sm:border-b-3 border-b-emerald-800 rounded-xl sm:rounded-2xl text-emerald-200 font-orbitron font-black text-xs sm:text-sm transition shadow-sm hover:border-emerald-300 shrink-0 whitespace-nowrap"
               title="Đưa ứng dụng ra màn hình chính để học toàn màn hình"
             >
               <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0 animate-pulse" />
@@ -297,22 +297,22 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           )}
 
           {/* Visual Divider between Action Buttons and Stats on Desktop */}
-          <div className="hidden md:block h-5 w-px bg-slate-800/90 mx-0.5 shrink-0" />
+          <div className="hidden xl:block h-5 w-px bg-slate-800/90 mx-0.5 shrink-0" />
 
-          {/* Desktop Only Stats Pills (hidden on mobile, shown on md:) */}
-          <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
+          {/* Desktop Only Stats Pills (hidden when < xl, shown on xl:) */}
+          <div className="hidden xl:flex items-center gap-1 xl:gap-1.5 2xl:gap-2 shrink-0">
             {/* Daily Streak & Quests */}
             <button
               onClick={() => {
                 soundFx.playClick();
                 if (onOpenDailyQuests) onOpenDailyQuests();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 border-b-2 sm:border-b-3 border-b-amber-800 rounded-xl sm:rounded-2xl text-amber-300 font-orbitron font-black text-xs sm:text-sm shrink-0 whitespace-nowrap cursor-pointer"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 xl:px-2.5 2xl:px-3 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 border-b-2 sm:border-b-3 border-b-amber-800 rounded-xl sm:rounded-2xl text-amber-300 font-orbitron font-black text-xs sm:text-sm shrink-0 whitespace-nowrap cursor-pointer"
               title="Chuỗi ngày học liên tiếp & Nhiệm vụ hôm nay (Bấm để mở)"
             >
               <Flame className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-orange-400 fill-orange-400 animate-bounce shrink-0" />
               <span>{progress.streakDays || 1}</span>
-              <span className="hidden xl:inline">Ngày</span>
+              <span className="hidden 2xl:inline">Ngày</span>
             </button>
 
             {/* Energy Reactor Pill ⚡ */}
@@ -321,7 +321,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 if (onOpenEnergyModal) onOpenEnergyModal();
               }}
-              className={`btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl font-orbitron font-black text-xs sm:text-sm transition border shrink-0 whitespace-nowrap ${
+              className={`btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl sm:rounded-2xl font-orbitron font-black text-xs sm:text-sm transition border shrink-0 whitespace-nowrap ${
                 progress.energy <= 15
                   ? 'bg-rose-500/20 border-rose-400/60 border-b-2 sm:border-b-3 border-b-rose-800 text-rose-300 hover:bg-rose-500/30 animate-pulse'
                   : 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-400/50 border-b-2 sm:border-b-3 border-b-yellow-800 text-yellow-300'
@@ -338,7 +338,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 if (onOpenDiamondGuide) onOpenDiamondGuide();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-2 sm:border-b-3 border-b-cyan-800 rounded-xl sm:rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm transition cursor-pointer shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 xl:px-2.5 2xl:px-3 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/50 border-b-2 sm:border-b-3 border-b-cyan-800 rounded-xl sm:rounded-2xl text-cyan-200 font-orbitron font-black text-xs sm:text-sm transition cursor-pointer shrink-0 whitespace-nowrap"
               title="Kim cương (Bấm để xem bí kíp kiếm kim cương 💎)"
             >
               <Gem className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-cyan-400 fill-cyan-400 animate-pulse shrink-0" />
@@ -351,7 +351,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 if (onOpenRefillModal) onOpenRefillModal();
               }}
-              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-2 sm:border-b-3 border-b-rose-800 rounded-xl sm:rounded-2xl text-rose-300 font-orbitron font-black text-xs sm:text-sm transition shrink-0 whitespace-nowrap"
+              className="btn-3d h-9 sm:h-10 flex items-center justify-center gap-1 sm:gap-1.5 px-2 xl:px-2.5 2xl:px-3 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/50 border-b-2 sm:border-b-3 border-b-rose-800 rounded-xl sm:rounded-2xl text-rose-300 font-orbitron font-black text-xs sm:text-sm transition shrink-0 whitespace-nowrap"
               title="Trái tim thử thách (Bấm để nạp thêm)"
             >
               <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-rose-500 fill-rose-500 shrink-0" />
