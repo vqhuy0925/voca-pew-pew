@@ -236,20 +236,13 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Initialize Cloud Auth & Identity Session with Incognito Detection
+  // Initialize Cloud Auth & Identity Session
   useEffect(() => {
-    checkIsIncognito().then((res) => {
-      if (res.isPrivate) {
-        setDetectedBrowser(res.browserName);
-        setShowIncognitoModal(true);
-        setIncognitoBlocked(true);
-      }
-      initAuthSession().then((uid) => {
-        setProgress((prev) => {
-          const updated = { ...prev, cloudUid: uid };
-          saveUserProgress(updated);
-          return updated;
-        });
+    initAuthSession().then((uid) => {
+      setProgress((prev) => {
+        const updated = { ...prev, cloudUid: uid };
+        saveUserProgress(updated);
+        return updated;
       });
     });
   }, []);

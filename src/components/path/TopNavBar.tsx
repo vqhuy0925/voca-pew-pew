@@ -110,6 +110,21 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             </div>
           </button>
 
+          {/* Quick Mobile Save Button if unregistered */}
+          {!progress.isRegisteredAccount && onOpenMigration && (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenMigration();
+              }}
+              className="btn-3d btn-3d-amber h-9 px-2.5 flex items-center justify-center gap-1 rounded-xl shadow-md shrink-0 text-xs font-black text-slate-950 md:hidden animate-pulse"
+              title="Lưu tài khoản để không mất dữ liệu"
+            >
+              <Shield className="w-3.5 h-3.5 text-slate-950 shrink-0 stroke-[2.5]" />
+              <span className="text-slate-950 font-black text-[11px]">LƯU TK</span>
+            </button>
+          )}
+
           {/* Core Player Stats (Streak, Energy, Gems, Hearts) - visible in Row 1 on mobile */}
           <div className="flex items-center gap-1 sm:gap-1.5 md:hidden">
             {/* Daily Streak & Daily Quests */}
@@ -369,11 +384,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                 soundFx.playClick();
                 onOpenMigration();
               }}
-              className="btn-3d btn-3d-yellow h-9 sm:h-10 px-2 sm:px-3 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl shadow-md shrink-0 text-xs font-black animate-pulse"
+              className="btn-3d btn-3d-amber h-9 sm:h-10 px-3 sm:px-4 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl shadow-[0_0_15px_rgba(251,191,36,0.5)] border-2 border-amber-300 shrink-0 text-xs sm:text-sm font-black text-slate-950 animate-pulse active:scale-95"
               title="Đặt mã PIN để bảo vệ tài khoản và chơi trên mọi thiết bị"
             >
-              <Shield className="w-4 h-4 text-slate-950 shrink-0" />
-              <span className="hidden sm:inline text-slate-950">LƯU TK</span>
+              <Shield className="w-4 h-4 text-slate-950 shrink-0 stroke-[2.5]" />
+              <span className="text-slate-950 font-black whitespace-nowrap">LƯU TÀI KHOẢN</span>
             </button>
           ) : null}
 

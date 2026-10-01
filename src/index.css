@@ -135,13 +135,15 @@ body {
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.6);
 }
 
-.btn-3d-amber {
+.btn-3d-amber,
+.btn-3d-yellow {
   background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
   color: #451a03;
   border-bottom: 4px solid #b45309;
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
-.btn-3d-amber:hover {
+.btn-3d-amber:hover,
+.btn-3d-yellow:hover {
   background: linear-gradient(180deg, #fcd34d 0%, #d97706 100%);
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.6);
 }

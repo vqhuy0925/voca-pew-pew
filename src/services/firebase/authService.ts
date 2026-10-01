@@ -6,14 +6,12 @@ import { isIncognitoSession } from '../incognitoDetector';
 const LOCAL_UID_KEY = 'vocab_pew_pew_local_uid_v1';
 const PLAYER_TAG_KEY = 'vocab_pew_pew_player_tag_v1';
 
-let incognitoBlocked = false;
-
-export const setIncognitoBlocked = (blocked: boolean): void => {
-  incognitoBlocked = blocked;
+export const setIncognitoBlocked = (_blocked: boolean): void => {
+  // No longer block incognito sessions since accounts are authenticated by Username + PIN
 };
 
 export const isIncognitoBlocked = (): boolean => {
-  return incognitoBlocked || isIncognitoSession();
+  return false;
 };
 
 /**

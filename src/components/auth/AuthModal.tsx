@@ -10,7 +10,8 @@ import {
   X,
   Sparkles,
   ArrowRight,
-  Smile
+  Smile,
+  Keyboard
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import {
@@ -47,6 +48,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isShaking, setIsShaking] = useState<boolean>(false);
+  const [showVirtualNumPad, setShowVirtualNumPad] = useState<boolean>(false);
 
   const pinRefs = [
     useRef<HTMLInputElement>(null),
@@ -69,6 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setPin(['', '', '', '']);
       setConfirmPin(['', '', '', '']);
       setActivePinTarget('pin');
+      setShowVirtualNumPad(false);
     }
   }, [isOpen, initialTab]);
 
@@ -400,44 +403,54 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             )}
 
-            {/* Virtual Arcade NumPad for iPad & Touch devices */}
-            <div className="pt-2">
-              <div className="text-[11px] text-center text-slate-400 mb-2 font-medium">
-                ⌨️ Bàn phím số cảm ứng (Touch / iPad)
+            {/* Virtual Arcade NumPad for iPad & Touch devices (Hidden by default, toggleable) */}
+            <div className="pt-1">
+              <div className="flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowVirtualNumPad(prev => !prev)}
+                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700/70 transition-all font-medium active:scale-95"
+                >
+                  <Keyboard className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{showVirtualNumPad ? 'Ẩn bàn phím số ảo' : 'Mở bàn phím số ảo (Touch / iPad)'}</span>
+                </button>
               </div>
-              <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
+
+              {showVirtualNumPad && (
+                <div className="mt-2.5 grid grid-cols-3 gap-2 max-w-xs mx-auto animate-in fade-in duration-200">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => handleNumPadPress(num)}
+                      className="h-11 rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-95 border-b-2 border-slate-950 text-white font-orbitron font-bold text-lg transition-transform"
+                    >
+                      {num}
+                    </button>
+                  ))}
                   <button
-                    key={num}
                     type="button"
-                    onClick={() => handleNumPadPress(num)}
-                    className="h-12 rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-95 border-b-2 border-slate-950 text-white font-orbitron font-bold text-lg transition-transform"
+                    onClick={handleNumPadDelete}
+                    className="h-11 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/30 text-rose-300 font-bold flex items-center justify-center active:scale-95 transition-transform"
                   >
-                    {num}
+                    <Delete className="w-5 h-5" />
                   </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleNumPadDelete}
-                  className="h-12 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/30 text-rose-300 font-bold flex items-center justify-center active:scale-95 transition-transform"
-                >
-                  <Delete className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNumPadPress('0')}
-                  className="h-12 rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-95 border-b-2 border-slate-950 text-white font-orbitron font-bold text-lg transition-transform"
-                >
-                  0
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSubmit()}
-                  className="h-12 rounded-xl bg-cyan-600/80 hover:bg-cyan-500 border border-cyan-400/50 text-slate-950 font-bold flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_10px_rgba(0,240,255,0.4)]"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => handleNumPadPress('0')}
+                    className="h-11 rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-95 border-b-2 border-slate-950 text-white font-orbitron font-bold text-lg transition-transform"
+                  >
+                    0
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSubmit()}
+                    className="h-11 rounded-xl bg-cyan-600/80 hover:bg-cyan-500 border border-cyan-400/50 text-slate-950 font-bold flex items-center justify-center active:scale-95 transition-transform shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
           </form>
         </div>
