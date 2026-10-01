@@ -56,6 +56,8 @@ import { LandingPage } from './components/landing/LandingPage';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { checkAndUpdateVocabSnapshot } from './services/vocabLoader';
 import { syncRemoteBrandingConfig } from './services/brandingService';
+import { UpdateNotificationBanner } from './components/common/UpdateNotificationBanner';
+import { setInActiveGameplay } from './services/serviceWorkerRegistration';
 
 // Lazy-loaded Typing Dojo module — keeps the Saga Map's initial bundle lean (Application Integration §6)
 const TypingDojoView = lazy(() =>
@@ -158,6 +160,12 @@ export const App: React.FC = () => {
     checkAndUpdateVocabSnapshot();
     syncRemoteBrandingConfig();
   }, []);
+
+  // Synchronize gameplay status with Service Worker to prevent mid-battle reloads
+  useEffect(() => {
+    const isGameplay = screen === 'PLAYING' || screen === 'WARMUP' || screen === 'DOJO' || screen === 'DOJO_PARAGRAPH';
+    setInActiveGameplay(isGameplay);
+  }, [screen]);
 
   // Listen for Admin shortcut (Ctrl+Shift+A or Cmd+Shift+A)
   useEffect(() => {
@@ -523,6 +531,11 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden select-none font-game bg-space-dark text-white">
+      {/* PWA / App Version Update Notification Banner */}
+      <UpdateNotificationBanner
+        hideInBattle={screen === 'PLAYING' || screen === 'WARMUP' || screen === 'DOJO' || screen === 'DOJO_PARAGRAPH'}
+      />
+
       {/* 0. Minimalist Landing Page (App Introduction & First-time Welcome) */}
       {screen === 'LANDING' && (
         <LandingPage
