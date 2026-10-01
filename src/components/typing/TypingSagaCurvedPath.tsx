@@ -90,22 +90,22 @@ export const TypingSagaCurvedPath: React.FC<TypingSagaCurvedPathProps> = ({
       <path
         d={fullPathD}
         fill="none"
-        stroke={isLight ? '#cbd5e1' : '#1e293b'}
-        strokeWidth="10"
+        stroke={isLight ? '#bae6fd' : '#1e293b'}
+        strokeWidth="11"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="opacity-70"
+        className={isLight ? 'opacity-90' : 'opacity-70'}
       />
 
       {/* 2. Đường kẻ sọc tim đường (Center Guide) */}
       <path
         d={fullPathD}
         fill="none"
-        stroke={isLight ? '#94a3b8' : '#334155'}
-        strokeWidth="2"
+        stroke={isLight ? '#0284c7' : '#334155'}
+        strokeWidth="2.5"
         strokeDasharray="4 6"
         strokeLinecap="round"
-        className="opacity-60"
+        className={isLight ? 'opacity-75' : 'opacity-60'}
       />
 
       {/* 3. Dải năng lượng phát sáng nối các màn đã mở khoá */}

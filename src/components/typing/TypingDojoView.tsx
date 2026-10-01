@@ -219,9 +219,9 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full overflow-y-auto select-none font-game px-3 sm:px-6 py-3 sm:py-5 transition-colors duration-300 ${
+      className={`relative w-full h-full overflow-y-auto no-scrollbar select-none font-game px-3 sm:px-6 py-3 sm:py-5 transition-colors duration-300 ${
         isLight
-          ? 'bg-[#f8fafc] text-slate-900'
+          ? 'bg-daybreak-sunny text-slate-900'
           : 'bg-[#08091a] bg-galactic-stars text-white'
       }`}
       onClick={() => hiddenInputRef.current?.focus({ preventScroll: true })}

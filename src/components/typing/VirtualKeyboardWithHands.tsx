@@ -70,12 +70,12 @@ export const VirtualKeyboardWithHands: React.FC<VirtualKeyboardWithHandsProps> =
     const fingerInfo = getFingerInfo(char === ' ' ? ' ' : char);
 
     let stateClasses = isLight
-      ? 'bg-white border-slate-300 border-b-slate-400 text-slate-800 shadow-xs hover:border-slate-400'
+      ? 'bg-white border-sky-200 border-b-sky-300 text-slate-900 shadow-xs hover:border-sky-400'
       : 'bg-slate-900/90 border-slate-700/80 border-b-slate-950 text-slate-200 shadow-sm hover:border-slate-600';
 
     if (fingerInfo) {
       stateClasses = `${fingerInfo.bgClass} ${fingerInfo.borderClass} ${fingerInfo.textClass} ${
-        isLight ? 'opacity-95 font-black border-b-slate-400/80' : 'opacity-90 font-black border-b-black/60'
+        isLight ? 'opacity-95 font-black border-b-sky-400/80' : 'opacity-90 font-black border-b-black/60'
       }`;
     }
 
@@ -157,7 +157,7 @@ export const VirtualKeyboardWithHands: React.FC<VirtualKeyboardWithHandsProps> =
                     isFingerActive
                       ? 'border-white animate-pulse shadow-lg ring-2 ring-white/80'
                       : isLight
-                      ? 'bg-slate-200/90 border-slate-300 opacity-60'
+                      ? 'bg-white border-sky-200 shadow-xs'
                       : 'bg-slate-800/90 border-slate-700/80 opacity-50'
                   }`}
                   style={{
@@ -174,7 +174,7 @@ export const VirtualKeyboardWithHands: React.FC<VirtualKeyboardWithHandsProps> =
         <div
           className={`relative w-20 sm:w-28 md:w-32 h-6 sm:h-7 rounded-t-2xl border-2 transition-colors flex items-center justify-center overflow-hidden ${
             isLight
-              ? 'bg-slate-100 border-slate-300 shadow-sm'
+              ? 'bg-white border-sky-200 shadow-sm'
               : 'bg-slate-900/90 border-slate-700/80 shadow-inner'
           }`}
         >
@@ -182,9 +182,9 @@ export const VirtualKeyboardWithHands: React.FC<VirtualKeyboardWithHandsProps> =
           <div
             className={`w-10 sm:w-16 h-1 rounded-full ${
               isHandActive
-                ? 'bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]'
+                ? (isLight ? 'bg-sky-400 animate-pulse shadow-[0_0_8px_rgba(56,189,248,0.8)]' : 'bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]')
                 : isLight
-                ? 'bg-slate-300'
+                ? 'bg-sky-100'
                 : 'bg-slate-800'
             }`}
           />

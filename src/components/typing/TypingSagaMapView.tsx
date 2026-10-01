@@ -106,8 +106,8 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
       ref={containerRef}
       className={`relative w-full h-full overflow-y-auto select-none font-game transition-colors duration-300 ${
         isLight
-          ? 'bg-[#f8fafc] text-slate-900'
-          : 'bg-[#08091a] bg-galactic-stars text-white'
+          ? 'bg-daybreak-sunny text-slate-900 arcade-scrollbar-light'
+          : 'bg-[#08091a] bg-galactic-stars text-white arcade-scrollbar-dark'
       }`}
     >
       {/* 1. Header — Sleek Cyber-Dojo Navigation Bar */}
@@ -286,7 +286,7 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
                         ? 'bg-emerald-50/95 border-emerald-400 text-slate-900 shadow-emerald-500/10'
                         : 'bg-emerald-950/40 border-emerald-500/50 text-white shadow-emerald-950/40')
                     : (isLight
-                        ? 'bg-white/95 border-slate-300 text-slate-900 shadow-slate-200'
+                        ? 'dojo-card-light text-slate-900 shadow-md'
                         : 'bg-slate-900/90 border-slate-700/80 text-white shadow-black/50')
                 }`}
               >
