@@ -374,6 +374,28 @@ export const loadUserProgress = (): UserProgress => {
   }
 };
 
+export const ACCOUNT_PROGRESS_PREFIX = 'vocab_pew_pew_account_progress_';
+
+export const saveAccountProgressLocally = (username: string, progress: UserProgress): void => {
+  try {
+    const key = `${ACCOUNT_PROGRESS_PREFIX}${username.trim().toLowerCase()}`;
+    localStorage.setItem(key, JSON.stringify(progress));
+  } catch (err) {
+    console.warn('[Storage] Failed to cache account progress locally:', err);
+  }
+};
+
+export const loadAccountProgressLocally = (username: string): UserProgress | null => {
+  try {
+    const key = `${ACCOUNT_PROGRESS_PREFIX}${username.trim().toLowerCase()}`;
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.warn('[Storage] Failed to read cached account progress:', err);
+    return null;
+  }
+};
+
 export const resetProgressForNewAccount = (): UserProgress => {
   const initial = getInitialUserProgress();
   saveUserProgress(initial);
@@ -384,6 +406,9 @@ export const saveUserProgress = (progress: UserProgress): void => {
   try {
     console.info(`[Storage:saveUserProgress] Saved state -> Gems: ${progress.gems} 💎 | XP: ${progress.totalXp} | Level: ${progress.currentLevelId} | Energy: ${progress.energy}⚡`);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    if (progress.accountUsername) {
+      saveAccountProgressLocally(progress.accountUsername, progress);
+    }
     queueCloudSync(progress);
   } catch (err) {
     console.error('Failed to save user progress:', err);
@@ -851,7 +876,7 @@ export interface TypingSessionResultInput {
   lessonId?: string;               // set khi phiên gõ thuộc 1 bài trong TYPING_LESSONS
   wpm: number;
   accuracy: number;
-  mistakeKeys: MistakeKeyCount[];
+  mistakeKeys?: MistakeKeyCount[];
   minAccuracyToPass?: number;      // ngưỡng qua bài, dùng khi lessonId có giá trị (mặc định 80)
 }
 
@@ -929,6 +954,7 @@ export const recordTypingSessionResult = (
   const updatedTyping: TypingProgress = {
     ...current,
     lastActiveMode: 'dojo',
+    currentLessonId: input.lessonId || current.currentLessonId,
     lessonProgressMap,
     bestWpmOverall: Math.max(current.bestWpmOverall, safeWpm),
     bestAccuracyOverall: Math.max(current.bestAccuracyOverall, safeAccuracy),
@@ -946,6 +972,39 @@ export const recordTypingSessionResult = (
 
   saveUserProgress(updated);
   return updated;
+};
+
+/**
+ * Cập nhật bài học đang chọn/luyện tập dở trong Typing Dojo để mở lại đúng bài lần sau.
+ */
+export const updateTypingCurrentLesson = (
+  prev: UserProgress,
+  lessonId: string
+): UserProgress => {
+  const current = getSafeTypingProgress(prev);
+  const updated: UserProgress = {
+    ...prev,
+    typingProgress: {
+      ...current,
+      currentLessonId: lessonId
+    }
+  };
+  saveUserProgress(updated);
+  return updated;
+};
+
+export type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL' | 'DOJO' | 'DOJO_PARAGRAPH';
+
+/**
+ * Xác định màn hình khởi động dựa trên hash URL hoặc tab hoạt động gần nhất (Dojo vs Saga)
+ */
+export const resolveInitialScreen = (saved: UserProgress): AppScreen => {
+  if (!saved.hasSeenLanding) return 'LANDING';
+  const hash = typeof window !== 'undefined' ? (window.location.hash || '').toLowerCase() : '';
+  if (hash === '#dojo' || hash === '#typing-dojo') return 'DOJO';
+  if (hash === '#dojo-paragraph' || hash === '#paragraph') return 'DOJO_PARAGRAPH';
+  if (saved.typingProgress?.lastActiveMode === 'dojo') return 'DOJO';
+  return 'MAP';
 };
 
 /**

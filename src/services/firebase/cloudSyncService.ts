@@ -52,6 +52,56 @@ export const calculateCompletedLevelsCount = (progress: UserProgress): number =>
 };
 
 /**
+ * Build consolidated Firestore player payload
+ */
+export const buildUserSyncPayload = (progress: UserProgress, uid: string, playerTag: string, weekId: string) => {
+  const totalStars = calculateTotalStars(progress);
+  const completedCount = calculateCompletedLevelsCount(progress);
+
+  return {
+    uid,
+    playerTag,
+    userName: progress.userName || 'Phi Hành Gia',
+    avatar: progress.avatar || '🚀',
+    gender: progress.gender || 'neutral',
+    themeStyle: progress.themeStyle || 'cosmic_cyan',
+    mascotId: progress.mascotId || 'cosmo_dog',
+    userAge: progress.userAge || 8,
+    selectedRealmId: progress.selectedRealmId || 'realm-1',
+    currentLevelId: progress.currentLevelId,
+    totalXp: progress.totalXp || 0,
+    weeklyXp: progress.weeklyXp || 0,
+    starsCount: totalStars,
+    completedLevelsCount: completedCount,
+    streakDays: progress.streakDays || 1,
+    gems: progress.gems || 0,
+    equippedShipId: progress.equippedShipId || 'ship-scout',
+    equippedBlasterId: progress.equippedBlasterId || 'blaster-single',
+    equippedLaserId: progress.equippedLaserId || 'laser-cyan',
+    unlockedUpgradeIds: progress.unlockedUpgradeIds || [],
+    dailyEnergyMode: progress.dailyEnergyMode || 'balanced',
+    activeTitle: progress.activeTitle || 'Phi Hành Gia Tập Sự',
+    unlockedBadgeIds: progress.unlockedBadgeIds || [],
+    selectedBadgeIds: progress.selectedBadgeIds || [],
+    wordsMastered: calculateWordsMastered(progress),
+    graduatedRealmIds: progress.graduatedRealmIds || [],
+    graduatedRealmsCount: (progress.graduatedRealmIds || []).length,
+    legendaryUnitsCount: Object.keys(progress.legendaryUnitsMap || {}).length,
+    legendaryUnitsMap: progress.legendaryUnitsMap || {},
+    dailyQuestProgress: progress.dailyQuestProgress || null,
+    levelProgressMap: progress.levelProgressMap || {},
+    unlockedLevelIds: Array.from(progress.unlockedLevelIds || []),
+    mistakeMap: progress.mistakeMap || {},
+    typingProgress: progress.typingProgress || null,
+    bestWpmOverall: progress.typingProgress?.bestWpmOverall || 0,
+    bestAccuracyOverall: progress.typingProgress?.bestAccuracyOverall || 0,
+    lastActiveDate: progress.lastActiveDate,
+    lastWeeklyReset: weekId,
+    updatedAt: serverTimestamp()
+  };
+};
+
+/**
  * Queue progress update to Firestore with debounce (1500ms) to conserve free quotas
  */
 export const queueCloudSync = (progress: UserProgress) => {
@@ -80,46 +130,7 @@ export const queueCloudSync = (progress: UserProgress) => {
       const weekId = getWeekIdentifier();
 
       const userDocRef = doc(currentDb, 'users', uid);
-      const totalStars = calculateTotalStars(progress);
-      const completedCount = calculateCompletedLevelsCount(progress);
-
-      const payload = {
-        uid,
-        playerTag,
-        userName: progress.userName || 'Phi Hành Gia',
-        avatar: progress.avatar || '🚀',
-        gender: progress.gender || 'neutral',
-        themeStyle: progress.themeStyle || 'cosmic_cyan',
-        mascotId: progress.mascotId || 'cosmo_dog',
-        userAge: progress.userAge || 8,
-        selectedRealmId: progress.selectedRealmId || 'realm-1',
-        currentLevelId: progress.currentLevelId,
-        totalXp: progress.totalXp || 0,
-        weeklyXp: progress.weeklyXp || 0,
-        starsCount: totalStars,
-        completedLevelsCount: completedCount,
-        streakDays: progress.streakDays || 1,
-        gems: progress.gems || 0,
-        equippedShipId: progress.equippedShipId || 'ship-scout',
-        equippedBlasterId: progress.equippedBlasterId || 'blaster-single',
-        equippedLaserId: progress.equippedLaserId || 'laser-cyan',
-        unlockedUpgradeIds: progress.unlockedUpgradeIds || [],
-        dailyEnergyMode: progress.dailyEnergyMode || 'balanced',
-        activeTitle: progress.activeTitle || 'Phi Hành Gia Tập Sự',
-        unlockedBadgeIds: progress.unlockedBadgeIds || [],
-        selectedBadgeIds: progress.selectedBadgeIds || [],
-        wordsMastered: calculateWordsMastered(progress),
-        graduatedRealmIds: progress.graduatedRealmIds || [],
-        graduatedRealmsCount: (progress.graduatedRealmIds || []).length,
-        legendaryUnitsCount: Object.keys(progress.legendaryUnitsMap || {}).length,
-        legendaryUnitsMap: progress.legendaryUnitsMap || {},
-        dailyQuestProgress: progress.dailyQuestProgress || null,
-        bestWpmOverall: progress.typingProgress?.bestWpmOverall || 0,
-        bestAccuracyOverall: progress.typingProgress?.bestAccuracyOverall || 0,
-        lastActiveDate: progress.lastActiveDate,
-        lastWeeklyReset: weekId,
-        updatedAt: serverTimestamp()
-      };
+      const payload = buildUserSyncPayload(progress, uid, playerTag, weekId);
 
       await setDoc(userDocRef, payload, { merge: true });
 
@@ -140,6 +151,43 @@ export const queueCloudSync = (progress: UserProgress) => {
       notifyStatus('error');
     }
   }, 1500);
+};
+
+/**
+ * Immediate, un-debounced sync to Firestore (used prior to logout or critical milestones)
+ */
+export const syncCloudNow = async (progress: UserProgress): Promise<void> => {
+  if (!isFirebaseConfigured || !db || !isOnlineAuth()) {
+    notifyStatus('offline');
+    return;
+  }
+
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
+
+  notifyStatus('syncing');
+
+  try {
+    const activeUid = getCurrentUid();
+    const uid = (activeUid && !activeUid.startsWith('local_')) ? activeUid : (progress.cloudUid || activeUid);
+    if (!uid) {
+      notifyStatus('idle');
+      return;
+    }
+    const playerTag = progress.playerTag || getOrInitPlayerTag();
+    const weekId = getWeekIdentifier();
+
+    const userDocRef = doc(db, 'users', uid);
+    const payload = buildUserSyncPayload(progress, uid, playerTag, weekId);
+
+    await setDoc(userDocRef, payload, { merge: true });
+    notifyStatus('synced', Date.now());
+  } catch (error) {
+    console.warn('[CloudSync] Immediate sync failed, keeping local copy safe:', error);
+    notifyStatus('error');
+  }
 };
 
 /**

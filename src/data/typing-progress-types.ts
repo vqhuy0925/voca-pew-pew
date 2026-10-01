@@ -17,6 +17,7 @@ export const TYPING_WPM_HISTORY_CAP = 30;
 
 export interface TypingProgress {
   lastActiveMode?: 'saga' | 'dojo';
+  currentLessonId?: string;                   // ID bài học hiện đang chọn/luyện tập dở
   lessonProgressMap: Record<string, TypingLessonProgress>;
   bestWpmOverall: number;
   bestAccuracyOverall: number;
@@ -28,6 +29,7 @@ export interface TypingProgress {
 
 export const DEFAULT_TYPING_PROGRESS: TypingProgress = {
   lastActiveMode: 'saga',
+  currentLessonId: undefined,
   lessonProgressMap: {},
   bestWpmOverall: 0,
   bestAccuracyOverall: 0,

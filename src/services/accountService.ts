@@ -1,8 +1,17 @@
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase/firebaseConfig';
 import { UserProgress } from '../data/progress-types';
+import { DEFAULT_TYPING_PROGRESS } from '../data/typing-progress-types';
 import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
-import { loadUserProgress, saveUserProgress, getInitialUserProgress } from './progressStorage';
+import {
+  loadUserProgress,
+  saveUserProgress,
+  getInitialUserProgress,
+  loadAccountProgressLocally,
+  saveAccountProgressLocally
+} from './progressStorage';
+
+export { loadAccountProgressLocally, saveAccountProgressLocally };
 
 export const ACTIVE_SESSION_KEY = 'vocab_pew_pew_active_session_v1';
 export const LOCAL_ACCOUNTS_KEY = 'vocab_pew_pew_local_accounts_v1';
@@ -389,21 +398,42 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
 
   // 5. Pull full player progress from Firestore
   let restoredProgress: UserProgress | null = null;
+  const cachedLocal = loadAccountProgressLocally(username);
+  const baseLocal = cachedLocal || loadUserProgress();
+
   if (isFirebaseConfigured && db) {
     try {
       const userDocRef = doc(db, 'users', targetAccount.uid);
       const snap = await getDoc(userDocRef);
       if (snap.exists()) {
         const cloudData = snap.data() as Partial<UserProgress>;
-        const currentLocal = loadUserProgress();
+        const mergedTyping = cloudData.typingProgress
+          ? {
+              ...DEFAULT_TYPING_PROGRESS,
+              ...(baseLocal.typingProgress || {}),
+              ...cloudData.typingProgress,
+              lessonProgressMap: {
+                ...(baseLocal.typingProgress?.lessonProgressMap || {}),
+                ...(cloudData.typingProgress?.lessonProgressMap || {})
+              }
+            }
+          : (baseLocal.typingProgress || { ...DEFAULT_TYPING_PROGRESS });
+
+        const mergedLevelMap = {
+          ...(baseLocal.levelProgressMap || {}),
+          ...(cloudData.levelProgressMap || {})
+        };
+
         restoredProgress = {
-          ...currentLocal,
+          ...baseLocal,
           ...cloudData,
-          userName: targetAccount.displayName || cloudData.userName || currentLocal.userName,
+          userName: targetAccount.displayName || cloudData.userName || baseLocal.userName,
           accountUsername: username,
           isRegisteredAccount: true,
           cloudUid: targetAccount.uid,
-          playerTag: targetAccount.playerTag || currentLocal.playerTag
+          playerTag: targetAccount.playerTag || baseLocal.playerTag,
+          typingProgress: mergedTyping,
+          levelProgressMap: mergedLevelMap
         } as UserProgress;
       }
     } catch (err) {
@@ -412,19 +442,19 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
   }
 
   if (!restoredProgress) {
-    const localProgress = loadUserProgress();
     restoredProgress = {
-      ...localProgress,
-      userName: targetAccount.displayName,
+      ...baseLocal,
+      userName: targetAccount.displayName || baseLocal.userName,
       accountUsername: username,
       isRegisteredAccount: true,
       cloudUid: targetAccount.uid,
-      playerTag: targetAccount.playerTag
+      playerTag: targetAccount.playerTag || baseLocal.playerTag
     };
   }
 
-  // Save to active localStorage progress
+  // Save to active localStorage progress and per-account cache
   saveUserProgress(restoredProgress);
+  saveAccountProgressLocally(username, restoredProgress);
 
   // 6. Set active session
   const session: AccountSession = {
