@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { UserProgress } from '../../data/progress-types';
 import { TYPING_LESSONS, TYPING_UNITS } from '../../data/typing-curriculum';
 import { TypingMetrics, TypingSessionResult } from '../../game/engine/TypingMetrics';
-import { recordTypingSessionResult } from '../../services/progressStorage';
+import { recordTypingSessionResult, updateTypingCurrentLesson } from '../../services/progressStorage';
 import { soundFx } from '../../game/engine/SoundController';
 import { VirtualKeyboardWithHands, TypingKeyFlash } from './VirtualKeyboardWithHands';
 import { TypingResultModal } from './TypingResultModal';
@@ -14,9 +14,15 @@ interface TypingDojoViewProps {
   onUpdateProgress: (updater: (prev: UserProgress) => UserProgress) => void;
   onExit: () => void;
   onStartParagraphMode: () => void;
+  onOpenCourseSwitcher?: () => void;
 }
 
 const getInitialLessonIndex = (progress: UserProgress): number => {
+  const currentId = progress.typingProgress?.currentLessonId;
+  if (currentId) {
+    const found = TYPING_LESSONS.findIndex(l => l.id === currentId);
+    if (found !== -1) return found;
+  }
   for (let i = 0; i < TYPING_LESSONS.length; i++) {
     const isCompleted = progress.typingProgress?.lessonProgressMap?.[TYPING_LESSONS[i].id]?.isCompleted;
     if (!isCompleted) return i;
@@ -28,7 +34,8 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
   progress,
   onUpdateProgress,
   onExit,
-  onStartParagraphMode
+  onStartParagraphMode,
+  onOpenCourseSwitcher
 }) => {
   const [viewMode, setViewMode] = useState<'saga' | 'drill'>('saga');
   const [lessonIndex, setLessonIndex] = useState<number>(() => getInitialLessonIndex(progress));
@@ -155,7 +162,14 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
       return;
     }
     if (passed && !isFinalLesson) {
-      setLessonIndex(i => Math.min(i + 1, TYPING_LESSONS.length - 1));
+      setLessonIndex(i => {
+        const nextIdx = Math.min(i + 1, TYPING_LESSONS.length - 1);
+        const nextLesson = TYPING_LESSONS[nextIdx];
+        if (nextLesson) {
+          onUpdateProgress(prev => updateTypingCurrentLesson(prev, nextLesson.id));
+        }
+        return nextIdx;
+      });
       return;
     }
     // Chưa đạt ngưỡng: thử lại cùng bài
@@ -202,12 +216,17 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
         currentLessonIndex={lessonIndex}
         onSelectLesson={(idx) => {
           setLessonIndex(idx);
+          const targetLesson = TYPING_LESSONS[idx];
+          if (targetLesson) {
+            onUpdateProgress(prev => updateTypingCurrentLesson(prev, targetLesson.id));
+          }
           setViewMode('drill');
         }}
         onExit={onExit}
         onStartParagraphMode={onStartParagraphMode}
         isLight={isLight}
         onToggleTheme={() => toggleTheme()}
+        onOpenCourseSwitcher={onOpenCourseSwitcher}
       />
     );
   }

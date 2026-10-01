@@ -41,6 +41,7 @@ interface LearningPathViewProps {
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
   onOpenTypingDojo?: () => void;
+  onOpenCourseSwitcher?: () => void;
   onOpenAuth?: (tab: 'register' | 'login') => void;
   onLogout?: () => void;
   onOpenMigration?: () => void;
@@ -65,6 +66,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenLanding,
   onOpenMistakeVault,
   onOpenTypingDojo,
+  onOpenCourseSwitcher,
   onOpenAuth,
   onLogout,
   onOpenMigration,
@@ -198,6 +200,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenMistakeVault={onOpenMistakeVault}
         onOpenDailyQuests={() => setShowDailyQuestModal(true)}
         onOpenTypingDojo={onOpenTypingDojo}
+        onOpenCourseSwitcher={onOpenCourseSwitcher}
         onOpenAuth={onOpenAuth}
         onLogout={onLogout}
         onOpenMigration={onOpenMigration}
@@ -211,10 +214,14 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         <button
           onClick={() => {
             soundFx.playClick();
-            setShowRealmModal(true);
+            if (onOpenCourseSwitcher) {
+              onOpenCourseSwitcher();
+            } else {
+              setShowRealmModal(true);
+            }
           }}
           className="group flex items-center gap-3.5 px-6 py-3 rounded-full border-2 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8 bg-slate-900/95 hover:bg-slate-800 border-slate-700/90 hover:border-cyan-400/80"
-          title="Bấm để chuyển đổi cõi thiên hà khác"
+          title="Bấm để chuyển đổi cõi thiên hà hoặc môn học khác"
         >
           <span className="text-3xl drop-shadow">{currentRealm.icon}</span>
           <div className="flex flex-col text-left">

@@ -26,8 +26,12 @@ import {
   recordSessionMistakes,
   updateTypingLastActiveMode,
   markLandingSeen,
-  resetProgressForNewAccount
+  resetProgressForNewAccount,
+  saveAccountProgressLocally,
+  resolveInitialScreen,
+  AppScreen
 } from './services/progressStorage';
+import { syncCloudNow } from './services/firebase/cloudSyncService';
 import { AuthModal } from './components/auth/AuthModal';
 import { DataMigrationModal } from './components/auth/DataMigrationModal';
 import {
@@ -59,6 +63,7 @@ import { speechHelper } from './game/engine/SpeechHelper';
 import { initAuthSession, ensureCloudAuthSession, setIncognitoBlocked } from './services/firebase/authService';
 import { checkIsIncognito } from './services/incognitoDetector';
 import { IncognitoWarningModal } from './components/modals/IncognitoWarningModal';
+import { CourseSwitcherModal } from './components/modals/CourseSwitcherModal';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { InstallGuideModal } from './components/modals/InstallGuideModal';
 import { LandingPage } from './components/landing/LandingPage';
@@ -82,7 +87,6 @@ const TypingDojoLoadingFallback: React.FC = () => (
   </div>
 );
 
-type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL' | 'DOJO' | 'DOJO_PARAGRAPH';
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -101,7 +105,7 @@ const INITIAL_STATS: GameStats = {
 export const App: React.FC = () => {
   const [screen, setScreen] = useState<AppScreen>(() => {
     const saved = loadUserProgress();
-    return !saved.hasSeenLanding ? 'LANDING' : 'MAP';
+    return resolveInitialScreen(saved);
   });
   const [progress, setProgress] = useState<UserProgress>(loadUserProgress);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
@@ -114,6 +118,7 @@ export const App: React.FC = () => {
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
   const [showAdminPortal, setShowAdminPortal] = useState<boolean>(false);
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
+  const [showCourseSwitcherModal, setShowCourseSwitcherModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authModalTab, setAuthModalTab] = useState<'register' | 'login'>('register');
   const [showMigrationModal, setShowMigrationModal] = useState<boolean>(() => {
@@ -180,6 +185,41 @@ export const App: React.FC = () => {
   useEffect(() => {
     const isGameplay = screen === 'PLAYING' || screen === 'WARMUP' || screen === 'DOJO' || screen === 'DOJO_PARAGRAPH';
     setInActiveGameplay(isGameplay);
+  }, [screen]);
+
+  // Synchronize URL hash with current screen for reload & navigation persistence
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (screen === 'DOJO') {
+      if (window.location.hash !== '#dojo') {
+        window.history.replaceState(null, '', '#dojo');
+      }
+    } else if (screen === 'DOJO_PARAGRAPH') {
+      if (window.location.hash !== '#dojo-paragraph') {
+        window.history.replaceState(null, '', '#dojo-paragraph');
+      }
+    } else if (screen === 'MAP' || screen === 'LANDING') {
+      if (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+  }, [screen]);
+
+  // Listen for browser Back/Forward (hashchange)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#dojo' || hash === '#typing-dojo') {
+        setScreen('DOJO');
+      } else if (hash === '#dojo-paragraph' || hash === '#paragraph') {
+        setScreen('DOJO_PARAGRAPH');
+      } else if (!hash && (screen === 'DOJO' || screen === 'DOJO_PARAGRAPH')) {
+        setScreen('MAP');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [screen]);
 
   // Listen for Admin shortcut (Ctrl+Shift+A or Cmd+Shift+A)
@@ -279,13 +319,20 @@ export const App: React.FC = () => {
   }, []);
 
   const handleLogout = useCallback(() => {
+    if (progress.accountUsername) {
+      saveAccountProgressLocally(progress.accountUsername, progress);
+      syncCloudNow(progress).catch(() => {});
+    }
     logoutAccount();
     const cleanProgress = resetProgressForNewAccount();
     setProgress(cleanProgress);
+    if (typeof window !== 'undefined' && (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
     setScreen('LANDING');
     setAuthModalTab('login');
     setShowAuthModal(true);
-  }, []);
+  }, [progress]);
 
   const handleStartFromLanding = useCallback(() => {
     if (!progress.isRegisteredAccount) {
@@ -320,6 +367,9 @@ export const App: React.FC = () => {
 
   const handleExitTypingDojo = useCallback(() => {
     handleUpdateProgress(prev => updateTypingLastActiveMode(prev, 'saga'));
+    if (typeof window !== 'undefined' && (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
     setScreen('MAP');
   }, [handleUpdateProgress]);
 
@@ -605,6 +655,7 @@ export const App: React.FC = () => {
               onUpdateProgress={handleUpdateProgress}
               onExit={handleExitTypingDojo}
               onStartParagraphMode={handleStartParagraphMode}
+              onOpenCourseSwitcher={() => setShowCourseSwitcherModal(true)}
             />
           ) : (
             <ParagraphTypingView
@@ -633,6 +684,7 @@ export const App: React.FC = () => {
           onOpenLanding={handleOpenLanding}
           onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
           onOpenTypingDojo={handleOpenTypingDojo}
+          onOpenCourseSwitcher={() => setShowCourseSwitcherModal(true)}
           onOpenAuth={(t) => {
             setAuthModalTab(t);
             setShowAuthModal(true);
@@ -908,6 +960,29 @@ export const App: React.FC = () => {
         onSuccess={handleMigrationSuccess}
         onSkip={() => setShowMigrationModal(false)}
       />
+
+      {/* 21. Duolingo-style Unified Course Switcher Modal 🚀 */}
+      {showCourseSwitcherModal && (
+        <CourseSwitcherModal
+          progress={progress}
+          activeMode={screen === 'DOJO' || screen === 'DOJO_PARAGRAPH' ? 'dojo' : 'saga'}
+          currentRealmId={progress.selectedRealmId || 'realm-1'}
+          onSelectCourse={(courseId, realmId) => {
+            if (courseId === 'course_typing') {
+              handleOpenTypingDojo();
+            } else if (courseId === 'course_english') {
+              if (realmId) {
+                handleUpdateProgress(p => ({ ...p, selectedRealmId: realmId }));
+              }
+              if (screen === 'DOJO' || screen === 'DOJO_PARAGRAPH') {
+                handleExitTypingDojo();
+              }
+            }
+            setShowCourseSwitcherModal(false);
+          }}
+          onClose={() => setShowCourseSwitcherModal(false)}
+        />
+      )}
     </div>
   );
 };

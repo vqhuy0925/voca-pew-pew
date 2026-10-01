@@ -5,6 +5,7 @@ import { TypingSagaNode } from './TypingSagaNode';
 import { TypingSagaCurvedPath } from './TypingSagaCurvedPath';
 import { ArrowLeft, BookOpen, Sun, Moon, Lock, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
+import { CoursePillButton } from '../common/CoursePillButton';
 
 interface TypingSagaMapViewProps {
   progress: UserProgress;
@@ -14,6 +15,7 @@ interface TypingSagaMapViewProps {
   onStartParagraphMode: () => void;
   isLight: boolean;
   onToggleTheme: () => void;
+  onOpenCourseSwitcher?: () => void;
 }
 
 // Bảng tên Đai Võ Sĩ tương ứng với 6 Trạm trong Lộ trình Typing Dojo
@@ -37,7 +39,8 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
   onExit,
   onStartParagraphMode,
   isLight,
-  onToggleTheme
+  onToggleTheme,
+  onOpenCourseSwitcher
 }) => {
   const unitRefs = useRef<Record<string, HTMLElement | null>>({});
   const currentLessonRef = useRef<HTMLDivElement | null>(null);
@@ -119,22 +122,32 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
         }`}
       >
         <div className="max-w-4xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-          {/* Back Button (Về Vũ Trụ) */}
-          <button
-            onClick={() => {
-              soundFx.playClick();
-              onExit();
-            }}
-            className={`btn-3d flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
-              isLight
-                ? 'btn-3d-slate bg-white text-slate-800 border-b-4 border-slate-300 hover:bg-slate-50'
-                : 'btn-3d-slate bg-slate-900 text-slate-200 border-b-4 border-slate-950 hover:text-white'
-            }`}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden xs:inline">Vũ Trụ</span>
-            <span className="xs:hidden">Thoát</span>
-          </button>
+          {/* Back Button & Course Pill */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onExit();
+              }}
+              className={`btn-3d flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                isLight
+                  ? 'btn-3d-slate bg-white text-slate-800 border-b-4 border-slate-300 hover:bg-slate-50'
+                  : 'btn-3d-slate bg-slate-900 text-slate-200 border-b-4 border-slate-950 hover:text-white'
+              }`}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden xs:inline">Vũ Trụ</span>
+            </button>
+
+            {onOpenCourseSwitcher && (
+              <CoursePillButton
+                progress={progress}
+                activeMode="dojo"
+                isLight={isLight}
+                onClick={onOpenCourseSwitcher}
+              />
+            )}
+          </div>
 
           {/* Center Title & Global Dojo Progress */}
           <div className="flex flex-col items-center min-w-0">

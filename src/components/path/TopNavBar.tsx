@@ -5,6 +5,7 @@ import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
 import { subscribeSyncStatus, SyncStatus } from '../../services/firebase/cloudSyncService';
+import { CoursePillButton } from '../common/CoursePillButton';
 
 interface TopNavBarProps {
   progress: UserProgress;
@@ -21,6 +22,7 @@ interface TopNavBarProps {
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
   onOpenTypingDojo?: () => void;
+  onOpenCourseSwitcher?: () => void;
   onOpenAuth?: (tab: 'register' | 'login') => void;
   onLogout?: () => void;
   onOpenMigration?: () => void;
@@ -42,6 +44,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenMistakeVault,
   onOpenDailyQuests,
   onOpenTypingDojo,
+  onOpenCourseSwitcher,
   onOpenAuth,
   onLogout,
   onOpenMigration,
@@ -80,35 +83,46 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       }}
     >
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
-        {/* Row 1 on Mobile: Avatar/Profile (Left) & Core Status Pills (Right on mobile) */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-2">
-          {/* Brand Logo & Profile */}
-          <button
-            onClick={onOpenProfileModal}
-            className={`h-9 sm:h-10 flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl border transition cursor-pointer active:scale-95 group shadow-sm shrink-0 whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border-slate-700/80 hover:${theme.borderAccent}`}
-            title="Đổi tên, phong cách, màu sắc & bạn đồng hành"
-          >
-            <div className="relative flex items-center justify-center">
-              <span className="text-lg sm:text-2xl drop-shadow leading-none">{progress.avatar || '🚀'}</span>
-              <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{genderBadge}</span>
-            </div>
-            <div className="text-left flex items-center gap-1.5">
-              <div className="flex flex-col">
-                <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[130px] md:max-w-[150px] text-white group-hover:${theme.textColor}`}>
-                  {displayName}
-                </span>
-                {progress.accountUsername && (
-                  <span className="text-[10px] text-cyan-400/80 font-mono -mt-0.5 truncate max-w-[85px] sm:max-w-[130px]">
-                    @{progress.accountUsername}
-                  </span>
-                )}
+        {/* Row 1 on Mobile: Avatar/Profile + Course Switcher (Left) & Core Status Pills (Right on mobile) */}
+        <div className="flex items-center justify-between w-full md:w-auto gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Brand Logo & Profile */}
+            <button
+              onClick={onOpenProfileModal}
+              className={`h-9 sm:h-10 flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3 rounded-xl sm:rounded-2xl border transition cursor-pointer active:scale-95 group shadow-sm shrink-0 whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border-slate-700/80 hover:${theme.borderAccent}`}
+              title="Đổi tên, phong cách, màu sắc & bạn đồng hành"
+            >
+              <div className="relative flex items-center justify-center">
+                <span className="text-lg sm:text-2xl drop-shadow leading-none">{progress.avatar || '🚀'}</span>
+                <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{genderBadge}</span>
               </div>
-              {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 text-emerald-400" /></span>}
-              {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" /></span>}
-              {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-3.5 h-3.5 text-slate-500" /></span>}
-              {syncStatus === 'error' && <span title="Lỗi đồng bộ mây"><CloudOff className="w-3.5 h-3.5 text-rose-400" /></span>}
-            </div>
-          </button>
+              <div className="text-left flex items-center gap-1.5">
+                <div className="flex flex-col">
+                  <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[130px] md:max-w-[150px] text-white group-hover:${theme.textColor}`}>
+                    {displayName}
+                  </span>
+                  {progress.accountUsername && (
+                    <span className="text-[10px] text-cyan-400/80 font-mono -mt-0.5 truncate max-w-[85px] sm:max-w-[130px]">
+                      @{progress.accountUsername}
+                    </span>
+                  )}
+                </div>
+                {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 text-emerald-400" /></span>}
+                {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" /></span>}
+                {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-3.5 h-3.5 text-slate-500" /></span>}
+                {syncStatus === 'error' && <span title="Lỗi đồng bộ mây"><CloudOff className="w-3.5 h-3.5 text-rose-400" /></span>}
+              </div>
+            </button>
+
+            {/* Duolingo-style Course Switcher Pill */}
+            {onOpenCourseSwitcher && (
+              <CoursePillButton
+                progress={progress}
+                activeMode="saga"
+                onClick={onOpenCourseSwitcher}
+              />
+            )}
+          </div>
 
           {/* Quick Mobile Save Button if unregistered */}
           {!progress.isRegisteredAccount && onOpenMigration && (
