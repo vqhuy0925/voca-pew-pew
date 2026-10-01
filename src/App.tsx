@@ -24,8 +24,17 @@ import {
   updateDailyEnergyMode,
   getActiveWeakWords,
   recordSessionMistakes,
-  updateTypingLastActiveMode
+  updateTypingLastActiveMode,
+  markLandingSeen,
+  resetProgressForNewAccount
 } from './services/progressStorage';
+import { AuthModal } from './components/auth/AuthModal';
+import { DataMigrationModal } from './components/auth/DataMigrationModal';
+import {
+  hasLegacyUnregisteredProgress,
+  logoutAccount,
+  getActiveAccountSession
+} from './services/accountService';
 
 import { LearningPathView } from './components/path/LearningPathView';
 import { WarmupModal } from './components/modals/WarmupModal';
@@ -105,6 +114,12 @@ export const App: React.FC = () => {
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
   const [showAdminPortal, setShowAdminPortal] = useState<boolean>(false);
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [authModalTab, setAuthModalTab] = useState<'register' | 'login'>('register');
+  const [showMigrationModal, setShowMigrationModal] = useState<boolean>(() => {
+    const saved = loadUserProgress();
+    return hasLegacyUnregisteredProgress(saved);
+  });
   const pwaState = usePWAInstall();
   const [detectedBrowser, setDetectedBrowser] = useState<string>('');
   const isBattleSettledRef = useRef<boolean>(false);
@@ -254,13 +269,49 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  const handleStartFromLanding = useCallback(() => {
-    handleUpdateProgress(prev => ({
-      ...prev,
-      hasSeenLanding: true
-    }));
-    setScreen('MAP');
+  const handleAuthSuccess = useCallback((updatedProgress: UserProgress, isNewRegistration: boolean) => {
+    setProgress(updatedProgress);
+    setShowAuthModal(false);
+    if (isNewRegistration && !updatedProgress.userName) {
+      setShowProfileModal(true);
+    } else {
+      handleUpdateProgress(prev => ({ ...prev, hasSeenLanding: true }));
+      setScreen('MAP');
+    }
   }, [handleUpdateProgress]);
+
+  const handleMigrationSuccess = useCallback((updatedProgress: UserProgress) => {
+    setProgress(updatedProgress);
+    setShowMigrationModal(false);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    logoutAccount();
+    const cleanProgress = resetProgressForNewAccount();
+    setProgress(cleanProgress);
+    setScreen('LANDING');
+    setAuthModalTab('login');
+    setShowAuthModal(true);
+  }, []);
+
+  const handleStartFromLanding = useCallback(() => {
+    if (!progress.isRegisteredAccount) {
+      if (hasLegacyUnregisteredProgress(progress)) {
+        setShowMigrationModal(true);
+      } else {
+        setAuthModalTab('register');
+        setShowAuthModal(true);
+      }
+    } else if (!progress.userName) {
+      setShowProfileModal(true);
+    } else {
+      handleUpdateProgress(prev => ({
+        ...prev,
+        hasSeenLanding: true
+      }));
+      setScreen('MAP');
+    }
+  }, [progress, handleUpdateProgress]);
 
   const handleOpenLanding = useCallback(() => {
     setScreen('LANDING');
@@ -544,7 +595,11 @@ export const App: React.FC = () => {
           onOpenProfile={() => setShowProfileModal(true)}
           onOpenAdmin={() => setShowAdminPortal(true)}
           onOpenTypingDojo={handleOpenTypingDojo}
-          isReturningUser={Boolean(progress.hasSeenLanding)}
+          onOpenAuth={(t) => {
+            setAuthModalTab(t);
+            setShowAuthModal(true);
+          }}
+          isReturningUser={Boolean(progress.hasSeenLanding && progress.isRegisteredAccount)}
         />
       )}
 
@@ -585,6 +640,12 @@ export const App: React.FC = () => {
           onOpenLanding={handleOpenLanding}
           onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
           onOpenTypingDojo={handleOpenTypingDojo}
+          onOpenAuth={(t) => {
+            setAuthModalTab(t);
+            setShowAuthModal(true);
+          }}
+          onLogout={handleLogout}
+          onOpenMigration={() => setShowMigrationModal(true)}
           showInstallButton={pwaState.isInstallable}
         />
       )}
@@ -836,6 +897,23 @@ export const App: React.FC = () => {
       <AdminPortal
         isOpen={showAdminPortal}
         onClose={() => setShowAdminPortal(false)}
+      />
+
+      {/* 19. Player Auth Modal (Username + 4-digit PIN) */}
+      <AuthModal
+        isOpen={showAuthModal}
+        initialTab={authModalTab}
+        onSuccess={handleAuthSuccess}
+        onClose={() => setShowAuthModal(false)}
+        allowClose={Boolean(progress.isRegisteredAccount)}
+      />
+
+      {/* 20. Data Migration Modal for Legacy Players */}
+      <DataMigrationModal
+        isOpen={showMigrationModal}
+        currentProgress={progress}
+        onSuccess={handleMigrationSuccess}
+        onSkip={() => setShowMigrationModal(false)}
       />
     </div>
   );

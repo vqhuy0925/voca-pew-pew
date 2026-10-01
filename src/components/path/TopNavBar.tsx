@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle, Keyboard, Sun, Moon } from 'lucide-react';
+import { Flame, Gem, Heart, Volume2, VolumeX, Rocket, Zap, Cloud, CloudOff, RefreshCw, Trophy, Shield, Smartphone, HelpCircle, Keyboard, Sun, Moon, LogOut, Key, UserCheck } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
@@ -21,6 +21,9 @@ interface TopNavBarProps {
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
   onOpenTypingDojo?: () => void;
+  onOpenAuth?: (tab: 'register' | 'login') => void;
+  onLogout?: () => void;
+  onOpenMigration?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -39,6 +42,9 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onOpenMistakeVault,
   onOpenDailyQuests,
   onOpenTypingDojo,
+  onOpenAuth,
+  onLogout,
+  onOpenMigration,
   showInstallButton = true
 }) => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
@@ -87,9 +93,16 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">{genderBadge}</span>
             </div>
             <div className="text-left flex items-center gap-1.5">
-              <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[130px] md:max-w-[150px] text-white group-hover:${theme.textColor}`}>
-                {displayName}
-              </span>
+              <div className="flex flex-col">
+                <span className={`font-game font-black text-xs sm:text-sm transition truncate max-w-[85px] sm:max-w-[130px] md:max-w-[150px] text-white group-hover:${theme.textColor}`}>
+                  {displayName}
+                </span>
+                {progress.accountUsername && (
+                  <span className="text-[10px] text-cyan-400/80 font-mono -mt-0.5 truncate max-w-[85px] sm:max-w-[130px]">
+                    @{progress.accountUsername}
+                  </span>
+                )}
+              </div>
               {syncStatus === 'synced' && <span title="Đã đồng bộ đám mây"><Cloud className="w-3.5 h-3.5 text-emerald-400" /></span>}
               {syncStatus === 'syncing' && <span title="Đang đồng bộ..."><RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin" /></span>}
               {syncStatus === 'offline' && <span title="Chế độ ngoại tuyến"><CloudOff className="w-3.5 h-3.5 text-slate-500" /></span>}
@@ -333,6 +346,36 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 shrink-0" />
             )}
           </button>
+
+          {/* Account Management: Logout/Switch Account or Save Legacy Account */}
+          {progress.isRegisteredAccount && onLogout ? (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                if (window.confirm(`Bạn có chắc muốn đăng xuất khỏi tài khoản @${progress.accountUsername}?`)) {
+                  onLogout();
+                }
+              }}
+              className="btn-3d btn-3d-slate h-9 sm:h-10 px-2 sm:px-2.5 flex items-center justify-center gap-1.5 border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-400 rounded-xl sm:rounded-2xl shadow-sm shrink-0 text-xs font-bold"
+              title={`Đăng xuất khỏi @${progress.accountUsername}`}
+              aria-label="Đăng xuất"
+            >
+              <LogOut className="w-4 h-4 text-rose-400 shrink-0" />
+              <span className="hidden xl:inline text-slate-400">Đổi TK</span>
+            </button>
+          ) : onOpenMigration ? (
+            <button
+              onClick={() => {
+                soundFx.playClick();
+                onOpenMigration();
+              }}
+              className="btn-3d btn-3d-yellow h-9 sm:h-10 px-2 sm:px-3 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl shadow-md shrink-0 text-xs font-black animate-pulse"
+              title="Đặt mã PIN để bảo vệ tài khoản và chơi trên mọi thiết bị"
+            >
+              <Shield className="w-4 h-4 text-slate-950 shrink-0" />
+              <span className="hidden sm:inline text-slate-950">LƯU TK</span>
+            </button>
+          ) : null}
 
           {/* Info / Landing Introduction Button */}
           {onOpenLanding && (

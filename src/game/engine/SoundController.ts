@@ -264,6 +264,11 @@ class SoundController {
     }
   }
 
+  // Fanfare celebration sound
+  public playFanfare() {
+    this.playChestOpen();
+  }
+
   // Bubbly Button Click
   public playClick() {
     if (this.isMuted) return;

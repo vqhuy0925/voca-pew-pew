@@ -105,6 +105,8 @@ export interface UserProgress {
   playerTag?: string;               // Unique friend code e.g. '#PEW-8492'
   cloudUid?: string;                // Firebase UID
   lastCloudSyncTimestamp?: number;  // Last time synced with Firestore
+  accountUsername?: string;         // Unique registered username (lowercase, e.g. 'nhimcon')
+  isRegisteredAccount?: boolean;    // Whether this profile is registered with username + 4-digit PIN
 
   // Leaderboard & Weekly Competition (Phase 2) 🏆
   weeklyXp?: number;                // XP earned in the current week

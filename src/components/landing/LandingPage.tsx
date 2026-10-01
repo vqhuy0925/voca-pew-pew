@@ -10,7 +10,8 @@ import {
   Keyboard,
   ArrowRight,
   User,
-  Play
+  Play,
+  Key
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
@@ -27,6 +28,7 @@ interface LandingPageProps {
   onOpenProfile?: () => void;
   onOpenAdmin?: () => void;
   onOpenTypingDojo?: () => void;
+  onOpenAuth?: (tab: 'register' | 'login') => void;
   isReturningUser?: boolean;
 }
 
@@ -36,6 +38,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenProfile,
   onOpenAdmin,
   onOpenTypingDojo,
+  onOpenAuth,
   isReturningUser = false
 }) => {
   const [branding, setBranding] = useState<BrandingConfig>(() => getBrandingConfig());
@@ -139,6 +142,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               >
                 <Keyboard className="w-4 h-4" />
                 <span className="hidden sm:inline">Typing Dojo</span>
+              </button>
+            )}
+
+            {onOpenAuth && !progress.isRegisteredAccount && (
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  onOpenAuth('login');
+                }}
+                className="btn-3d btn-3d-slate px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1.5 shadow-md border-amber-500/40 text-amber-300 hover:text-white"
+                title="Đăng Nhập"
+              >
+                <span>Đăng Nhập</span>
               </button>
             )}
 
@@ -251,14 +267,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
         {/* Core Call to Action */}
         <div className="flex flex-col items-center gap-3 w-full max-w-md">
-          <button
-            onClick={handleStart}
-            className="btn-3d btn-3d-emerald w-full py-4 sm:py-5 px-8 rounded-2xl text-lg sm:text-2xl font-black tracking-wider flex items-center justify-center gap-3 shadow-[0_8px_30px_rgba(16,185,129,0.35)]"
-          >
-            <Rocket className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
-            <span>{isReturningUser ? 'TIẾP TỤC HỌC TẬP' : 'BẮT ĐẦU KHÁM PHÁ NGAY'}</span>
-            <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
-          </button>
+          {progress.isRegisteredAccount ? (
+            <button
+              onClick={handleStart}
+              className="btn-3d btn-3d-emerald w-full py-4 sm:py-5 px-8 rounded-2xl text-lg sm:text-2xl font-black tracking-wider flex items-center justify-center gap-3 shadow-[0_8px_30px_rgba(16,185,129,0.35)]"
+            >
+              <Rocket className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+              <span>TIẾP TỤC HỌC TẬP</span>
+              <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  soundFx.playClick();
+                  if (onOpenAuth) onOpenAuth('register');
+                  else handleStart();
+                }}
+                className="btn-3d btn-3d-cyan w-full py-4 sm:py-5 px-8 rounded-2xl text-lg sm:text-xl font-black tracking-wider flex items-center justify-center gap-3 shadow-[0_8px_30px_rgba(0,240,255,0.35)]"
+              >
+                <Rocket className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+                <span>TẠO TÀI KHOẢN & BẮT ĐẦU</span>
+                <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+              </button>
+
+              {onOpenAuth && (
+                <button
+                  onClick={() => {
+                    soundFx.playClick();
+                    onOpenAuth('login');
+                  }}
+                  className="btn-3d btn-3d-slate w-full py-3 sm:py-3.5 px-6 rounded-2xl text-sm sm:text-base font-black tracking-wider flex items-center justify-center gap-2 border-amber-500/50 text-amber-300 hover:text-white shadow-md"
+                >
+                  <Key className="w-5 h-5 text-amber-400" />
+                  <span>ĐÃ CÓ TÀI KHOẢN? ĐĂNG NHẬP</span>
+                </button>
+              )}
+            </>
+          )}
 
           {onOpenTypingDojo && (
             <button
@@ -271,7 +317,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           )}
 
           <p className="text-xs sm:text-sm text-slate-400">
-            ⚡ 100% Miễn phí • Không cần đăng ký • Tương thích mượt mà trên Máy tính & iPad
+            ⚡ 100% Miễn phí • Đăng ký bằng PIN 4 số siêu nhanh • Đăng nhập chơi trên mọi thiết bị
           </p>
 
           {onOpenProfile && (

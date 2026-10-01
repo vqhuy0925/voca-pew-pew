@@ -29,6 +29,22 @@ service cloud.firestore {
       allow delete: if false; // Disallow profile deletion directly
     }
 
+    // Player accounts collection: Username + 4-digit PIN authentication
+    match /player_accounts/{username} {
+      // Allow reading player account for login verification & username availability check
+      allow read: if true;
+
+      // Allow creating a new player account with required fields
+      allow create: if request.resource.data.username == username
+                    && request.resource.data.pinHash is string
+                    && request.resource.data.uid is string;
+
+      // Allow updating session timestamp / profile links
+      allow update: if true;
+
+      allow delete: if false;
+    }
+
     // Weekly leaderboard collection
     match /weekly_leaderboards/{weekId}/ranks/{userId} {
       allow read: if true;

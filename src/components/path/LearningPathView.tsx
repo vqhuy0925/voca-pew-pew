@@ -41,6 +41,9 @@ interface LearningPathViewProps {
   onOpenMistakeVault?: () => void;
   onOpenDailyQuests?: () => void;
   onOpenTypingDojo?: () => void;
+  onOpenAuth?: (tab: 'register' | 'login') => void;
+  onLogout?: () => void;
+  onOpenMigration?: () => void;
   showInstallButton?: boolean;
 }
 
@@ -62,6 +65,9 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenLanding,
   onOpenMistakeVault,
   onOpenTypingDojo,
+  onOpenAuth,
+  onLogout,
+  onOpenMigration,
   showInstallButton
 }) => {
   const theme = THEME_CONFIGS[progress.themeStyle || 'cosmic_cyan'] || THEME_CONFIGS.cosmic_cyan;
@@ -192,6 +198,9 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenMistakeVault={onOpenMistakeVault}
         onOpenDailyQuests={() => setShowDailyQuestModal(true)}
         onOpenTypingDojo={onOpenTypingDojo}
+        onOpenAuth={onOpenAuth}
+        onLogout={onLogout}
+        onOpenMigration={onOpenMigration}
         showInstallButton={showInstallButton}
       />
 

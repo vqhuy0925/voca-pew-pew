@@ -94,6 +94,8 @@ export const getInitialUserProgress = (): UserProgress => {
     // Cloud Identity
     playerTag: getOrInitPlayerTag(),
     cloudUid: getCurrentUid(),
+    accountUsername: undefined,
+    isRegisteredAccount: false,
 
     // Leaderboard
     weeklyXp: 0,
@@ -335,6 +337,8 @@ export const loadUserProgress = (): UserProgress => {
     // Ensure Cloud Identity
     parsed.playerTag = parsed.playerTag || getOrInitPlayerTag();
     parsed.cloudUid = parsed.cloudUid || getCurrentUid();
+    parsed.accountUsername = parsed.accountUsername || undefined;
+    parsed.isRegisteredAccount = Boolean(parsed.isRegisteredAccount);
 
     // Ensure Weekly XP reset
     const currentWeek = getWeekIdentifier();
@@ -368,6 +372,12 @@ export const loadUserProgress = (): UserProgress => {
     console.error('Failed to load user progress:', err);
     return getInitialUserProgress();
   }
+};
+
+export const resetProgressForNewAccount = (): UserProgress => {
+  const initial = getInitialUserProgress();
+  saveUserProgress(initial);
+  return initial;
 };
 
 export const saveUserProgress = (progress: UserProgress): void => {
