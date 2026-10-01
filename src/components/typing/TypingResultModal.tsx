@@ -189,21 +189,21 @@ export const TypingResultModal: React.FC<TypingResultModalProps> = ({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-2.5 pt-0.5">
+        {/* Action Buttons — 3D Tactile */}
+        <div className="flex flex-col gap-2.5 pt-1">
           <button
             onClick={() => {
               soundFx.playClick();
               onPrimaryAction();
             }}
-            className={`w-full py-4 font-orbitron font-black text-lg sm:text-xl rounded-2xl shadow-lg border-b-4 active:border-b-0 active:translate-y-1 transition flex items-center justify-center gap-2.5 cursor-pointer tracking-wider ${
+            className={`btn-3d w-full py-3.5 sm:py-4 font-orbitron font-black text-base sm:text-lg rounded-2xl shadow-xl flex items-center justify-center gap-2.5 tracking-wider ${
               isLight
-                ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:brightness-105 border-amber-600 text-slate-950 shadow-amber-300/40'
-                : `bg-gradient-to-r ${theme.buttonGradient} text-slate-950 ${theme.buttonBorder}`
+                ? 'btn-3d-amber'
+                : 'btn-3d-cyan'
             }`}
           >
             <span>{primaryActionLabel}</span>
-            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
+            <ArrowRight className="w-5 h-5 stroke-[3]" />
           </button>
 
           <div className="flex gap-2.5">
@@ -212,10 +212,10 @@ export const TypingResultModal: React.FC<TypingResultModalProps> = ({
                 soundFx.playClick();
                 onRetry();
               }}
-              className={`flex-1 py-3 font-orbitron font-bold text-sm sm:text-base rounded-xl border transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm ${
+              className={`btn-3d flex-1 py-2.5 sm:py-3 font-orbitron font-bold text-xs sm:text-sm rounded-xl border-b-4 flex items-center justify-center gap-2 ${
                 isLight
-                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-                  : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border-slate-700/80'
+                  ? 'btn-3d-slate bg-slate-100 text-slate-800 border-slate-300'
+                  : 'btn-3d-slate bg-slate-900 text-slate-300 border-slate-950 hover:text-white'
               }`}
             >
               <RotateCcw className="w-4 h-4" />
@@ -227,10 +227,10 @@ export const TypingResultModal: React.FC<TypingResultModalProps> = ({
                 soundFx.playClick();
                 onExit();
               }}
-              className={`flex-1 py-3 font-orbitron font-bold text-sm sm:text-base rounded-xl border transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm ${
+              className={`btn-3d flex-1 py-2.5 sm:py-3 font-orbitron font-bold text-xs sm:text-sm rounded-xl border-b-4 flex items-center justify-center gap-2 ${
                 isLight
-                  ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-                  : 'bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border-slate-700/80'
+                  ? 'btn-3d-slate bg-slate-100 text-slate-800 border-slate-300'
+                  : 'btn-3d-slate bg-slate-900 text-slate-300 border-slate-950 hover:text-white'
               }`}
             >
               {exitIcon ?? <X className={`w-4 h-4 ${isLight ? 'text-slate-600' : 'text-cyan-400'}`} />}

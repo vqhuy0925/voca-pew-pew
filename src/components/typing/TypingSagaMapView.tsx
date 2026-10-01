@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { UserProgress } from '../../data/progress-types';
-import { TYPING_LESSONS, TYPING_UNITS, TypingLesson } from '../../data/typing-curriculum';
+import { TYPING_LESSONS, TYPING_UNITS } from '../../data/typing-curriculum';
 import { TypingSagaNode } from './TypingSagaNode';
-import { ArrowLeft, BookOpen, Sun, Moon, Lock, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
+import { TypingSagaCurvedPath } from './TypingSagaCurvedPath';
+import { ArrowLeft, BookOpen, Sun, Moon, Lock, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 
 interface TypingSagaMapViewProps {
@@ -15,8 +16,19 @@ interface TypingSagaMapViewProps {
   onToggleTheme: () => void;
 }
 
-// Zigzag offsets for winding saga path (minimalist, kid-friendly)
-const ZIGZAG_OFFSETS = [0, 32, 56, 32, 0, -32, -56, -32];
+// Bảng tên Đai Võ Sĩ tương ứng với 6 Trạm trong Lộ trình Typing Dojo
+const BELT_INFOS = [
+  { name: 'Đai Trắng', subtitle: 'Hàng Phím Cơ Sở (Home Row)', colorClass: 'belt-badge-0', accentColor: '#cbd5e1' },
+  { name: 'Đai Vàng', subtitle: 'Hàng Phím Trên (Top Row)', colorClass: 'belt-badge-1', accentColor: '#eab308' },
+  { name: 'Đai Xanh Lá', subtitle: 'Hàng Phím Dưới (Bottom Row)', colorClass: 'belt-badge-2', accentColor: '#22c55e' },
+  { name: 'Đai Xanh Lam', subtitle: 'Hàng Phím Số & Ký Tự', colorClass: 'belt-badge-3', accentColor: '#0284c7' },
+  { name: 'Đai Đỏ', subtitle: 'Luyện Ghép Từ Tốc Độ', colorClass: 'belt-badge-4', accentColor: '#ef4444' },
+  { name: 'Đai Đen Cyber', subtitle: 'Luyện Câu & Đoạn Văn Đỉnh Cao', colorClass: 'belt-badge-5', accentColor: '#38bdf8' }
+];
+
+// Zigzag offsets for winding saga path (uốn lượn mượt mà)
+const ZIGZAG_OFFSETS = [0, 42, 70, 42, 0, -42, -70, -42];
+const NODE_SPACING_Y = 112; // Khoảng cách pixel chuẩn giữa các node
 
 export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
   progress,
@@ -76,7 +88,7 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
           block: 'center'
         });
       }
-    }, 200);
+    }, 250);
     return () => clearTimeout(timer);
   }, []);
 
@@ -94,50 +106,55 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
       ref={containerRef}
       className={`relative w-full h-full overflow-y-auto select-none font-game transition-colors duration-300 ${
         isLight
-          ? 'bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 text-slate-800'
-          : 'bg-space-dark text-white'
+          ? 'bg-[#f8fafc] text-slate-900'
+          : 'bg-[#08091a] bg-galactic-stars text-white'
       }`}
     >
-      {/* 1. Header — Sleek, Clean, "Less is More" */}
-      <header className={`sticky top-0 z-40 backdrop-blur-md border-b transition-colors ${
-        isLight
-          ? 'bg-white/90 border-slate-200/90 shadow-xs'
-          : 'bg-slate-950/85 border-slate-800/80 shadow-md'
-      }`}>
+      {/* 1. Header — Sleek Cyber-Dojo Navigation Bar */}
+      <header
+        className={`sticky top-0 z-40 backdrop-blur-xl border-b transition-colors shadow-lg ${
+          isLight
+            ? 'bg-white/95 border-slate-200/90'
+            : 'bg-slate-950/90 border-slate-800/80 shadow-cyan-950/20'
+        }`}
+      >
         <div className="max-w-4xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-          {/* Back Button */}
+          {/* Back Button (Về Vũ Trụ) */}
           <button
             onClick={() => {
               soundFx.playClick();
               onExit();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl border transition active:scale-95 text-xs sm:text-sm font-bold shadow-xs ${
+            className={`btn-3d flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
               isLight
-                ? 'bg-white border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
-                : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500'
+                ? 'btn-3d-slate bg-white text-slate-800 border-b-4 border-slate-300 hover:bg-slate-50'
+                : 'btn-3d-slate bg-slate-900 text-slate-200 border-b-4 border-slate-950 hover:text-white'
             }`}
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden xs:inline">Về Vũ Trụ</span>
+            <span className="hidden xs:inline">Vũ Trụ</span>
             <span className="xs:hidden">Thoát</span>
           </button>
 
-          {/* Center Title & Global Progress */}
+          {/* Center Title & Global Dojo Progress */}
           <div className="flex flex-col items-center min-w-0">
-            <h1 className={`text-base sm:text-xl font-black font-orbitron tracking-wide truncate ${
-              isLight ? 'text-slate-900' : 'text-violet-300'
-            }`}>
-              ⌨️ Lộ Trình Gõ Phím
-            </h1>
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold">
-              <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>
-                Đã hoàn thành {totalCompletedCount}/{TYPING_LESSONS.length} bài
+            <div className="flex items-center gap-1.5">
+              <span className="text-base sm:text-lg">🥋</span>
+              <h1 className="text-base sm:text-xl font-black font-orbitron tracking-wider truncate text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+                TYPING DOJO
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold mt-0.5">
+              <span className={isLight ? 'text-slate-600 font-extrabold' : 'text-slate-400 font-bold'}>
+                Đã luyện {totalCompletedCount}/{TYPING_LESSONS.length} bài
               </span>
-              <div className={`w-16 sm:w-24 h-1.5 rounded-full overflow-hidden ${
-                isLight ? 'bg-slate-200' : 'bg-slate-800'
-              }`}>
+              <div
+                className={`w-20 sm:w-28 h-2 rounded-full overflow-hidden border ${
+                  isLight ? 'bg-slate-200 border-slate-300' : 'bg-slate-900 border-slate-700/80'
+                }`}
+              >
                 <div
-                  className="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 rounded-full transition-all duration-500 shadow-sm"
                   style={{ width: `${Math.round((totalCompletedCount / TYPING_LESSONS.length) * 100)}%` }}
                 />
               </div>
@@ -152,13 +169,9 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
                 onStartParagraphMode();
               }}
               title="Chuyển sang chế độ gõ đoạn văn tự do"
-              className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border transition active:scale-95 text-xs sm:text-sm font-bold shadow-xs ${
-                isLight
-                  ? 'bg-violet-50 border-violet-200 text-violet-700 hover:bg-violet-100'
-                  : 'bg-violet-500/20 border-violet-400/40 text-violet-300 hover:bg-violet-500/30'
-              }`}
+              className="btn-3d btn-3d-purple flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black"
             >
-              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-500" />
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Đoạn Văn</span>
             </button>
 
@@ -166,57 +179,60 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
               onClick={onToggleTheme}
               title={isLight ? 'Chế độ Tối' : 'Chế độ Sáng'}
               aria-label="Đổi giao diện Sáng / Tối"
-              className={`p-2 rounded-xl border transition active:scale-95 shadow-xs ${
+              className={`p-2 rounded-xl border-2 transition active:scale-95 shadow-sm ${
                 isLight
-                  ? 'bg-amber-100/80 border-amber-300 text-amber-900 hover:bg-amber-200/80'
-                  : 'bg-slate-900/80 border-slate-700/80 text-yellow-300 hover:border-yellow-400/50'
+                  ? 'bg-amber-100/90 border-amber-300 text-amber-900 hover:bg-amber-200'
+                  : 'bg-slate-900/90 border-slate-700 text-yellow-300 hover:border-yellow-400/50'
               }`}
             >
-              {isLight ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+              {isLight ? <Moon className="w-4 h-4 text-indigo-700" /> : <Sun className="w-4 h-4 text-amber-400" />}
             </button>
           </div>
         </div>
 
-        {/* 2. Unit Quick Jump Ribbon */}
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 pb-2 pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+        {/* 2. Unit Quick Jump Belt Ribbon */}
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 pb-2.5 pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
           {TYPING_UNITS.map((unit) => {
             const unlocked = isUnitUnlocked(unit.order);
             const count = unlocked ? getUnitCompletedCount(unit.order) : 0;
             const isFull = count === unit.lessonCount;
             const isActive = unit.id === activeUnitId;
+            const belt = BELT_INFOS[unit.order] || BELT_INFOS[0];
 
             return (
               <button
                 key={unit.id}
                 disabled={!unlocked}
                 onClick={() => handleJumpToUnit(unit.id)}
-                title={unit.titleVi}
-                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold active:scale-95 shadow-2xs ${
+                title={`${unit.titleVi} — ${belt.name}`}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 transition-all text-xs font-black active:scale-95 shadow-xs ${
                   !unlocked
                     ? (isLight
-                        ? 'bg-slate-100/80 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
-                        : 'bg-slate-900/50 border-slate-800 text-slate-600 opacity-50 cursor-not-allowed')
+                        ? 'bg-slate-100 border-slate-200 text-slate-400 opacity-60 cursor-not-allowed'
+                        : 'bg-slate-900/60 border-slate-800 text-slate-600 opacity-50 cursor-not-allowed')
                     : isActive
-                      ? (isLight
-                          ? 'bg-violet-100 border-violet-500 text-violet-950 font-black shadow-xs ring-2 ring-violet-300/40'
-                          : 'bg-violet-500/25 border-violet-400 text-violet-200 font-black shadow-md ring-1 ring-violet-400/50')
-                      : isFull
-                        ? (isLight
-                            ? 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100'
-                            : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25')
-                        : (isLight
-                            ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400'
-                            : 'bg-slate-900/70 border-slate-700 text-slate-300 hover:border-slate-500')
+                    ? (isLight
+                        ? 'bg-cyan-100 border-cyan-500 text-cyan-950 ring-2 ring-cyan-400/50 shadow-md'
+                        : 'bg-cyan-500/25 border-cyan-400 text-cyan-200 ring-2 ring-cyan-400/50 shadow-lg shadow-cyan-500/20')
+                    : isFull
+                    ? (isLight
+                        ? 'bg-emerald-50 border-emerald-400 text-emerald-900 hover:bg-emerald-100'
+                        : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30')
+                    : (isLight
+                        ? 'bg-white border-slate-300 text-slate-800 hover:border-slate-400 hover:bg-slate-50'
+                        : 'bg-slate-900/80 border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white')
                 }`}
               >
                 <span>{unlocked ? unit.icon : <Lock className="w-3 h-3 text-slate-400" />}</span>
-                <span className="whitespace-nowrap">{unit.titleVi}</span>
+                <span className="whitespace-nowrap">{belt.name}</span>
                 {unlocked && (
-                  <span className={`text-[10px] font-black ml-0.5 ${
-                    isFull
-                      ? (isLight ? 'text-emerald-700' : 'text-emerald-400')
-                      : (isLight ? 'text-slate-500' : 'text-slate-400')
-                  }`}>
+                  <span
+                    className={`text-[10px] font-black px-1.5 py-0.2 rounded-md ${
+                      isFull
+                        ? (isLight ? 'bg-emerald-200/80 text-emerald-900' : 'bg-emerald-500/30 text-emerald-300')
+                        : (isLight ? 'bg-slate-100 text-slate-700' : 'bg-slate-800 text-slate-400')
+                    }`}
+                  >
                     {count}/{unit.lessonCount}
                   </span>
                 )}
@@ -227,12 +243,28 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
       </header>
 
       {/* 3. Main Saga Road Container */}
-      <main className="max-w-xl mx-auto px-4 py-8 flex flex-col items-center">
+      <main className="max-w-xl mx-auto px-4 py-8 pb-28 flex flex-col items-center">
         {TYPING_UNITS.map((unit) => {
           const unlocked = isUnitUnlocked(unit.order);
           const count = unlocked ? getUnitCompletedCount(unit.order) : 0;
           const isFull = count === unit.lessonCount;
           const lessonsInUnit = TYPING_LESSONS.slice(unit.startOrder - 1, unit.endOrder);
+          const belt = BELT_INFOS[unit.order] || BELT_INFOS[0];
+
+          // Tìm node hoàn thành cao nhất và node hiện tại trong Unit này
+          let completedUpTo = -1;
+          let currentInUnit = -1;
+          lessonsInUnit.forEach((ls, idx) => {
+            const globalIdx = ls.order - 1;
+            if (lessonProgressMap[ls.id]?.isCompleted) completedUpTo = idx;
+            if (globalIdx === currentLessonIndex) currentInUnit = idx;
+          });
+
+          // offsets cho các node trong Unit này
+          const unitOffsets = lessonsInUnit.map((ls) => {
+            const globalIdx = ls.order - 1;
+            return ZIGZAG_OFFSETS[globalIdx % ZIGZAG_OFFSETS.length];
+          });
 
           return (
             <section
@@ -240,68 +272,89 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
               ref={(el) => {
                 unitRefs.current[unit.id] = el;
               }}
-              className="relative w-full scroll-mt-28 mb-10"
+              className="relative w-full scroll-mt-28 mb-14"
             >
-              {/* Unit Chapter Banner — Clean & Tactile */}
-              <div className={`flex items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl border backdrop-blur-md shadow-sm mb-6 transition-all ${
-                !unlocked
-                  ? (isLight
-                      ? 'bg-slate-100/90 border-slate-200 text-slate-400 opacity-70'
-                      : 'bg-slate-900/50 border-slate-800/80 text-slate-600 opacity-60')
-                  : isFull
+              {/* Unit Chapter Banner — Cổng Trạm Đai Võ Sĩ (Dojo Belt Gate) */}
+              <div
+                className={`relative flex items-center justify-between gap-3 px-5 py-4 rounded-3xl border-2 backdrop-blur-xl shadow-xl mb-8 transition-all overflow-hidden ${
+                  !unlocked
                     ? (isLight
-                        ? 'bg-emerald-50/90 border-emerald-300 text-slate-800'
-                        : 'bg-emerald-950/30 border-emerald-600/40 text-emerald-200')
+                        ? 'bg-slate-100 border-slate-200 text-slate-400 opacity-60'
+                        : 'bg-slate-900/60 border-slate-800 text-slate-600 opacity-50')
+                    : isFull
+                    ? (isLight
+                        ? 'bg-emerald-50/95 border-emerald-400 text-slate-900 shadow-emerald-500/10'
+                        : 'bg-emerald-950/40 border-emerald-500/50 text-white shadow-emerald-950/40')
                     : (isLight
-                        ? 'bg-white/95 border-slate-300 text-slate-800 shadow-sm'
-                        : 'bg-slate-900/80 border-slate-700/80 text-white')
-              }`}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-2xl sm:text-3xl flex-shrink-0 drop-shadow-xs">
+                        ? 'bg-white/95 border-slate-300 text-slate-900 shadow-slate-200'
+                        : 'bg-slate-900/90 border-slate-700/80 text-white shadow-black/50')
+                }`}
+              >
+                {/* Dải màu ruy băng đai ở mép trái */}
+                {unlocked && (
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-2.5 rounded-l-3xl shadow-sm"
+                    style={{ backgroundColor: belt.accentColor }}
+                  />
+                )}
+
+                <div className="flex items-center gap-3.5 min-w-0 pl-1">
+                  <span className="text-3xl sm:text-4xl flex-shrink-0 drop-shadow-md">
                     {unlocked ? unit.icon : '🔒'}
                   </span>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${
-                        isLight ? 'text-violet-600' : 'text-violet-400'
-                      }`}>
-                        Trạm {unit.order + 1}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] sm:text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                          isLight ? 'bg-slate-100 text-slate-800 font-extrabold' : 'bg-slate-800 text-cyan-300'
+                        }`}
+                      >
+                        Trạm {unit.order + 1} · {belt.name}
                       </span>
                       {isFull && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 inline flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 inline flex-shrink-0" />
                       )}
                     </div>
-                    <h2 className="text-sm sm:text-base font-black truncate leading-tight">
+                    <h2 className="text-base sm:text-lg font-black truncate leading-tight mt-1">
                       {unit.titleVi}
                     </h2>
+                    <p className={`text-[11px] sm:text-xs truncate font-semibold ${
+                      isLight ? 'text-slate-600' : 'text-slate-400'
+                    }`}>
+                      {belt.subtitle}
+                    </p>
                   </div>
                 </div>
 
-                <div className={`px-2.5 py-1 rounded-xl text-xs font-black border flex-shrink-0 shadow-2xs ${
-                  isFull
-                    ? (isLight
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40')
-                    : (isLight
-                        ? 'bg-slate-100 text-slate-700 border-slate-300'
-                        : 'bg-slate-800 text-slate-300 border-slate-700')
-                }`}>
+                {/* Huy hiệu số bài đã hoàn thành */}
+                <div
+                  className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black border-2 flex-shrink-0 shadow-inner ${
+                    isFull
+                      ? (isLight
+                          ? 'bg-emerald-100 text-emerald-900 border-emerald-400'
+                          : 'bg-emerald-500/30 text-emerald-300 border-emerald-500/60')
+                      : (isLight
+                          ? 'bg-slate-100 text-slate-800 border-slate-300'
+                          : 'bg-slate-800 text-slate-200 border-slate-700')
+                  }`}
+                >
                   {count}/{unit.lessonCount}
                 </div>
               </div>
 
-              {/* Road of Level Nodes */}
+              {/* Road of Level Nodes với dải năng lượng uốn lượn SVG Bézier */}
               <div className="relative flex flex-col items-center">
-                {/* Central Road Connecting Line */}
-                <div
-                  className={`absolute top-6 bottom-6 w-2 sm:w-2.5 rounded-full z-0 transition-colors ${
-                    isLight
-                      ? 'bg-slate-300/80 border border-slate-300'
-                      : 'bg-slate-800/80 border border-slate-700/50'
-                  }`}
+                {/* SVG Bézier Curved Path (Thay thế thanh cọc thẳng tuột cũ) */}
+                <TypingSagaCurvedPath
+                  offsets={unitOffsets}
+                  nodeSpacingY={NODE_SPACING_Y}
+                  completedUpToIndex={completedUpTo}
+                  currentIndexInUnit={currentInUnit}
+                  isLight={isLight}
+                  width={380}
                 />
 
-                {lessonsInUnit.map((lesson, lIdx) => {
+                {lessonsInUnit.map((lesson) => {
                   const globalIdx = lesson.order - 1;
                   const offset = ZIGZAG_OFFSETS[globalIdx % ZIGZAG_OFFSETS.length];
                   const unlockedLesson = isLessonUnlocked(globalIdx);
@@ -332,31 +385,31 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
 
         {/* 4. Curriculum Completion / Congratulations Card */}
         {allCompleted && (
-          <div className={`w-full mt-6 p-6 rounded-3xl border-2 text-center shadow-xl transition-all ${
-            isLight
-              ? 'bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-300 text-amber-950'
-              : 'bg-gradient-to-b from-amber-500/15 via-slate-900/90 to-amber-950/20 border-amber-400/80 text-white'
-          }`}>
-            <div className="text-4xl sm:text-5xl mb-2 drop-shadow-sm">🏆</div>
-            <h3 className={`font-orbitron font-black text-lg sm:text-xl mb-1.5 ${
-              isLight ? 'text-amber-800' : 'text-amber-300'
-            }`}>
-              BẠN ĐÃ CHINH PHỤC TOÀN BỘ LỘ TRÌNH!
+          <div
+            className={`w-full mt-8 p-7 rounded-3xl border-3 text-center shadow-2xl transition-all ${
+              isLight
+                ? 'bg-gradient-to-b from-amber-50 via-yellow-50 to-amber-100/90 border-amber-400 text-amber-950 shadow-amber-500/20'
+                : 'bg-gradient-to-b from-amber-500/20 via-slate-900/95 to-amber-950/30 border-amber-400 text-white shadow-amber-500/30'
+            }`}
+          >
+            <div className="text-5xl sm:text-6xl mb-3 animate-bounce">🏆</div>
+            <h3 className="font-orbitron font-black text-xl sm:text-2xl mb-2 text-amber-400 drop-shadow-md">
+              BẠN ĐÃ CHINH PHỤC TOÀN BỘ VÕ ĐƯỜNG!
             </h3>
-            <p className={`text-xs sm:text-sm font-semibold max-w-md mx-auto mb-4 ${
-              isLight ? 'text-slate-600' : 'text-slate-300'
+            <p className={`text-xs sm:text-sm font-semibold max-w-md mx-auto mb-5 leading-relaxed ${
+              isLight ? 'text-slate-700' : 'text-slate-300'
             }`}>
-              Tuyệt đỉnh! Bạn đã làm chủ toàn bộ các phím, từ ngữ và câu văn. Hãy chuyển sang chế độ Đoạn Văn để rèn luyện độ bền và tốc độ đỉnh cao.
+              Tuyệt đỉnh! Bạn đã tốt nghiệp cấp độ Đai Đen Cyber. Giờ đây hãy bước vào Chế Độ Đoạn Văn để rèn luyện tốc độ phi thuyền và đoạt Chứng Chỉ Gõ Phím!
             </p>
             <button
               onClick={() => {
                 soundFx.playVictory();
                 onStartParagraphMode();
               }}
-              className="px-6 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black rounded-xl shadow-md active:scale-95 transition cursor-pointer inline-flex items-center gap-2 text-xs sm:text-sm"
+              className="btn-3d btn-3d-amber px-8 py-3 rounded-2xl text-sm sm:text-base font-black inline-flex items-center gap-2 shadow-xl"
             >
               <span>VÀO CHẾ ĐỘ ĐOẠN VĂN</span>
-              <ChevronRight className="w-4 h-4 stroke-[3]" />
+              <ChevronRight className="w-5 h-5 stroke-[3]" />
             </button>
           </div>
         )}

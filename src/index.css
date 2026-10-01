@@ -193,3 +193,80 @@ body {
   animation: shake 0.4s ease-in-out;
 }
 
+/* ========================================================
+   CYBER-DOJO DESIGN SYSTEM (Huashu Kid Arcade)
+   ======================================================== */
+
+/* Tactile Dojo Card Containers */
+.dojo-card-dark {
+  background: rgba(10, 15, 30, 0.88);
+  backdrop-filter: blur(16px);
+  border: 2px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.dojo-card-light {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Caret & Letter Animations */
+@keyframes caretBounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(3px); opacity: 0.6; }
+}
+
+.animate-caret-bounce {
+  animation: caretBounce 0.8s ease-in-out infinite;
+}
+
+/* Glowing energy stream for Saga SVG Path */
+@keyframes energyFlow {
+  0% { stroke-dashoffset: 60; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-energy-flow {
+  animation: energyFlow 1.6s linear infinite;
+}
+
+/* Belt System Styles (6 Cấp Độ Đai Võ Đường) */
+.belt-badge-0 {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #0f172a;
+  border: 2px solid #cbd5e1;
+}
+
+.belt-badge-1 {
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+  color: #713f12;
+  border: 2px solid #ca8a04;
+}
+
+.belt-badge-2 {
+  background: linear-gradient(135deg, #86efac 0%, #22c55e 100%);
+  color: #14532d;
+  border: 2px solid #16a34a;
+}
+
+.belt-badge-3 {
+  background: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%);
+  color: #082f49;
+  border: 2px solid #0369a1;
+}
+
+.belt-badge-4 {
+  background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+  color: #450a0a;
+  border: 2px solid #dc2626;
+}
+
+.belt-badge-5 {
+  background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
+  color: #38bdf8;
+  border: 2px solid #0284c7;
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+}
+

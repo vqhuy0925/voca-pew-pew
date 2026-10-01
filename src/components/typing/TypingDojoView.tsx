@@ -7,7 +7,7 @@ import { soundFx } from '../../game/engine/SoundController';
 import { VirtualKeyboardWithHands, TypingKeyFlash } from './VirtualKeyboardWithHands';
 import { TypingResultModal } from './TypingResultModal';
 import { TypingSagaMapView } from './TypingSagaMapView';
-import { ArrowLeft, Sun, Moon, Map } from 'lucide-react';
+import { ArrowLeft, Sun, Moon, Map, Zap, Target, Sparkles } from 'lucide-react';
 
 interface TypingDojoViewProps {
   progress: UserProgress;
@@ -47,7 +47,7 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
   // Light / Dark mode persistence
   const [isLight, setIsLight] = useState<boolean>(() => {
     const saved = localStorage.getItem('vocab_dojo_theme_mode');
-    return saved !== null ? saved === 'light' : true;
+    return saved !== null ? saved === 'light' : false; // Mặc định dark mode cho vũ trụ
   });
 
   const toggleTheme = (e?: React.MouseEvent) => {
@@ -219,10 +219,10 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full overflow-y-auto select-none font-game px-3 sm:px-8 py-4 sm:py-6 transition-colors duration-300 ${
+      className={`relative w-full h-full overflow-y-auto select-none font-game px-3 sm:px-6 py-3 sm:py-5 transition-colors duration-300 ${
         isLight
-          ? 'bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 text-slate-800'
-          : 'bg-space-dark text-white'
+          ? 'bg-[#f8fafc] text-slate-900'
+          : 'bg-[#08091a] bg-galactic-stars text-white'
       }`}
       onClick={() => hiddenInputRef.current?.focus({ preventScroll: true })}
     >
@@ -239,8 +239,8 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
         onChange={handleHiddenInputChange}
       />
 
-      {/* Top Bar — Sleek & Focused */}
-      <div className="flex items-center justify-between max-w-5xl mx-auto mb-4 gap-2">
+      {/* 1. Top Bar — Sleek Cyber-Arcade Header */}
+      <div className="flex items-center justify-between max-w-4xl mx-auto mb-3 gap-2">
         <div className="flex items-center gap-2">
           {/* Back to Saga Map */}
           <button
@@ -249,117 +249,201 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
               soundFx.playClick();
               setViewMode('saga');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl border transition active:scale-95 shadow-xs ${
+            className={`btn-3d flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black ${
               isLight
-                ? 'bg-white border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-50'
-                : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-500'
+                ? 'btn-3d-slate bg-white text-slate-800 border-b-4 border-slate-300'
+                : 'btn-3d-slate bg-slate-900 text-slate-200 border-b-4 border-slate-950'
             }`}
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-bold">Lộ Trình</span>
+            <span className="font-bold">Lộ Trình</span>
           </button>
 
           {/* Quick Light / Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
             title={isLight ? 'Chuyển sang giao diện Tối' : 'Chuyển sang giao diện Sáng'}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border transition active:scale-95 shadow-xs ${
+            className={`p-2 rounded-xl border-2 transition active:scale-95 shadow-sm ${
               isLight
-                ? 'bg-amber-100/80 border-amber-300 text-amber-900 hover:bg-amber-200/80'
-                : 'bg-slate-900/80 border-slate-700/80 text-yellow-300 hover:text-yellow-200 hover:border-yellow-400/50'
+                ? 'bg-amber-100 border-amber-300 text-amber-900 hover:bg-amber-200'
+                : 'bg-slate-900 border-slate-700 text-yellow-300 hover:border-yellow-400/50'
             }`}
           >
-            {isLight ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            {isLight ? <Moon className="w-4 h-4 text-indigo-700" /> : <Sun className="w-4 h-4 text-amber-400" />}
           </button>
         </div>
 
         {/* Current Lesson Badge */}
         <div className="flex items-center gap-2">
-          <div className={`px-3 py-1.5 rounded-xl border shadow-xs flex items-center gap-1.5 max-w-[200px] sm:max-w-md ${
-            isLight
-              ? 'bg-white border-slate-200 text-slate-800'
-              : 'bg-slate-900/90 border-slate-700/80 text-white'
-          }`}>
-            <span className="text-sm">{currentUnit?.icon || '⌨️'}</span>
-            <span className="text-xs sm:text-sm font-bold truncate">
+          <div
+            className={`px-3.5 py-1.5 rounded-xl border-2 shadow-md flex items-center gap-2 max-w-[220px] sm:max-w-md ${
+              isLight
+                ? 'bg-white border-slate-300 text-slate-900'
+                : 'bg-slate-900/90 border-cyan-500/40 text-cyan-200'
+            }`}
+          >
+            <span className="text-base">{currentUnit?.icon || '⌨️'}</span>
+            <span className="text-xs sm:text-sm font-black truncate font-game">
               Bài {lesson.order}: {lesson.titleVi}
             </span>
           </div>
         </div>
 
-        {/* Live Metrics */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-black">
-          <span className={`px-2.5 sm:px-3 py-1.5 rounded-lg border shadow-xs ${
-            isLight
-              ? 'bg-violet-50 border-violet-200 text-violet-700'
-              : 'bg-violet-500/15 border-violet-400/40 text-violet-300'
-          }`}>
-            {Math.round(liveStats.wpm)} WPM
-          </span>
-          <span className={`px-2.5 sm:px-3 py-1.5 rounded-lg border shadow-xs ${
-            isLight
-              ? 'bg-cyan-50 border-cyan-200 text-cyan-700'
-              : 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300'
-          }`}>
-            {Math.round(liveStats.accuracy)}%
-          </span>
+        {/* Live Tachometer Metrics */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-black">
+          {/* WPM Meter */}
+          <div
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 shadow-sm font-orbitron ${
+              isLight
+                ? 'bg-violet-50 border-violet-300 text-violet-900'
+                : 'bg-violet-950/60 border-violet-500/60 text-violet-200 shadow-violet-500/20'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 text-violet-400 stroke-[3]" />
+            <span>{Math.round(liveStats.wpm)} WPM</span>
+          </div>
+
+          {/* Accuracy Meter */}
+          <div
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 shadow-sm font-orbitron ${
+              isLight
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                : 'bg-emerald-950/60 border-emerald-500/60 text-emerald-200 shadow-emerald-500/20'
+            }`}
+          >
+            <Target className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
+            <span>{Math.round(liveStats.accuracy)}%</span>
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar within Curriculum */}
-      <div className="max-w-5xl mx-auto mb-4 flex items-center gap-2.5">
-        <div className={`flex-1 h-2 rounded-full border overflow-hidden ${
-          isLight ? 'bg-slate-200 border-slate-300' : 'bg-slate-900 border-slate-800'
-        }`}>
+      {/* 2. Progress Bar within Curriculum */}
+      <div className="max-w-4xl mx-auto mb-3 flex items-center gap-2.5">
+        <div
+          className={`flex-1 h-2.5 rounded-full border-2 overflow-hidden ${
+            isLight ? 'bg-slate-200 border-slate-300' : 'bg-slate-900 border-slate-700/80'
+          }`}
+        >
           <div
-            className={`h-full transition-all duration-300 ${
-              isLight
-                ? 'bg-gradient-to-r from-sky-500 to-emerald-500'
-                : 'bg-gradient-to-r from-violet-500 to-cyan-400'
-            }`}
+            className="h-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 rounded-full transition-all duration-300 shadow-sm"
             style={{ width: `${(lesson.order / TYPING_LESSONS.length) * 100}%` }}
           />
         </div>
-        <span className={`flex-shrink-0 text-[11px] sm:text-xs font-bold ${
-          isLight ? 'text-slate-600' : 'text-slate-500'
-        }`}>
+        <span
+          className={`flex-shrink-0 text-xs font-black font-orbitron ${
+            isLight ? 'text-slate-700' : 'text-slate-400'
+          }`}
+        >
           {lesson.order}/{TYPING_LESSONS.length}
         </span>
       </div>
 
-      {/* Practice Text Box */}
-      <div className={`max-w-5xl mx-auto rounded-3xl p-5 sm:p-8 mb-5 transition-colors ${
-        isLight
-          ? 'bg-white border-2 border-slate-200/90 shadow-xl'
-          : 'bg-slate-950/70 border border-slate-800/80 shadow-inner'
-      }`}>
-        <p className="font-mono text-xl sm:text-3xl md:text-4xl tracking-wide leading-relaxed text-center break-all select-none">
+      {/* 3. High-Contrast Practice Text Box (Giải quyết triệt để chữ và nền khó đọc) */}
+      <div
+        className={`max-w-4xl mx-auto rounded-3xl p-5 sm:p-6 mb-4 transition-all ${
+          isLight
+            ? 'dojo-card-light'
+            : 'dojo-card-dark'
+        }`}
+      >
+        {/* Hướng dẫn phím trọng tâm của bài */}
+        {lesson.keys.length > 0 && (
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-dashed border-slate-300/40 dark:border-slate-700/60 text-xs">
+            <span className={`font-black flex items-center gap-1.5 ${
+              isLight ? 'text-cyan-800' : 'text-cyan-300'
+            }`}>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Phím trọng tâm bài này:</span>
+            </span>
+            <div className="flex items-center gap-1.5">
+              {lesson.keys.map((k) => (
+                <span
+                  key={k}
+                  className="px-2 py-0.5 rounded-lg bg-amber-400/20 border border-amber-400/60 text-amber-500 font-orbitron font-black text-xs uppercase"
+                >
+                  {k}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Bảng chữ luyện gõ Teleprompter */}
+        <div className="font-mono text-xl sm:text-3xl md:text-4xl tracking-wider leading-relaxed text-center select-none py-1">
           {lesson.practiceText.split('').map((ch, i) => {
-            let cls = isLight ? 'text-slate-400' : 'text-slate-500';
-            if (i < typedIndex) {
-              cls = correctness[i]
-                ? (isLight ? 'text-emerald-600 font-bold' : 'text-emerald-400')
-                : (isLight ? 'text-rose-600 font-bold underline decoration-wavy decoration-rose-500' : 'text-rose-400 underline decoration-wavy decoration-rose-500');
-            } else if (i === typedIndex) {
-              cls = isLight
-                ? 'text-sky-950 bg-sky-200/90 rounded px-1 ring-2 ring-sky-400/60 font-black animate-pulse'
-                : 'text-white bg-cyan-500/30 rounded px-1 ring-1 ring-cyan-300 animate-pulse';
+            const isDone = i < typedIndex;
+            const isCur = i === typedIndex;
+
+            if (isCur) {
+              // Phím đang cần gõ tiếp theo
+              if (ch === ' ') {
+                return (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 mx-1.5 px-2.5 py-0.5 rounded-xl bg-amber-400/30 text-amber-500 border-2 border-amber-400 font-game font-black text-xs sm:text-sm animate-pulse align-middle shadow-[0_0_12px_rgba(245,158,11,0.6)]"
+                  >
+                    ␣ CÁCH
+                  </span>
+                );
+              }
+
+              return (
+                <span
+                  key={i}
+                  className={`inline-block px-2 py-0.5 rounded-xl font-black font-orbitron animate-pulse align-middle transition-all scale-110 shadow-lg ${
+                    isLight
+                      ? 'text-sky-950 bg-sky-200 border-2 border-sky-500 ring-2 ring-sky-300 shadow-sky-500/20'
+                      : 'text-white bg-cyan-500/40 border-2 border-cyan-300 ring-2 ring-cyan-400/80 shadow-[0_0_18px_rgba(0,240,255,0.8)]'
+                  }`}
+                >
+                  {ch}
+                </span>
+              );
             }
+
+            if (isDone) {
+              const ok = correctness[i];
+              return (
+                <span
+                  key={i}
+                  className={`transition-colors ${
+                    ok
+                      ? (isLight
+                          ? 'text-emerald-700 font-black'
+                          : 'text-emerald-400 font-black drop-shadow-[0_0_8px_rgba(52,211,153,0.7)]')
+                      : (isLight
+                          ? 'text-rose-600 font-black bg-rose-100 rounded px-0.5 underline decoration-wavy decoration-rose-500'
+                          : 'text-rose-400 font-black bg-rose-950/50 rounded px-0.5 underline decoration-wavy decoration-rose-500')
+                  }`}
+                >
+                  {ch === ' ' ? ' ' : ch}
+                </span>
+              );
+            }
+
+            // Ký tự chưa gõ tới — Độ tương phản cao, không bị mờ
             return (
-              <span key={i} className={cls}>
-                {ch === ' ' ? ' ' : ch}
+              <span
+                key={i}
+                className={`font-semibold ${
+                  isLight
+                    ? 'text-slate-800'
+                    : 'text-slate-300/90'
+                }`}
+              >
+                {ch === ' ' ? ' ' : ch}
               </span>
             );
           })}
-        </p>
+        </div>
       </div>
 
-      {/* Virtual Keyboard With Hands */}
-      <div className="max-w-5xl mx-auto pb-6">
+      {/* 4. Virtual Keyboard With Hands */}
+      <div className="max-w-4xl mx-auto pb-4">
         <VirtualKeyboardWithHands nextChar={nextChar} lastFlash={lastFlash} isLight={isLight} />
       </div>
 
-      {/* Results Modal */}
+      {/* 5. Results Modal */}
       {result && (
         <TypingResultModal
           title={lesson.titleVi}
@@ -373,7 +457,7 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
           onRetry={handleRetry}
           onExit={handleDismissResult}
           exitLabel="LỘ TRÌNH SAGA"
-          exitIcon={<Map className="w-4 h-4 text-violet-400" />}
+          exitIcon={<Map className="w-4 h-4 text-cyan-400" />}
           userName={progress.userName}
           gender={progress.gender}
           themeStyle={progress.themeStyle}
