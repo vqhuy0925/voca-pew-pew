@@ -75,10 +75,10 @@ export const WordTargetBar: React.FC<WordTargetBarProps> = ({ target }) => {
                       : 'px-3 py-1 min-w-[2.4rem] sm:min-w-[3.2rem] h-12 sm:h-16 text-3xl sm:text-4xl md:text-5xl font-black'
                   } ${
                     isTyped
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/60 border-b-3 border-b-emerald-600 shadow-[0_2px_8px_rgba(16,185,129,0.3)]'
+                      ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/60 border-b-3 border-b-emerald-600 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_2px_8px_rgba(16,185,129,0.3)]'
                       : isCurrent
-                      ? 'bg-yellow-400/35 text-yellow-200 border-2 border-yellow-300 border-b-4 border-b-yellow-500 shadow-[0_0_20px_rgba(253,224,71,0.75)] scale-110 -translate-y-0.5 animate-pulse font-black'
-                      : 'bg-slate-900/80 text-slate-400 border border-slate-700/80 border-b-2 border-b-slate-800'
+                      ? 'bg-yellow-400/35 text-yellow-200 border-2 border-yellow-300 border-b-4 border-b-yellow-500 shadow-[inset_0_1px_2px_rgba(255,255,255,0.6),0_0_22px_rgba(253,224,71,0.85)] scale-110 -translate-y-0.5 animate-pulse font-black'
+                      : 'bg-slate-900/85 text-slate-400 border border-slate-700/80 border-b-3 border-b-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
                   }`}
                 >
                   {char}

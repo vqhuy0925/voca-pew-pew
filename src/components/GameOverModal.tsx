@@ -91,7 +91,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               soundFx.playClick();
               onGoToMap();
             }}
-            className="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-orbitron font-black text-base sm:text-lg rounded-2xl border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="btn-3d btn-3d-slate w-full py-3.5 text-slate-200 hover:text-white font-orbitron font-black text-base sm:text-lg rounded-2xl transition flex items-center justify-center gap-2 cursor-pointer"
           >
             <Map className="w-5 h-5 text-cyan-400" />
             <span>BẢN ĐỒ</span>

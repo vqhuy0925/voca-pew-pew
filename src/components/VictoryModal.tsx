@@ -237,9 +237,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                   soundFx.playClick();
                   onRestart();
                 }}
-                className="flex-1 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                className="btn-3d btn-3d-slate flex-1 py-3 text-slate-200 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4 text-amber-400" />
                 <span>LUYỆN LẠI</span>
               </button>
             )}
@@ -249,7 +249,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 soundFx.playClick();
                 onGoToMap();
               }}
-              className="flex-1 py-3 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl border border-slate-700/80 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              className="btn-3d btn-3d-slate flex-1 py-3 text-slate-200 hover:text-white font-orbitron font-bold text-sm sm:text-base rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Map className="w-4 h-4 text-cyan-400" />
               <span>BẢN ĐỒ</span>
