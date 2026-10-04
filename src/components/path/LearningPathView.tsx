@@ -10,7 +10,9 @@ import {
 import { LevelNode, UserProgress } from '../../data/progress-types';
 import { THEME_CONFIGS, MASCOT_CONFIGS } from '../../data/theme-types';
 import { LevelNodeButton } from './LevelNodeButton';
-import { TopNavBar } from './TopNavBar';
+import { LeftNavSidebar } from '../navigation/LeftNavSidebar';
+import { RightPlayerSidebar } from '../navigation/RightPlayerSidebar';
+import { MobileTopBar, MobileBottomBar } from '../navigation/MobileNavBar';
 import { RealmSelectModal } from '../modals/RealmSelectModal';
 import { GraduationModal } from '../modals/GraduationModal';
 import { DailyQuestModal } from '../modals/DailyQuestModal';
@@ -22,6 +24,8 @@ import {
   Award
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
+import { speechHelper } from '../../game/engine/SpeechHelper';
+import { subscribeSyncStatus, SyncStatus } from '../../services/firebase/cloudSyncService';
 import { claimDailyQuestReward, graduateRealm, awardTypingDiplomaIfEligible } from '../../services/progressStorage';
 import { getBrandingConfig, subscribeBrandingConfig, BrandingConfig } from '../../services/brandingService';
 
@@ -93,9 +97,22 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   const [showRealmModal, setShowRealmModal] = useState<boolean>(false);
   const [showGraduationModal, setShowGraduationModal] = useState<boolean>(false);
   const [showDailyQuestModal, setShowDailyQuestModal] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('offline');
   const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
   const levelRefs = useRef<Record<string, HTMLElement | null>>({});
   const hasUserSwitchedRealmRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    return subscribeSyncStatus((status) => {
+      setSyncStatus(status);
+    });
+  }, []);
+
+  const handleToggleSound = () => {
+    const isMuted = soundFx.toggleMute();
+    speechHelper.setEnabled(!isMuted);
+    onUpdateProgress(p => ({ ...p, soundEnabled: !isMuted }));
+  };
 
   const currentRealm = useMemo(() => {
     return getRealmById(activeRealmId);
@@ -183,46 +200,54 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full overflow-y-auto bg-gradient-to-b ${theme.bgGradient} bg-galactic-stars text-white select-none transition-colors duration-500`}>
-      {/* Top Bar */}
-      <TopNavBar
+    <div className={`relative w-full h-full overflow-hidden bg-gradient-to-b ${theme.bgGradient} bg-galactic-stars text-white select-none transition-colors duration-500 flex flex-col lg:flex-row justify-between`}>
+      {/* 1. Desktop Left Sidebar Navigation (256px - 288px) */}
+      <LeftNavSidebar
         progress={progress}
-        onUpdateProgress={onUpdateProgress}
-        onOpenRefillModal={onOpenRefillModal}
-        onOpenEnergyModal={onOpenEnergyModal}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}
         onOpenLeaderboard={onOpenLeaderboard}
         onOpenAstronautCard={onOpenAstronautCard}
-        onOpenDiamondGuide={onOpenDiamondGuide}
+        onOpenMistakeVault={onOpenMistakeVault}
+        onOpenTypingDojo={onOpenTypingDojo}
         onOpenInstallModal={onOpenInstallModal}
         onOpenLanding={onOpenLanding}
-        onOpenMistakeVault={onOpenMistakeVault}
-        onOpenDailyQuests={() => setShowDailyQuestModal(true)}
-        onOpenTypingDojo={onOpenTypingDojo}
-        onOpenCourseSwitcher={onOpenCourseSwitcher}
-        onOpenAuth={onOpenAuth}
         onLogout={onLogout}
         onOpenMigration={onOpenMigration}
+        onToggleSound={handleToggleSound}
         showInstallButton={showInstallButton}
       />
 
-      {/* Main Centered Focused Roadmap */}
-      <div className="max-w-xl mx-auto px-4 py-6 pb-32 flex flex-col items-center">
-        
-        {/* Sleek Minimal Realm Header Pill */}
-        <button
-          onClick={() => {
-            soundFx.playClick();
-            if (onOpenCourseSwitcher) {
-              onOpenCourseSwitcher();
-            } else {
-              setShowRealmModal(true);
-            }
-          }}
-          className="group flex items-center gap-3.5 px-6 py-3 rounded-full border-2 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8 bg-slate-900/95 hover:bg-slate-800 border-slate-700/90 hover:border-cyan-400/80"
-          title="Bấm để chuyển đổi cõi thiên hà hoặc môn học khác"
-        >
+      {/* 2. Center Column: Learning Roadmap */}
+      <div className="flex-1 h-full overflow-y-auto no-scrollbar flex flex-col items-center min-w-0 relative">
+        {/* Mobile Top Status Bar (< 1024px) */}
+        <MobileTopBar
+          progress={progress}
+          syncStatus={syncStatus}
+          onOpenProfileModal={onOpenProfileModal}
+          onOpenCourseSwitcher={onOpenCourseSwitcher}
+          onOpenEnergyModal={onOpenEnergyModal}
+          onOpenRefillModal={onOpenRefillModal}
+          onOpenDiamondGuide={onOpenDiamondGuide}
+          onOpenDailyQuests={() => setShowDailyQuestModal(true)}
+          onToggleSound={handleToggleSound}
+        />
+
+        {/* Main Centered Focused Roadmap */}
+        <div className="w-full max-w-xl mx-auto px-4 py-6 pb-36 flex flex-col items-center">
+          {/* Sleek Minimal Realm Header Pill */}
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              if (onOpenCourseSwitcher) {
+                onOpenCourseSwitcher();
+              } else {
+                setShowRealmModal(true);
+              }
+            }}
+            className="group flex items-center gap-3.5 px-6 py-3 rounded-full border-2 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 mb-8 bg-slate-900/95 hover:bg-slate-800 border-slate-700/90 hover:border-cyan-400/80"
+            title="Bấm để chuyển đổi cõi thiên hà hoặc môn học khác"
+          >
           <span className="text-3xl drop-shadow">{currentRealm.icon}</span>
           <div className="flex flex-col text-left">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -354,12 +379,36 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
             </div>
           )}
         </main>
+        </div>
       </div>
+
+      {/* 3. Desktop Right Player Hub (320px - 352px) */}
+      <RightPlayerSidebar
+        progress={progress}
+        onOpenRefillModal={onOpenRefillModal}
+        onOpenEnergyModal={onOpenEnergyModal}
+        onOpenDiamondGuide={onOpenDiamondGuide}
+        onOpenDailyQuests={() => setShowDailyQuestModal(true)}
+        onOpenCourseSwitcher={onOpenCourseSwitcher}
+        onOpenLeaderboard={onOpenLeaderboard}
+        onOpenMistakeVault={onOpenMistakeVault}
+      />
+
+      {/* 4. Mobile Bottom Arcade Navigation Bar (< 1024px) */}
+      <MobileBottomBar
+        progress={progress}
+        onOpenMistakeVault={onOpenMistakeVault}
+        onOpenTypingDojo={onOpenTypingDojo}
+        onOpenArmory={onOpenArmory}
+        onOpenLeaderboard={onOpenLeaderboard}
+        onOpenProfileModal={onOpenProfileModal}
+        onToggleSound={handleToggleSound}
+      />
 
       {/* Floating "Tiếp tục bài học" Quick Button */}
       <button
         onClick={handleJumpToCurrent}
-        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 px-5 py-3 sm:px-6 sm:py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-lg rounded-2xl border border-white/60 flex items-center gap-2.5 cursor-pointer transition active:scale-95 hover:scale-105 shadow-xl`}
+        className={`fixed bottom-20 lg:bottom-6 right-5 sm:right-6 xl:right-[21.5rem] 2xl:right-[23.5rem] z-40 px-5 py-3 sm:px-6 sm:py-3.5 bg-gradient-to-r ${theme.buttonGradient} text-slate-950 font-game font-black text-sm sm:text-lg rounded-2xl border border-white/60 flex items-center gap-2.5 cursor-pointer transition active:scale-95 hover:scale-105 shadow-xl`}
         style={{ boxShadow: `0 8px 25px ${theme.glowColor}` }}
         title="Nhảy tới bài học hiện tại"
       >

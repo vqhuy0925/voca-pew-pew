@@ -68,7 +68,7 @@ export const CoursePillButton: React.FC<CoursePillButtonProps> = ({
             </span>
           )}
         </div>
-        <span className={`font-game font-black text-xs sm:text-sm leading-tight truncate max-w-[100px] sm:max-w-[140px] xl:max-w-[180px] ${
+        <span className={`font-game font-black text-xs sm:text-sm leading-tight truncate max-w-[85px] sm:max-w-[140px] xl:max-w-[180px] ${
           isLight ? 'text-slate-900' : 'text-white group-hover:text-cyan-200'
         }`}>
           {isDojo ? 'Typing Dojo' : `Tiếng Anh (${currentRealm.ageRange})`}
