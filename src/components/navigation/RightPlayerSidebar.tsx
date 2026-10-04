@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UserProgress, DailyQuestProgress } from '../../data/progress-types';
 import { soundFx } from '../../game/engine/SoundController';
 import { CoursePillButton } from '../common/CoursePillButton';
+import { TYPING_LESSONS } from '../../data/typing-curriculum';
 import {
   Flame,
   Zap,
@@ -15,11 +16,15 @@ import {
   ArrowRight,
   ShieldAlert,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Keyboard,
+  BookOpen
 } from 'lucide-react';
 
 export interface RightPlayerSidebarProps {
   progress: UserProgress;
+  activeMode?: 'saga' | 'dojo';
+  onStartParagraphMode?: () => void;
   onOpenRefillModal?: () => void;
   onOpenEnergyModal?: () => void;
   onOpenDiamondGuide?: () => void;
@@ -31,6 +36,8 @@ export interface RightPlayerSidebarProps {
 
 export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
   progress,
+  activeMode = 'saga',
+  onStartParagraphMode,
   onOpenRefillModal,
   onOpenEnergyModal,
   onOpenDiamondGuide,
@@ -63,6 +70,11 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
     w => w.masteryStatus !== 'mastered'
   ).length;
 
+  const dojoCompletedCount = useMemo(() => {
+    const map = progress.typingProgress?.lessonProgressMap || {};
+    return TYPING_LESSONS.filter(l => map[l.id]?.isCompleted).length;
+  }, [progress.typingProgress?.lessonProgressMap]);
+
   const handleAction = (callback?: () => void) => {
     soundFx.playClick();
     if (callback) callback();
@@ -80,7 +92,7 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
           <div className="w-full">
             <CoursePillButton
               progress={progress}
-              activeMode="saga"
+              activeMode={activeMode}
               onClick={onOpenCourseSwitcher}
               className="w-full justify-between"
             />
@@ -150,6 +162,100 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Mini Card: Typing Dojo Mastery (When in Dojo Mode) */}
+      {activeMode === 'dojo' && (
+        <div className="rounded-2xl border border-violet-500/40 bg-gradient-to-br from-violet-950/40 via-slate-900/90 to-slate-900 p-3.5 flex flex-col gap-2.5 shadow-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-game font-black text-sm text-violet-300">
+              <Keyboard className="w-4 h-4 text-violet-400" />
+              <span>TIẾN ĐỘ VÕ ĐƯỜNG</span>
+            </div>
+            <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-400/40">
+              10 Ngón
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between text-[11px] font-bold text-slate-300">
+              <span>Đã luyện bài</span>
+              <span className="text-violet-300 font-orbitron">{dojoCompletedCount}/{TYPING_LESSONS.length}</span>
+            </div>
+            <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+              <div
+                className="h-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(139,92,246,0.6)]"
+                style={{ width: `${Math.round((dojoCompletedCount / TYPING_LESSONS.length) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/60 text-xs">
+            <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800/40 text-center">
+              <span className="text-[10px] text-slate-400 block font-bold">KỶ LỤC TỐC ĐỘ</span>
+              <span className="font-orbitron font-black text-sm text-cyan-300">
+                {progress.typingProgress?.bestWpmOverall || 0} <span className="text-[10px] font-normal">WPM</span>
+              </span>
+            </div>
+            <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800/40 text-center">
+              <span className="text-[10px] text-slate-400 block font-bold">CẤP ĐỘ ĐAI</span>
+              <span className="font-game font-black text-xs text-amber-300">
+                {dojoCompletedCount >= 50 ? 'Đai Đen 🥋' : dojoCompletedCount >= 40 ? 'Đai Đỏ' : dojoCompletedCount >= 30 ? 'Đai Lam' : dojoCompletedCount >= 20 ? 'Đai Lục' : dojoCompletedCount >= 10 ? 'Đai Vàng' : 'Đai Trắng'}
+              </span>
+            </div>
+          </div>
+
+          {/* Weak Keys Heatmap — Hiển thị các phím gõ sai nhiều nhất */}
+          {(() => {
+            const keyMistakes = Object.entries(progress.typingProgress?.keyMistakeMap || {})
+              .filter(([_, count]) => count > 0)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 5);
+
+            if (keyMistakes.length > 0) {
+              return (
+                <div className="pt-2 border-t border-slate-800/60 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                    <span className="flex items-center gap-1 text-rose-400">
+                      <Target className="w-3 h-3" />
+                      PHÍM CẦN LUYỆN THÊM
+                    </span>
+                    <span className="text-[9px] font-mono text-slate-500">LỖI</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {keyMistakes.map(([key, count]) => (
+                      <span
+                        key={key}
+                        className="px-2 py-0.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono font-black text-xs flex items-center gap-1 shadow-xs"
+                      >
+                        <span className="uppercase">{key === ' ' ? '␣' : key}</span>
+                        <span className="text-[9px] text-rose-400/80 font-bold">×{count}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div className="pt-1.5 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-emerald-400/90 font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Độ chính xác rất tốt! Chưa phát hiện phím yếu.</span>
+              </div>
+            );
+          })()}
+
+          {onStartParagraphMode && (
+            <button
+              type="button"
+              onClick={() => handleAction(onStartParagraphMode)}
+              className="btn-3d btn-3d-purple w-full h-8.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs font-black shadow-md mt-0.5 cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Chế Độ Đoạn Văn Tự Do</span>
+              <ChevronRight className="w-3.5 h-3.5 ml-auto" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 2. Mini Card: Daily Quests (Chuẩn Duolingo Nhiệm Vụ Hằng Ngày) */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/85 p-3.5 flex flex-col gap-2.5 shadow-md hover:border-slate-700 transition">

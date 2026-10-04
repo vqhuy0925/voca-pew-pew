@@ -656,6 +656,19 @@ export const App: React.FC = () => {
               onExit={handleExitTypingDojo}
               onStartParagraphMode={handleStartParagraphMode}
               onOpenCourseSwitcher={() => setShowCourseSwitcherModal(true)}
+              onOpenProfileModal={() => setShowProfileModal(true)}
+              onOpenArmory={() => setShowArmoryModal(true)}
+              onOpenLeaderboard={handleOpenLeaderboard}
+              onOpenAstronautCard={() => handleOpenAstronautCard(null)}
+              onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
+              onOpenRefillModal={() => setShowRefillModal(true)}
+              onOpenEnergyModal={() => setShowEnergyModal(true)}
+              onOpenDiamondGuide={() => setShowDiamondGuideModal(true)}
+              onOpenInstallModal={() => setShowInstallModal(true)}
+              onOpenLanding={handleOpenLanding}
+              onLogout={handleLogout}
+              onOpenMigration={() => setShowMigrationModal(true)}
+              showInstallButton={pwaState.isInstallable}
             />
           ) : (
             <ParagraphTypingView

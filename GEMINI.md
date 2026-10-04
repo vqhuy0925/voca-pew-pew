@@ -31,3 +31,13 @@
    - Any state transition, victory/game-over trigger, or reward payout initiated from inside a 60 FPS `requestAnimationFrame` loop MUST use synchronous immediate guards (`useRef` / boolean flags). Never rely on delayed callbacks (`setTimeout`) or asynchronous React state updates without a synchronous debounce lock.
    - Domain reward handlers (`handleVictory`, `completeLevelProgress`) must maintain idempotent session locks to prevent multi-triggering.
 
+8. **Standard 3-Column Course Roadmap Architecture (Duolingo Style)**:
+   - Tất cả các khoá học hiện tại và tương lai (Vocabulary Saga, Typing Dojo, Phonics, v.v.) khi ở màn hình bản đồ lộ trình (Map/Saga view) đều BẮT BUỘC áp dụng cấu trúc 3 cột responsive chuẩn:
+     - **Desktop (`>= 1024px`)**:
+       - Cột trái (`LeftNavSidebar`): Menu điều hướng cố định (Bản Đồ, Lò Rèn, Võ Đường, Xưởng Tàu, BXH, Hồ Sơ, Âm thanh, Chuyển Theme).
+       - Cột giữa (`Center Roadmap`): Lộ trình bài học cuộn mượt (`max-w-xl mx-auto`), chứa Switcher môn học, thanh ruy băng chuyển trạm nhanh (Ribbon/Gates), lộ trình uốn lượn SVG Bézier, và nút nổi "Tiếp tục".
+       - Cột phải (`RightPlayerSidebar`): Sticky bảng thông tin người chơi (Streak, Năng Lượng, Kim Cương, Tim, Nhiệm Vụ Hàng Ngày, Thẻ Mastery chuyên biệt theo môn học).
+     - **Mobile / Tablet (`< 1024px`)**:
+       - `MobileTopBar`: Nhỏ gọn, hiển thị Avatar, Course Switcher pill, và các pill kinh tế (Streak, Năng Lượng, Kim Cương, Tim, Mute).
+       - `MobileBottomBar`: Thanh tab 5 nút cảm ứng công thái học, đổi trạng thái active mượt mà theo từng môn học (`activeRoute`).
+

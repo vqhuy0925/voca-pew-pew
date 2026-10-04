@@ -15,6 +15,20 @@ interface TypingDojoViewProps {
   onExit: () => void;
   onStartParagraphMode: () => void;
   onOpenCourseSwitcher?: () => void;
+  onOpenProfileModal?: () => void;
+  onOpenArmory?: () => void;
+  onOpenLeaderboard?: () => void;
+  onOpenAstronautCard?: () => void;
+  onOpenMistakeVault?: () => void;
+  onOpenDailyQuests?: () => void;
+  onOpenRefillModal?: () => void;
+  onOpenEnergyModal?: () => void;
+  onOpenDiamondGuide?: () => void;
+  onOpenInstallModal?: () => void;
+  onOpenLanding?: () => void;
+  onLogout?: () => void;
+  onOpenMigration?: () => void;
+  showInstallButton?: boolean;
 }
 
 const getInitialLessonIndex = (progress: UserProgress): number => {
@@ -35,7 +49,21 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
   onUpdateProgress,
   onExit,
   onStartParagraphMode,
-  onOpenCourseSwitcher
+  onOpenCourseSwitcher,
+  onOpenProfileModal,
+  onOpenArmory,
+  onOpenLeaderboard,
+  onOpenAstronautCard,
+  onOpenMistakeVault,
+  onOpenDailyQuests,
+  onOpenRefillModal,
+  onOpenEnergyModal,
+  onOpenDiamondGuide,
+  onOpenInstallModal,
+  onOpenLanding,
+  onLogout,
+  onOpenMigration,
+  showInstallButton
 }) => {
   const [viewMode, setViewMode] = useState<'saga' | 'drill'>('saga');
   const [lessonIndex, setLessonIndex] = useState<number>(() => getInitialLessonIndex(progress));
@@ -227,6 +255,21 @@ export const TypingDojoView: React.FC<TypingDojoViewProps> = ({
         isLight={isLight}
         onToggleTheme={() => toggleTheme()}
         onOpenCourseSwitcher={onOpenCourseSwitcher}
+        onOpenProfileModal={onOpenProfileModal}
+        onOpenArmory={onOpenArmory}
+        onOpenLeaderboard={onOpenLeaderboard}
+        onOpenAstronautCard={onOpenAstronautCard}
+        onOpenMistakeVault={onOpenMistakeVault}
+        onOpenDailyQuests={onOpenDailyQuests}
+        onOpenRefillModal={onOpenRefillModal}
+        onOpenEnergyModal={onOpenEnergyModal}
+        onOpenDiamondGuide={onOpenDiamondGuide}
+        onOpenInstallModal={onOpenInstallModal}
+        onOpenLanding={onOpenLanding}
+        onLogout={onLogout}
+        onOpenMigration={onOpenMigration}
+        showInstallButton={showInstallButton}
+        onUpdateProgress={onUpdateProgress}
       />
     );
   }
