@@ -227,7 +227,8 @@ describe('Stage 4: Adaptive Mistake Mastery System Continuous Evals', () => {
 
     spawner.loadLevel(level, 1.0, weakWords);
 
-    assert.ok(spawner.getTotalWordsCount() >= 4, 'Should include level words + injected weak words');
+    // Standard vocab level with target quota (22) + 2 injected weak words = 24 words
+    assert.equal(spawner.getTotalWordsCount(), 24, 'Should include target quota (22) + 2 injected weak words');
   });
 
   it('7. Should NOT inject weak words in BOSS_BATTLE levels', () => {
@@ -259,5 +260,7 @@ describe('Stage 4: Adaptive Mistake Mastery System Continuous Evals', () => {
     spawner.loadLevel(bossLevel, 1.0, weakWords);
 
     assert.equal(spawner.getEnemies().length, 0);
+    // Boss quota is 28 words
+    assert.equal(spawner.getTotalWordsCount(), 28, 'Boss battle should have quota of 28 words without weak words injected');
   });
 });

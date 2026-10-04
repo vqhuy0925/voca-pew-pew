@@ -35,11 +35,11 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     badge: '🟢 DỄ',
     emoji: '🌱',
     speedMultiplier: 0.75,
-    timeLimitSeconds: 65,
+    timeLimitSeconds: 200,
     xpMultiplier: 1.0,
     gemMultiplier: 1.0,
     color: '#4ade80',
-    description: 'Từ vựng rơi chậm rãi, nhiều thời gian làm quen!'
+    description: 'Từ vựng rơi chậm rãi, thời gian thoải mái (~3 phút) để bé làm quen!'
   },
   NORMAL: {
     id: 'NORMAL',
@@ -48,11 +48,11 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     badge: '🟡 VỪA',
     emoji: '⭐',
     speedMultiplier: 1.0,
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 160,
     xpMultiplier: 1.25,
     gemMultiplier: 1.0,
     color: '#facc15',
-    description: 'Tốc độ tiêu chuẩn, thử thách phản xạ gõ phím!'
+    description: 'Tốc độ tiêu chuẩn (~2.5 phút), thử thách phản xạ gõ phím nhịp nhàng!'
   },
   HEROIC: {
     id: 'HEROIC',
@@ -61,11 +61,11 @@ export const DIFFICULTY_CONFIGS: Record<DifficultyLevel, DifficultyConfig> = {
     badge: '🔴 THỬ THÁCH',
     emoji: '🔥',
     speedMultiplier: 1.3,
-    timeLimitSeconds: 32,
+    timeLimitSeconds: 120,
     xpMultiplier: 1.8,
     gemMultiplier: 1.5,
     color: '#f43f5e',
-    description: 'Đếm ngược gấp gáp, từ rơi nhanh, thưởng thêm Kim Cương quý giá!'
+    description: 'Đếm ngược 2 phút gấp gáp, từ rơi dồn dập, thưởng thêm Kim Cương quý giá!'
   }
 };
 

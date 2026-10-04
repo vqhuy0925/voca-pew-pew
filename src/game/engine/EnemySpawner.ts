@@ -35,27 +35,66 @@ export class EnemySpawner {
     this.spawnInterval = Math.max(1400, (level.spawnInterval || 2200) / (difficultyMultiplier > 1 ? 1.15 : difficultyMultiplier < 1 ? 0.9 : 1.0));
     this.baseSpeed = (level.speedMultiplier || 0.6) * difficultyMultiplier;
 
-    let baseWords: SpawnQueueItem[] = level.words.map(w => ({ ...w, isRevengeTarget: false }));
-    if (baseWords.length > 0 && baseWords.length < 6) {
-      baseWords = [...baseWords, ...baseWords].slice(0, 7);
+    const rawWords = level.words.map(w => ({ ...w, isRevengeTarget: false }));
+    if (rawWords.length === 0) {
+      this.wordsQueue = [];
+      this.totalLevelWordsCount = 0;
+      this.enemies = [];
+      return;
     }
 
-    // Adaptive Spaced Repetition: Inject 1-2 weak words from past lessons into standard levels
+    // Determine target words quota for 2-3 minute battle duration
+    const isLongSentenceLevel = rawWords.some(w => w.word.length > 20);
+    let targetQuota = 22; // Default for standard vocabulary levels (~2 to 2.5 minutes)
+
+    if (level.id === 'lvl-mistake-blitz' || level.unitId === 'unit-blitz') {
+      // Mistake Blitz uses focused word count passed directly from vault
+      targetQuota = Math.max(rawWords.length, 12);
+    } else if (isLongSentenceLevel) {
+      // Sentences take 10-15s each to read and type, so 12-14 items equal ~2.5-3 minutes
+      targetQuota = this.isBossLevel ? 16 : 12;
+    } else if (this.isBossLevel) {
+      // Boss battles have higher intensity with 28 words
+      targetQuota = 28;
+    } else if (level.type === 'SPEED_RUSH') {
+      targetQuota = 24;
+    } else {
+      targetQuota = 22;
+    }
+
+    // Build multi-wave repetition queue so learners practice each word 4-7 times across the match
+    const queue: SpawnQueueItem[] = [];
+    while (queue.length < targetQuota) {
+      // Shuffle each wave so consecutive items vary naturally
+      const wave = [...rawWords].sort(() => Math.random() - 0.5);
+      for (const item of wave) {
+        if (queue.length >= targetQuota) break;
+        queue.push({ ...item });
+      }
+    }
+
+    // Adaptive Spaced Repetition: Inject 1-3 weak words from past lessons into standard levels as revenge targets
     if (weakWords.length > 0 && !this.isBossLevel && level.type !== 'CHEST_REWARD') {
       const candidates = weakWords
-        .filter(ww => !baseWords.some(bw => bw.word.toLowerCase() === ww.word.toLowerCase()))
-        .slice(0, 2);
+        .filter(ww => !rawWords.some(rw => rw.word.toLowerCase() === ww.word.toLowerCase()))
+        .slice(0, 3);
 
-      const injectedWeak: SpawnQueueItem[] = candidates.map(w => ({
-        ...w,
-        isRevengeTarget: true
-      }));
-
-      baseWords = [...baseWords, ...injectedWeak];
+      if (candidates.length > 0) {
+        // Distribute revenge targets evenly across the middle and late stages of the battle
+        candidates.forEach((cand, idx) => {
+          const insertIndex = Math.min(
+            queue.length,
+            Math.floor((queue.length * (idx + 1)) / (candidates.length + 1))
+          );
+          queue.splice(insertIndex, 0, {
+            ...cand,
+            isRevengeTarget: true
+          });
+        });
+      }
     }
 
-    // Shuffle words
-    this.wordsQueue = baseWords.sort(() => Math.random() - 0.5);
+    this.wordsQueue = queue;
     this.totalLevelWordsCount = this.wordsQueue.length;
     this.enemies = [];
     this.spawnTimer = 600; // Spawn first enemy quickly
