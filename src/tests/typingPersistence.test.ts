@@ -53,6 +53,17 @@ describe('Typing Dojo Persistence & Session Continuity', () => {
   });
 
   describe('resolveInitialScreen (Reload preservation)', () => {
+    it('returns ADMIN when URL hash is #admin or #admin-portal', () => {
+      const progress = getInitialUserProgress();
+      progress.hasSeenLanding = true;
+
+      (globalThis as any).window.location.hash = '#admin';
+      assert.equal(resolveInitialScreen(progress), 'ADMIN');
+
+      (globalThis as any).window.location.hash = '#admin-portal';
+      assert.equal(resolveInitialScreen(progress), 'ADMIN');
+    });
+
     it('returns LANDING if player has not seen landing', () => {
       const progress = getInitialUserProgress();
       progress.hasSeenLanding = false;

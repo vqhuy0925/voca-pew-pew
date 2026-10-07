@@ -116,7 +116,11 @@ export const App: React.FC = () => {
   const [showDiamondGuideModal, setShowDiamondGuideModal] = useState<boolean>(false);
   const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
   const [showIncognitoModal, setShowIncognitoModal] = useState<boolean>(false);
-  const [showAdminPortal, setShowAdminPortal] = useState<boolean>(false);
+  const [showAdminPortal, setShowAdminPortal] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const hash = window.location.hash.toLowerCase();
+    return hash === '#admin' || hash === '#admin-portal';
+  });
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
   const [showCourseSwitcherModal, setShowCourseSwitcherModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
@@ -187,9 +191,16 @@ export const App: React.FC = () => {
     setInActiveGameplay(isGameplay);
   }, [screen]);
 
-  // Synchronize URL hash with current screen for reload & navigation persistence
+  // Synchronize URL hash with current screen & admin portal for reload & navigation persistence
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (showAdminPortal) {
+      if (window.location.hash !== '#admin') {
+        window.history.replaceState(null, '', '#admin');
+      }
+      return;
+    }
+
     if (screen === 'DOJO') {
       if (window.location.hash !== '#dojo') {
         window.history.replaceState(null, '', '#dojo');
@@ -198,24 +209,31 @@ export const App: React.FC = () => {
       if (window.location.hash !== '#dojo-paragraph') {
         window.history.replaceState(null, '', '#dojo-paragraph');
       }
-    } else if (screen === 'MAP' || screen === 'LANDING') {
-      if (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph') {
+    } else {
+      if (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph' || window.location.hash === '#admin' || window.location.hash === '#admin-portal') {
         window.history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     }
-  }, [screen]);
+  }, [screen, showAdminPortal]);
 
   // Listen for browser Back/Forward (hashchange)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#dojo' || hash === '#typing-dojo') {
+      if (hash === '#admin' || hash === '#admin-portal') {
+        setShowAdminPortal(true);
+      } else if (hash === '#dojo' || hash === '#typing-dojo') {
+        setShowAdminPortal(false);
         setScreen('DOJO');
       } else if (hash === '#dojo-paragraph' || hash === '#paragraph') {
+        setShowAdminPortal(false);
         setScreen('DOJO_PARAGRAPH');
-      } else if (!hash && (screen === 'DOJO' || screen === 'DOJO_PARAGRAPH')) {
-        setScreen('MAP');
+      } else if (!hash) {
+        setShowAdminPortal(false);
+        if (screen === 'DOJO' || screen === 'DOJO_PARAGRAPH') {
+          setScreen('MAP');
+        }
       }
     };
     window.addEventListener('hashchange', handleHashChange);

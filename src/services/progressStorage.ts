@@ -1013,14 +1013,15 @@ export const updateTypingCurrentLesson = (
   return updated;
 };
 
-export type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL' | 'DOJO' | 'DOJO_PARAGRAPH';
+export type AppScreen = 'LANDING' | 'MAP' | 'WARMUP' | 'PLAYING' | 'PAUSED' | 'VICTORY' | 'GAME_OVER' | 'CHEST_MODAL' | 'DOJO' | 'DOJO_PARAGRAPH' | 'ADMIN';
 
 /**
  * Xác định màn hình khởi động dựa trên hash URL hoặc tab hoạt động gần nhất (Dojo vs Saga)
  */
 export const resolveInitialScreen = (saved: UserProgress): AppScreen => {
-  if (!saved.hasSeenLanding) return 'LANDING';
   const hash = typeof window !== 'undefined' ? (window.location.hash || '').toLowerCase() : '';
+  if (hash === '#admin' || hash === '#admin-portal') return 'ADMIN';
+  if (!saved.hasSeenLanding) return 'LANDING';
   if (hash === '#dojo' || hash === '#typing-dojo') return 'DOJO';
   if (hash === '#dojo-paragraph' || hash === '#paragraph') return 'DOJO_PARAGRAPH';
   if (saved.typingProgress?.lastActiveMode === 'dojo') return 'DOJO';
