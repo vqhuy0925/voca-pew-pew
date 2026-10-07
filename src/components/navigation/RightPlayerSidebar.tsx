@@ -8,14 +8,10 @@ import {
   Zap,
   Gem,
   Heart,
-  Trophy,
   ChevronRight,
   Gift,
   Target,
-  Sparkles,
   ArrowRight,
-  ShieldAlert,
-  ShieldCheck,
   CheckCircle2,
   Keyboard,
   BookOpen
@@ -163,41 +159,107 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
         </div>
       </div>
 
-      {/* Mini Card: Typing Dojo Mastery (When in Dojo Mode) */}
-      {activeMode === 'dojo' && (
-        <div className="rounded-2xl border border-violet-500/40 bg-gradient-to-br from-violet-950/40 via-slate-900/90 to-slate-900 p-3.5 flex flex-col gap-2.5 shadow-md">
+      {/* 2. Contextual Focus Card (Saga Mode: Clean Daily Quests | Dojo Mode: Cyber Telemetry) */}
+      {activeMode === 'saga' ? (
+        <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 flex flex-col gap-3 shadow-sm hover:border-slate-700/80 transition">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 font-game font-black text-sm text-violet-300">
+            <div className="flex items-center gap-2 font-game font-black text-sm text-amber-300">
+              <Gift className="w-4 h-4 text-amber-400" />
+              <span>NHIỆM VỤ HÔM NAY</span>
+            </div>
+            <span className="text-[10px] font-orbitron font-black text-amber-300/90 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30">
+              {completedCount}/{totalQuestCount}
+            </span>
+          </div>
+
+          {/* Quest Progress Bar */}
+          <div className="flex flex-col gap-1.5">
+            <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+              <div
+                className="h-full bg-gradient-to-r from-amber-400 to-yellow-300 rounded-full transition-all duration-500"
+                style={{ width: `${questPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Quick Quest Checklist */}
+          <div className="space-y-2 pt-1 text-xs">
+            {/* Quest Item 1 */}
+            <div className="flex items-center justify-between py-1 px-2 rounded-lg bg-slate-950/40 border border-slate-800/30">
+              <span className="text-slate-300 truncate max-w-[180px]">Tiêu diệt 5 từ yếu Lò Rèn</span>
+              {isMistakeDone ? (
+                <span className="text-emerald-400 font-bold flex items-center gap-0.5 text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Xong
+                </span>
+              ) : (
+                <span className="font-orbitron text-[10px] text-amber-300 font-bold">
+                  {Math.min(5, questData.mistakesReviewedCount || 0)}/5
+                </span>
+              )}
+            </div>
+
+            {/* Quest Item 2 */}
+            <div className="flex items-center justify-between py-1 px-2 rounded-lg bg-slate-950/40 border border-slate-800/30">
+              <span className="text-slate-300 truncate max-w-[180px]">Chinh phục 3 sao trong 1 màn</span>
+              {isThreeStarDone ? (
+                <span className="text-emerald-400 font-bold flex items-center gap-0.5 text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Xong
+                </span>
+              ) : (
+                <span className="font-orbitron text-[10px] text-amber-300 font-bold">
+                  {Math.min(1, questData.threeStarEarnedCount || 0)}/1
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Open Quests CTA Button */}
+          {onOpenDailyQuests && (
+            <button
+              type="button"
+              onClick={() => handleAction(onOpenDailyQuests)}
+              className="w-full h-8.5 rounded-xl border border-amber-400/30 hover:border-amber-300/60 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-1"
+            >
+              <span>{completedCount === totalQuestCount && !questData.claimedReward ? 'Mở Rương Nhận Thưởng 🎁' : 'Chi Tiết Nhiệm Vụ'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      ) : (
+        /* Dojo Mode: Cyber Dojo Mastery & Weak Keys */
+        <div className="rounded-2xl border border-violet-500/30 bg-slate-900/60 p-4 flex flex-col gap-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 font-game font-black text-sm text-violet-300">
               <Keyboard className="w-4 h-4 text-violet-400" />
               <span>TIẾN ĐỘ VÕ ĐƯỜNG</span>
             </div>
-            <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-300 border border-violet-400/40">
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-400/30">
               10 Ngón
             </span>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex justify-between text-[11px] font-bold text-slate-300">
-              <span>Đã luyện bài</span>
-              <span className="text-violet-300 font-orbitron">{dojoCompletedCount}/{TYPING_LESSONS.length}</span>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between text-[11px] font-semibold text-slate-300">
+              <span>Đã hoàn thành</span>
+              <span className="text-violet-300 font-orbitron">{dojoCompletedCount}/{TYPING_LESSONS.length} bài</span>
             </div>
             <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
               <div
-                className="h-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(139,92,246,0.6)]"
+                className="h-full bg-gradient-to-r from-violet-400 to-cyan-400 rounded-full transition-all duration-500"
                 style={{ width: `${Math.round((dojoCompletedCount / TYPING_LESSONS.length) * 100)}%` }}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/60 text-xs">
-            <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800/40 text-center">
-              <span className="text-[10px] text-slate-400 block font-bold">KỶ LỤC TỐC ĐỘ</span>
+            <div className="p-2 rounded-xl bg-slate-950/50 border border-slate-800/40 text-center">
+              <span className="text-[10px] text-slate-400 block font-medium">TỐC ĐỘ CAO NHẤT</span>
               <span className="font-orbitron font-black text-sm text-cyan-300">
                 {progress.typingProgress?.bestWpmOverall || 0} <span className="text-[10px] font-normal">WPM</span>
               </span>
             </div>
-            <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800/40 text-center">
-              <span className="text-[10px] text-slate-400 block font-bold">CẤP ĐỘ ĐAI</span>
+            <div className="p-2 rounded-xl bg-slate-950/50 border border-slate-800/40 text-center">
+              <span className="text-[10px] text-slate-400 block font-medium">CẤP ĐỘ ĐAI</span>
               <span className="font-game font-black text-xs text-amber-300">
                 {dojoCompletedCount >= 50 ? 'Đai Đen 🥋' : dojoCompletedCount >= 40 ? 'Đai Đỏ' : dojoCompletedCount >= 30 ? 'Đai Lam' : dojoCompletedCount >= 20 ? 'Đai Lục' : dojoCompletedCount >= 10 ? 'Đai Vàng' : 'Đai Trắng'}
               </span>
@@ -225,7 +287,7 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
                     {keyMistakes.map(([key, count]) => (
                       <span
                         key={key}
-                        className="px-2 py-0.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono font-black text-xs flex items-center gap-1 shadow-xs"
+                        className="px-2 py-0.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono font-black text-xs flex items-center gap-1"
                       >
                         <span className="uppercase">{key === ' ' ? '␣' : key}</span>
                         <span className="text-[9px] text-rose-400/80 font-bold">×{count}</span>
@@ -236,9 +298,9 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
               );
             }
             return (
-              <div className="pt-1.5 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-emerald-400/90 font-bold">
+              <div className="pt-1.5 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>Độ chính xác rất tốt! Chưa phát hiện phím yếu.</span>
+                <span>Độ chính xác rất tốt!</span>
               </div>
             );
           })()}
@@ -247,162 +309,13 @@ export const RightPlayerSidebar: React.FC<RightPlayerSidebarProps> = ({
             <button
               type="button"
               onClick={() => handleAction(onStartParagraphMode)}
-              className="btn-3d btn-3d-purple w-full h-8.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs font-black shadow-md mt-0.5 cursor-pointer"
+              className="w-full h-8.5 rounded-xl border border-violet-400/30 hover:border-violet-300/60 bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-0.5"
             >
               <BookOpen className="w-3.5 h-3.5" />
               <span>Chế Độ Đoạn Văn Tự Do</span>
               <ChevronRight className="w-3.5 h-3.5 ml-auto" />
             </button>
           )}
-        </div>
-      )}
-
-      {/* 2. Mini Card: Daily Quests (Chuẩn Duolingo Nhiệm Vụ Hằng Ngày) */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/85 p-3.5 flex flex-col gap-2.5 shadow-md hover:border-slate-700 transition">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 font-game font-black text-sm text-amber-300">
-            <Gift className="w-4 h-4 text-amber-400" />
-            <span>NHIỆM VỤ HÔM NAY</span>
-          </div>
-          {onOpenDailyQuests && (
-            <button
-              type="button"
-              onClick={() => handleAction(onOpenDailyQuests)}
-              className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 cursor-pointer flex items-center"
-            >
-              <span>Xem tất cả</span>
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          )}
-        </div>
-
-        {/* Quest Progress Bar */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-[11px] font-bold text-slate-300">
-            <span>Tiến độ nhiệm vụ</span>
-            <span className="text-amber-300 font-orbitron">{completedCount}/{totalQuestCount}</span>
-          </div>
-          <div className="w-full h-2 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
-            <div
-              className="h-full bg-gradient-to-r from-amber-400 to-yellow-300 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(251,191,36,0.6)]"
-              style={{ width: `${questPercent}%` }}
-            />
-          </div>
-        </div>
-
-        {/* 2 Selected Quest Mini Items */}
-        <div className="space-y-1.5 pt-1 border-t border-slate-800/60">
-          {/* Quest Item 1 */}
-          <div className="flex items-center justify-between text-xs p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
-            <span className="text-slate-300 truncate max-w-[170px]">Tiêu diệt 5 từ yếu Lò Rèn</span>
-            {isMistakeDone ? (
-              <span className="text-emerald-400 font-black flex items-center gap-0.5 text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Xong
-              </span>
-            ) : (
-              <span className="font-orbitron text-[10px] text-amber-300 font-bold">
-                {Math.min(5, questData.mistakesReviewedCount || 0)}/5
-              </span>
-            )}
-          </div>
-
-          {/* Quest Item 2 */}
-          <div className="flex items-center justify-between text-xs p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
-            <span className="text-slate-300 truncate max-w-[170px]">Chinh phục 3 sao trong 1 màn</span>
-            {isThreeStarDone ? (
-              <span className="text-emerald-400 font-black flex items-center gap-0.5 text-[11px]">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Xong
-              </span>
-            ) : (
-              <span className="font-orbitron text-[10px] text-amber-300 font-bold">
-                {Math.min(1, questData.threeStarEarnedCount || 0)}/1
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Open Quests CTA Button */}
-        {onOpenDailyQuests && (
-          <button
-            type="button"
-            onClick={() => handleAction(onOpenDailyQuests)}
-            className="w-full h-8.5 rounded-xl border border-amber-400/40 hover:border-amber-300 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-0.5"
-          >
-            <span>{completedCount === totalQuestCount && !questData.claimedReward ? 'Mở Rương Nhận Thưởng 🎁' : 'Chi Tiết Nhiệm Vụ'}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* 3. Mini Card: Leaderboard Rank Preview (Chuẩn Duolingo Bảng Xếp Hạng) */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/85 p-3.5 flex flex-col gap-2.5 shadow-md hover:border-slate-700 transition">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 font-game font-black text-sm text-yellow-300">
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span>BẢNG XẾP HẠNG</span>
-          </div>
-          <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40">
-            Giải Đồng
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Tích lũy XP từ các trận chiến từ vựng để thăng hạng lên giải đấu cao hơn!
-        </p>
-
-        {onOpenLeaderboard && (
-          <button
-            type="button"
-            onClick={() => handleAction(onOpenLeaderboard)}
-            className="w-full h-8.5 rounded-xl border border-slate-700 hover:border-cyan-400/60 bg-slate-800/80 hover:bg-slate-800 text-cyan-200 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-          >
-            <span>Tới Bảng Xếp Hạng</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* 4. Mini Card: Mistake Vault Alert (Lò Rèn Phục Thù) */}
-      {weakWordsCount > 0 ? (
-        <div className="rounded-2xl border-2 border-orange-500/50 bg-gradient-to-br from-orange-950/40 via-slate-900/90 to-slate-900 p-3.5 flex flex-col gap-2 shadow-[0_0_20px_rgba(249,115,22,0.15)]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-400/50 flex items-center justify-center">
-              <Flame className="w-4 h-4 text-orange-400 animate-bounce" />
-            </div>
-            <div>
-              <h4 className="font-game font-black text-xs text-orange-300 uppercase tracking-wide">
-                Cảnh Báo Lò Rèn
-              </h4>
-              <p className="text-[11px] text-slate-300">
-                Có <span className="text-orange-400 font-bold">{weakWordsCount} từ yếu</span> cần phục thù
-              </p>
-            </div>
-          </div>
-
-          {onOpenMistakeVault && (
-            <button
-              type="button"
-              onClick={() => handleAction(onOpenMistakeVault)}
-              className="btn-3d btn-3d-amber w-full h-8.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-slate-950 font-black text-xs shadow-md mt-1 cursor-pointer"
-            >
-              <span>Vào Lò Rèn Ôn Tập</span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-950 stroke-[3]" />
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-emerald-500/40 bg-emerald-950/20 p-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="min-w-0">
-            <h4 className="font-game font-black text-xs text-emerald-300">
-              Vũ Khí Sẵn Sàng!
-            </h4>
-            <p className="text-[11px] text-slate-400 truncate">
-              Chưa có từ yếu nào cần phục thù
-            </p>
-          </div>
         </div>
       )}
     </aside>

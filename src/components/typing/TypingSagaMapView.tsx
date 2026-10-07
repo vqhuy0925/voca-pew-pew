@@ -184,6 +184,7 @@ export const TypingSagaMapView: React.FC<TypingSagaMapViewProps> = ({
         progress={progress}
         activeRoute="dojo"
         onOpenSaga={onExit}
+        onOpenCourseSwitcher={onOpenCourseSwitcher}
         onStartParagraphMode={onStartParagraphMode}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}

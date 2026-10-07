@@ -136,6 +136,8 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     setShowGraduationModal(false);
   };
 
+  const mainScrollContainerRef = useRef<HTMLDivElement | null>(null);
+
   // Auto-scroll to current level
   const scrollToCurrentLevel = (behavior: ScrollBehavior = 'auto') => {
     const curLevelId = progress.currentLevelId;
@@ -158,27 +160,32 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
     }
   };
 
-  // Auto-jump to current level on mount and when activeRealm/currentLevel changes
+  // Scroll to current level when in the same realm, or top of page if inspecting another realm
   useEffect(() => {
-    if (curLevelRealm && curLevelRealm.id !== activeRealmId && !hasUserSwitchedRealmRef.current) {
-      onUpdateProgress(p => ({ ...p, selectedRealmId: curLevelRealm.id }));
-      return;
-    }
-
-    // Immediate attempt for already-mounted DOM
-    scrollToCurrentLevel('auto');
-
-    const timer = setTimeout(() => {
+    if (curLevelRealm && curLevelRealm.id === activeRealmId) {
+      // Immediate attempt for already-mounted DOM
       scrollToCurrentLevel('auto');
-    }, 50);
 
-    return () => clearTimeout(timer);
+      const timer = setTimeout(() => {
+        scrollToCurrentLevel('auto');
+      }, 50);
+
+      return () => clearTimeout(timer);
+    } else {
+      // User is exploring a different realm: scroll to top of this realm
+      if (mainScrollContainerRef.current) {
+        mainScrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    }
   }, [progress.currentLevelId, activeRealmId]);
 
   const handleSelectRealm = (realmId: string) => {
     soundFx.playClick();
     hasUserSwitchedRealmRef.current = true;
     onUpdateProgress(p => ({ ...p, selectedRealmId: realmId }));
+    if (mainScrollContainerRef.current) {
+      mainScrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleJumpToCurrent = () => {
@@ -204,6 +211,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       {/* 1. Desktop Left Sidebar Navigation (256px - 288px) */}
       <LeftNavSidebar
         progress={progress}
+        onOpenCourseSwitcher={onOpenCourseSwitcher}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}
         onOpenLeaderboard={onOpenLeaderboard}
@@ -219,7 +227,10 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
       />
 
       {/* 2. Center Column: Learning Roadmap */}
-      <div className="flex-1 h-full overflow-y-auto no-scrollbar flex flex-col items-center min-w-0 relative">
+      <div
+        ref={mainScrollContainerRef}
+        className="flex-1 h-full overflow-y-auto no-scrollbar flex flex-col items-center min-w-0 relative"
+      >
         {/* Mobile Top Status Bar (< 1024px) */}
         <MobileTopBar
           progress={progress}
