@@ -44,58 +44,42 @@
         var h = window.location.hostname.toLowerCase();
         if (h.indexOf('vercel.app') !== -1 && h.indexOf('vocabpewpew.com') === -1 && h.indexOf('localhost') === -1) {
           try {
-            var payload = {};
-            for (var i = 0; i < localStorage.length; i++) {
-              var k = localStorage.key(i);
-              if (k && (k.indexOf('vocab_') === 0 || k.indexOf('typing_') === 0)) {
-                var v = localStorage.getItem(k);
-                if (v) payload[k] = v;
-              }
-            }
+            var raw = localStorage.getItem('vocab_pew_pew_user_progress_v2') || localStorage.getItem('vocab_pew_pew_user_progress_v1');
             var target = 'https://www.vocabpewpew.com' + window.location.pathname + window.location.hash;
-            if (Object.keys(payload).length === 0) {
+            if (!raw) {
               window.location.replace(target);
               return;
             }
 
-            // Create hidden sync iframe to bypass URI length limits
-            var iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = 'https://www.vocabpewpew.com/sync-bridge.html';
-
-            var redirected = false;
-            var go = function() {
-              if (!redirected) {
-                redirected = true;
-                window.location.replace(target);
+            var full = JSON.parse(raw);
+            var completedLevels = {};
+            if (full && full.levelProgressMap) {
+              for (var id in full.levelProgressMap) {
+                var item = full.levelProgressMap[id];
+                if (item && (item.isCompleted || (item.stars && item.stars > 0))) {
+                  completedLevels[id] = [item.stars || 0, item.highScore || 0];
+                }
               }
-            };
-
-            var timer = setTimeout(go, 1500);
-
-            window.addEventListener('message', function(e) {
-              if (e.origin && e.origin.indexOf('vocabpewpew.com') !== -1 && e.data && e.data.type === 'MIGRATE_SUCCESS') {
-                clearTimeout(timer);
-                go();
-              }
-            });
-
-            iframe.onload = function() {
-              try {
-                iframe.contentWindow.postMessage({ type: 'MIGRATE_PAYLOAD', payload: payload }, '*');
-              } catch(err) {
-                go();
-              }
-            };
-            iframe.onerror = go;
-
-            if (document.body) {
-              document.body.appendChild(iframe);
-            } else {
-              window.addEventListener('DOMContentLoaded', function() {
-                document.body.appendChild(iframe);
-              });
             }
+
+            var compact = {
+              v: 2,
+              u: full.userName || undefined,
+              a: full.avatar || undefined,
+              g: typeof full.gems === 'number' ? full.gems : undefined,
+              x: typeof full.totalXp === 'number' ? full.totalXp : undefined,
+              s: typeof full.streakDays === 'number' ? full.streakDays : undefined,
+              c: full.currentLevelId || undefined,
+              p: full.playerTag || undefined,
+              uid: full.cloudUid || undefined,
+              eq: [full.equippedShipId || 'ship-scout', full.equippedBlasterId || 'blaster-single', full.equippedLaserId || 'laser-cyan'],
+              up: Array.isArray(full.unlockedUpgradeIds) ? full.unlockedUpgradeIds : undefined,
+              lvl: Object.keys(completedLevels).length > 0 ? completedLevels : undefined
+            };
+
+            var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
+            var sep = target.indexOf('?') === -1 ? '?' : '&';
+            window.location.replace(target + sep + 'migrate_sync=' + encodeURIComponent(encoded));
           } catch (e) {
             window.location.replace('https://www.vocabpewpew.com' + window.location.pathname + window.location.hash);
           }
