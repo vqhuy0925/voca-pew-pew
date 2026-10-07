@@ -1,6 +1,8 @@
 // Cross-domain progress migration bridge between legacy Vercel domain and custom domain (vocabpewpew.com)
 // Uses Compact Payload encoding so that progress can travel seamlessly via URL query parameter without URI Too Long limits!
 
+import { ALL_LEVELS } from '../data/learning-path-data';
+
 export const TARGET_DOMAIN = 'www.vocabpewpew.com';
 export const MIGRATION_PARAM = 'migrate_sync';
 
@@ -95,6 +97,38 @@ export function decompressAndRestoreProgress(compactB64: string): boolean {
           stars: Math.max(stars, levelMap[id]?.stars || 0),
           highScore: Math.max(highScore, levelMap[id]?.highScore || 0)
         };
+      }
+
+      // Reconcile sequence: any completed level unlocks the consecutive level
+      ALL_LEVELS.forEach((lvl, idx) => {
+        if (levelMap[lvl.id]?.isCompleted && idx < ALL_LEVELS.length - 1) {
+          const nextLvl = ALL_LEVELS[idx + 1];
+          if (!levelMap[nextLvl.id]) {
+            levelMap[nextLvl.id] = {
+              levelId: nextLvl.id,
+              isUnlocked: true,
+              isCompleted: false,
+              stars: 0,
+              highScore: 0
+            };
+          } else {
+            levelMap[nextLvl.id].isUnlocked = true;
+          }
+        }
+      });
+    }
+
+    if (compact.c) {
+      if (!levelMap[compact.c]) {
+        levelMap[compact.c] = {
+          levelId: compact.c,
+          isUnlocked: true,
+          isCompleted: false,
+          stars: 0,
+          highScore: 0
+        };
+      } else {
+        levelMap[compact.c].isUnlocked = true;
       }
     }
 

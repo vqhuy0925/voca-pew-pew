@@ -28,6 +28,7 @@ import {
   ACTIVE_SESSION_KEY
 } from '../services/accountService';
 import { getInitialUserProgress, saveUserProgress, loadUserProgress } from '../services/progressStorage';
+import { resolveSyncUid } from '../services/firebase/cloudSyncService';
 
 describe('Player Account & PIN Authentication System', () => {
   beforeEach(() => {
@@ -234,6 +235,74 @@ describe('Player Account & PIN Authentication System', () => {
         isRegisteredAccount: true
       };
       assert.equal(hasLegacyUnregisteredProgress(registeredUser), false);
+    });
+  });
+
+  describe('Cross-Browser Login & UID Protection', () => {
+    it('resolveSyncUid prioritizes account session UID and never uses anonymous browser UID for logged-in users', async () => {
+      // 1. User registers account on Browser 1
+      const progress = getInitialUserProgress();
+      progress.gems = 500;
+      progress.totalXp = 3000;
+      const regRes = await registerAccount({
+        username: 'cosmicpilot',
+        pin: '2026',
+        displayName: 'Cosmic Pilot',
+        currentProgress: progress
+      });
+      assert.equal(regRes.success, true);
+      const originalUid = regRes.session?.uid;
+      assert.ok(originalUid);
+
+      // Verify resolveSyncUid picks the account UID
+      const activeSessionUid = resolveSyncUid(regRes.progress!);
+      assert.equal(activeSessionUid, originalUid);
+
+      // 2. Simulate opening Browser 2:
+      // Browser 2 local UID is different (e.g. anonymous or new local UID)
+      const browser2LocalProgress = getInitialUserProgress();
+      browser2LocalProgress.cloudUid = 'local_browser2_random_uid';
+      browser2LocalProgress.playerTag = '#PEW-RAND';
+
+      // 3. User logs in on Browser 2
+      const loginRes = await loginAccount('cosmicpilot', '2026');
+      assert.equal(loginRes.success, true);
+      assert.equal(loginRes.session?.uid, originalUid);
+
+      // Verify Browser 2's sync UID points to original account UID, NOT Browser 2's random local/anonymous UID!
+      const syncUidOnBrowser2 = resolveSyncUid(loginRes.progress!);
+      assert.equal(syncUidOnBrowser2, originalUid);
+      assert.notEqual(syncUidOnBrowser2, 'local_browser2_random_uid');
+    });
+
+    it('login merges achievements non-destructively without resetting to 0', async () => {
+      // User with 702 stars and 1500 gems
+      const richProgress = getInitialUserProgress();
+      richProgress.gems = 1529;
+      richProgress.totalXp = 19748;
+      richProgress.userName = 'viet nam';
+      richProgress.unlockedUpgradeIds = ['ship-scout', 'blaster-single', 'laser-cyan', 'ship-dragon'];
+
+      await registerAccount({
+        username: 'vuhuyhoang_test',
+        pin: '1234',
+        displayName: 'vuhuyhoang',
+        currentProgress: richProgress
+      });
+
+      // Now simulate a fresh browser session (e.g. Browser B) where progress is 0
+      localStorage.removeItem('vocab_pew_pew_user_progress_v2');
+      const emptyLocal = getInitialUserProgress();
+      saveUserProgress(emptyLocal);
+
+      // User logs in on Browser B
+      const loginRes = await loginAccount('vuhuyhoang_test', '1234');
+      assert.equal(loginRes.success, true);
+
+      // Verify achievements were restored from account cache and NOT wiped out by 0
+      assert.equal(loginRes.progress?.gems, 1529);
+      assert.equal(loginRes.progress?.totalXp, 19748);
+      assert.ok(loginRes.progress?.unlockedUpgradeIds.includes('ship-dragon'));
     });
   });
 });

@@ -15,9 +15,16 @@ import {
   Crown,
   Target,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
-import { UserAnalyticsItem } from '../../services/firebase/analyticsAdminService';
+import {
+  UserAnalyticsItem,
+  DuplicateGroup,
+  findDuplicateUsersInFirestore,
+  purgeDuplicateUsersInFirestore
+} from '../../services/firebase/analyticsAdminService';
 import { soundFx } from '../../game/engine/SoundController';
 
 interface UserExplorerProps {
@@ -40,6 +47,42 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRealmFilter, setSelectedRealmFilter] = useState<string>('ALL');
   const [activeUserDetail, setActiveUserDetail] = useState<UserAnalyticsItem | null>(null);
+
+  // Duplicate management state
+  const [duplicateGroups, setDuplicateGroups] = useState<DuplicateGroup[] | null>(null);
+  const [isScanningDuplicates, setIsScanningDuplicates] = useState(false);
+  const [isPurgingDuplicates, setIsPurgingDuplicates] = useState(false);
+  const [purgeResultMsg, setPurgeResultMsg] = useState<string | null>(null);
+
+  const handleScanDuplicates = async () => {
+    setIsScanningDuplicates(true);
+    setPurgeResultMsg(null);
+    try {
+      const groups = await findDuplicateUsersInFirestore();
+      setDuplicateGroups(groups);
+      if (groups.length === 0) {
+        setPurgeResultMsg('Tuyệt vời! Không phát hiện tài khoản trùng lặp nào trong Firestore.');
+      }
+    } catch {
+      setPurgeResultMsg('Lỗi khi quét tài khoản trùng lặp.');
+    } finally {
+      setIsScanningDuplicates(false);
+    }
+  };
+
+  const handlePurgeDuplicates = async () => {
+    if (!duplicateGroups || duplicateGroups.length === 0) return;
+    setIsPurgingDuplicates(true);
+    try {
+      const res = await purgeDuplicateUsersInFirestore(duplicateGroups);
+      setPurgeResultMsg(res.message);
+      setDuplicateGroups(null);
+    } catch {
+      setPurgeResultMsg('Lỗi khi xóa duplicate users.');
+    } finally {
+      setIsPurgingDuplicates(false);
+    }
+  };
 
   const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -96,8 +139,70 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
               className="w-56 sm:w-64 bg-slate-800 border border-slate-700 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
             />
           </div>
+
+          {/* Scan duplicates button */}
+          <button
+            type="button"
+            disabled={isScanningDuplicates || isPurgingDuplicates}
+            onClick={handleScanDuplicates}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/40 text-rose-300 text-xs font-bold transition-all disabled:opacity-50"
+          >
+            {isScanningDuplicates ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5" />
+            )}
+            <span>{isScanningDuplicates ? 'Đang quét...' : 'Quét Duplicate Users'}</span>
+          </button>
         </div>
       </div>
+
+      {/* Duplicate Purge Alert Banner */}
+      {purgeResultMsg && (
+        <div className="p-3.5 rounded-2xl bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+            <span>{purgeResultMsg}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPurgeResultMsg(null)}
+            className="text-slate-400 hover:text-white text-xs"
+          >
+            Đóng
+          </button>
+        </div>
+      )}
+
+      {duplicateGroups && duplicateGroups.length > 0 && (
+        <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/50 text-slate-200 text-xs space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+              <ShieldAlert className="w-4 h-4" />
+              <span>Phát hiện {duplicateGroups.length} nhóm tài khoản bị trùng lặp playerTag!</span>
+            </div>
+            <button
+              type="button"
+              disabled={isPurgingDuplicates}
+              onClick={handlePurgeDuplicates}
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold flex items-center gap-2 transition-all shadow-lg disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>{isPurgingDuplicates ? 'Đang dọn dẹp...' : `Dọn Dẹp ${duplicateGroups.reduce((acc, g) => acc + g.duplicates.length, 0)} Document Rác`}</span>
+            </button>
+          </div>
+          <div className="space-y-1.5 max-h-36 overflow-y-auto font-mono text-[11px] text-slate-300">
+            {duplicateGroups.map((g, idx) => (
+              <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                <span>Tag: <strong className="text-cyan-300">{g.playerTag}</strong> ({g.userName})</span>
+                <span className="text-amber-300">
+                  Giữ lại doc chính ({g.bestDoc.starsCount}⭐, {g.bestDoc.totalXp}XP) • Xóa {g.duplicates.length} doc thừa
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">

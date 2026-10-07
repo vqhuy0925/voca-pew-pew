@@ -11,21 +11,26 @@ import {
   Sparkles,
   ArrowRight,
   Smile,
-  Keyboard
+  Keyboard,
+  RotateCcw,
+  Link2
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import {
   registerAccount,
   loginAccount,
+  recoverProgressByPlayerTag,
   normalizeUsername,
   validateUsername,
   validatePin
 } from '../../services/accountService';
 import { UserProgress } from '../../data/progress-types';
 
+export type AuthTabType = 'register' | 'login' | 'recover';
+
 interface AuthModalProps {
   isOpen: boolean;
-  initialTab?: 'register' | 'login';
+  initialTab?: AuthTabType;
   onSuccess: (progress: UserProgress, isNewRegistration: boolean) => void;
   onClose?: () => void;
   allowClose?: boolean;
@@ -38,15 +43,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   allowClose = true
 }) => {
-  const [tab, setTab] = useState<'register' | 'login'>(initialTab);
+  const [tab, setTab] = useState<AuthTabType>(initialTab);
   const [username, setUsername] = useState<string>('');
   const [displayName, setDisplayName] = useState<string>('');
+  const [recoverTag, setRecoverTag] = useState<string>('');
   const [pin, setPin] = useState<string[]>(['', '', '', '']);
   const [confirmPin, setConfirmPin] = useState<string[]>(['', '', '', '']);
   const [activePinTarget, setActivePinTarget] = useState<'pin' | 'confirmPin'>('pin');
 
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const [isShaking, setIsShaking] = useState<boolean>(false);
   const [showVirtualNumPad, setShowVirtualNumPad] = useState<boolean>(false);
 
@@ -84,10 +91,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setTimeout(() => setIsShaking(false), 500);
   };
 
-  const handleTabChange = (nextTab: 'register' | 'login') => {
+  const handleTabChange = (nextTab: AuthTabType) => {
     soundFx.playClick();
     setTab(nextTab);
     setErrorMessage('');
+    setSuccessMessage('');
     setPin(['', '', '', '']);
     setConfirmPin(['', '', '', '']);
     setActivePinTarget('pin');
@@ -189,6 +197,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       return;
     }
 
+    if (tab === 'recover') {
+      const cleanTag = recoverTag.trim().toUpperCase();
+      const finalTag = cleanTag.startsWith('#') ? cleanTag : `#${cleanTag}`;
+      if (!finalTag || finalTag.length < 5) {
+        triggerError('Vui lòng nhập đúng Mã Thẻ Phi Hành Gia (ví dụ: #PEW-7UY3).');
+        return;
+      }
+
+      setLoading(true);
+      // Verify login first
+      const authRes = await loginAccount(normUser, pinStr);
+      if (!authRes.success) {
+        setLoading(false);
+        triggerError(authRes.error || 'Tài khoản hoặc mã PIN không chính xác.');
+        return;
+      }
+
+      const recRes = await recoverProgressByPlayerTag(normUser, finalTag);
+      setLoading(false);
+
+      if (!recRes.success || !recRes.progress) {
+        triggerError(recRes.message);
+      } else {
+        soundFx.playPew();
+        setSuccessMessage(recRes.message);
+        setTimeout(() => {
+          onSuccess(recRes.progress!, false);
+        }, 1200);
+      }
+      return;
+    }
+
     if (tab === 'register') {
       const confirmPinStr = confirmPin.join('');
       if (pinStr !== confirmPinStr) {
@@ -258,35 +298,55 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Tab Selector */}
-        <div className="shrink-0 grid grid-cols-2 p-2 bg-slate-950/40 border-b border-slate-800/80 gap-2">
+        <div className="shrink-0 grid grid-cols-3 p-2 bg-slate-950/40 border-b border-slate-800/80 gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={() => handleTabChange('register')}
-            className={`py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
+            className={`py-2 px-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
               tab === 'register'
                 ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-[0_0_15px_rgba(0,240,255,0.4)]'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
-            TẠO TÀI KHOẢN MỚI
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="truncate">ĐĂNG KÝ</span>
           </button>
           <button
             type="button"
             onClick={() => handleTabChange('login')}
-            className={`py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all ${
+            className={`py-2 px-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
               tab === 'login'
                 ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
-            <Key className="w-4 h-4" />
-            ĐÃ CÓ TÀI KHOẢN
+            <Key className="w-3.5 h-3.5" />
+            <span className="truncate">ĐĂNG NHẬP</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('recover')}
+            className={`py-2 px-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
+              tab === 'recover'
+                ? 'bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="truncate">CỨU DỮ LIỆU</span>
           </button>
         </div>
 
         {/* Scrollable Form Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {/* Success Banner */}
+          {successMessage && (
+            <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-sm flex items-center gap-2.5 animate-bounce">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
           {/* Error Banner */}
           {errorMessage && (
             <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-sm flex items-center gap-2.5 animate-pulse">
@@ -403,6 +463,45 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             )}
 
+            {/* Field: Recover PlayerTag (Recover only) */}
+            {tab === 'recover' && (
+              <div className="p-3.5 rounded-2xl bg-teal-950/40 border border-teal-500/40 space-y-2">
+                <div className="flex items-center gap-2 text-teal-300 font-bold text-xs uppercase tracking-wider">
+                  <RotateCcw className="w-4 h-4 text-teal-400" />
+                  <span>Khôi phục từ Thẻ Phi Hành Gia Cũ</span>
+                </div>
+                <p className="text-xs text-slate-300">
+                  Nhập mã thẻ từ tiến trình bạn từng chơi (ví dụ: <span className="font-mono text-teal-300 font-bold">#PEW-7UY3</span>) để chuyển toàn bộ Sao, Kim cương và Cấp độ vào tài khoản này.
+                </p>
+                <div>
+                  <label className="block text-[11px] font-black text-teal-300 uppercase tracking-wider mb-1">
+                    Mã Thẻ Phi Hành Gia (PlayerTag)
+                  </label>
+                  <input
+                    type="text"
+                    value={recoverTag}
+                    onChange={e => setRecoverTag(e.target.value.toUpperCase())}
+                    placeholder="ví dụ: #PEW-7UY3"
+                    className="w-full bg-slate-950 border-2 border-teal-500/50 focus:border-teal-400 rounded-xl px-3 py-2.5 text-base text-teal-200 placeholder-slate-500 outline-none font-mono font-bold"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Quick link to recover when in login tab */}
+            {tab === 'login' && (
+              <div className="pt-1 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('recover')}
+                  className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1.5 font-bold hover:underline"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Bị mất tiến trình hoặc cần lấy lại Thẻ (#PEW-XXXX) cũ?</span>
+                </button>
+              </div>
+            )}
+
             {/* Virtual Arcade NumPad for iPad & Touch devices (Hidden by default, toggleable) */}
             <div className="pt-1">
               <div className="flex items-center justify-center">
@@ -460,8 +559,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="text-xs text-slate-400">
             {tab === 'register' ? (
               <span>Đã có tài khoản? <button type="button" onClick={() => handleTabChange('login')} className="text-cyan-400 font-bold underline ml-1">Đăng nhập</button></span>
-            ) : (
+            ) : tab === 'login' ? (
               <span>Chưa có tài khoản? <button type="button" onClick={() => handleTabChange('register')} className="text-amber-400 font-bold underline ml-1">Đăng ký mới</button></span>
+            ) : (
+              <span>Quay lại <button type="button" onClick={() => handleTabChange('login')} className="text-teal-400 font-bold underline ml-1">Đăng nhập</button></span>
             )}
           </div>
           <button
@@ -469,7 +570,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             disabled={loading}
             onClick={() => handleSubmit()}
             className={`px-6 py-3 rounded-2xl font-black text-sm sm:text-base flex items-center gap-2 transition-all shadow-lg ${
-              tab === 'register' ? 'btn-3d-cyan' : 'btn-3d-yellow'
+              tab === 'register' ? 'btn-3d-cyan' : tab === 'login' ? 'btn-3d-yellow' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 hover:brightness-110'
             } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {loading ? (
@@ -479,10 +580,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <span>KÍCH HOẠT TÀI KHOẢN</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
               </>
-            ) : (
+            ) : tab === 'login' ? (
               <>
                 <span>ĐĂNG NHẬP NGAY</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
+              </>
+            ) : (
+              <>
+                <span>KHÔI PHỤC TIẾN TRÌNH</span>
+                <RotateCcw className="w-4 h-4 stroke-[3]" />
               </>
             )}
           </button>

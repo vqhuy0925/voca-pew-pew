@@ -280,6 +280,10 @@ export const App: React.FC = () => {
   useEffect(() => {
     initAuthSession().then((uid) => {
       setProgress((prev) => {
+        // Protect registered account or established cloudUid: NEVER overwrite with anonymous UID!
+        if (prev.isRegisteredAccount || (prev.cloudUid && !prev.cloudUid.startsWith('local_'))) {
+          return prev;
+        }
         const updated = { ...prev, cloudUid: uid };
         saveUserProgress(updated);
         return updated;
@@ -380,7 +384,12 @@ export const App: React.FC = () => {
   const handleOpenLeaderboard = useCallback(() => {
     ensureCloudAuthSession().then(uid => {
       if (uid && !uid.startsWith('local_')) {
-        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+        handleUpdateProgress(p => {
+          if (p.isRegisteredAccount || (p.cloudUid && !p.cloudUid.startsWith('local_'))) {
+            return p;
+          }
+          return p.cloudUid === uid ? p : { ...p, cloudUid: uid };
+        });
       }
     });
     setShowLeaderboardModal(true);
@@ -389,7 +398,12 @@ export const App: React.FC = () => {
   const handleOpenAstronautCard = useCallback((player: LeaderboardEntry | null = null) => {
     ensureCloudAuthSession().then(uid => {
       if (uid && !uid.startsWith('local_')) {
-        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+        handleUpdateProgress(p => {
+          if (p.isRegisteredAccount || (p.cloudUid && !p.cloudUid.startsWith('local_'))) {
+            return p;
+          }
+          return p.cloudUid === uid ? p : { ...p, cloudUid: uid };
+        });
       }
     });
     setSelectedCardPlayer(player);
@@ -592,7 +606,12 @@ export const App: React.FC = () => {
     // Lazy Auth: create/attach cloud account on successful level completion (non-blocking)
     ensureCloudAuthSession().then(uid => {
       if (uid && !uid.startsWith('local_')) {
-        handleUpdateProgress(p => (p.cloudUid === uid ? p : { ...p, cloudUid: uid }));
+        handleUpdateProgress(p => {
+          if (p.isRegisteredAccount || (p.cloudUid && !p.cloudUid.startsWith('local_'))) {
+            return p;
+          }
+          return p.cloudUid === uid ? p : { ...p, cloudUid: uid };
+        });
       }
     });
 

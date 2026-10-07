@@ -51,6 +51,54 @@ export const calculateCompletedLevelsCount = (progress: UserProgress): number =>
   return Object.values(progress.levelProgressMap || {}).filter(lvl => lvl.isCompleted).length;
 };
 
+export const ACTIVE_SESSION_STORAGE_KEY = 'vocab_pew_pew_active_session_v1';
+
+export const getActiveSessionUid = (): string | null => {
+  try {
+    const raw = localStorage.getItem(ACTIVE_SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const session = JSON.parse(raw);
+    return session?.uid || null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Resolve Single Source of Truth UID for Firestore sync:
+ * 1. Active Account Session UID (e.g. 'usr_...') - HIGHEST PRIORITY
+ * 2. Registered Account progress.cloudUid
+ * 3. Existing persistent cloudUid
+ * 4. Anonymous Firebase Auth UID
+ * 5. Local UID fallback
+ */
+export const resolveSyncUid = (progress: UserProgress): string => {
+  // 1. Registered Account UID from active session
+  const sessionUid = getActiveSessionUid();
+  if (sessionUid && !sessionUid.startsWith('local_')) {
+    return sessionUid;
+  }
+
+  // 2. Registered Account UID on progress object
+  if (progress.isRegisteredAccount && progress.cloudUid && !progress.cloudUid.startsWith('local_')) {
+    return progress.cloudUid;
+  }
+
+  // 3. Persistent established cloudUid (e.g. from prior guest session)
+  if (progress.cloudUid && !progress.cloudUid.startsWith('local_')) {
+    return progress.cloudUid;
+  }
+
+  // 4. Current online Firebase Auth UID
+  const activeUid = getCurrentUid();
+  if (activeUid && !activeUid.startsWith('local_')) {
+    return activeUid;
+  }
+
+  // 5. Local UID fallback
+  return progress.cloudUid || activeUid || getOrInitPlayerTag();
+};
+
 /**
  * Build consolidated Firestore player payload
  */
@@ -61,6 +109,8 @@ export const buildUserSyncPayload = (progress: UserProgress, uid: string, player
   return {
     uid,
     playerTag,
+    accountUsername: progress.accountUsername || null,
+    isRegisteredAccount: Boolean(progress.isRegisteredAccount),
     userName: progress.userName || 'Phi Hành Gia',
     avatar: progress.avatar || '🚀',
     gender: progress.gender || 'neutral',
@@ -124,8 +174,7 @@ export const queueCloudSync = (progress: UserProgress) => {
     }
 
     try {
-      const activeUid = getCurrentUid();
-      const uid = (activeUid && !activeUid.startsWith('local_')) ? activeUid : (progress.cloudUid || activeUid);
+      const uid = resolveSyncUid(progress);
       const playerTag = progress.playerTag || getOrInitPlayerTag();
       const weekId = getWeekIdentifier();
 
@@ -170,8 +219,7 @@ export const syncCloudNow = async (progress: UserProgress): Promise<void> => {
   notifyStatus('syncing');
 
   try {
-    const activeUid = getCurrentUid();
-    const uid = (activeUid && !activeUid.startsWith('local_')) ? activeUid : (progress.cloudUid || activeUid);
+    const uid = resolveSyncUid(progress);
     if (!uid) {
       notifyStatus('idle');
       return;

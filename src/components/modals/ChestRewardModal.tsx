@@ -35,9 +35,15 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
     soundFx.playChestOpen();
     setIsOpened(true);
 
+    // If first time, grant gems and XP. If already completed, ensure next level and current level are still properly unlocked
     if (isFirstTime) {
       onUpdateProgress(prev =>
         completeLevelProgress(prev, level.id, 3, 100, xpRewardAmount, gemRewardAmount)
+      );
+    } else {
+      // Re-trigger level progression without double granting rewards to ensure next level is unblocked
+      onUpdateProgress(prev =>
+        completeLevelProgress(prev, level.id, 3, 100, 0, 0)
       );
     }
   }, [level.id]);

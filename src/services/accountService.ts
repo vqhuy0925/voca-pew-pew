@@ -1,4 +1,14 @@
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  serverTimestamp
+} from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase/firebaseConfig';
 import { UserProgress } from '../data/progress-types';
 import { DEFAULT_TYPING_PROGRESS } from '../data/typing-progress-types';
@@ -215,6 +225,7 @@ export const registerAccount = async (params: {
   pin: string;
   displayName?: string;
   currentProgress?: UserProgress;
+  playerTagToLink?: string;
 }): Promise<AuthResult> => {
   const usernameVal = validateUsername(params.username);
   if (!usernameVal.valid) {
@@ -237,8 +248,36 @@ export const registerAccount = async (params: {
   const now = new Date().toISOString();
 
   // Create or preserve existing progress
-  const baseProgress = params.currentProgress || loadUserProgress() || getInitialUserProgress();
-  const playerTag = baseProgress.playerTag || getOrInitPlayerTag();
+  let baseProgress = params.currentProgress || loadUserProgress() || getInitialUserProgress();
+  let playerTag = baseProgress.playerTag || getOrInitPlayerTag();
+
+  if (params.playerTagToLink && isFirebaseConfigured && db) {
+    try {
+      const cleanTag = params.playerTagToLink.trim().toUpperCase();
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('playerTag', '==', cleanTag));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        let bestDoc: any = null;
+        snap.forEach(d => {
+          const docData = d.data();
+          if (!bestDoc || (docData.starsCount || 0) > (bestDoc.starsCount || 0) || (docData.totalXp || 0) > (bestDoc.totalXp || 0)) {
+            bestDoc = docData;
+          }
+        });
+        if (bestDoc) {
+          baseProgress = {
+            ...baseProgress,
+            ...bestDoc
+          };
+          playerTag = cleanTag;
+        }
+      }
+    } catch (err) {
+      console.warn('[AccountService] Failed to link playerTag during registration:', err);
+    }
+  }
+
   const uid = (baseProgress.cloudUid && !baseProgress.cloudUid.startsWith('local_'))
     ? baseProgress.cloudUid
     : `usr_${username}_${Math.random().toString(36).substring(2, 8)}`;
@@ -405,8 +444,44 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
     try {
       const userDocRef = doc(db, 'users', targetAccount.uid);
       const snap = await getDoc(userDocRef);
-      if (snap.exists()) {
-        const cloudData = snap.data() as Partial<UserProgress>;
+      let cloudData = snap.exists() ? (snap.data() as Partial<UserProgress>) : null;
+
+      const rawCloud = cloudData as any;
+      const isCloudEmpty = !cloudData || (((rawCloud?.starsCount || 0) === 0) && (cloudData.totalXp || 0) === 0 && Object.values(cloudData.levelProgressMap || {}).every(l => (l.stars || 0) === 0));
+      const isLocalEmpty = (baseLocal.totalXp || 0) === 0 && Object.values(baseLocal.levelProgressMap || {}).every(l => (l.stars || 0) === 0);
+
+      if (isCloudEmpty && isLocalEmpty && targetAccount.playerTag && targetAccount.playerTag !== '#PEW-????') {
+        try {
+          const usersRef = collection(db, 'users');
+          const q = query(usersRef, where('playerTag', '==', targetAccount.playerTag));
+          const orphanSnap = await getDocs(q);
+          if (!orphanSnap.empty) {
+            let bestDoc: any = null;
+            orphanSnap.forEach(d => {
+              const dData = d.data();
+              if (!bestDoc || (dData.starsCount || 0) > (bestDoc.starsCount || 0) || (dData.totalXp || 0) > (bestDoc.totalXp || 0)) {
+                bestDoc = dData;
+              }
+            });
+            if (bestDoc && ((bestDoc.starsCount || 0) > 0 || (bestDoc.totalXp || 0) > 0)) {
+              console.info(`[AccountService] Auto-recovered ${bestDoc.starsCount} stars for playerTag ${targetAccount.playerTag}`);
+              cloudData = bestDoc;
+              // Persist recovered data into primary account document
+              await setDoc(userDocRef, {
+                ...bestDoc,
+                uid: targetAccount.uid,
+                cloudUid: targetAccount.uid,
+                accountUsername: username,
+                updatedAt: serverTimestamp()
+              }, { merge: true });
+            }
+          }
+        } catch (recoverErr) {
+          console.warn('[AccountService] Auto-recovery query failed:', recoverErr);
+        }
+      }
+
+      if (cloudData) {
         const mergedTyping = cloudData.typingProgress
           ? {
               ...DEFAULT_TYPING_PROGRESS,
@@ -419,10 +494,35 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
             }
           : (baseLocal.typingProgress || { ...DEFAULT_TYPING_PROGRESS });
 
-        const mergedLevelMap = {
-          ...(baseLocal.levelProgressMap || {}),
-          ...(cloudData.levelProgressMap || {})
-        };
+        // Merge level progress map non-destructively: keep higher stars & completion
+        const mergedLevelMap: Record<string, any> = { ...(baseLocal.levelProgressMap || {}) };
+        if (cloudData.levelProgressMap) {
+          Object.entries(cloudData.levelProgressMap).forEach(([lvlId, cLvl]: [string, any]) => {
+            const lLvl = mergedLevelMap[lvlId];
+            if (!lLvl) {
+              mergedLevelMap[lvlId] = cLvl;
+            } else {
+              mergedLevelMap[lvlId] = {
+                ...lLvl,
+                ...cLvl,
+                isCompleted: lLvl.isCompleted || cLvl.isCompleted,
+                isUnlocked: lLvl.isUnlocked || cLvl.isUnlocked,
+                stars: Math.max(lLvl.stars || 0, cLvl.stars || 0),
+                highScore: Math.max(lLvl.highScore || 0, cLvl.highScore || 0)
+              };
+            }
+          });
+        }
+
+        // Merge upgrades & badges (union)
+        const mergedUpgrades = Array.from(new Set([
+          ...(baseLocal.unlockedUpgradeIds || []),
+          ...(cloudData.unlockedUpgradeIds || [])
+        ]));
+        const mergedBadges = Array.from(new Set([
+          ...(baseLocal.unlockedBadgeIds || []),
+          ...(cloudData.unlockedBadgeIds || [])
+        ]));
 
         restoredProgress = {
           ...baseLocal,
@@ -431,7 +531,13 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
           accountUsername: username,
           isRegisteredAccount: true,
           cloudUid: targetAccount.uid,
-          playerTag: targetAccount.playerTag || baseLocal.playerTag,
+          playerTag: targetAccount.playerTag || cloudData.playerTag || baseLocal.playerTag,
+          totalXp: Math.max(baseLocal.totalXp || 0, cloudData.totalXp || 0),
+          weeklyXp: Math.max(baseLocal.weeklyXp || 0, cloudData.weeklyXp || 0),
+          gems: Math.max(baseLocal.gems || 0, cloudData.gems || 0),
+          streakDays: Math.max(baseLocal.streakDays || 1, cloudData.streakDays || 1),
+          unlockedUpgradeIds: mergedUpgrades,
+          unlockedBadgeIds: mergedBadges,
           typingProgress: mergedTyping,
           levelProgressMap: mergedLevelMap
         } as UserProgress;
@@ -471,6 +577,118 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
     session,
     progress: restoredProgress
   };
+};
+
+/**
+ * Manually recover and link gameplay progress from a PlayerTag (e.g. '#PEW-7UY3') to a user account
+ */
+export const recoverProgressByPlayerTag = async (
+  username: string,
+  targetPlayerTag: string
+): Promise<{ success: boolean; message: string; progress?: UserProgress }> => {
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, message: 'Firebase chưa được kết nối.' };
+  }
+
+  const cleanTag = targetPlayerTag.trim().toUpperCase();
+  if (!cleanTag) {
+    return { success: false, message: 'Vui lòng nhập Mã Thẻ Phi Hành Gia (PlayerTag).' };
+  }
+
+  try {
+    // 1. Query Firestore users collection for matching playerTag
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('playerTag', '==', cleanTag));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      return { success: false, message: `Không tìm thấy tiến trình nào gắn với mã ${cleanTag}.` };
+    }
+
+    // Pick document with highest starsCount / totalXp among duplicates
+    let bestDocData: any = null;
+    snap.forEach(d => {
+      const data = d.data();
+      if (!bestDocData || (data.starsCount || 0) > (bestDocData.starsCount || 0) || (data.totalXp || 0) > (bestDocData.totalXp || 0)) {
+        bestDocData = data;
+      }
+    });
+
+    if (!bestDocData) {
+      return { success: false, message: 'Dữ liệu tìm thấy không hợp lệ.' };
+    }
+
+    // 2. Fetch the target account to link
+    const normUsername = normalizeUsername(username);
+    const accountRef = doc(db, 'player_accounts', normUsername);
+    const accountSnap = await getDoc(accountRef);
+    if (!accountSnap.exists()) {
+      return { success: false, message: `Tài khoản ${normUsername} không tồn tại.` };
+    }
+
+    const accountData = accountSnap.data() as PlayerAccount;
+    const targetUid = accountData.uid;
+
+    // 3. Clone/merge the recovered data into the account's primary UID
+    const mergedProgress: UserProgress = {
+      ...getInitialUserProgress(),
+      ...bestDocData,
+      uid: targetUid,
+      cloudUid: targetUid,
+      playerTag: cleanTag,
+      accountUsername: normUsername,
+      userName: accountData.displayName || bestDocData.userName,
+      isRegisteredAccount: true
+    };
+
+    // Save to Firestore users/{targetUid}
+    await setDoc(doc(db, 'users', targetUid), {
+      ...bestDocData,
+      uid: targetUid,
+      cloudUid: targetUid,
+      playerTag: cleanTag,
+      accountUsername: normUsername,
+      userName: accountData.displayName || bestDocData.userName,
+      isRegisteredAccount: true,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // Update player_accounts document with the verified playerTag
+    await setDoc(accountRef, {
+      playerTag: cleanTag,
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // Update local account cache
+    const localAccounts = getLocalAccounts();
+    if (localAccounts[normUsername]) {
+      localAccounts[normUsername].playerTag = cleanTag;
+      saveLocalAccounts(localAccounts);
+    }
+
+    // Save locally
+    saveUserProgress(mergedProgress);
+    saveAccountProgressLocally(normUsername, mergedProgress);
+
+    // Update active session
+    const session: AccountSession = {
+      username: normUsername,
+      displayName: accountData.displayName,
+      uid: targetUid,
+      playerTag: cleanTag,
+      lastActive: Date.now()
+    };
+    setActiveAccountSession(session);
+
+    return {
+      success: true,
+      message: `Khôi phục thành công! Đã liên kết ${bestDocData.starsCount || 0} sao và ${bestDocData.gems || 0} kim cương vào tài khoản ${normUsername}.`,
+      progress: mergedProgress
+    };
+  } catch (err: any) {
+    console.error('[AccountService:recoverProgress] Failed:', err);
+    return { success: false, message: err?.message || 'Có lỗi xảy ra khi khôi phục tiến trình.' };
+  }
 };
 
 /**

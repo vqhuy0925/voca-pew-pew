@@ -330,8 +330,28 @@ export const loadUserProgress = (): UserProgress => {
       }
     });
 
+    // Progression Line Reconciliation: If a level is completed, its consecutive next level MUST be unlocked.
+    // Also ensures currentLevelId is unlocked even after migration or state edge cases.
+    ALL_LEVELS.forEach((lvl, idx) => {
+      if (parsed.levelProgressMap[lvl.id]?.isCompleted && idx < ALL_LEVELS.length - 1) {
+        const nextLvl = ALL_LEVELS[idx + 1];
+        if (parsed.levelProgressMap[nextLvl.id]) {
+          parsed.levelProgressMap[nextLvl.id].isUnlocked = true;
+        }
+      }
+    });
+
+    if (parsed.currentLevelId && parsed.levelProgressMap[parsed.currentLevelId]) {
+      parsed.levelProgressMap[parsed.currentLevelId].isUnlocked = true;
+    }
+
     const unlockedSet = new Set(parsed.unlockedLevelIds || []);
     REALM_ENTRY_LEVEL_IDS.forEach(id => unlockedSet.add(id));
+    Object.keys(parsed.levelProgressMap).forEach(lvlId => {
+      if (parsed.levelProgressMap[lvlId]?.isUnlocked) {
+        unlockedSet.add(lvlId);
+      }
+    });
     parsed.unlockedLevelIds = Array.from(unlockedSet);
 
     // Ensure Cloud Identity
