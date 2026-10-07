@@ -39,6 +39,34 @@
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" />
     </noscript>
+    <script>
+      (function() {
+        var h = window.location.hostname.toLowerCase();
+        if (h.indexOf('vercel.app') !== -1 && h !== 'vocabpewpew.com' && h.indexOf('localhost') === -1) {
+          try {
+            var payload = {};
+            for (var i = 0; i < localStorage.length; i++) {
+              var k = localStorage.key(i);
+              if (k && (k.indexOf('vocab_') === 0 || k.indexOf('typing_') === 0)) {
+                var v = localStorage.getItem(k);
+                if (v) payload[k] = v;
+              }
+            }
+            var target = 'https://vocabpewpew.com' + window.location.pathname + window.location.hash;
+            var keys = Object.keys(payload);
+            if (keys.length > 0) {
+              var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+              var sep = target.indexOf('?') === -1 ? '?' : '&';
+              window.location.replace(target + sep + 'migrate_sync=' + encodeURIComponent(encoded));
+            } else {
+              window.location.replace(target);
+            }
+          } catch (e) {
+            window.location.replace('https://vocabpewpew.com' + window.location.pathname + window.location.hash);
+          }
+        }
+      })();
+    </script>
   </head>
   <body class="bg-space-dark text-white overflow-hidden select-none font-game antialiased">
     <div id="root"></div>
