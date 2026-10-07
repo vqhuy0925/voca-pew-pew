@@ -1,7 +1,8 @@
 // Cross-domain progress migration bridge between legacy Vercel domain and custom domain (vocabpewpew.com)
+// Uses iframe postMessage to transfer large localStorage payloads without hitting "414 URI Too Long" limits.
 
-const TARGET_DOMAIN = 'vocabpewpew.com';
-const MIGRATION_PARAM = 'migrate_sync';
+const TARGET_ORIGIN = 'https://www.vocabpewpew.com';
+const TARGET_FALLBACK_ORIGIN = 'https://vocabpewpew.com';
 
 // List of all keys to sync across domains
 const SYNC_KEYS = [
@@ -15,100 +16,109 @@ const SYNC_KEYS = [
 ];
 
 /**
- * Handle incoming migration payload on target domain (vocabpewpew.com)
- * Returns true if migration data was applied and page is reloading.
+ * Gather all game-related items from localStorage
  */
-export function handleIncomingMigration(): boolean {
-  if (typeof window === 'undefined') return false;
+export function gatherSyncPayload(): Record<string, string> {
+  const payload: Record<string, string> = {};
+  if (typeof window === 'undefined') return payload;
 
-  const url = new URL(window.location.href);
-  const rawPayload = url.searchParams.get(MIGRATION_PARAM);
-  if (!rawPayload) return false;
-
-  try {
-    // Decode base64 UTF-8 JSON payload
-    const jsonStr = decodeURIComponent(escape(atob(rawPayload)));
-    const data = JSON.parse(jsonStr) as Record<string, string>;
-
-    if (data && typeof data === 'object') {
-      let restoredCount = 0;
-      for (const [key, val] of Object.entries(data)) {
-        if (typeof val === 'string' && val.length > 0) {
-          // If destination doesn't have it or only has default, save it
-          localStorage.setItem(key, val);
-          restoredCount++;
-        }
-      }
-
-      console.log(`[DomainMigration] Restored ${restoredCount} items from legacy domain!`);
-
-      // Clean URL params cleanly without reloading twice
-      url.searchParams.delete(MIGRATION_PARAM);
-      window.history.replaceState(null, '', url.pathname + (url.search ? url.search : '') + url.hash);
-      return true;
-    }
-  } catch (err) {
-    console.error('[DomainMigration] Failed to unpack migration payload:', err);
+  for (const key of SYNC_KEYS) {
+    const val = localStorage.getItem(key);
+    if (val) payload[key] = val;
   }
 
-  return false;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('vocab_') || k.startsWith('typing_')) && !payload[k]) {
+      const val = localStorage.getItem(k);
+      if (val) payload[k] = val;
+    }
+  }
+
+  return payload;
 }
 
 /**
- * Check if running on legacy Vercel domain (voca-pew-pew.vercel.app).
- * If so, pack all localStorage data and redirect immediately to vocabpewpew.com.
+ * Check if running on legacy Vercel domain (e.g. voca-pew-pew.vercel.app).
+ * If so, transfers data to vocabpewpew.com via invisible sync-bridge iframe,
+ * then redirects smoothly.
  */
 export function checkAndRedirectLegacyDomain(): boolean {
   if (typeof window === 'undefined') return false;
 
   const hostname = window.location.hostname.toLowerCase();
-
-  // Check if current hostname is legacy vercel domain
   const isLegacyDomain =
     hostname.includes('vercel.app') &&
     !hostname.includes('localhost') &&
-    hostname !== TARGET_DOMAIN;
+    !hostname.includes('vocabpewpew.com');
 
   if (!isLegacyDomain) {
     return false;
   }
 
-  console.log('[DomainMigration] Detected legacy domain! Packaging user progress for migration...');
+  console.log('[DomainMigration] Detected legacy domain! Initiating cross-domain postMessage sync...');
 
   try {
-    // Gather all local storage keys
-    const payload: Record<string, string> = {};
-    for (const key of SYNC_KEYS) {
-      const val = localStorage.getItem(key);
-      if (val) {
-        payload[key] = val;
+    const payload = gatherSyncPayload();
+    const targetUrl = `${TARGET_ORIGIN}${window.location.pathname}${window.location.hash}`;
+
+    // If no progress stored, redirect immediately
+    if (Object.keys(payload).length === 0) {
+      window.location.replace(targetUrl);
+      return true;
+    }
+
+    // Create invisible iframe pointing to sync-bridge.html on target domain
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `${TARGET_ORIGIN}/sync-bridge.html`;
+
+    let isDone = false;
+    const finishRedirect = () => {
+      if (isDone) return;
+      isDone = true;
+      console.log('[DomainMigration] Sync finished. Redirecting to:', targetUrl);
+      window.location.replace(targetUrl);
+    };
+
+    // Safety timeout: if iframe takes more than 1.8 seconds, redirect anyway
+    const timeout = setTimeout(finishRedirect, 1800);
+
+    // Listen for acknowledgment from iframe
+    const messageHandler = (e: MessageEvent) => {
+      if (e.origin.includes('vocabpewpew.com') && e.data?.type === 'MIGRATE_SUCCESS') {
+        clearTimeout(timeout);
+        window.removeEventListener('message', messageHandler);
+        finishRedirect();
       }
-    }
+    };
+    window.addEventListener('message', messageHandler);
 
-    // Also pick any other keys starting with vocab_
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith('vocab_') && !payload[k]) {
-        const val = localStorage.getItem(k);
-        if (val) payload[k] = val;
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow?.postMessage(
+          { type: 'MIGRATE_PAYLOAD', payload },
+          TARGET_ORIGIN
+        );
+        iframe.contentWindow?.postMessage(
+          { type: 'MIGRATE_PAYLOAD', payload },
+          TARGET_FALLBACK_ORIGIN
+        );
+      } catch (err) {
+        console.error('[DomainMigration] postMessage failed:', err);
+        finishRedirect();
       }
-    }
+    };
 
-    const jsonStr = JSON.stringify(payload);
-    const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+    iframe.onerror = () => {
+      finishRedirect();
+    };
 
-    const targetUrl = new URL(`https://${TARGET_DOMAIN}${window.location.pathname}${window.location.hash}`);
-    if (Object.keys(payload).length > 0) {
-      targetUrl.searchParams.set(MIGRATION_PARAM, encoded);
-    }
-
-    console.log(`[DomainMigration] Redirecting to ${targetUrl.toString()}...`);
-    window.location.replace(targetUrl.toString());
+    document.body.appendChild(iframe);
     return true;
   } catch (err) {
-    console.error('[DomainMigration] Error preparing redirect payload:', err);
-    // Fallback: direct redirect anyway
-    window.location.replace(`https://${TARGET_DOMAIN}${window.location.pathname}${window.location.hash}`);
+    console.error('[DomainMigration] Redirect error:', err);
+    window.location.replace(`${TARGET_ORIGIN}${window.location.pathname}${window.location.hash}`);
     return true;
   }
 }

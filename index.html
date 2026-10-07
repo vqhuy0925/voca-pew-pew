@@ -42,7 +42,7 @@
     <script>
       (function() {
         var h = window.location.hostname.toLowerCase();
-        if (h.indexOf('vercel.app') !== -1 && h !== 'vocabpewpew.com' && h.indexOf('localhost') === -1) {
+        if (h.indexOf('vercel.app') !== -1 && h.indexOf('vocabpewpew.com') === -1 && h.indexOf('localhost') === -1) {
           try {
             var payload = {};
             for (var i = 0; i < localStorage.length; i++) {
@@ -52,17 +52,52 @@
                 if (v) payload[k] = v;
               }
             }
-            var target = 'https://vocabpewpew.com' + window.location.pathname + window.location.hash;
-            var keys = Object.keys(payload);
-            if (keys.length > 0) {
-              var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-              var sep = target.indexOf('?') === -1 ? '?' : '&';
-              window.location.replace(target + sep + 'migrate_sync=' + encodeURIComponent(encoded));
-            } else {
+            var target = 'https://www.vocabpewpew.com' + window.location.pathname + window.location.hash;
+            if (Object.keys(payload).length === 0) {
               window.location.replace(target);
+              return;
+            }
+
+            // Create hidden sync iframe to bypass URI length limits
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'https://www.vocabpewpew.com/sync-bridge.html';
+
+            var redirected = false;
+            var go = function() {
+              if (!redirected) {
+                redirected = true;
+                window.location.replace(target);
+              }
+            };
+
+            var timer = setTimeout(go, 1500);
+
+            window.addEventListener('message', function(e) {
+              if (e.origin && e.origin.indexOf('vocabpewpew.com') !== -1 && e.data && e.data.type === 'MIGRATE_SUCCESS') {
+                clearTimeout(timer);
+                go();
+              }
+            });
+
+            iframe.onload = function() {
+              try {
+                iframe.contentWindow.postMessage({ type: 'MIGRATE_PAYLOAD', payload: payload }, '*');
+              } catch(err) {
+                go();
+              }
+            };
+            iframe.onerror = go;
+
+            if (document.body) {
+              document.body.appendChild(iframe);
+            } else {
+              window.addEventListener('DOMContentLoaded', function() {
+                document.body.appendChild(iframe);
+              });
             }
           } catch (e) {
-            window.location.replace('https://vocabpewpew.com' + window.location.pathname + window.location.hash);
+            window.location.replace('https://www.vocabpewpew.com' + window.location.pathname + window.location.hash);
           }
         }
       })();

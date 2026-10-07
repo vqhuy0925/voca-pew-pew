@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Vocab Pew Pew - Sync Bridge</title>
+</head>
+<body>
+<script>
+  // Cross-domain localStorage bridge listener
+  window.addEventListener('message', function(event) {
+    // Only accept messages from trusted Vercel domain or subdomains
+    if (!event.origin.includes('vercel.app') && !event.origin.includes('vocabpewpew.com')) {
+      return;
+    }
+
+    try {
+      var msg = event.data;
+      if (msg && msg.type === 'MIGRATE_PAYLOAD' && msg.payload) {
+        var items = msg.payload;
+        for (var key in items) {
+          if (Object.prototype.hasOwnProperty.call(items, key)) {
+            var val = items[key];
+            if (typeof val === 'string' && val.length > 0) {
+              localStorage.setItem(key, val);
+            }
+          }
+        }
+        // Send ACK back to parent window
+        event.source.postMessage({ type: 'MIGRATE_SUCCESS' }, event.origin);
+      }
+    } catch (e) {
+      console.error('[SyncBridge] Failed to write localStorage:', e);
+      event.source.postMessage({ type: 'MIGRATE_ERROR', error: String(e) }, event.origin);
+    }
+  });
+</script>
+</body>
+</html>
