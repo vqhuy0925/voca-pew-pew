@@ -524,7 +524,7 @@ class SoundController {
   }
 
   // Custom Laser pew sounds for different blasters
-  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam' = 'pew') {
+  public playCustomLaser(soundType: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam' | 'nanite_burst' = 'pew') {
     if (this.isMuted) return;
     try {
       this.initCtx();
@@ -706,6 +706,30 @@ class SoundController {
           gain.connect(this.ctx!.destination);
           osc.start(st);
           osc.stop(st + 0.22);
+        });
+      } else if (soundType === 'nanite_burst') {
+        // High-tech quantum nanite cluster discharge
+        [0, 0.02, 0.04, 0.06, 0.08].forEach((offset, idx) => {
+          const osc = this.ctx!.createOscillator();
+          const gain = this.ctx!.createGain();
+          const filter = this.ctx!.createBiquadFilter();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(2400 - idx * 180, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(320, now + offset + 0.05);
+
+          filter.type = 'highpass';
+          filter.frequency.setValueAtTime(800, now + offset);
+
+          gain.gain.setValueAtTime(0.12, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.05);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx!.destination);
+
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.05);
         });
       } else {
         this.playPew();

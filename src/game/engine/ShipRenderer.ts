@@ -1860,6 +1860,358 @@ export const drawSpaceship = (
       ctx.fill();
       break;
     }
+
+    // ==========================================
+    // 20. COSMIC LEVIATHAN PRIME (Ocean Bio-Mech Titan)
+    // ==========================================
+    case 'leviathan': {
+      // Sonic Fin Oscillations
+      const finWave = Math.sin(now * 0.005) * 8;
+      const finWave2 = Math.cos(now * 0.005) * 6;
+
+      // Deep Sea / Cosmic Ion Trail
+      [-14, 0, 14].forEach((tx, idx) => {
+        const isCenter = idx === 1;
+        ctx.fillStyle = '#06b6d4';
+        ctx.shadowColor = '#22d3ee';
+        ctx.shadowBlur = 24;
+        ctx.beginPath();
+        ctx.moveTo(tx - (isCenter ? 6 : 4), 22);
+        ctx.lineTo(tx, 26 + flameHeight * (isCenter ? 1.3 : 1.0));
+        ctx.lineTo(tx + (isCenter ? 6 : 4), 22);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Bio-mechanical Bioluminescent Fins (Cyan & Aqua Gradient)
+      ctx.fillStyle = '#083344';
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 18;
+
+      // Primary Outer Fins
+      [-1, 1].forEach(side => {
+        ctx.save();
+        ctx.scale(side, 1);
+        ctx.beginPath();
+        ctx.moveTo(12, -10);
+        ctx.bezierCurveTo(34, -18 + finWave, 46, -2 + finWave, 42, 18 + finWave);
+        ctx.bezierCurveTo(32, 22, 20, 14, 14, 18);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Secondary Tail Fins
+        ctx.fillStyle = '#0e7490';
+        ctx.beginPath();
+        ctx.moveTo(8, 14);
+        ctx.lineTo(24, 28 + finWave2);
+        ctx.lineTo(8, 26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Bioluminescent Ridge Spots
+        [0.2, 0.5, 0.8].forEach(t => {
+          ctx.fillStyle = '#67e8f9';
+          ctx.beginPath();
+          ctx.arc(20 * t + 8, 4 + finWave * t, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      });
+
+      // Armored Heavy Leviathan Hull (Dark Cyan Titan Armor)
+      ctx.fillStyle = '#042f2e';
+      ctx.strokeStyle = '#14b8a6';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#2dd4bf';
+      ctx.shadowBlur = 20;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -48); // Sharp streamlined nose
+      ctx.bezierCurveTo(18, -26, 20, 6, 14, 26);
+      ctx.lineTo(0, 22);
+      ctx.lineTo(-14, 26);
+      ctx.bezierCurveTo(-20, 6, -18, -26, 0, -48);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Armored Spine Plates
+      [-30, -18, -6, 6].forEach((py, idx) => {
+        ctx.fillStyle = idx % 2 === 0 ? '#115e59' : '#0f766e';
+        ctx.strokeStyle = '#5eead4';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(0, py, 6 - idx * 0.8, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // Abyssal Glowing Eye Cockpit
+      const eyeGlow = 1 + Math.sin(now * 0.008) * 0.2;
+      ctx.fillStyle = '#67e8f9';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 22;
+      ctx.beginPath();
+      ctx.ellipse(0, -16, 5 * eyeGlow, 8 * eyeGlow, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(0, -16, 2.5, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 21. SERAPHIM SIX-WINGED ARCHON (Holy Celestial Archangel)
+    // ==========================================
+    case 'seraphim': {
+      // Holy Light Halo on top
+      const haloPulse = 1 + Math.sin(now * 0.006) * 0.12;
+      ctx.save();
+      ctx.translate(0, -38);
+      ctx.rotate(now * 0.003);
+      ctx.strokeStyle = '#fef08a';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 24;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 16 * haloPulse, 7 * haloPulse, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Golden Holy Thrusters (Triple holy pillar)
+      [-10, 0, 10].forEach((tx, idx) => {
+        const isCenter = idx === 1;
+        ctx.fillStyle = '#fbbf24';
+        ctx.shadowColor = '#fde047';
+        ctx.shadowBlur = 26;
+        ctx.beginPath();
+        ctx.moveTo(tx - (isCenter ? 5 : 3), 18);
+        ctx.lineTo(tx, 22 + flameHeight * (isCenter ? 1.4 : 1.1));
+        ctx.lineTo(tx + (isCenter ? 5 : 3), 18);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // 6 Holy Wings (Top, Middle, Bottom Wing Pairs) with animated feather flapping
+      const wingFlap1 = Math.sin(now * 0.006) * 0.15;
+      const wingFlap2 = Math.sin(now * 0.006 + 1.2) * 0.18;
+      const wingFlap3 = Math.sin(now * 0.006 + 2.4) * 0.2;
+
+      const wings = [
+        { rot: -0.3 + wingFlap1, len: 44, width: 14, y: -16, gold: true },
+        { rot: -0.05 + wingFlap2, len: 48, width: 16, y: -2, gold: false },
+        { rot: 0.35 + wingFlap3, len: 40, width: 12, y: 12, gold: true }
+      ];
+
+      [-1, 1].forEach(side => {
+        ctx.save();
+        ctx.scale(side, 1);
+        wings.forEach(w => {
+          ctx.save();
+          ctx.translate(6, w.y);
+          ctx.rotate(w.rot);
+
+          // Feather gradient
+          const grad = ctx.createLinearGradient(0, 0, w.len, 0);
+          grad.addColorStop(0, '#fef3c7');
+          grad.addColorStop(0.5, w.gold ? '#fde047' : '#ffffff');
+          grad.addColorStop(1, '#f59e0b');
+
+          ctx.fillStyle = grad;
+          ctx.strokeStyle = '#fef08a';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = '#fde047';
+          ctx.shadowBlur = 18;
+
+          ctx.beginPath();
+          ctx.moveTo(0, -w.width * 0.4);
+          ctx.quadraticCurveTo(w.len * 0.6, -w.width, w.len, 0);
+          ctx.quadraticCurveTo(w.len * 0.5, w.width, 0, w.width * 0.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Inner feather rachis line
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(w.len * 0.85, 0);
+          ctx.stroke();
+
+          ctx.restore();
+        });
+        ctx.restore();
+      });
+
+      // Sacred Cathedral Fuselage
+      ctx.fillStyle = '#451a03';
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 20;
+
+      ctx.beginPath();
+      ctx.moveTo(0, -44);
+      ctx.lineTo(14, -12);
+      ctx.lineTo(10, 22);
+      ctx.lineTo(0, 28);
+      ctx.lineTo(-10, 22);
+      ctx.lineTo(-14, -12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Golden Holy Cross Inlay
+      ctx.fillStyle = '#fde047';
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 15;
+      ctx.fillRect(-3, -24, 6, 26);
+      ctx.fillRect(-9, -16, 18, 5);
+
+      // Heart of Archon (Pulsing Ruby Relic)
+      const rubyPulse = 1 + Math.sin(now * 0.01) * 0.2;
+      ctx.fillStyle = '#f43f5e';
+      ctx.shadowColor = '#fb7185';
+      ctx.shadowBlur = 25;
+      ctx.beginPath();
+      ctx.arc(0, 2, 5 * rubyPulse, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+
+    // ==========================================
+    // 22. DIMENSION VOID SLAYER (Quantum Space-Time Bender)
+    // ==========================================
+    case 'dimension': {
+      // 4 Rotating Quantum Void Rifts (Singularity Orbs)
+      const riftAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+      const riftDist = 32 + Math.sin(now * 0.007) * 4;
+
+      riftAngles.forEach((ang, idx) => {
+        const curAng = ang + now * 0.004 * (idx % 2 === 0 ? 1 : -1);
+        const rx = Math.cos(curAng) * riftDist;
+        const ry = Math.sin(curAng) * (riftDist * 0.65);
+
+        ctx.save();
+        ctx.translate(rx, ry);
+        ctx.rotate(now * 0.01);
+
+        // Void event horizon
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = idx % 2 === 0 ? '#e11d48' : '#a855f7';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = idx % 2 === 0 ? '#f43f5e' : '#c084fc';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Quantum Core Spark
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-2, -2, 4, 4);
+
+        ctx.restore();
+      });
+
+      // Twin Warp Thrusters (Crimson & Neon Purple Flame)
+      [-14, 14].forEach(tx => {
+        ctx.fillStyle = '#e11d48';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 24;
+        ctx.beginPath();
+        ctx.moveTo(tx - 4, 18);
+        ctx.lineTo(tx, 24 + flameHeight * 1.3);
+        ctx.lineTo(tx + 4, 18);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(tx - 2, 18);
+        ctx.lineTo(tx, 20 + flameHeight * 0.7);
+        ctx.lineTo(tx + 2, 18);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Stealth Obsidian Forward-Swept Wings with Neon Quantum Edges
+      ctx.fillStyle = '#180728';
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#e11d48';
+      ctx.shadowBlur = 20;
+
+      // Left Wing
+      ctx.beginPath();
+      ctx.moveTo(-6, -10);
+      ctx.lineTo(-44, -34); // aggressive forward sweep
+      ctx.lineTo(-40, 10);
+      ctx.lineTo(-24, 22);
+      ctx.lineTo(-8, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Wing
+      ctx.beginPath();
+      ctx.moveTo(6, -10);
+      ctx.lineTo(44, -34);
+      ctx.lineTo(40, 10);
+      ctx.lineTo(24, 22);
+      ctx.lineTo(8, 14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Purple Glitch Inlay Traces
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-36, -26);
+      ctx.lineTo(-20, 4);
+      ctx.lineTo(-12, 12);
+      ctx.moveTo(36, -26);
+      ctx.lineTo(20, 4);
+      ctx.lineTo(12, 12);
+      ctx.stroke();
+
+      // Angular Dark-Matter Fuselage
+      ctx.fillStyle = '#090514';
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -46);
+      ctx.lineTo(14, -14);
+      ctx.lineTo(8, 24);
+      ctx.lineTo(-8, 24);
+      ctx.lineTo(-14, -14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Singularity Eye Cockpit (Glitching Core)
+      const glitchOffset = (Math.random() - 0.5) * (Math.random() < 0.1 ? 4 : 0);
+      ctx.fillStyle = '#c084fc';
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 24;
+      ctx.beginPath();
+      ctx.arc(glitchOffset, -8, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(glitchOffset, -8, 3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
   }
 
   // ==========================================
@@ -2229,6 +2581,66 @@ export const drawMountedBlaster = (ctx: CanvasRenderingContext2D, blaster: Blast
         ctx.arc(0, 0, isCenter ? 3.5 : 2.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
+      });
+      break;
+    }
+
+    // 15. HEXA-MATRIX NANITE CANNON (5-Barrel Hive Pod)
+    case 'blaster-hex-matrix': {
+      [-28, -14, 0, 14, 28].forEach((hx, idx) => {
+        const isCenter = idx === 2;
+        const barrelY = isCenter ? -48 : idx % 2 === 1 ? -38 : -26;
+        const barrelLen = isCenter ? 24 : 18;
+
+        ctx.fillStyle = '#064e3b';
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 16;
+
+        // Hexagonal / Tech Barrel
+        ctx.fillRect(hx - 3.5, barrelY, 7, barrelLen);
+        ctx.strokeRect(hx - 3.5, barrelY, 7, barrelLen);
+
+        // Nanite Glow Coil
+        ctx.fillStyle = '#67e8f9';
+        ctx.fillRect(hx - 2, barrelY + 4, 4, 3);
+
+        // Muzzle Core
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(hx - 4, barrelY - 2.5, 8, 3);
+      });
+      break;
+    }
+
+    // 16. DIVINE JUDGEMENT RAY-ARRAY (Sacred Triple Array)
+    case 'blaster-judgement': {
+      [-22, 0, 22].forEach((jx, idx) => {
+        const isCenter = idx === 1;
+        const jTop = isCenter ? -52 : -28;
+        const width = isCenter ? 10 : 8;
+
+        ctx.fillStyle = '#78350f';
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#fde047';
+        ctx.shadowBlur = 20;
+
+        // Heavy Gilded Barrel
+        ctx.fillRect(jx - width / 2, jTop, width, isCenter ? 28 : 20);
+        ctx.strokeRect(jx - width / 2, jTop, width, isCenter ? 28 : 20);
+
+        // Sun Crest Muzzle Ring
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(jx - width / 2 - 1.5, jTop - 3, width + 3, 4);
+
+        // Center Pulsing Gem
+        if (isCenter) {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(jx, jTop + 14, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
       });
       break;
     }
@@ -2806,6 +3218,104 @@ export const drawLaserPreview = (
       ctx.restore();
       break;
     }
+
+    // 18. BLACK HOLE SINGULARITY BEAM
+    case 'blackhole': {
+      // Swirling Graviton Beam (Dark Violet with Void Core)
+      ctx.strokeStyle = '#7c3aed';
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 24;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // Pure Void Black Center
+      ctx.strokeStyle = '#020617';
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      // Swirling event horizon particles
+      [-1, 1].forEach((dir) => {
+        const spiralY = ((now * 0.05) % (h - 20)) + 10;
+        const sx = w / 2 + Math.sin(now * 0.01 * dir) * 8;
+        ctx.fillStyle = '#c084fc';
+        ctx.shadowColor = '#e879f9';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(sx, h - spiralY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      break;
+    }
+
+    // 19. SERAPHIC HOLY LIGHTBLADE
+    case 'seraph': {
+      // Golden / Platinum Radiant Blade
+      const grad = ctx.createLinearGradient(w / 2, h - 8, w / 2, 8);
+      grad.addColorStop(0, 'rgba(251, 191, 36, 0.3)');
+      grad.addColorStop(0.5, '#fde047');
+      grad.addColorStop(1, '#ffffff');
+
+      ctx.strokeStyle = grad;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 26;
+      ctx.lineWidth = 8.5;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Floating Feather Sparks
+      for (let i = 0; i < 3; i++) {
+        const fy = ((now * 0.035 + i * 25) % (h - 20)) + 10;
+        const fx = w / 2 + (i % 2 === 0 ? -7 : 7);
+        ctx.fillStyle = '#fef08a';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.ellipse(fx, h - fy, 2, 4, Math.PI / 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+    }
+
+    // 20. CHRONO QUANTUM GLITCH WAVE
+    case 'quantum': {
+      // RGB Split Glitch (Cyan & Red offsets)
+      [-2, 2].forEach(offset => {
+        ctx.strokeStyle = offset < 0 ? '#00f0ff' : '#e11d48';
+        ctx.shadowColor = offset < 0 ? '#38bdf8' : '#f43f5e';
+        ctx.shadowBlur = 16;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(w / 2 + offset, h - 8);
+        ctx.lineTo(w / 2 + offset + ((Math.random() < 0.2) ? 4 : 0), 8);
+        ctx.stroke();
+      });
+
+      // Core White Lightning
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(w / 2, h - 8);
+      ctx.lineTo(w / 2, 8);
+      ctx.stroke();
+
+      // Quantum glitch binary blocks
+      for (let i = 0; i < 4; i++) {
+        const qy = ((now * 0.07 + i * 18) % (h - 20)) + 10;
+        const qx = w / 2 + (i % 2 === 0 ? -6 : 6);
+        ctx.fillStyle = i % 2 === 0 ? '#c084fc' : '#38bdf8';
+        ctx.fillRect(qx - 2, h - qy - 2, 4, 4);
+      }
+      break;
+    }
   }
 
   ctx.restore();
@@ -2818,6 +3328,20 @@ export const getBlasterMuzzleOrigins = (
   scale: number = 1.0
 ): Array<{ x: number; y: number }> => {
   switch (blaster.id) {
+    case 'blaster-hex-matrix':
+      return [
+        { x: shipX - 28 * scale, y: shipY - 26 * scale },
+        { x: shipX - 14 * scale, y: shipY - 38 * scale },
+        { x: shipX, y: shipY - 48 * scale },
+        { x: shipX + 14 * scale, y: shipY - 38 * scale },
+        { x: shipX + 28 * scale, y: shipY - 26 * scale }
+      ];
+    case 'blaster-judgement':
+      return [
+        { x: shipX - 22 * scale, y: shipY - 28 * scale },
+        { x: shipX, y: shipY - 52 * scale },
+        { x: shipX + 22 * scale, y: shipY - 28 * scale }
+      ];
     case 'blaster-single':
       return [{ x: shipX, y: shipY - 46 * scale }];
     case 'blaster-dual':

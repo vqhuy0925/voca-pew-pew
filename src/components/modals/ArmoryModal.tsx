@@ -219,6 +219,15 @@ export const ArmoryModal: React.FC<ArmoryModalProps> = ({
         } else if (l.particleType === 'flame') {
           ctx.strokeStyle = '#f97316';
           ctx.shadowColor = '#f43f5e';
+        } else if (l.particleType === 'blackhole') {
+          ctx.strokeStyle = '#7c3aed';
+          ctx.shadowColor = '#a855f7';
+        } else if (l.particleType === 'seraph') {
+          ctx.strokeStyle = '#fbbf24';
+          ctx.shadowColor = '#fde047';
+        } else if (l.particleType === 'quantum') {
+          ctx.strokeStyle = '#00f0ff';
+          ctx.shadowColor = '#e11d48';
         } else {
           ctx.strokeStyle = l.color;
           ctx.shadowColor = l.color;

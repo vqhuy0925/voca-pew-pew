@@ -158,7 +158,7 @@ export interface SpaceshipItem {
   glowColor: string;
   cockpitColor: string;
   wingSpan: number;
-  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly' | 'kitty' | 'mecha' | 'phoenix' | 'valkyrie' | 'chrono' | 'xwing' | 'falcon' | 'tie' | 'naboo' | 'jedi';
+  modelType: 'scout' | 'thunder' | 'ufo' | 'dragon' | 'aegis' | 'pegasus' | 'sakura' | 'aurora' | 'butterfly' | 'kitty' | 'mecha' | 'phoenix' | 'valkyrie' | 'chrono' | 'xwing' | 'falcon' | 'tie' | 'naboo' | 'jedi' | 'leviathan' | 'seraphim' | 'dimension';
   perkDescription: string;
   soundType: 'classic' | 'electric' | 'heavy' | 'cosmic' | 'divine';
 }
@@ -174,7 +174,7 @@ export interface BlasterItem {
   spreadAngle: number;
   cannonColor: string;
   description: string;
-  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam';
+  fireSound: 'pew' | 'dual' | 'plasma' | 'cannon' | 'gatling' | 'vortex' | 'divine' | 'starwars_blaster' | 'starwars_quad' | 'starwars_tie' | 'proton_torpedo' | 'kyber_beam' | 'nanite_burst';
 }
 
 export interface LaserBeamItem {
@@ -188,7 +188,7 @@ export interface LaserBeamItem {
   trailColor: string;
   coreColor: string;
   beamWidth: number;
-  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple';
+  particleType: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple' | 'blackhole' | 'seraph' | 'quantum';
   description: string;
 }
 
@@ -488,6 +488,53 @@ export const SPACESHIPS: SpaceshipItem[] = [
     modelType: 'jedi',
     perkDescription: 'Tích hợp tinh thể Kyber thuần khiết, biểu tượng Jedi bảo vệ hòa bình ngân hà!',
     soundType: 'divine'
+  },
+
+  // 🌌 TRANSCENDENT / APEX FLEET (1.500+ GEMS)
+  {
+    id: 'ship-leviathan',
+    name: 'Cosmic Leviathan Prime',
+    nameVi: 'Leviathan Cổ Đại Vũ Trụ',
+    rarity: 'MYTHIC',
+    priceGems: 1650,
+    icon: '🐋',
+    color: '#082f49',
+    glowColor: '#06b6d4',
+    cockpitColor: '#67e8f9',
+    wingSpan: 46,
+    modelType: 'leviathan',
+    perkDescription: 'Chiến hạm rồng biển cơ giới bọc titan bóng đêm với đôi vây năng lượng sóng âm xanh lam lướt dập dềnh!',
+    soundType: 'divine'
+  },
+  {
+    id: 'ship-seraphim',
+    name: 'Seraphim Six-Winged Archon',
+    nameVi: 'Seraphim 6 Cánh Thiên Giới',
+    rarity: 'MYTHIC',
+    priceGems: 2200,
+    icon: '🪽',
+    color: '#451a03',
+    glowColor: '#f59e0b',
+    cockpitColor: '#fef08a',
+    wingSpan: 48,
+    modelType: 'seraphim',
+    perkDescription: 'Thánh hạm thiên giới với 6 cánh lông vũ ánh sáng hoàng kim nhịp nhàng tỏa bụi thánh quang lung linh!',
+    soundType: 'divine'
+  },
+  {
+    id: 'ship-dimension',
+    name: 'Dimension Void Slayer',
+    nameVi: 'Kẻ Du Hành Đa Vũ Trụ',
+    rarity: 'MYTHIC',
+    priceGems: 2800,
+    icon: '⚛️',
+    color: '#180728',
+    glowColor: '#e11d48',
+    cockpitColor: '#c084fc',
+    wingSpan: 50,
+    modelType: 'dimension',
+    perkDescription: 'Tuyệt đỉnh công nghệ lượng tử bẻ cong không-thời gian với 4 cổng dịch chuyển hư không xoay quanh thân tàu!',
+    soundType: 'cosmic'
   }
 ];
 
@@ -684,6 +731,34 @@ export const BLASTERS: BlasterItem[] = [
     cannonColor: '#c084fc',
     description: 'Hội tụ sức mạnh thần bí của đá Kyber tạo chùm laze tím bất khả chiến bại!',
     fireSound: 'kyber_beam'
+  },
+
+  // 🌌 TRANSCENDENT ARSENAL (1.500+ GEMS)
+  {
+    id: 'blaster-hex-matrix',
+    name: 'Hexa-Matrix Nanite Cannon',
+    nameVi: 'Pháo Trận 6 Nòng Lục Lăng',
+    rarity: 'MYTHIC',
+    priceGems: 1600,
+    icon: '💠',
+    barrelCount: 5,
+    spreadAngle: 0.22,
+    cannonColor: '#00f0ff',
+    description: 'Nòng pháo tổ ong lục giác xả bão đạn nanite lượng tử với tốc độ kinh hoàng!',
+    fireSound: 'nanite_burst'
+  },
+  {
+    id: 'blaster-judgement',
+    name: 'Divine Judgement Ray-Array',
+    nameVi: 'Phán Quyết Thánh Quang',
+    rarity: 'MYTHIC',
+    priceGems: 2400,
+    icon: '⚡',
+    barrelCount: 3,
+    spreadAngle: 0.16,
+    cannonColor: '#facc15',
+    description: 'Pháo đài thánh tích vàng ròng hội tụ năng lượng mặt trời tối thượng thiêu rụi mọi chướng ngại!',
+    fireSound: 'divine'
   }
 ];
 
@@ -936,6 +1011,50 @@ export const LASER_BEAMS: LaserBeamItem[] = [
     beamWidth: 6,
     particleType: 'kyber_purple',
     description: 'Tia sáng tím thần bí của bậc thầy Jedi quyền uy, tỏa ra các mảnh pha lê lấp lánh.'
+  },
+
+  // 🌌 TRANSCENDENT BEAMS (1.500+ GEMS)
+  {
+    id: 'laser-cosmic-blackhole',
+    name: 'Singularity Graviton Beam',
+    nameVi: 'Lỗ Đen Không-Thời Gian',
+    rarity: 'MYTHIC',
+    priceGems: 1500,
+    icon: '🕳️',
+    beamColor: '#7c3aed',
+    trailColor: 'rgba(124, 58, 237, 0.6)',
+    coreColor: '#0f172a',
+    beamWidth: 6.5,
+    particleType: 'blackhole',
+    description: 'Tia hấp dẫn lõi đen kỳ dị bẻ cong ánh sáng, tạo vòng xoáy hút hạt sao vào tâm chấn!'
+  },
+  {
+    id: 'laser-divine-seraph',
+    name: 'Seraphic Holy Lightblade',
+    nameVi: 'Thánh Kiếm Seraph Bạch Kim',
+    rarity: 'MYTHIC',
+    priceGems: 2100,
+    icon: '✨',
+    beamColor: '#fbbf24',
+    trailColor: 'rgba(251, 191, 36, 0.65)',
+    coreColor: '#ffffff',
+    beamWidth: 7.5,
+    particleType: 'seraph',
+    description: 'Thánh kiếm ánh sáng vàng bạch kim chói lọi tỏa mưa lông vũ và bụi tinh tú thiên giới.'
+  },
+  {
+    id: 'laser-quantum-glitch',
+    name: 'Chrono Quantum Glitch Wave',
+    nameVi: 'Lôi Điện Lượng Tử Glitch',
+    rarity: 'MYTHIC',
+    priceGems: 2600,
+    icon: '⚡',
+    beamColor: '#00f0ff',
+    trailColor: 'rgba(225, 29, 72, 0.65)',
+    coreColor: '#ffffff',
+    beamWidth: 7,
+    particleType: 'quantum',
+    description: 'Tia sóng lượng tử tách kênh RGB giật điện liên hồi, để lại vệt glitch ma trận cực dị!'
   }
 ];
 

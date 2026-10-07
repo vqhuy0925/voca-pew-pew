@@ -13,7 +13,7 @@ interface Star {
 
 interface EnhancedLaser extends LaserBolt {
   beamWidth?: number;
-  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple';
+  particleType?: 'spark' | 'lightning' | 'plasma' | 'rainbow' | 'flame' | 'heart' | 'sakura' | 'crystal' | 'matrix' | 'void' | 'sunlight' | 'supernova' | 'rebel_red' | 'imperial_green' | 'ion_blue' | 'mando_amber' | 'kyber_purple' | 'blackhole' | 'seraph' | 'quantum';
   trailColor?: string;
   coreColor?: string;
 }
@@ -882,6 +882,118 @@ export class ParticleSystem {
         ctx.closePath();
         ctx.fill();
         ctx.restore();
+
+      } else if (laser.particleType === 'blackhole') {
+        // 18. Singularity Graviton Beam (Dark Void with Swirling Orbiters)
+        const boltLen = 38;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(124, 58, 237, 0)');
+        boltGrad.addColorStop(0.5, '#7c3aed');
+        boltGrad.addColorStop(1, '#c084fc');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#a855f7';
+        ctx.shadowBlur = 26;
+        ctx.lineWidth = bWidth * 1.8;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Inner Void Black Core
+        ctx.strokeStyle = '#020617';
+        ctx.lineWidth = Math.max(2.5, bWidth * 0.7);
+        ctx.stroke();
+
+        // Singularity Horizon at Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.fillStyle = '#020617';
+        ctx.strokeStyle = '#c084fc';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, bWidth * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+      } else if (laser.particleType === 'seraph') {
+        // 19. Seraphic Holy Lightblade (Radiant Golden Celestial Sword)
+        const boltLen = 42;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        const boltGrad = ctx.createLinearGradient(tailX, tailY, laser.currentX, laser.currentY);
+        boltGrad.addColorStop(0, 'rgba(251, 191, 36, 0)');
+        boltGrad.addColorStop(0.4, '#f59e0b');
+        boltGrad.addColorStop(0.8, '#fde047');
+        boltGrad.addColorStop(1, '#ffffff');
+
+        ctx.strokeStyle = boltGrad;
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 28;
+        ctx.lineWidth = bWidth * 1.9;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(3, bWidth * 0.7);
+        ctx.stroke();
+
+        // Holy Cross Radiance at Tip
+        ctx.save();
+        ctx.translate(laser.currentX, laser.currentY);
+        ctx.rotate(Date.now() * 0.01);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#fde047';
+        ctx.shadowBlur = 20;
+        ctx.fillRect(-6, -1.5, 12, 3);
+        ctx.fillRect(-1.5, -6, 3, 12);
+        ctx.restore();
+
+      } else if (laser.particleType === 'quantum') {
+        // 20. Chrono Quantum Glitch Wave (RGB Split Lightning Wave)
+        const boltLen = 36;
+        const tailX = laser.currentX - Math.cos(angle) * boltLen;
+        const tailY = laser.currentY - Math.sin(angle) * boltLen;
+
+        // Cyan Offset Trail
+        ctx.strokeStyle = '#00f0ff';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 18;
+        ctx.lineWidth = bWidth * 1.4;
+        ctx.beginPath();
+        ctx.moveTo(tailX - 2, tailY);
+        ctx.lineTo(laser.currentX - 2, laser.currentY);
+        ctx.stroke();
+
+        // Crimson Offset Trail
+        ctx.strokeStyle = '#e11d48';
+        ctx.shadowColor = '#f43f5e';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.moveTo(tailX + 2, tailY);
+        ctx.lineTo(laser.currentX + 2, laser.currentY);
+        ctx.stroke();
+
+        // White Core Laser
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(2, bWidth * 0.5);
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(laser.currentX, laser.currentY);
+        ctx.stroke();
+
+        // Glitch Block at Tip
+        ctx.fillStyle = '#c084fc';
+        ctx.fillRect(laser.currentX - 3, laser.currentY - 3, 6, 6);
 
       } else {
         // 12. Default Neon Cyan Rail Beam ('spark')
