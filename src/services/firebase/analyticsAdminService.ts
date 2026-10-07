@@ -272,28 +272,37 @@ export const purgeDuplicateUsersInFirestore = async (
   }
 
   let deletedCount = 0;
-  try {
-    for (const group of groups) {
-      for (const dup of group.duplicates) {
-        // Never delete the best document
-        if (dup.uid !== group.bestDoc.uid) {
+  let permissionDenied = false;
+
+  for (const group of groups) {
+    for (const dup of group.duplicates) {
+      if (dup.uid !== group.bestDoc.uid) {
+        try {
           await deleteDoc(doc(db, 'users', dup.uid));
           deletedCount++;
+        } catch (err: any) {
+          console.warn(`[AnalyticsAdmin:purgeDuplicateUsers] Failed to delete doc ${dup.uid}:`, err);
+          if (err?.code === 'permission-denied' || String(err).includes('permission')) {
+            permissionDenied = true;
+          }
         }
       }
     }
+  }
 
-    return {
-      success: true,
-      deletedCount,
-      message: `Đã dọn dẹp thành công ${deletedCount} document trùng lặp trong Firestore.`
-    };
-  } catch (err: any) {
-    console.error('[AnalyticsAdmin:purgeDuplicateUsers] Failed:', err);
+  if (permissionDenied && deletedCount === 0) {
     return {
       success: false,
-      deletedCount,
-      message: err?.message || 'Có lỗi khi dọn dẹp duplicate users.'
+      deletedCount: 0,
+      message: 'Lỗi quyền hạn Firestore (ERR_FAILED / permission-denied): Firebase Console chưa cho phép Admin xóa document users (hiện đang là "allow delete: if false;"). Vui lòng cập nhật Rules trên Firebase Console để hoàn tất dọn dẹp.'
     };
   }
+
+  return {
+    success: deletedCount > 0,
+    deletedCount,
+    message: deletedCount > 0
+      ? `Đã dọn dẹp thành công ${deletedCount} document trùng lặp trong Firestore.`
+      : 'Không có document nào bị xóa.'
+  };
 };

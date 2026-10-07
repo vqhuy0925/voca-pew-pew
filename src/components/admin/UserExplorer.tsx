@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   Sparkles,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 import {
   UserAnalyticsItem,
@@ -159,15 +160,48 @@ export const UserExplorer: React.FC<UserExplorerProps> = ({ users, loading }) =>
 
       {/* Duplicate Purge Alert Banner */}
       {purgeResultMsg && (
-        <div className="p-3.5 rounded-2xl bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>{purgeResultMsg}</span>
+        <div className={`p-4 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          purgeResultMsg.includes('Lỗi')
+            ? 'bg-rose-950/40 border-rose-500/50 text-rose-200'
+            : 'bg-slate-900 border-cyan-500/40 text-cyan-300'
+        }`}>
+          <div className="flex items-start gap-2.5">
+            {purgeResultMsg.includes('Lỗi') ? (
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            ) : (
+              <CheckCircle2 className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+            )}
+            <div>
+              <p className="font-medium leading-relaxed">{purgeResultMsg}</p>
+              {purgeResultMsg.includes('Lỗi') && (
+                <div className="mt-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1.5">
+                  <p className="font-bold text-amber-300">💡 Hướng dẫn mở quyền xóa trên Firebase Console:</p>
+                  <p>1. Mở <a href="https://console.firebase.google.com" target="_blank" rel="noreferrer" className="text-cyan-400 underline font-bold">Firebase Console</a> ➔ Firestore Database ➔ tab <strong>Rules</strong>.</p>
+                  <p>2. Đổi dòng <code className="text-rose-400 bg-slate-900 px-1 py-0.5 rounded">allow delete: if false;</code> thành:</p>
+                  <div className="flex items-center justify-between bg-slate-900 border border-slate-700/60 p-2 rounded-lg font-mono text-emerald-300">
+                    <code>allow delete: if isAdmin() || isOwner(userId);</code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (navigator.clipboard) {
+                          navigator.clipboard.writeText('allow delete: if isAdmin() || isOwner(userId);');
+                          alert('Đã sao chép dòng Rule!');
+                        }
+                      }}
+                      className="ml-2 px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 rounded text-[10px] text-slate-950 font-bold active:scale-95"
+                    >
+                      Sao chép
+                    </button>
+                  </div>
+                  <p>3. Bấm <strong>Publish</strong> là có thể dọn dẹp thoải mái!</p>
+                </div>
+              )}
+            </div>
           </div>
           <button
             type="button"
             onClick={() => setPurgeResultMsg(null)}
-            className="text-slate-400 hover:text-white text-xs"
+            className="self-end sm:self-center text-slate-400 hover:text-white text-xs px-2.5 py-1 rounded bg-slate-800/80 hover:bg-slate-700"
           >
             Đóng
           </button>

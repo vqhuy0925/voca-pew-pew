@@ -7,6 +7,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Helper function to check if the user is an email/password authenticated admin
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
     // Helper function to check if the user owns the document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
@@ -17,16 +22,17 @@ service cloud.firestore {
       // Public leaderboard can be read by all players
       allow read: if true;
 
-      // Only the owner can create or update their own profile document
-      allow create: if isOwner(userId)
+      // Allow owner or Admin to create or update profile document
+      allow create: if (isOwner(userId) || isAdmin())
                     && request.resource.data.totalXp is number
                     && request.resource.data.totalXp >= 0;
 
-      allow update: if isOwner(userId)
+      allow update: if (isOwner(userId) || isAdmin())
                     && request.resource.data.totalXp is number
                     && request.resource.data.totalXp >= 0;
 
-      allow delete: if false; // Disallow profile deletion directly
+      // Allow Admin or owner to delete duplicate / obsolete profile documents
+      allow delete: if isAdmin() || isOwner(userId);
     }
 
     // Player accounts collection: Username + 4-digit PIN authentication
