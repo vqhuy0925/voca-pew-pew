@@ -20,6 +20,8 @@ import {
   generateSalt,
   registerAccount,
   loginAccount,
+  recoverProgressByPlayerTag,
+  isPlayerTagClaimedByOther,
   migrateLegacyProgress,
   logoutAccount,
   getActiveAccountSession,
@@ -305,4 +307,105 @@ describe('Player Account & PIN Authentication System', () => {
       assert.ok(loginRes.progress?.unlockedUpgradeIds.includes('ship-dragon'));
     });
   });
+
+  describe('Anti-Hijacking & PlayerTag Ownership Lock', () => {
+    it('isPlayerTagClaimedByOther detects tags registered by other users', async () => {
+      const p1 = getInitialUserProgress();
+      p1.playerTag = '#PEW-ALICE';
+
+      await registerAccount({
+        username: 'alice_pilot',
+        pin: '1111',
+        displayName: 'Alice',
+        currentProgress: p1
+      });
+
+      // Checking from Bob's perspective: tag is claimed!
+      const isClaimedByOther = await isPlayerTagClaimedByOther('#PEW-ALICE', 'bob_pilot');
+      assert.equal(isClaimedByOther, true);
+
+      // Checking from Alice's own perspective: tag is hers, not claimed by other!
+      const isClaimedByAlice = await isPlayerTagClaimedByOther('#PEW-ALICE', 'alice_pilot');
+      assert.equal(isClaimedByAlice, false);
+
+      // Checking an unclaimed random tag
+      const isUnclaimed = await isPlayerTagClaimedByOther('#PEW-FREE9', 'bob_pilot');
+      assert.equal(isUnclaimed, false);
+    });
+
+    it('registerAccount rejects playerTagToLink if the tag is already claimed by another user', async () => {
+      const p1 = getInitialUserProgress();
+      p1.playerTag = '#PEW-ROYAL';
+
+      await registerAccount({
+        username: 'royal_king',
+        pin: '9999',
+        displayName: 'King',
+        currentProgress: p1
+      });
+
+      // Hacker tries to register and steal #PEW-ROYAL
+      const hackRes = await registerAccount({
+        username: 'sneaky_hacker',
+        pin: '0000',
+        playerTagToLink: '#PEW-ROYAL'
+      });
+
+      assert.equal(hackRes.success, false);
+      assert.match(hackRes.error || '', /đã được liên kết với một tài khoản chính thức khác/);
+    });
+
+    it('registerAccount automatically generates a new tag when shared device already has another account tag', async () => {
+      const p1 = getInitialUserProgress();
+      p1.playerTag = '#PEW-SHARED';
+
+      await registerAccount({
+        username: 'student_one',
+        pin: '1234',
+        displayName: 'Student One',
+        currentProgress: p1
+      });
+
+      // Student Two sits at the same computer where progress.playerTag is still #PEW-SHARED
+      const p2 = getInitialUserProgress();
+      p2.playerTag = '#PEW-SHARED';
+
+      const resTwo = await registerAccount({
+        username: 'student_two',
+        pin: '5678',
+        displayName: 'Student Two',
+        currentProgress: p2
+      });
+
+      assert.equal(resTwo.success, true);
+      // Student Two must NOT inherit #PEW-SHARED
+      assert.notEqual(resTwo.session?.playerTag, '#PEW-SHARED');
+      assert.match(resTwo.session?.playerTag || '', /^#PEW-/);
+    });
+
+    it('recoverProgressByPlayerTag rejects recovery if target tag belongs to another user', async () => {
+      const p1 = getInitialUserProgress();
+      p1.playerTag = '#PEW-SECURE';
+
+      await registerAccount({
+        username: 'secure_owner',
+        pin: '4321',
+        displayName: 'Owner',
+        currentProgress: p1
+      });
+
+      // Another user registers legitimately
+      await registerAccount({
+        username: 'other_user',
+        pin: '8888',
+        displayName: 'Other'
+      });
+
+      // Other user tries to recover secure_owner's tag
+      const recRes = await recoverProgressByPlayerTag('other_user', '#PEW-SECURE');
+      assert.equal(recRes.success, false);
+      assert.match(recRes.message, /đã được liên kết với một tài khoản chính thức khác/);
+    });
+  });
 });
+

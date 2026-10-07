@@ -12,7 +12,7 @@ import {
 import { db, isFirebaseConfigured } from './firebase/firebaseConfig';
 import { UserProgress } from '../data/progress-types';
 import { DEFAULT_TYPING_PROGRESS } from '../data/typing-progress-types';
-import { getOrInitPlayerTag, getCurrentUid } from './firebase/authService';
+import { getOrInitPlayerTag, getCurrentUid, generatePlayerTag } from './firebase/authService';
 import {
   loadUserProgress,
   saveUserProgress,
@@ -218,6 +218,55 @@ export const checkUsernameAvailable = async (rawUsername: string): Promise<{ ava
 };
 
 /**
+ * Check if a playerTag is already registered or linked to another account
+ */
+export const isPlayerTagClaimedByOther = async (
+  tag: string,
+  excludeUsername: string
+): Promise<boolean> => {
+  const cleanTag = tag.trim().toUpperCase();
+  if (!cleanTag || cleanTag === '#PEW-????') return false;
+
+  const normUser = normalizeUsername(excludeUsername);
+
+  // 1. Check local offline registry
+  const localAccounts = getLocalAccounts();
+  const conflictingLocal = Object.values(localAccounts).find(
+    acc => acc.playerTag === cleanTag && acc.username !== normUser
+  );
+  if (conflictingLocal) return true;
+
+  // 2. Check Firestore if configured
+  if (isFirebaseConfigured && db) {
+    try {
+      // Check player_accounts
+      const accountsRef = collection(db, 'player_accounts');
+      const accQuery = query(accountsRef, where('playerTag', '==', cleanTag));
+      const accSnap = await getDocs(accQuery);
+      if (!accSnap.empty && accSnap.docs.some(d => d.id !== normUser)) {
+        return true;
+      }
+
+      // Check users collection for registered accounts
+      const usersRef = collection(db, 'users');
+      const userQuery = query(usersRef, where('playerTag', '==', cleanTag));
+      const userSnap = await getDocs(userQuery);
+      if (!userSnap.empty) {
+        const ownedByOther = userSnap.docs.some(d => {
+          const data = d.data();
+          return data.accountUsername && normalizeUsername(data.accountUsername) !== normUser;
+        });
+        if (ownedByOther) return true;
+      }
+    } catch (err) {
+      console.warn('[AccountService] isPlayerTagClaimedByOther check failed:', err);
+    }
+  }
+
+  return false;
+};
+
+/**
  * Register a new player account (Username + 4-digit PIN)
  */
 export const registerAccount = async (params: {
@@ -251,30 +300,47 @@ export const registerAccount = async (params: {
   let baseProgress = params.currentProgress || loadUserProgress() || getInitialUserProgress();
   let playerTag = baseProgress.playerTag || getOrInitPlayerTag();
 
-  if (params.playerTagToLink && isFirebaseConfigured && db) {
-    try {
-      const cleanTag = params.playerTagToLink.trim().toUpperCase();
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('playerTag', '==', cleanTag));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        let bestDoc: any = null;
-        snap.forEach(d => {
-          const docData = d.data();
-          if (!bestDoc || (docData.starsCount || 0) > (bestDoc.starsCount || 0) || (docData.totalXp || 0) > (bestDoc.totalXp || 0)) {
-            bestDoc = docData;
+  if (params.playerTagToLink) {
+    const cleanTag = params.playerTagToLink.trim().toUpperCase();
+    const isClaimed = await isPlayerTagClaimedByOther(cleanTag, username);
+    if (isClaimed) {
+      return {
+        success: false,
+        error: 'Mã Thẻ này đã được liên kết với một tài khoản chính thức khác. Bạn không thể sử dụng mã này!'
+      };
+    }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('playerTag', '==', cleanTag));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          let bestDoc: any = null;
+          snap.forEach(d => {
+            const docData = d.data();
+            if (!bestDoc || (docData.starsCount || 0) > (bestDoc.starsCount || 0) || (docData.totalXp || 0) > (bestDoc.totalXp || 0)) {
+              bestDoc = docData;
+            }
+          });
+          if (bestDoc) {
+            baseProgress = {
+              ...baseProgress,
+              ...bestDoc
+            };
+            playerTag = cleanTag;
           }
-        });
-        if (bestDoc) {
-          baseProgress = {
-            ...baseProgress,
-            ...bestDoc
-          };
-          playerTag = cleanTag;
         }
+      } catch (err) {
+        console.warn('[AccountService] Failed to link playerTag during registration:', err);
       }
-    } catch (err) {
-      console.warn('[AccountService] Failed to link playerTag during registration:', err);
+    }
+  } else {
+    // If registering without specific tag, verify that current browser's playerTag isn't already claimed by another user
+    const isCurrentTagClaimed = await isPlayerTagClaimedByOther(playerTag, username);
+    if (isCurrentTagClaimed) {
+      // Generate a fresh unique tag so we don't collide with existing account on shared devices
+      playerTag = generatePlayerTag();
     }
   }
 
@@ -580,14 +646,16 @@ export const loginAccount = async (rawUsername: string, rawPin: string): Promise
 };
 
 /**
- * Manually recover and link gameplay progress from a PlayerTag (e.g. '#PEW-7UY3') to a user account
+ * Manually recover and link gameplay progress from a PlayerTag (e.g. '#PEW-DEMO') to a user account.
+ * Enforces strict Ownership Lock to prevent account hijacking.
  */
 export const recoverProgressByPlayerTag = async (
   username: string,
   targetPlayerTag: string
 ): Promise<{ success: boolean; message: string; progress?: UserProgress }> => {
-  if (!isFirebaseConfigured || !db) {
-    return { success: false, message: 'Firebase chưa được kết nối.' };
+  const normUsername = normalizeUsername(username);
+  if (!normUsername) {
+    return { success: false, message: 'Tên đăng nhập không hợp lệ.' };
   }
 
   const cleanTag = targetPlayerTag.trim().toUpperCase();
@@ -595,14 +663,39 @@ export const recoverProgressByPlayerTag = async (
     return { success: false, message: 'Vui lòng nhập Mã Thẻ Phi Hành Gia (PlayerTag).' };
   }
 
+  // 1. Anti-Hijacking Guard: Block if the target playerTag is already claimed by another registered user
+  const isClaimed = await isPlayerTagClaimedByOther(cleanTag, normUsername);
+  if (isClaimed) {
+    return {
+      success: false,
+      message: 'Mã Thẻ này đã được liên kết với một tài khoản chính thức khác. Để bảo vệ an toàn dữ liệu, bạn không thể chuyển tiến trình này sang tài khoản khác!'
+    };
+  }
+
+  if (!isFirebaseConfigured || !db) {
+    return { success: false, message: 'Firebase chưa được kết nối.' };
+  }
+
   try {
-    // 1. Query Firestore users collection for matching playerTag
+    // 2. Query Firestore users collection for matching playerTag
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('playerTag', '==', cleanTag));
     const snap = await getDocs(q);
 
     if (snap.empty) {
       return { success: false, message: `Không tìm thấy tiến trình nào gắn với mã ${cleanTag}.` };
+    }
+
+    // Double-check none of the matched documents are owned by another user
+    const isOwnedByOther = snap.docs.some(d => {
+      const data = d.data();
+      return data.accountUsername && normalizeUsername(data.accountUsername) !== normUsername;
+    });
+    if (isOwnedByOther) {
+      return {
+        success: false,
+        message: 'Mã Thẻ này đã được liên kết với một tài khoản chính thức khác. Để bảo vệ an toàn dữ liệu, bạn không thể chuyển tiến trình này sang tài khoản khác!'
+      };
     }
 
     // Pick document with highest starsCount / totalXp among duplicates
@@ -618,8 +711,7 @@ export const recoverProgressByPlayerTag = async (
       return { success: false, message: 'Dữ liệu tìm thấy không hợp lệ.' };
     }
 
-    // 2. Fetch the target account to link
-    const normUsername = normalizeUsername(username);
+    // 3. Fetch the target account to link
     const accountRef = doc(db, 'player_accounts', normUsername);
     const accountSnap = await getDoc(accountRef);
     if (!accountSnap.exists()) {
@@ -629,7 +721,7 @@ export const recoverProgressByPlayerTag = async (
     const accountData = accountSnap.data() as PlayerAccount;
     const targetUid = accountData.uid;
 
-    // 3. Clone/merge the recovered data into the account's primary UID
+    // 4. Clone/merge the recovered data into the account's primary UID
     const mergedProgress: UserProgress = {
       ...getInitialUserProgress(),
       ...bestDocData,
@@ -652,6 +744,21 @@ export const recoverProgressByPlayerTag = async (
       isRegisteredAccount: true,
       updatedAt: serverTimestamp()
     }, { merge: true });
+
+    // Mark all other docs with this playerTag as claimed by normUsername
+    for (const docSnap of snap.docs) {
+      if (docSnap.id !== targetUid) {
+        try {
+          await setDoc(docSnap.ref, {
+            accountUsername: normUsername,
+            claimedByUid: targetUid,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        } catch {
+          // Non-blocking
+        }
+      }
+    }
 
     // Update player_accounts document with the verified playerTag
     await setDoc(accountRef, {

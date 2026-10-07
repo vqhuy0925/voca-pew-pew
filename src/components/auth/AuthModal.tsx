@@ -201,7 +201,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const cleanTag = recoverTag.trim().toUpperCase();
       const finalTag = cleanTag.startsWith('#') ? cleanTag : `#${cleanTag}`;
       if (!finalTag || finalTag.length < 5) {
-        triggerError('Vui lòng nhập đúng Mã Thẻ Phi Hành Gia (ví dụ: #PEW-7UY3).');
+        triggerError('Vui lòng nhập đúng Mã Thẻ Phi Hành Gia (ví dụ: #PEW-DEMO).');
         return;
       }
 
@@ -471,7 +471,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <span>Khôi phục từ Thẻ Phi Hành Gia Cũ</span>
                 </div>
                 <p className="text-xs text-slate-300">
-                  Nhập mã thẻ từ tiến trình bạn từng chơi (ví dụ: <span className="font-mono text-teal-300 font-bold">#PEW-7UY3</span>) để chuyển toàn bộ Sao, Kim cương và Cấp độ vào tài khoản này.
+                  Nhập mã thẻ từ tiến trình bạn từng chơi (ví dụ: <span className="font-mono text-teal-300 font-bold">#PEW-DEMO</span>) để chuyển toàn bộ Sao, Kim cương và Cấp độ vào tài khoản này.
                 </p>
                 <div>
                   <label className="block text-[11px] font-black text-teal-300 uppercase tracking-wider mb-1">
@@ -481,7 +481,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     type="text"
                     value={recoverTag}
                     onChange={e => setRecoverTag(e.target.value.toUpperCase())}
-                    placeholder="ví dụ: #PEW-7UY3"
+                    placeholder="ví dụ: #PEW-DEMO"
                     className="w-full bg-slate-950 border-2 border-teal-500/50 focus:border-teal-400 rounded-xl px-3 py-2.5 text-base text-teal-200 placeholder-slate-500 outline-none font-mono font-bold"
                   />
                 </div>
