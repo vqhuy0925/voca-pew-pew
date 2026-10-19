@@ -28,6 +28,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
   const [partnerSubtext, setPartnerSubtext] = useState(config.partnerSubtext);
   const [partnerLogoUrl, setPartnerLogoUrl] = useState(config.partnerLogoUrl || '');
   const [showPartnerBanner, setShowPartnerBanner] = useState(config.showPartnerBanner);
+  const [enableCustomTopics, setEnableCustomTopics] = useState(config.enableCustomTopics ?? true);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
     setPartnerSubtext(initial.partnerSubtext);
     setPartnerLogoUrl(initial.partnerLogoUrl || '');
     setShowPartnerBanner(initial.showPartnerBanner);
+    setEnableCustomTopics(initial.enableCustomTopics ?? true);
   }, []);
 
   const handleSave = async (e?: React.FormEvent) => {
@@ -53,6 +55,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
           partnerSubtext: partnerSubtext.trim(),
           partnerLogoUrl: partnerLogoUrl.trim(),
           showPartnerBanner,
+          enableCustomTopics,
         },
         adminEmail || 'admin'
       );
@@ -61,8 +64,9 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
       setPartnerMessage(updated.partnerMessage);
       setPartnerSubtext(updated.partnerSubtext);
       setPartnerLogoUrl(updated.partnerLogoUrl || '');
+      setEnableCustomTopics(updated.enableCustomTopics);
       soundFx.playVictory();
-      setSaveSuccessMsg('Đã lưu cấu hình đơn vị đồng hành thành công! 🚀');
+      setSaveSuccessMsg('Đã lưu cấu hình đơn vị & tính năng thành công! 🚀');
       setTimeout(() => setSaveSuccessMsg(null), 4000);
     } catch (err: any) {
       soundFx.playWrong();
@@ -90,6 +94,7 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
       setPartnerSubtext(def.partnerSubtext);
       setPartnerLogoUrl(def.partnerLogoUrl || '');
       setShowPartnerBanner(def.showPartnerBanner);
+      setEnableCustomTopics(def.enableCustomTopics ?? true);
       soundFx.playVictory();
       setSaveSuccessMsg('Đã khôi phục về cấu hình Đoàn phường Phước Thới!');
       setTimeout(() => setSaveSuccessMsg(null), 4000);
@@ -223,6 +228,46 @@ export const BrandingManager: React.FC<BrandingManagerProps> = ({ adminEmail }) 
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+              </label>
+            </div>
+          </div>
+
+          {/* Section: Feature Flags / Switches */}
+          <div className="p-4 sm:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4 shadow-md">
+            <div className="flex items-center gap-2 text-xs font-bold text-violet-400 uppercase tracking-wider pb-2 border-b border-slate-800">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+              <span>Cấu Hình Bật / Tắt Tính Năng (Feature Switches)</span>
+            </div>
+
+            {/* Feature 1: Sổ Từ Của Con & Luyện Viết Tự Nhiên */}
+            <div className="flex items-center justify-between gap-4 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+              <div>
+                <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                  <span>📝 Sổ Từ Của Con & Xưởng Luyện Viết (Custom Topics)</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    enableCustomTopics
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                  }`}>
+                    {enableCustomTopics ? 'Đang Bật' : 'Đang Tắt'}
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-1">
+                  Cho phép phụ huynh nhập danh sách từ vựng trung tâm và bé luyện viết tự nhiên 3 bước. Khi tắt, nút truy cập sẽ ẩn trên toàn bộ giao diện học viên.
+                </div>
+              </div>
+
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  checked={enableCustomTopics}
+                  onChange={(e) => {
+                    soundFx.playClick();
+                    setEnableCustomTopics(e.target.checked);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-12 h-6.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
               </label>
             </div>
           </div>

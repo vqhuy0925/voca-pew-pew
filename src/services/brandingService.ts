@@ -6,6 +6,7 @@ export interface BrandingConfig {
   partnerSubtext: string;
   partnerLogoUrl?: string;
   showPartnerBanner: boolean;
+  enableCustomTopics: boolean; // Feature switch: Sổ từ của con & Luyện viết tự nhiên
   updatedAt?: any;
   updatedBy?: string;
 }
@@ -15,6 +16,7 @@ export const DEFAULT_BRANDING_CONFIG: BrandingConfig = {
   partnerSubtext: 'Đồng hành cùng học sinh nâng cao năng lực ngoại ngữ và tin học ứng dụng',
   partnerLogoUrl: '/logo_doan_phuong_phuoc_thoi.jpeg',
   showPartnerBanner: true,
+  enableCustomTopics: true,
 };
 
 const STORAGE_KEY = 'vocapewpew_branding_config';
@@ -29,6 +31,7 @@ let cachedConfig: BrandingConfig = (() => {
         ...DEFAULT_BRANDING_CONFIG,
         ...parsed,
         partnerLogoUrl: parsed.partnerLogoUrl ?? DEFAULT_BRANDING_CONFIG.partnerLogoUrl,
+        enableCustomTopics: parsed.enableCustomTopics ?? DEFAULT_BRANDING_CONFIG.enableCustomTopics,
       };
     }
   } catch (err) {
@@ -87,6 +90,7 @@ export async function syncRemoteBrandingConfig(): Promise<BrandingConfig> {
           ...DEFAULT_BRANDING_CONFIG,
           ...remoteData,
           partnerLogoUrl: remoteData.partnerLogoUrl ?? DEFAULT_BRANDING_CONFIG.partnerLogoUrl,
+          enableCustomTopics: remoteData.enableCustomTopics ?? DEFAULT_BRANDING_CONFIG.enableCustomTopics,
         };
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedConfig));
@@ -134,6 +138,7 @@ export async function saveBrandingConfig(
         partnerSubtext: updated.partnerSubtext,
         partnerLogoUrl: updated.partnerLogoUrl ?? '',
         showPartnerBanner: updated.showPartnerBanner,
+        enableCustomTopics: updated.enableCustomTopics,
         updatedBy: authorEmail,
         updatedAt: serverTimestamp(),
       });
