@@ -2,6 +2,7 @@ import React from 'react';
 import { UserProgress } from '../../data/progress-types';
 import { soundFx } from '../../game/engine/SoundController';
 import { THEME_CONFIGS } from '../../data/theme-types';
+import { APP_CURRENT_VERSION, checkServerVersion } from '../../services/versionService';
 import {
   Map,
   Flame,
@@ -355,6 +356,25 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
               <LogOut className="w-3.5 h-3.5" />
             </button>
           )}
+        </div>
+
+        {/* App Version Indicator & Check Button */}
+        <div className="pt-2 px-1 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+          <span>v{APP_CURRENT_VERSION}</span>
+          <button
+            type="button"
+            onClick={() => {
+              checkServerVersion().then(update => {
+                if (!update) {
+                  alert(`✨ Ứng dụng đang ở phiên bản mới nhất (v${APP_CURRENT_VERSION})!`);
+                }
+              });
+            }}
+            className="hover:text-cyan-400 transition cursor-pointer"
+            title="Kiểm tra phiên bản deploy mới nhất"
+          >
+            Kiểm tra bản mới
+          </button>
         </div>
       </div>
     </aside>

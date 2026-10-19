@@ -1,0 +1,11 @@
+{
+  "version": "1.1.0",
+  "buildTime": 1729331000000,
+  "releaseNotes": "Thêm Sổ Từ Của Con & Xưởng Luyện Viết Tự Nhiên 3 Bước",
+  "features": [
+    "Sổ Từ Của Con (Custom Topics) - Cho phép phụ huynh nhập từ vựng trung tâm",
+    "Xưởng Luyện Viết Tự Nhiên 3 Bước (Tô Chữ -> Khuyết Âm -> Tự Viết)",
+    "Feature Switch bật/tắt tính năng linh hoạt trong Admin Portal",
+    "Cơ chế tự động phát hiện phiên bản mới và làm mới sạch sẽ"
+  ]
+}

@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: [
         'favicon.svg',
         'apple-touch-icon.png',
@@ -63,11 +63,16 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: true,
+        skipWaiting: false,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globIgnores: ['**/version.json'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/__/],
         runtimeCaching: [
+          {
+            urlPattern: /\/version\.json/i,
+            handler: 'NetworkOnly'
+          },
           {
             // Google Fonts stylesheets (CSS) - CacheFirst with short expiration & network timeout
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/css2/i,
@@ -135,5 +140,8 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
+  define: {
+    __APP_VERSION__: JSON.stringify('1.1.0')
+  }
 });
 

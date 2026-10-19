@@ -21,6 +21,7 @@ import {
   subscribeBrandingConfig,
   BrandingConfig
 } from '../../services/brandingService';
+import { APP_CURRENT_VERSION } from '../../services/versionService';
 
 interface LandingPageProps {
   progress: UserProgress;
@@ -477,6 +478,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             )}
           </div>
           <div className="flex items-center gap-4">
+            <span className="font-mono text-[11px] text-slate-400">v{APP_CURRENT_VERSION}</span>
+            <span>•</span>
             <span>100% Miễn phí & An toàn</span>
             {onOpenAdmin && (
               <button

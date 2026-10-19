@@ -1,5 +1,6 @@
 // Service Worker Registration for Vocab Pew Pew (Workbox via vite-plugin-pwa)
 import { registerSW } from 'virtual:pwa-register';
+import { forcePurgeCacheAndReload } from './versionService';
 
 type UpdateListener = () => void;
 
@@ -37,48 +38,36 @@ function notifyUpdateAvailable(): void {
   isUpdateReady = true;
   console.log('[PWA] 🚀 New app version detected and ready to activate!');
 
-  // If user is currently in the middle of battle/dojo, defer reload and notify UI
-  if (isUserInGame) {
-    console.log('[PWA] User is in active gameplay. Deferring reload until safe.');
-    updateListeners.forEach((listener) => {
-      try {
-        listener();
-      } catch (e) {
-        console.error('[PWA] Listener failed:', e);
-      }
-    });
-  } else {
-    // If user is at Landing or Map menu, reload seamlessly
-    console.log('[PWA] User is in menu/idle. Reloading to apply fresh build...');
-    applyAppUpdate();
-  }
+  // Notify UI listeners to display the Update Popup/Banner
+  updateListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch (e) {
+      console.error('[PWA] Listener failed:', e);
+    }
+  });
 }
 
 /**
  * Update the active gameplay state.
- * When exiting gameplay, if an update is pending, apply it.
  */
 export function setInActiveGameplay(inGame: boolean): void {
   isUserInGame = inGame;
-  if (!inGame && isUpdateReady) {
-    console.log('[PWA] User exited gameplay. Applying pending update now...');
-    applyAppUpdate();
-  }
 }
 
 /**
- * Apply the update immediately by skipping waiting and reloading the page
+ * Apply the update immediately by skipping waiting, purging caches, and reloading
  */
 export function applyAppUpdate(): void {
   try {
     if (updateSWFn) {
-      updateSWFn(true);
-    } else {
-      window.location.reload();
+      updateSWFn(true).catch(() => {});
     }
   } catch {
-    window.location.reload();
+    // SW error fallback
   }
+  // Thorough cache purge and hard reload
+  forcePurgeCacheAndReload();
 }
 
 /**

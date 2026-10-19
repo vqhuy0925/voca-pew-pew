@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { registerServiceWorker } from './services/serviceWorkerRegistration';
+import { initVersionChecker } from './services/versionService';
 import { checkAndRedirectLegacyDomain, handleIncomingMigration } from './services/domainMigration';
 
 // 1. If currently on legacy domain (voca-pew-pew.vercel.app), transfer progress and redirect
@@ -12,6 +13,7 @@ if (!isRedirecting) {
   // If arrived via migration payload, decompress into localStorage before React mounts
   handleIncomingMigration();
   registerServiceWorker();
+  initVersionChecker();
 
   ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
