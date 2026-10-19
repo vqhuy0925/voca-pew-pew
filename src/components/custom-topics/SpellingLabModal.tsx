@@ -298,6 +298,38 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+              {stage === 'TRACE' && (
+                <button
+                  onClick={() => {
+                    soundFx.playUpgradeSuccess();
+                    setStage('PHONICS_GAP');
+                    setCurrentWordIndex(0);
+                    setIsCompletedSession(false);
+                    setEarnedStars(0);
+                  }}
+                  className="btn-3d btn-3d-cyan px-6 py-3 rounded-2xl text-slate-950 font-black text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.5)] animate-pulse"
+                >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>Lên Bậc 2: Thám Tử Ghép m 🕵️</span>
+                </button>
+              )}
+
+              {stage === 'PHONICS_GAP' && (
+                <button
+                  onClick={() => {
+                    soundFx.playUpgradeSuccess();
+                    setStage('BLIND_RECALL');
+                    setCurrentWordIndex(0);
+                    setIsCompletedSession(false);
+                    setEarnedStars(0);
+                  }}
+                  className="btn-3d px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-black text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.5)] animate-pulse"
+                >
+                  <Zap className="w-4 h-4 text-yellow-300" />
+                  <span>Lên Bậc 3: Siêu Xạ Thủ Ký Ức 🧠</span>
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   soundFx.playClick();
@@ -308,7 +340,7 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
                 className="btn-3d px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-sm flex items-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>Luyện Lại Lần Nữa</span>
+                <span>Luyện Lại Bậc Này</span>
               </button>
 
               {onStartArcadeBattle && (
