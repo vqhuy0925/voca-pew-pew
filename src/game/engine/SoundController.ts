@@ -200,6 +200,36 @@ class SoundController {
     }
   }
 
+  // Melodic letter chime for Spelling Lab (Pentatonic scale: C4, D4, E4, G4, A4, C5, D5, E5)
+  public playMelodicLetterChime(noteIndex: number) {
+    if (this.isMuted) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+
+      const freqs = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+      const freq = freqs[noteIndex % freqs.length];
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } catch {
+      this.playHit();
+    }
+  }
+
   // Gem Pick up sound
   public playGemPickup() {
     if (this.isMuted) return;
