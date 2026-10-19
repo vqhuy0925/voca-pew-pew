@@ -11,7 +11,8 @@ import {
   RotateCcw,
   Rocket,
   CheckCircle2,
-  Zap
+  Zap,
+  Keyboard
 } from 'lucide-react';
 
 interface SpellingLabModalProps {
@@ -37,6 +38,7 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
   const [isShaking, setIsShaking] = useState(false);
   const [earnedStars, setEarnedStars] = useState(0);
   const [isCompletedSession, setIsCompletedSession] = useState(false);
+  const [showVirtualKeyboard, setShowVirtualKeyboard] = useState<boolean>(false);
 
   const words = topic.words || [];
   const currentWord: CustomWord | undefined = words[currentWordIndex];
@@ -434,7 +436,7 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
               </div>
             </div>
 
-            {/* Assistance Row: Finger Guide & Peek Hint */}
+            {/* Assistance Row: Finger Guide, Peek Hint & Keyboard Toggle */}
             <div className="flex flex-wrap items-center justify-center gap-3">
               {currentChar && <FingerGuideBadge currentChar={currentChar} />}
 
@@ -450,36 +452,56 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
                   <span>Gợi Ý 1 Chữ</span>
                 </button>
               )}
+
+              {/* Toggle virtual keyboard button (default: OFF) */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  setShowVirtualKeyboard(prev => !prev);
+                }}
+                className={`px-3 py-1 rounded-xl border text-xs font-black flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-sm ${
+                  showVirtualKeyboard
+                    ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200'
+                    : 'bg-slate-800/80 hover:bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
+                title={showVirtualKeyboard ? 'Tắt bàn phím ảo' : 'Bật bàn phím ảo (cho màn hình cảm ứng/iPad)'}
+              >
+                <Keyboard className="w-3.5 h-3.5" />
+                <span>{showVirtualKeyboard ? 'Tắt Phím Ảo' : 'Bật Phím Ảo'}</span>
+              </button>
             </div>
 
-            {/* On-screen tactile keyboard for touch screen/iPad */}
-            <div className="w-full max-w-lg pt-2 flex flex-col items-center gap-1 sm:gap-1.5 select-none">
-              {[
-                ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-                ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-                ['z', 'x', 'c', 'v', 'b', 'n', 'm']
-              ].map((row, rIdx) => (
-                <div key={rIdx} className="flex gap-1 sm:gap-1.5">
-                  {row.map(k => {
-                    const isNextToPress = currentChar?.toLowerCase() === k;
-                    return (
-                      <button
-                        key={k}
-                        type="button"
-                        onClick={() => handleCharInput(k)}
-                        className={`min-w-[32px] sm:min-w-[42px] h-10 sm:h-12 rounded-xl uppercase font-orbitron font-black text-xs sm:text-base transition-all active:scale-90 active:translate-y-0.5 shadow-sm ${
-                          isNextToPress && stage === 'TRACE'
-                            ? 'bg-yellow-400 text-slate-950 border-2 border-yellow-200 border-b-3 border-b-yellow-600 shadow-[0_0_12px_rgba(250,204,21,0.6)]'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 border-b-2 border-b-slate-950'
-                        }`}
-                      >
-                        {k}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
+            {/* On-screen tactile keyboard for touch screen/iPad (DEFAULT: HIDDEN) */}
+            {showVirtualKeyboard && (
+              <div className="w-full max-w-lg pt-2 flex flex-col items-center gap-1 sm:gap-1.5 select-none animate-in fade-in duration-150">
+                {[
+                  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+                  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+                  ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+                ].map((row, rIdx) => (
+                  <div key={rIdx} className="flex gap-1 sm:gap-1.5">
+                    {row.map(k => {
+                      const isNextToPress = currentChar?.toLowerCase() === k;
+                      return (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => handleCharInput(k)}
+                          className={`min-w-[32px] sm:min-w-[42px] h-10 sm:h-12 rounded-xl uppercase font-orbitron font-black text-xs sm:text-base transition-all active:scale-90 active:translate-y-0.5 shadow-sm ${
+                            isNextToPress && stage === 'TRACE'
+                              ? 'bg-yellow-400 text-slate-950 border-2 border-yellow-200 border-b-3 border-b-yellow-600 shadow-[0_0_12px_rgba(250,204,21,0.6)]'
+                              : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 border-b-2 border-b-slate-950'
+                          }`}
+                        >
+                          {k}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
