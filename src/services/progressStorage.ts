@@ -1,4 +1,5 @@
 import { UserProgress, LevelProgress, DailyEnergyMode, DailyQuestProgress } from '../data/progress-types';
+import { CustomTopic } from '../data/custom-topic-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId, getRealmById } from '../data/learning-path-data';
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
@@ -110,7 +111,10 @@ export const getInitialUserProgress = (): UserProgress => {
     mistakeMap: {},
 
     // Typing Dojo — module luyện gõ 10 ngón độc lập ⌨️
-    typingProgress: { ...DEFAULT_TYPING_PROGRESS }
+    typingProgress: { ...DEFAULT_TYPING_PROGRESS },
+
+    // Sổ từ vựng của con & Custom Topics từ trung tâm 🎒
+    customTopics: []
   };
 };
 
@@ -379,6 +383,9 @@ export const loadUserProgress = (): UserProgress => {
     parsed.typingProgress = parsed.typingProgress && typeof parsed.typingProgress === 'object'
       ? { ...DEFAULT_TYPING_PROGRESS, ...parsed.typingProgress }
       : { ...DEFAULT_TYPING_PROGRESS };
+
+    // Ensure Custom Topics array resilience
+    parsed.customTopics = Array.isArray(parsed.customTopics) ? parsed.customTopics : [];
 
     // Evaluate badges for past achievements
     const { updatedProgress } = checkAndUnlockBadges(parsed);
@@ -1072,5 +1079,80 @@ export const awardTypingDiplomaIfEligible = (
   saveUserProgress(updated);
   return updated;
 };
+
+// ==========================================
+// Custom Topics & Natural Spelling Lab 🎒
+// ==========================================
+
+export const saveCustomTopicProgress = (
+  prev: UserProgress,
+  topic: CustomTopic
+): UserProgress => {
+  const currentTopics = Array.isArray(prev.customTopics) ? [...prev.customTopics] : [];
+  const existingIndex = currentTopics.findIndex(t => t.id === topic.id);
+
+  if (existingIndex >= 0) {
+    currentTopics[existingIndex] = { ...topic, updatedAt: Date.now() };
+  } else {
+    currentTopics.unshift({ ...topic, updatedAt: Date.now() });
+  }
+
+  const updated: UserProgress = {
+    ...prev,
+    customTopics: currentTopics
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const deleteCustomTopicProgress = (
+  prev: UserProgress,
+  topicId: string
+): UserProgress => {
+  const currentTopics = Array.isArray(prev.customTopics) ? prev.customTopics : [];
+  const updated: UserProgress = {
+    ...prev,
+    customTopics: currentTopics.filter(t => t.id !== topicId)
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const updateCustomWordMasteryProgress = (
+  prev: UserProgress,
+  topicId: string,
+  wordId: string,
+  newMasteryLevel: number
+): UserProgress => {
+  const currentTopics = Array.isArray(prev.customTopics) ? [...prev.customTopics] : [];
+  const topicIndex = currentTopics.findIndex(t => t.id === topicId);
+  if (topicIndex === -1) return prev;
+
+  const topic = { ...currentTopics[topicIndex] };
+  topic.words = topic.words.map(w => {
+    if (w.id === wordId) {
+      return {
+        ...w,
+        masteryLevel: Math.max(w.masteryLevel || 0, newMasteryLevel),
+        correctAttempts: (w.correctAttempts || 0) + 1
+      };
+    }
+    return w;
+  });
+  topic.updatedAt = Date.now();
+  topic.totalPracticed = (topic.totalPracticed || 0) + 1;
+  currentTopics[topicIndex] = topic;
+
+  const updated: UserProgress = {
+    ...prev,
+    customTopics: currentTopics
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
 
 

@@ -2,6 +2,7 @@ import { VocabWord } from './types';
 import { DifficultyLevel } from './upgrade-types';
 import { MistakeProgressMap } from './mistake-types';
 import { TypingProgress } from './typing-progress-types';
+import { CustomTopic } from './custom-topic-types';
 
 export type LevelType = 'STANDARD' | 'SPEED_RUSH' | 'BOSS_BATTLE' | 'CHEST_REWARD';
 
@@ -127,6 +128,9 @@ export interface UserProgress {
 
   // Typing Dojo — module luyện gõ 10 ngón độc lập ⌨️
   typingProgress?: TypingProgress;
+
+  // Sổ từ vựng của con & Custom Topics từ trung tâm 🎒
+  customTopics?: CustomTopic[];
 }
 
 
