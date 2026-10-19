@@ -131,15 +131,23 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
             onUpdateWordMastery(topic.id, currentWord.id, stageNum);
           }
 
-          // Chuyển từ mượt mà sau 800ms
+          // Chuyển nấc thang liên tục 1 -> 2 -> 3 trên từng từ (Ladder per Word)
           setTimeout(() => {
-            if (currentWordIndex < words.length - 1) {
-              setCurrentWordIndex(prev => prev + 1);
+            if (stage === 'TRACE') {
+              setStage('PHONICS_GAP');
+            } else if (stage === 'PHONICS_GAP') {
+              setStage('BLIND_RECALL');
             } else {
-              soundFx.playUpgradeSuccess();
-              setIsCompletedSession(true);
+              // Hoàn thành cả 3 bậc của từ hiện tại!
+              if (currentWordIndex < words.length - 1) {
+                setStage('TRACE');
+                setCurrentWordIndex(prev => prev + 1);
+              } else {
+                soundFx.playUpgradeSuccess();
+                setIsCompletedSession(true);
+              }
             }
-          }, 800);
+          }, 700);
         }
       } else {
         // Sai chữ cái: âm nhẹ, không giật màn hình
@@ -211,7 +219,7 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Stage Selector Pills */}
+            {/* Stage Selector Pills for current word */}
             <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
               <button
                 type="button"
@@ -219,13 +227,15 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
                   soundFx.playClick();
                   setStage('TRACE');
                 }}
-                className={`px-2.5 py-1 rounded-lg font-black transition ${
+                className={`px-2.5 py-1 rounded-lg font-black transition cursor-pointer flex items-center gap-1 ${
                   stage === 'TRACE'
                     ? 'bg-cyan-500 text-slate-950 shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
+                title="Bậc 1: Nhìn chữ và gõ theo làm quen vị trí phím"
               >
-                1. Gõ Theo
+                {(currentWord.masteryLevel || 0) >= 1 && <span className="text-emerald-400">✓</span>}
+                <span>1. Tô Chữ</span>
               </button>
               <button
                 type="button"
@@ -233,13 +243,15 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
                   soundFx.playClick();
                   setStage('PHONICS_GAP');
                 }}
-                className={`px-2.5 py-1 rounded-lg font-black transition ${
+                className={`px-2.5 py-1 rounded-lg font-black transition cursor-pointer flex items-center gap-1 ${
                   stage === 'PHONICS_GAP'
                     ? 'bg-amber-400 text-slate-950 shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
+                title="Bậc 2: Điền các chữ cái nguyên âm/phụ âm còn thiếu"
               >
-                2. Điền m
+                {(currentWord.masteryLevel || 0) >= 2 && <span className="text-emerald-400">✓</span>}
+                <span>2. Khuyết Âm</span>
               </button>
               <button
                 type="button"
@@ -247,13 +259,15 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
                   soundFx.playClick();
                   setStage('BLIND_RECALL');
                 }}
-                className={`px-2.5 py-1 rounded-lg font-black transition ${
+                className={`px-2.5 py-1 rounded-lg font-black transition cursor-pointer flex items-center gap-1 ${
                   stage === 'BLIND_RECALL'
                     ? 'bg-purple-500 text-white shadow-sm'
                     : 'text-slate-400 hover:text-white'
                 }`}
+                title="Bậc 3: Tự gõ cả từ trong trí nhớ không nhìn chữ mẫu"
               >
-                3. Tự Viết
+                {(currentWord.masteryLevel || 0) >= 3 && <span className="text-amber-300">⭐</span>}
+                <span>3. Tự Viết</span>
               </button>
             </div>
 
@@ -269,6 +283,46 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
           </div>
         </div>
 
+        {/* Word Pagination Carousel: Allows jumping to any word & viewing mastery stars */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-2.5 border-b border-slate-800/80 no-scrollbar shrink-0">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
+            Từ:
+          </span>
+          {words.map((w, idx) => {
+            const isCurrent = idx === currentWordIndex;
+            const mastery = w.masteryLevel || 0;
+            return (
+              <button
+                key={w.id || idx}
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  setCurrentWordIndex(idx);
+                  setStage('TRACE');
+                }}
+                className={`px-2.5 py-1 rounded-xl text-xs font-black flex items-center gap-1.5 transition shrink-0 cursor-pointer ${
+                  isCurrent
+                    ? 'bg-cyan-500/25 border-2 border-cyan-400 text-cyan-200 shadow-[0_0_12px_rgba(0,240,255,0.3)]'
+                    : mastery >= 3
+                    ? 'bg-emerald-950/40 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/40'
+                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                }`}
+                title={`${w.word}: ${w.meaningVi}`}
+              >
+                <span>{w.emoji || '📝'}</span>
+                <span>{w.word}</span>
+                {mastery >= 3 ? (
+                  <span className="text-[10px] text-amber-300">⭐⭐⭐</span>
+                ) : mastery === 2 ? (
+                  <span className="text-[10px] text-amber-300">⭐⭐</span>
+                ) : mastery === 1 ? (
+                  <span className="text-[10px] text-amber-300">⭐</span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
         {/* COMPLETED SESSION OVERLAY */}
         {isCompletedSession ? (
           <div className="py-10 flex flex-col items-center justify-center text-center space-y-4 animate-in zoom-in-95 duration-200">
@@ -277,70 +331,52 @@ export const SpellingLabModal: React.FC<SpellingLabModalProps> = ({
               Tuyệt Vời Bé Ơi!
             </h2>
             <p className="text-base text-cyan-200 max-w-md font-bold">
-              Bé đã chinh phục xuất sắc toàn bộ từ vựng trong chủ đề &quot;{topic.title}&quot;!
+              Bé đã chinh phục xuất sắc toàn bộ {words.length} từ vựng qua cả 3 nấc thang trong chủ đề &quot;{topic.title}&quot;!
             </p>
             <div className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-yellow-400/20 border-2 border-yellow-400 text-yellow-300 text-lg font-black shadow-[0_0_20px_rgba(250,204,21,0.4)]">
               <span>🌟 +{earnedStars} Sao Khen Ngợi</span>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-              {stage === 'TRACE' && (
-                <button
-                  onClick={() => {
-                    soundFx.playUpgradeSuccess();
-                    setStage('PHONICS_GAP');
-                    setCurrentWordIndex(0);
-                    setIsCompletedSession(false);
-                    setEarnedStars(0);
-                  }}
-                  className="btn-3d btn-3d-cyan px-6 py-3 rounded-2xl text-slate-950 font-black text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.5)]"
-                >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Lên Bậc 2: Thám Tử Ghép m 🕵️</span>
-                </button>
-              )}
-
-              {stage === 'PHONICS_GAP' && (
-                <button
-                  onClick={() => {
-                    soundFx.playUpgradeSuccess();
-                    setStage('BLIND_RECALL');
-                    setCurrentWordIndex(0);
-                    setIsCompletedSession(false);
-                    setEarnedStars(0);
-                  }}
-                  className="btn-3d px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-black text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
-                >
-                  <Zap className="w-4 h-4 text-yellow-300" />
-                  <span>Lên Bậc 3: Siêu Xạ Thủ Ký Ức 🧠</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => {
-                  soundFx.playClick();
-                  setCurrentWordIndex(0);
-                  setIsCompletedSession(false);
-                  setEarnedStars(0);
-                }}
-                className="btn-3d px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-sm flex items-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                <span>Luyện Lại Bậc Này</span>
-              </button>
-
               {onStartArcadeBattle && (
                 <button
+                  type="button"
                   onClick={() => {
                     soundFx.playVictory();
                     onStartArcadeBattle(topic);
                   }}
-                  className="btn-3d btn-3d-cyan px-6 py-3 rounded-2xl text-slate-950 font-black text-sm flex items-center gap-2"
+                  className="btn-3d btn-3d-cyan px-6 py-3 rounded-2xl text-slate-950 font-black text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.5)] cursor-pointer"
                 >
                   <Rocket className="w-4 h-4" />
                   <span>🚀 Bắn Phi Thuyền Arcade</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  setCurrentWordIndex(0);
+                  setStage('TRACE');
+                  setIsCompletedSession(false);
+                  setEarnedStars(0);
+                }}
+                className="btn-3d px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-sm flex items-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Luyện Lại Toàn Bộ</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundFx.playClick();
+                  onClose();
+                }}
+                className="px-5 py-3 rounded-2xl bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold text-sm cursor-pointer"
+              >
+                <span>Về Sổ Từ Của Con</span>
+              </button>
             </div>
           </div>
         ) : (

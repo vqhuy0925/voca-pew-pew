@@ -289,19 +289,25 @@ export const CustomTopicManagerModal: React.FC<CustomTopicManagerModalProps> = (
       />
 
       {/* Spelling Lab Modal */}
-      {activeSpellingTopic && (
-        <SpellingLabModal
-          isOpen={Boolean(activeSpellingTopic)}
-          topic={activeSpellingTopic}
-          onClose={() => setActiveSpellingTopic(null)}
-          onUpdateWordMastery={onUpdateWordMastery}
-          onStartArcadeBattle={topic => {
-            setActiveSpellingTopic(null);
-            onClose();
-            onStartArcadeBattle(topic);
-          }}
-        />
-      )}
+      {(() => {
+        const liveSpellingTopic = activeSpellingTopic
+          ? topics.find(t => t.id === activeSpellingTopic.id) || activeSpellingTopic
+          : null;
+        if (!liveSpellingTopic) return null;
+        return (
+          <SpellingLabModal
+            isOpen={Boolean(liveSpellingTopic)}
+            topic={liveSpellingTopic}
+            onClose={() => setActiveSpellingTopic(null)}
+            onUpdateWordMastery={onUpdateWordMastery}
+            onStartArcadeBattle={topic => {
+              setActiveSpellingTopic(null);
+              onClose();
+              onStartArcadeBattle(topic);
+            }}
+          />
+        );
+      })()}
     </>
   );
 };
