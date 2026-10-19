@@ -29,8 +29,13 @@ import {
   resetProgressForNewAccount,
   saveAccountProgressLocally,
   resolveInitialScreen,
-  AppScreen
+  AppScreen,
+  saveCustomTopicProgress,
+  deleteCustomTopicProgress,
+  updateCustomWordMasteryProgress
 } from './services/progressStorage';
+import { CustomTopic, customWordToVocabWord } from './data/custom-topic-types';
+import { CustomTopicManagerModal } from './components/custom-topics/CustomTopicManagerModal';
 import { syncCloudNow } from './services/firebase/cloudSyncService';
 import { AuthModal } from './components/auth/AuthModal';
 import { DataMigrationModal } from './components/auth/DataMigrationModal';
@@ -122,6 +127,7 @@ export const App: React.FC = () => {
     return hash === '#admin' || hash === '#admin-portal';
   });
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
+  const [showCustomTopicModal, setShowCustomTopicModal] = useState<boolean>(false);
   const [showCourseSwitcherModal, setShowCourseSwitcherModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authModalTab, setAuthModalTab] = useState<'register' | 'login'>('register');
@@ -469,6 +475,40 @@ export const App: React.FC = () => {
     }));
   };
 
+  const handleSaveCustomTopic = useCallback((topic: CustomTopic) => {
+    handleUpdateProgress(prev => saveCustomTopicProgress(prev, topic));
+  }, [handleUpdateProgress]);
+
+  const handleDeleteCustomTopic = useCallback((topicId: string) => {
+    handleUpdateProgress(prev => deleteCustomTopicProgress(prev, topicId));
+  }, [handleUpdateProgress]);
+
+  const handleUpdateCustomWordMastery = useCallback((topicId: string, wordId: string, level: number) => {
+    handleUpdateProgress(prev => updateCustomWordMasteryProgress(prev, topicId, wordId, level));
+  }, [handleUpdateProgress]);
+
+  const handleStartCustomArcadeBattle = useCallback((topic: CustomTopic) => {
+    const customLevel: LevelNode = {
+      id: `lvl-custom-${topic.id}`,
+      unitId: 'unit-custom',
+      levelNumber: 1,
+      title: topic.title,
+      titleVi: topic.title,
+      type: 'STANDARD',
+      words: topic.words.map(customWordToVocabWord),
+      icon: topic.icon || '🎒',
+      bgColor: '#06b6d4',
+      targetScore: Math.max(300, topic.words.length * 100),
+      xpReward: Math.max(50, topic.words.length * 10),
+      gemReward: 5,
+      speedMultiplier: 0.85,
+      spawnInterval: 2800
+    };
+    setSelectedLevel(customLevel);
+    setShowCustomTopicModal(false);
+    setScreen('WARMUP');
+  }, []);
+
   const handleSelectLevel = (level: LevelNode) => {
     setSelectedLevel(level);
     handleUpdateProgress(prev => ({
@@ -735,6 +775,7 @@ export const App: React.FC = () => {
           onOpenMistakeVault={() => setShowMistakeVaultModal(true)}
           onOpenTypingDojo={handleOpenTypingDojo}
           onOpenCourseSwitcher={() => setShowCourseSwitcherModal(true)}
+          onOpenCustomTopics={() => setShowCustomTopicModal(true)}
           onOpenAuth={(t) => {
             setAuthModalTab(t);
             setShowAuthModal(true);
@@ -985,6 +1026,19 @@ export const App: React.FC = () => {
             handleOpenTypingDojo();
           }}
           onClose={() => setShowMistakeVaultModal(false)}
+        />
+      )}
+
+      {/* 17b. Sổ Từ Vựng Của Con & Xưởng Luyện Viết Tự Nhiên 🎒 */}
+      {showCustomTopicModal && (
+        <CustomTopicManagerModal
+          isOpen={showCustomTopicModal}
+          topics={progress.customTopics || []}
+          onSaveTopic={handleSaveCustomTopic}
+          onDeleteTopic={handleDeleteCustomTopic}
+          onUpdateWordMastery={handleUpdateCustomWordMastery}
+          onStartArcadeBattle={handleStartCustomArcadeBattle}
+          onClose={() => setShowCustomTopicModal(false)}
         />
       )}
 

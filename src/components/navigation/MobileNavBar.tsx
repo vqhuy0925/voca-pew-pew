@@ -17,7 +17,8 @@ import {
   Shield,
   Cloud,
   CloudOff,
-  RefreshCw
+  RefreshCw,
+  BookOpen
 } from 'lucide-react';
 import { THEME_CONFIGS } from '../../data/theme-types';
 import { SyncStatus } from '../../services/firebase/cloudSyncService';
@@ -40,6 +41,8 @@ export interface MobileNavBarProps {
   onOpenLeaderboard?: () => void;
   onOpenAstronautCard?: () => void;
   onToggleSound?: () => void;
+  enableCustomTopics?: boolean;
+  onOpenCustomTopics?: () => void;
   isLight?: boolean;
   onToggleTheme?: () => void;
 }
@@ -55,6 +58,8 @@ export const MobileTopBar: React.FC<MobileNavBarProps> = ({
   onOpenDiamondGuide,
   onOpenDailyQuests,
   onToggleSound,
+  enableCustomTopics = true,
+  onOpenCustomTopics,
   isLight = false,
   onToggleTheme
 }) => {
@@ -112,6 +117,22 @@ export const MobileTopBar: React.FC<MobileNavBarProps> = ({
               isLight={isLight}
               onClick={onOpenCourseSwitcher}
             />
+          )}
+
+          {enableCustomTopics && onOpenCustomTopics && (
+            <button
+              type="button"
+              onClick={() => handleAction(onOpenCustomTopics)}
+              className={`h-9 flex items-center gap-1.5 px-2.5 rounded-xl border font-game font-black text-xs transition active:scale-95 cursor-pointer shrink-0 ${
+                isLight
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                  : 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+              }`}
+              title="Sổ từ của con: Từ vựng trung tâm"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden xs:inline">Sổ Từ</span>
+            </button>
           )}
         </div>
 

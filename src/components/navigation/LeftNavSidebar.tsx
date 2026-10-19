@@ -16,7 +16,8 @@ import {
   HelpCircle,
   Sparkles,
   Sun,
-  Moon
+  Moon,
+  BookOpen
 } from 'lucide-react';
 
 export interface LeftNavSidebarProps {
@@ -31,6 +32,8 @@ export interface LeftNavSidebarProps {
   onOpenMistakeVault?: () => void;
   onOpenTypingDojo?: () => void;
   onStartParagraphMode?: () => void;
+  enableCustomTopics?: boolean;
+  onOpenCustomTopics?: () => void;
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
   onLogout?: () => void;
@@ -53,6 +56,8 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
   onOpenMistakeVault,
   onOpenTypingDojo,
   onStartParagraphMode,
+  enableCustomTopics = true,
+  onOpenCustomTopics,
   onOpenInstallModal,
   onOpenLanding,
   onLogout,
@@ -172,19 +177,41 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
               </button>
             ) : null}
 
-            {/* 3. Khoa Phonics Lab (Sắp ra mắt - Tinh gọn) */}
-            <div
-              className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-slate-500 cursor-not-allowed select-none opacity-50"
-              title="Khoa Thí Nghiệm m Thanh & Phonics (Đang hoàn thiện)"
-            >
-              <div className="w-8 h-8 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-center justify-center shrink-0">
-                <Sparkles className="w-3.5 h-3.5 text-slate-500" />
+            {/* 3. Khoa Sổ Từ Của Con (Từ Trung Tâm & Luyện Viết Tự Nhiên) */}
+            {enableCustomTopics && onOpenCustomTopics ? (
+              <button
+                type="button"
+                onClick={() => handleNavClick(onOpenCustomTopics)}
+                className="group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border border-emerald-500/30 hover:border-emerald-400/60 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-200 font-game font-black text-sm tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs"
+                title="Sổ từ vựng của con: Nhập bài học trung tâm & bé luyện viết tự nhiên 3 bước"
+              >
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4 text-emerald-300 group-hover:scale-110 transition-transform stroke-[2.5]" />
+                </div>
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-xs font-black truncate group-hover:text-white transition-colors">SỔ TỪ CỦA CON</span>
+                  <span className="text-[10px] text-emerald-300 font-medium truncate">Từ Trung Tâm · Luyện Viết</span>
+                </div>
+                {(progress.customTopics?.length || 0) > 0 && (
+                  <span className="ml-auto px-1.5 py-0.5 rounded-full font-orbitron font-black text-[9px] bg-emerald-500/40 text-emerald-200 border border-emerald-400/40 shrink-0">
+                    {progress.customTopics?.length}
+                  </span>
+                )}
+              </button>
+            ) : (
+              <div
+                className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-slate-500 cursor-not-allowed select-none opacity-50"
+                title="Khoa Thí Nghiệm m Thanh & Phonics (Đang hoàn thiện)"
+              >
+                <div className="w-8 h-8 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-slate-500" />
+                </div>
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-xs font-bold truncate">PHONICS LAB</span>
+                  <span className="text-[9px] text-slate-500 truncate">Sắp ra mắt</span>
+                </div>
               </div>
-              <div className="flex flex-col text-left min-w-0">
-                <span className="text-xs font-bold truncate">PHONICS LAB</span>
-                <span className="text-[9px] text-slate-500 truncate">Sắp ra mắt</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* SECTION 2: KHÔNG GIAN HỌC VIÊN (CADET HUB) */}
