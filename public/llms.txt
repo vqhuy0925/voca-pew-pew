@@ -1,0 +1,15 @@
+# Vocab Pew Pew
+
+> Vocab Pew Pew là nền tảng game hóa giáo dục (Arcade Education) miễn phí 100%, giúp học sinh tiểu học và trung học học từ vựng tiếng Anh chuẩn Cambridge kết hợp rèn luyện phản xạ gõ phím 10 ngón.
+
+## Thông tin cốt lõi
+- **Website chính thức**: https://www.vocabpewpew.com/
+- **Đối tượng**: Học sinh tiểu học, THCS, người mới bắt đầu học tiếng Anh và người luyện gõ phím.
+- **Phương pháp học**: Phản xạ đa giác quan (Nghe giọng đọc Web Speech AI bản xứ -> Nhìn hình ảnh và nghĩa từ -> Gõ phím chính xác để bắn thiên thạch).
+- **Chương trình học**: 
+  - Cambridge Young Learners: Pre-A1 Starters, A1 Movers, A2 Flyers.
+  - Sách giáo khoa tiếng Anh phổ thông.
+  - Typing Dojo: Luyện gõ từ hàng phím cơ sở (Home row) đến phản xạ đoạn văn nâng cao.
+  - Phonics & Từ vựng chủ đề: Động vật, Trường học, Gia đình, Không gian vũ trụ, v.v.
+- **Đơn vị đồng hành**: Đoàn TNCS Hồ Chí Minh phường Phước Thới.
+- **Chi phí**: 100% Miễn phí, không quảng cáo gây xao nhãng, có chế độ giới hạn thời gian học bảo vệ mắt cho trẻ em.
