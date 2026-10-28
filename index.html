@@ -2,26 +2,26 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="referrer" content="no-referrer" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="canonical" href="https://vocabpewpew.com/" />
+    <link rel="canonical" href="https://www.vocabpewpew.com/" />
     <meta name="theme-color" content="#030712" />
-    <meta name="description" content="Ứng dụng học từ vựng, phát âm và luyện gõ tiếng Anh tương tác sinh động dành cho học sinh." />
+    <meta name="description" content="Vocab Pew Pew - Ứng dụng học 1.000+ từ vựng tiếng Anh chuẩn Cambridge, phát âm bản xứ và luyện gõ 10 ngón arcade vui nhộn cho học sinh. Miễn phí 100%, an toàn cho trẻ." />
     <!-- Open Graph / Facebook / Zalo preview -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vocabpewpew.com/" />
-    <meta property="og:title" content="Vocab Pew Pew - Ứng Dụng Học Từ Vựng Tiếng Anh" />
-    <meta property="og:description" content="Ứng dụng học từ vựng, phát âm và luyện gõ tiếng Anh tương tác sinh động dành cho học sinh." />
-    <meta property="og:image" content="https://vocabpewpew.com/icon-512.png" />
+    <meta property="og:url" content="https://www.vocabpewpew.com/" />
+    <meta property="og:title" content="Vocab Pew Pew - Học Từ Vựng & Luyện Gõ Tiếng Anh Miễn Phí" />
+    <meta property="og:description" content="Chiến hạm vũ trụ Vocab Pew Pew - Ứng dụng học 1.000+ từ vựng tiếng Anh chuẩn Cambridge và luyện phản xạ gõ phím 10 ngón cực vui cho học sinh. 100% miễn phí." />
+    <meta property="og:image" content="https://www.vocabpewpew.com/icon-512.png" />
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Vocab Pew Pew - Ứng Dụng Học Từ Vựng Tiếng Anh" />
-    <meta name="twitter:description" content="Ứng dụng học từ vựng, phát âm và luyện gõ tiếng Anh tương tác sinh động dành cho học sinh." />
-    <meta name="twitter:image" content="https://vocabpewpew.com/icon-512.png" />
+    <meta name="twitter:title" content="Vocab Pew Pew - Học Từ Vựng & Luyện Gõ Tiếng Anh Miễn Phí" />
+    <meta name="twitter:description" content="Chiến hạm vũ trụ Vocab Pew Pew - Ứng dụng học 1.000+ từ vựng tiếng Anh chuẩn Cambridge và luyện phản xạ gõ phím 10 ngón cực vui cho học sinh. 100% miễn phí." />
+    <meta name="twitter:image" content="https://www.vocabpewpew.com/icon-512.png" />
     <!-- Apple iOS PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -86,9 +86,76 @@
         }
       })();
     </script>
+    <!-- Structured Data (Schema.org JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://www.vocabpewpew.com/#webapp",
+          "url": "https://www.vocabpewpew.com/",
+          "name": "Vocab Pew Pew",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "All",
+          "inLanguage": ["vi", "en"],
+          "description": "Ứng dụng học từ vựng tiếng Anh chuẩn Cambridge và luyện gõ phím 10 ngón tương tác qua trò chơi arcade chiến hạm vũ trụ.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "VND"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "Đoàn Phường Phước Thới & Vocab Pew Pew Team",
+            "url": "https://www.vocabpewpew.com/"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://www.vocabpewpew.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Vocab Pew Pew là gì?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Vocab Pew Pew là ứng dụng trò chơi giáo dục miễn phí giúp học sinh học từ vựng tiếng Anh, rèn luyện phát âm Web Speech AI và phản xạ gõ phím 10 ngón thông qua lối chơi phi thuyền không gian vui nhộn."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Vocab Pew Pew có thu phí hay chứa quảng cáo không?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Vocab Pew Pew hoàn toàn miễn phí 100%, không chứa quảng cáo và có tích hợp cơ chế bảo vệ mắt cho học sinh."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Hệ thống từ vựng bám sát chương trình nào?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ứng dụng có hơn 1.000 từ vựng bám sát khung chuẩn quốc tế Cambridge (Starters, Movers, Flyers) và sách giáo khoa tiếng Anh hiện hành."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-space-dark text-white overflow-hidden select-none font-game antialiased">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Semantic crawlable fallback for search engines & AI crawlers -->
+      <noscript>
+        <main style="padding: 24px; font-family: sans-serif; text-align: center; max-width: 800px; margin: 0 auto;">
+          <h1>Vocab Pew Pew - Ứng Dụng Học Từ Vựng & Luyện Gõ Tiếng Anh Cho Học Sinh</h1>
+          <p>Trò chơi phi thuyền không gian rèn luyện phản xạ gõ phím 10 ngón và ghi nhớ 1.000+ từ vựng tiếng Anh chuẩn quốc tế Cambridge (Starters, Movers, Flyers).</p>
+          <p>Ứng dụng hoàn toàn miễn phí 100%, tích hợp công nghệ giọng đọc phát âm Web Speech AI chuẩn bản xứ, đồng hành cùng Đoàn phường Phước Thới.</p>
+        </main>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
