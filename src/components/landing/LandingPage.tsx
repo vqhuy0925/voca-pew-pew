@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Rocket,
   Volume2,
@@ -11,14 +11,11 @@ import {
   ArrowRight,
   User,
   Play,
-  Key,
   ChevronDown,
-  CheckCircle2,
   Lock,
   X,
-  Star,
   Zap,
-  Award
+  Quote
 } from 'lucide-react';
 import { soundFx } from '../../game/engine/SoundController';
 import { speechHelper } from '../../game/engine/SpeechHelper';
@@ -94,54 +91,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
-  // Tagline kinetic word reveal state (Rule B11)
-  const taglineRef = useRef<HTMLDivElement>(null);
-  const [revealedWordCount, setRevealedWordCount] = useState<number>(0);
-
-  const taglineText =
-    'Biến mỗi phát gõ phím thành phản xạ tự nhiên. Bé vừa làm chủ bàn phím mười ngón, vừa nhớ sâu từ vựng tiếng Anh mỗi ngày.';
-  const taglineWords = taglineText.split(' ');
-
   useEffect(() => {
     const unsubscribe = subscribeBrandingConfig((newConfig) => {
       setBranding(newConfig);
     });
     return () => unsubscribe();
   }, []);
-
-  // Scroll listener for Tagline Reveal with requestAnimationFrame throttling (Rule B7 & B11)
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (taglineRef.current) {
-            const rect = taglineRef.current.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-            // Calculate progress through viewport
-            const startReveal = windowHeight * 0.85;
-            const endReveal = windowHeight * 0.35;
-            if (rect.top <= startReveal) {
-              const progressRatio = Math.min(
-                1,
-                Math.max(0, (startReveal - rect.top) / (startReveal - endReveal))
-              );
-              const activeCount = Math.floor(progressRatio * (taglineWords.length + 1));
-              setRevealedWordCount(activeCount);
-            } else {
-              setRevealedWordCount(0);
-            }
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [taglineWords.length]);
 
   const demoWord = 'SPACE';
   const demoVi = 'Vũ Trụ • Không Gian';
@@ -189,21 +144,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full min-h-screen overflow-y-auto bg-space-dark text-slate-100 font-game select-none antialiased">
+    <div className="relative w-full h-full min-h-screen overflow-y-auto bg-space-dark text-slate-100 font-poppins select-none antialiased">
       {/* 1. Header Bar: Floating, Centered, Clean Single Action Intent */}
-      <header className="sticky top-0 z-30 w-full bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3">
+      <header className="sticky top-0 z-30 w-full bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-          {/* Brand Logo & Tagline */}
+          {/* Brand Logo & Wordmark */}
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shadow-[0_0_15px_rgba(0,240,255,0.25)]">
               <Rocket className="w-5 h-5 text-cyan-300 stroke-[2.2]" />
             </div>
             <div>
               <div className="font-orbitron font-bold text-base sm:text-lg tracking-wider text-slate-100">
-                Vocab Pew Pew
+                VOCAB PEW PEW
               </div>
               <div className="text-xs text-cyan-400 font-medium hidden sm:block">
-                Chiến cơ từ vựng không gian
+                Luyện gõ từ vựng tiếng Anh
               </div>
             </div>
           </div>
@@ -267,19 +222,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* Top Trust Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-cyan-500/40 text-cyan-300 text-xs sm:text-sm font-semibold mb-6">
           <Sparkles className="w-4 h-4 text-cyan-300" />
-          <span>Ứng dụng luyện gõ từ vựng tiếng Anh chuẩn Cambridge và SGK</span>
+          <span>Chuẩn Cambridge English & Sách giáo khoa phổ thông</span>
         </div>
 
-        {/* Hero Headline: max-w-[680px], Left-to-Right gradient, Sentence Case */}
-        <h1 className="max-w-[680px] font-orbitron font-extrabold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.15] text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 mb-5">
-          Bắn tàu vũ trụ, chinh phục từ vựng tiếng Anh
+        {/* Hero Headline: rõ ràng mục đích, dễ đọc, không dùng Orbitron cho câu tiếng Việt */}
+        <h1 className="max-w-[720px] font-poppins font-extrabold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.2] text-white mb-5">
+          Luyện gõ 10 ngón phản xạ,{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-emerald-400">
+            thuộc 1.000+ từ vựng tiếng Anh
+          </span>
         </h1>
 
-        {/* Hero Subheadline: max-w-[620px] */}
-        <p className="max-w-[620px] text-slate-300 text-sm sm:text-lg leading-relaxed font-normal mb-8">
-          Biến giờ học từ vựng thành cuộc phiêu lưu arcade hấp dẫn. Giúp các bạn nhỏ
-          rèn luyện <span className="text-cyan-300 font-semibold">phản xạ gõ phím mười ngón</span>,
-          ghi nhớ mặt chữ tự nhiên và phát âm chuẩn bản xứ mà không thấy áp lực.
+        {/* Hero Subheadline: làm rõ cách chơi và giá trị mang lại */}
+        <p className="max-w-[640px] text-slate-300 text-sm sm:text-lg leading-relaxed font-normal mb-8">
+          Trò chơi bắn thiên thạch arcade giúp học sinh vừa rèn luyện tốc độ gõ phím nhanh nhạy,
+          vừa ghi nhớ từ vựng chuẩn Cambridge và sách giáo khoa mà không cảm thấy áp lực hay nhàm chán.
         </p>
 
         {/* Single Primary Action + Risk Reversal */}
@@ -307,7 +264,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span>•</span>
             <span>✓ Bảo vệ mắt với năng lượng hàng ngày</span>
             <span>•</span>
-            <span>✓ Không quảng cáo</span>
+            <span>✓ Không có quảng cáo</span>
           </p>
 
           {onOpenProfile && (
@@ -381,37 +338,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </div>
 
-        {/* 3. Mandatory Tagline Reveal Section (Rule B11) */}
-        <section
-          ref={taglineRef}
-          className="w-full my-20 sm:my-28 px-4 py-8 max-w-3xl flex flex-col items-center justify-center text-center"
-        >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 text-xs font-medium mb-5">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            <span>Phương pháp học phản xạ tự nhiên</span>
-          </div>
+        {/* 3. Core Pedagogical Philosophy Section: Rõ ràng, tương phản cao, không in mờ */}
+        <section className="w-full my-16 sm:my-24 px-4 max-w-3xl">
+          <div className="relative p-6 sm:p-10 rounded-3xl bg-slate-900/90 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.08)] flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold mb-4">
+              <Zap className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Triết lý tương tác phản xạ tự nhiên</span>
+            </div>
 
-          <h2 className="font-orbitron font-bold text-2xl sm:text-4xl md:text-5xl leading-snug tracking-tight">
-            {taglineWords.map((word, index) => {
-              const isRevealed = index < revealedWordCount;
-              return (
-                <span
-                  key={index}
-                  className={`inline-block mr-2.5 transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    isRevealed ? 'text-white' : 'text-slate-700'
-                  }`}
-                >
-                  {word}
-                </span>
-              );
-            })}
-          </h2>
+            <Quote className="w-8 h-8 text-cyan-400/40 mb-2" />
+
+            <h2 className="font-poppins font-bold text-xl sm:text-3xl md:text-4xl text-slate-100 leading-snug tracking-tight">
+              Biến mỗi phát gõ phím thành{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-300 font-extrabold">
+                phản xạ tự nhiên
+              </span>
+              . Bé vừa làm chủ{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-cyan-300 font-extrabold">
+                bàn phím 10 ngón
+              </span>
+              , vừa nhớ sâu từ vựng tiếng Anh mỗi ngày.
+            </h2>
+          </div>
         </section>
 
         {/* 4. Four Core Value Pillars */}
         <section className="w-full mt-4 sm:mt-10">
           <div className="text-center mb-10 max-w-xl mx-auto">
-            <h2 className="font-orbitron font-bold text-xl sm:text-3xl text-white">
+            <h2 className="font-poppins font-bold text-2xl sm:text-3xl text-white">
               Tại sao bé yêu thích Vocab Pew Pew?
             </h2>
             <p className="text-slate-400 text-xs sm:text-base mt-2">
@@ -425,8 +379,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-105 transition">
                 <Keyboard className="w-6 h-6" />
               </div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white mb-2">
-                Vừa học vừa luyện gõ mười ngón
+              <h3 className="font-poppins font-bold text-base sm:text-lg text-white mb-2">
+                Vừa học vừa luyện gõ 10 ngón
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                 Mỗi ký tự gõ chuẩn là một phát bắn tiêu diệt thiên thạch. Bé vừa nhớ mặt chữ,
@@ -439,7 +393,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-105 transition">
                 <BookOpen className="w-6 h-6" />
               </div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white mb-2">
+              <h3 className="font-poppins font-bold text-base sm:text-lg text-white mb-2">
                 Lộ trình chuẩn Cambridge và SGK
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
@@ -453,7 +407,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-105 transition">
                 <Headphones className="w-6 h-6" />
               </div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white mb-2">
+              <h3 className="font-poppins font-bold text-base sm:text-lg text-white mb-2">
                 Nghe và phát âm chuẩn bản xứ
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
@@ -467,7 +421,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-105 transition">
                 <Shield className="w-6 h-6" />
               </div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white mb-2">
+              <h3 className="font-poppins font-bold text-base sm:text-lg text-white mb-2">
                 An toàn tuyệt đối cho học sinh
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
@@ -481,7 +435,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         {/* 5. Three Simple Steps (How It Works) */}
         <section className="w-full mt-16 sm:mt-24 p-6 sm:p-10 rounded-3xl bg-slate-900 border border-slate-800">
           <div className="text-center mb-8 max-w-xl mx-auto">
-            <h2 className="font-orbitron font-bold text-xl sm:text-2xl text-white">
+            <h2 className="font-poppins font-bold text-xl sm:text-2xl text-white">
               Ba bước tham gia đơn giản
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm mt-1.5">
@@ -514,9 +468,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-300 border-2 border-amber-400 font-orbitron font-bold text-lg flex items-center justify-center mb-3">
                 3
               </div>
-              <div className="font-bold text-white text-base mb-1">Phóng laser và nhận quà</div>
+              <div className="font-bold text-white text-base mb-1">Bắn nổ thiên thạch và nhận quà</div>
               <div className="text-slate-400 text-xs sm:text-sm max-w-xs">
-                Bắn nổ mục tiêu, lắng nghe phát âm chuẩn và tích lũy kim cương nâng cấp chiến hạm.
+                Phóng laser phá hủy mục tiêu, lắng nghe phát âm chuẩn và tích lũy kim cương nâng cấp chiến hạm.
               </div>
             </div>
           </div>
@@ -571,7 +525,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
               <p className="text-xs sm:text-sm text-slate-300 italic mb-4 leading-relaxed">
-                "Tôi thường giới thiệu trò chơi này cho các em học sinh luyện phản xạ gõ mười ngón và
+                "Tôi thường giới thiệu trò chơi này cho các em học sinh luyện phản xạ gõ 10 ngón và
                 phát âm từ vựng. Trò chơi rất trực quan, sạch sẽ và an toàn cho môi trường học đường."
               </p>
               <div className="flex items-center gap-2.5">
@@ -587,10 +541,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </section>
 
-        {/* 7. Interactive FAQ Section (Rule A2 #10) */}
+        {/* 7. Interactive FAQ Section */}
         <section className="w-full mt-16 sm:mt-24 text-left">
           <div className="text-center mb-8 max-w-xl mx-auto">
-            <h2 className="font-orbitron font-bold text-xl sm:text-3xl text-white">
+            <h2 className="font-poppins font-bold text-2xl sm:text-3xl text-white">
               Câu hỏi thường gặp
             </h2>
             <p className="text-slate-400 text-xs sm:text-base mt-2">
@@ -634,7 +588,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 flex items-center justify-center mb-4">
             <Rocket className="w-6 h-6 stroke-[2.2]" />
           </div>
-          <h2 className="font-orbitron font-bold text-2xl sm:text-4xl text-white mb-3">
+          <h2 className="font-poppins font-bold text-2xl sm:text-4xl text-white mb-3">
             Sẵn sàng bước vào trạm không gian?
           </h2>
           <p className="text-slate-300 text-xs sm:text-base max-w-md mb-6 leading-relaxed">
@@ -711,7 +665,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </footer>
 
-      {/* 10. Legal & Privacy Modal (Rule B10) */}
+      {/* 10. Legal & Privacy Modal */}
       {legalModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-lg p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl text-left">
@@ -727,7 +681,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center text-cyan-300">
                 <Lock className="w-4 h-4" />
               </div>
-              <h3 className="font-orbitron font-bold text-base sm:text-lg text-white">
+              <h3 className="font-poppins font-bold text-base sm:text-lg text-white">
                 {legalModal === 'privacy' ? 'Chính sách bảo mật' : 'Điều khoản sử dụng'}
               </h3>
             </div>

@@ -21,6 +21,7 @@ export default {
         arcade: ['"Press Start 2P"', 'monospace'],
         orbitron: ['"Orbitron"', 'system-ui', 'sans-serif'],
         starwars: ['"Orbitron"', '"Fredoka"', 'system-ui', 'sans-serif'],
+        poppins: ['"Poppins"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       animation: {
         'pulse-glow': 'pulseGlow 2s infinite',
