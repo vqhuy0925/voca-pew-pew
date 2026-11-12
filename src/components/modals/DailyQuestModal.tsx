@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Flame, Target, Star, Rocket, CheckCircle2, Gift, Sparkles, ArrowRight, Keyboard } from 'lucide-react';
 import { UserProgress, DailyQuestProgress } from '../../data/progress-types';
 import { soundFx } from '../../game/engine/SoundController';
+import { BaseDialog } from '../common/BaseDialog';
 
 interface DailyQuestModalProps {
   progress: UserProgress;
@@ -45,7 +46,7 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md select-none animate-in fade-in zoom-in-95 duration-200">
+    <BaseDialog onClose={onClose} ariaLabel="Nhiệm Vụ Hằng Ngày" className="p-3 sm:p-5">
       <div className="relative w-full max-w-lg bg-gradient-to-b from-slate-900 via-[#13193a] to-slate-950 border-2 sm:border-3 border-amber-400/80 rounded-3xl p-4 sm:p-6 shadow-[0_0_60px_rgba(245,158,11,0.35)] text-white max-h-[92vh] flex flex-col overflow-hidden">
         
         {/* Header */}
@@ -249,6 +250,6 @@ export const DailyQuestModal: React.FC<DailyQuestModalProps> = ({
         </div>
 
       </div>
-    </div>
+    </BaseDialog>
   );
 };

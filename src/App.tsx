@@ -58,6 +58,7 @@ import { DiamondGuideModal } from './components/modals/DiamondGuideModal';
 import { MistakeVaultModal } from './components/modals/MistakeVaultModal';
 import { LeaderboardEntry } from './services/firebase/leaderboardService';
 import { GameCanvas } from './game/GameCanvas';
+import { executeViewTransition } from './utils/viewTransition';
 import { HUD } from './components/HUD';
 import { WordTargetBar } from './components/WordTargetBar';
 import { VictoryModal } from './components/VictoryModal';
@@ -390,7 +391,9 @@ export const App: React.FC = () => {
       const withLanding = prev.hasSeenLanding ? prev : { ...prev, hasSeenLanding: true };
       return updateTypingLastActiveMode(withLanding, 'dojo');
     });
-    setScreen('DOJO');
+    executeViewTransition(() => {
+      setScreen('DOJO');
+    });
   }, [handleUpdateProgress]);
 
   const handleExitTypingDojo = useCallback(() => {
@@ -398,11 +401,15 @@ export const App: React.FC = () => {
     if (typeof window !== 'undefined' && (window.location.hash === '#dojo' || window.location.hash === '#dojo-paragraph')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
-    setScreen('MAP');
+    executeViewTransition(() => {
+      setScreen('MAP');
+    });
   }, [handleUpdateProgress]);
 
   const handleStartParagraphMode = useCallback(() => {
-    setScreen('DOJO_PARAGRAPH');
+    executeViewTransition(() => {
+      setScreen('DOJO_PARAGRAPH');
+    });
   }, []);
 
   const handleOpenLeaderboard = useCallback(() => {
@@ -789,8 +796,8 @@ export const App: React.FC = () => {
       {/* 2. In-Game Battle Arena (Game Canvas + HUD) */}
       {(screen === 'PLAYING' || screen === 'PAUSED' || screen === 'VICTORY' || screen === 'GAME_OVER') && (
         <div
-          className="relative w-full overflow-hidden select-none font-game bg-space-dark"
-          style={{ height: viewportHeight }}
+          className="relative w-full h-[100dvh] overflow-hidden select-none font-game bg-space-dark"
+          style={{ height: viewportHeight || '100dvh' }}
         >
           <GameCanvas
             key={`${selectedLevel.id}-${gameSessionId}`}

@@ -5,6 +5,7 @@ import { AGE_REALMS } from '../../data/learning-path-data';
 import { AgeRealm } from '../../data/chapters/types';
 import { ALL_COURSES, CourseId, getRealmProgressStats, getTypingDojoProgressStats } from '../../data/courses-config';
 import { soundFx } from '../../game/engine/SoundController';
+import { BaseDialog } from '../common/BaseDialog';
 
 interface CourseSwitcherModalProps {
   progress: UserProgress;
@@ -37,7 +38,7 @@ export const CourseSwitcherModal: React.FC<CourseSwitcherModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200">
+    <BaseDialog onClose={onClose} ariaLabel="Chọn Khóa Học & Bộ Môn" className="p-2.5 sm:p-4">
       <div className="relative w-full max-w-2xl bg-gradient-to-b from-slate-900 via-[#101438] to-slate-950 border-2 sm:border-3 border-cyan-400 rounded-3xl p-3.5 sm:p-5 shadow-[0_0_50px_rgba(0,240,255,0.35)] text-white max-h-[92vh] flex flex-col overflow-hidden">
         
         {/* Header (3-Zone Zone 1: Shrink-0) */}
@@ -277,6 +278,6 @@ export const CourseSwitcherModal: React.FC<CourseSwitcherModalProps> = ({
         </div>
 
       </div>
-    </div>
+    </BaseDialog>
   );
 };

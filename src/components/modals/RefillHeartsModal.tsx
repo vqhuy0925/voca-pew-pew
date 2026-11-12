@@ -7,6 +7,7 @@ import { refillHearts } from '../../services/progressStorage';
 import { getRefillHeartsMessages } from '../../services/personaMessageHelper';
 
 import { MascotWidget } from '../mascot/MascotWidget';
+import { BaseDialog } from '../common/BaseDialog';
 
 interface RefillHeartsModalProps {
   progress: UserProgress;
@@ -47,7 +48,7 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/85 backdrop-blur-md select-none animate-in fade-in duration-200">
+    <BaseDialog onClose={onClose} ariaLabel="Nạp Trái Tim" className="p-2.5 sm:p-4">
       <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900 via-[#18143a] to-slate-950 border-2 sm:border-3 border-rose-400 rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(244,63,94,0.3)] text-center">
         {/* Close Button */}
         <button
@@ -124,6 +125,6 @@ export const RefillHeartsModal: React.FC<RefillHeartsModalProps> = ({
           />
         </div>
       </div>
-    </div>
+    </BaseDialog>
   );
 };
