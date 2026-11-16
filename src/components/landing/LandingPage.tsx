@@ -343,13 +343,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="relative p-6 sm:p-10 rounded-3xl bg-slate-900/90 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.08)] flex flex-col items-center text-center">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs font-semibold mb-4">
               <Zap className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Triết lý tương tác phản xạ tự nhiên</span>
+              <span>Phương pháp học phản xạ tự nhiên</span>
             </div>
 
             <Quote className="w-8 h-8 text-cyan-400/40 mb-2" />
 
             <h2 className="font-poppins font-bold text-xl sm:text-3xl md:text-4xl text-slate-100 leading-snug tracking-tight">
-              Biến mỗi phát gõ phím thành{' '}
+              Biến từng nhịp gõ thành{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-300 font-extrabold">
                 phản xạ tự nhiên
               </span>
@@ -383,7 +383,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Vừa học vừa luyện gõ 10 ngón
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Mỗi ký tự gõ chuẩn là một phát bắn tiêu diệt thiên thạch. Bé vừa nhớ mặt chữ,
+                Mỗi phím gõ đúng là một phát bắn tiêu diệt thiên thạch. Bé vừa nhớ mặt chữ,
                 vừa rèn luyện tốc độ gõ phím nhanh nhạy mà không cảm thấy mệt mỏi.
               </p>
             </div>
