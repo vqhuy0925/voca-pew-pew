@@ -18,7 +18,8 @@ import {
   Sparkles,
   Sun,
   Moon,
-  BookOpen
+  BookOpen,
+  Puzzle
 } from 'lucide-react';
 
 export interface LeftNavSidebarProps {
@@ -35,6 +36,7 @@ export interface LeftNavSidebarProps {
   onStartParagraphMode?: () => void;
   enableCustomTopics?: boolean;
   onOpenCustomTopics?: () => void;
+  onOpenSentenceArena?: () => void;
   onOpenInstallModal?: () => void;
   onOpenLanding?: () => void;
   onLogout?: () => void;
@@ -59,6 +61,7 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
   onStartParagraphMode,
   enableCustomTopics = true,
   onOpenCustomTopics,
+  onOpenSentenceArena,
   onOpenInstallModal,
   onOpenLanding,
   onLogout,
@@ -202,7 +205,7 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
             ) : (
               <div
                 className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-slate-500 cursor-not-allowed select-none opacity-50"
-                title="Khoa Thí Nghiệm m Thanh & Phonics (Đang hoàn thiện)"
+                title="Khoa Thí Nghiệm Âm Thanh & Phonics (Đang hoàn thiện)"
               >
                 <div className="w-8 h-8 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-center justify-center shrink-0">
                   <Sparkles className="w-3.5 h-3.5 text-slate-500" />
@@ -212,6 +215,29 @@ export const LeftNavSidebar: React.FC<LeftNavSidebarProps> = ({
                   <span className="text-[9px] text-slate-500 truncate">Sắp ra mắt</span>
                 </div>
               </div>
+            )}
+
+            {/* 4. Đấu Trường Ghép Câu Starters 🧩 */}
+            {onOpenSentenceArena && (
+              <button
+                type="button"
+                onClick={() => handleNavClick(onOpenSentenceArena)}
+                className="group flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border border-sky-500/35 hover:border-sky-400/70 bg-sky-500/10 hover:bg-sky-500/20 text-sky-200 font-game font-black text-sm tracking-wide transition-all active:scale-95 cursor-pointer shadow-xs"
+                title="Đấu Trường Ghép Câu: Luyện đặt câu 3–6 từ, điền từ & đọc to Starters"
+              >
+                <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/50 flex items-center justify-center shrink-0">
+                  <Puzzle className="w-4 h-4 text-sky-300 group-hover:scale-110 transition-transform stroke-[2.5]" />
+                </div>
+                <div className="flex flex-col text-left min-w-0">
+                  <span className="text-xs font-black truncate group-hover:text-white transition-colors">GHÉP CÂU STARTERS</span>
+                  <span className="text-[10px] text-sky-300 font-medium truncate">Xếp Câu · Điền Từ · Đọc To</span>
+                </div>
+                {Object.keys(progress.sentenceProgressMap || {}).length > 0 && (
+                  <span className="ml-auto px-1.5 py-0.5 rounded-full font-orbitron font-black text-[9px] bg-sky-500/40 text-sky-200 border border-sky-400/40 shrink-0">
+                    {Object.keys(progress.sentenceProgressMap || {}).length}/8
+                  </span>
+                )}
+              </button>
             )}
           </div>
 

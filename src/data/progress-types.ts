@@ -3,6 +3,7 @@ import { DifficultyLevel } from './upgrade-types';
 import { MistakeProgressMap } from './mistake-types';
 import { TypingProgress } from './typing-progress-types';
 import { CustomTopic } from './custom-topic-types';
+import { SentenceTopicProgress } from './sentence-types';
 
 export type LevelType = 'STANDARD' | 'SPEED_RUSH' | 'BOSS_BATTLE' | 'CHEST_REWARD';
 
@@ -131,6 +132,9 @@ export interface UserProgress {
 
   // Sổ từ vựng của con & Custom Topics từ trung tâm 🎒
   customTopics?: CustomTopic[];
+
+  // Đấu trường ghép câu Starters 🧩
+  sentenceProgressMap?: Record<string, SentenceTopicProgress>;
 }
 
 

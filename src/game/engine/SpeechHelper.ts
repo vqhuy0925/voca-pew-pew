@@ -115,7 +115,7 @@ class SpeechHelper {
     }
   }
 
-  public speak(text: string, force: boolean = false) {
+  public speak(text: string, force: boolean = false, rate: number = 0.92) {
     if (!this.isEnabled && !force) return;
     const cleanWord = text.trim();
     if (!cleanWord) return;
@@ -149,10 +149,10 @@ class SpeechHelper {
       ? `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(cleanWord)}`
       : `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(cleanWord.toLowerCase())}&type=2`;
 
-    this.playAudioStream(primaryUrl, cleanWord);
+    this.playAudioStream(primaryUrl, cleanWord, rate);
   }
 
-  private playAudioStream(url: string, fallbackText: string) {
+  private playAudioStream(url: string, fallbackText: string, rate: number = 0.92) {
     try {
       let audio = this.audioCache.get(url);
       if (!audio) {
@@ -165,13 +165,13 @@ class SpeechHelper {
 
       this.currentAudio = audio;
       audio.currentTime = 0;
-      audio.playbackRate = 0.95;
+      audio.playbackRate = rate;
 
       let fallbackTriggered = false;
       const triggerFallback = () => {
         if (!fallbackTriggered) {
           fallbackTriggered = true;
-          this.speakWithWebSpeech(fallbackText);
+          this.speakWithWebSpeech(fallbackText, rate);
         }
       };
 
@@ -186,11 +186,11 @@ class SpeechHelper {
         });
       }
     } catch {
-      this.speakWithWebSpeech(fallbackText);
+      this.speakWithWebSpeech(fallbackText, rate);
     }
   }
 
-  private speakWithWebSpeech(cleanSentence: string) {
+  private speakWithWebSpeech(cleanSentence: string, rate: number = 0.92) {
     if (!this.isSpeechSynthesisSupported || !window.speechSynthesis) return;
 
     try {
@@ -202,7 +202,7 @@ class SpeechHelper {
 
       const utterance = new SpeechSynthesisUtterance(cleanSentence);
       utterance.lang = 'en-US';
-      utterance.rate = 0.92;
+      utterance.rate = rate;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 

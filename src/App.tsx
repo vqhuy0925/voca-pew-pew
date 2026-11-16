@@ -32,10 +32,13 @@ import {
   AppScreen,
   saveCustomTopicProgress,
   deleteCustomTopicProgress,
-  updateCustomWordMasteryProgress
+  updateCustomWordMasteryProgress,
+  recordSentenceTopicResult
 } from './services/progressStorage';
 import { CustomTopic, customWordToVocabWord } from './data/custom-topic-types';
 import { CustomTopicManagerModal } from './components/custom-topics/CustomTopicManagerModal';
+import { SentenceArenaModal } from './components/sentence/SentenceArenaModal';
+import { SentenceMode } from './data/sentence-types';
 import { syncCloudNow } from './services/firebase/cloudSyncService';
 import { AuthModal } from './components/auth/AuthModal';
 import { DataMigrationModal } from './components/auth/DataMigrationModal';
@@ -129,6 +132,7 @@ export const App: React.FC = () => {
   });
   const [showMistakeVaultModal, setShowMistakeVaultModal] = useState<boolean>(false);
   const [showCustomTopicModal, setShowCustomTopicModal] = useState<boolean>(false);
+  const [showSentenceArenaModal, setShowSentenceArenaModal] = useState<boolean>(false);
   const [showCourseSwitcherModal, setShowCourseSwitcherModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [authModalTab, setAuthModalTab] = useState<'register' | 'login'>('register');
@@ -783,6 +787,7 @@ export const App: React.FC = () => {
           onOpenTypingDojo={handleOpenTypingDojo}
           onOpenCourseSwitcher={() => setShowCourseSwitcherModal(true)}
           onOpenCustomTopics={() => setShowCustomTopicModal(true)}
+          onOpenSentenceArena={() => setShowSentenceArenaModal(true)}
           onOpenAuth={(t) => {
             setAuthModalTab(t);
             setShowAuthModal(true);
@@ -1046,6 +1051,17 @@ export const App: React.FC = () => {
           onUpdateWordMastery={handleUpdateCustomWordMastery}
           onStartArcadeBattle={handleStartCustomArcadeBattle}
           onClose={() => setShowCustomTopicModal(false)}
+        />
+      )}
+
+      {/* 17c. Đấu Trường Ghép Câu Starters 🧩 */}
+      {showSentenceArenaModal && (
+        <SentenceArenaModal
+          progress={progress}
+          onClose={() => setShowSentenceArenaModal(false)}
+          onCompleteTopic={(topicId: string, mode: SentenceMode, accuracy: number, xpEarned: number, gemsEarned: number) => {
+            setProgress(prev => recordSentenceTopicResult(prev, topicId, mode, accuracy, xpEarned, gemsEarned));
+          }}
         />
       )}
 

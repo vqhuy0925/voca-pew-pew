@@ -18,7 +18,8 @@ import {
   Cloud,
   CloudOff,
   RefreshCw,
-  BookOpen
+  BookOpen,
+  Puzzle
 } from 'lucide-react';
 import { THEME_CONFIGS } from '../../data/theme-types';
 import { SyncStatus } from '../../services/firebase/cloudSyncService';
@@ -43,6 +44,7 @@ export interface MobileNavBarProps {
   onToggleSound?: () => void;
   enableCustomTopics?: boolean;
   onOpenCustomTopics?: () => void;
+  onOpenSentenceArena?: () => void;
   isLight?: boolean;
   onToggleTheme?: () => void;
 }
@@ -60,6 +62,7 @@ export const MobileTopBar: React.FC<MobileNavBarProps> = ({
   onToggleSound,
   enableCustomTopics = true,
   onOpenCustomTopics,
+  onOpenSentenceArena,
   isLight = false,
   onToggleTheme
 }) => {
@@ -132,6 +135,22 @@ export const MobileTopBar: React.FC<MobileNavBarProps> = ({
             >
               <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
               <span className="hidden xs:inline">Sổ Từ</span>
+            </button>
+          )}
+
+          {onOpenSentenceArena && (
+            <button
+              type="button"
+              onClick={() => handleAction(onOpenSentenceArena)}
+              className={`h-9 flex items-center gap-1.5 px-2.5 rounded-xl border font-game font-black text-xs transition active:scale-95 cursor-pointer shrink-0 ${
+                isLight
+                  ? 'border-sky-300 bg-sky-50 text-sky-800'
+                  : 'border-sky-500/50 bg-sky-500/15 text-sky-200'
+              }`}
+              title="Đấu Trường Ghép Câu Starters"
+            >
+              <Puzzle className="w-3.5 h-3.5 text-sky-400" />
+              <span className="hidden xs:inline">Ghép Câu</span>
             </button>
           )}
         </div>

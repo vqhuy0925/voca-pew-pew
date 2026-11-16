@@ -1,5 +1,6 @@
 import { UserProgress, LevelProgress, DailyEnergyMode, DailyQuestProgress } from '../data/progress-types';
 import { CustomTopic } from '../data/custom-topic-types';
+import { SentenceMode, SentenceTopicProgress } from '../data/sentence-types';
 import { DifficultyLevel, DIFFICULTY_CONFIGS } from '../data/upgrade-types';
 import { ALL_LEVELS, AGE_REALMS, getRealmByAge, getRealmByLevelId, getRealmById } from '../data/learning-path-data';
 import { queueCloudSync, getWeekIdentifier } from './firebase/cloudSyncService';
@@ -114,7 +115,10 @@ export const getInitialUserProgress = (): UserProgress => {
     typingProgress: { ...DEFAULT_TYPING_PROGRESS },
 
     // Sổ từ vựng của con & Custom Topics từ trung tâm 🎒
-    customTopics: []
+    customTopics: [],
+
+    // Đấu trường ghép câu Starters 🧩
+    sentenceProgressMap: {}
   };
 };
 
@@ -386,6 +390,7 @@ export const loadUserProgress = (): UserProgress => {
 
     // Ensure Custom Topics array resilience
     parsed.customTopics = Array.isArray(parsed.customTopics) ? parsed.customTopics : [];
+    parsed.sentenceProgressMap = parsed.sentenceProgressMap && typeof parsed.sentenceProgressMap === 'object' ? parsed.sentenceProgressMap : {};
 
     // Evaluate badges for past achievements
     const { updatedProgress } = checkAndUnlockBadges(parsed);
@@ -1148,6 +1153,53 @@ export const updateCustomWordMasteryProgress = (
   const updated: UserProgress = {
     ...prev,
     customTopics: currentTopics
+  };
+
+  saveUserProgress(updated);
+  return updated;
+};
+
+export const recordSentenceTopicResult = (
+  prev: UserProgress,
+  topicId: string,
+  mode: SentenceMode,
+  accuracy: number,
+  xpEarned: number,
+  gemsEarned: number
+): UserProgress => {
+  const existingMap = prev.sentenceProgressMap || {};
+  const existing: SentenceTopicProgress = existingMap[topicId] || {
+    topicId,
+    completedModes: [],
+    bestAccuracy: 0,
+    stars: 0,
+    lastPlayedAt: 0
+  };
+
+  const completedModes = existing.completedModes.includes(mode)
+    ? existing.completedModes
+    : [...existing.completedModes, mode];
+
+  const starsEarned = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : 1;
+
+  const updatedTopic: SentenceTopicProgress = {
+    topicId,
+    completedModes,
+    bestAccuracy: Math.max(existing.bestAccuracy, accuracy),
+    stars: Math.max(existing.stars, starsEarned),
+    lastPlayedAt: Date.now()
+  };
+
+  const updated: UserProgress = {
+    ...prev,
+    totalXp: (prev.totalXp || 0) + xpEarned,
+    weeklyXp: (prev.weeklyXp || 0) + xpEarned,
+    gems: (prev.gems || 0) + gemsEarned,
+    lastActiveDate: getTodayDateString(),
+    sentenceProgressMap: {
+      ...existingMap,
+      [topicId]: updatedTopic
+    }
   };
 
   saveUserProgress(updated);

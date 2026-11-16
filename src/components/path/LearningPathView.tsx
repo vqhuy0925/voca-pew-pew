@@ -47,6 +47,7 @@ interface LearningPathViewProps {
   onOpenTypingDojo?: () => void;
   onOpenCourseSwitcher?: () => void;
   onOpenCustomTopics?: () => void;
+  onOpenSentenceArena?: () => void;
   onOpenAuth?: (tab: 'register' | 'login') => void;
   onLogout?: () => void;
   onOpenMigration?: () => void;
@@ -73,6 +74,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
   onOpenTypingDojo,
   onOpenCourseSwitcher,
   onOpenCustomTopics,
+  onOpenSentenceArena,
   onOpenAuth,
   onLogout,
   onOpenMigration,
@@ -216,6 +218,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
         onOpenCourseSwitcher={onOpenCourseSwitcher}
         enableCustomTopics={branding.enableCustomTopics}
         onOpenCustomTopics={onOpenCustomTopics}
+        onOpenSentenceArena={onOpenSentenceArena}
         onOpenProfileModal={onOpenProfileModal}
         onOpenArmory={onOpenArmory}
         onOpenLeaderboard={onOpenLeaderboard}
@@ -241,6 +244,7 @@ export const LearningPathView: React.FC<LearningPathViewProps> = ({
           syncStatus={syncStatus}
           enableCustomTopics={branding.enableCustomTopics}
           onOpenCustomTopics={onOpenCustomTopics}
+        onOpenSentenceArena={onOpenSentenceArena}
           onOpenProfileModal={onOpenProfileModal}
           onOpenCourseSwitcher={onOpenCourseSwitcher}
           onOpenEnergyModal={onOpenEnergyModal}
